@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+    matli_network:
+        name: matli_network
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.16.238.0/24
+                  gateway: 172.16.238.3
+
+services:
+    web:
+        container_name: web-server
+        build: ./nuxt-app
+        ports:
+            - 3000:3000
+        networks:
+            - matli_network
+            
+# docker-compose up -d --build --force-recreate
