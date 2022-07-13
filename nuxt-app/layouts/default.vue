@@ -1,6 +1,6 @@
 <template lang="pug">
-nav-bar
 header-bar
+nav-bar
   div
     h1 LAYOUT 
     slot
