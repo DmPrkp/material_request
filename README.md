@@ -1,3 +1,3 @@
-MATLI or malti is simplified material list title.
+**MATLI** or **malti** is short name of *"material list"*.
 
-Created to calculate buildings material.
+**Matli** created to calculate buildings material.
