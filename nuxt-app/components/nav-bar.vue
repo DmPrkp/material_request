@@ -1,6 +1,5 @@
 <template lang="pug">
 nav
-  h3 MENU
   ul(class="menu-list")
     li(
       v-for="(item) in navMenu"
