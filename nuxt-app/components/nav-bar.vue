@@ -3,7 +3,7 @@ nav
   h3 MENU
   ul(class="menu-list")
     li(
-      v-for="(item) in navMenuLength"
+      v-for="(item) in navMenu"
       class="menu-list_item"
       :class="($route.path.match(item.link)) ? 'menu-list_chosen' : ''"
       )
@@ -11,7 +11,7 @@ nav
 </template>
 
 <script setup lang="ts">
-const navMenuLength = [
+const navMenu = [
   {link: '/main', description: 'main'},
   {link: '/calc', description: 'calculator'},
   {link: '/about', description: 'about'},
@@ -27,6 +27,7 @@ const navMenuLength = [
   &_item
     padding: 5px 0 5px 20px;
     font-size: 1.4rem
+    margin-bottom: 2px
     transition: background 0.5s ease-in, border 0.5s ease-out
     border-bottom 2px solid var(--main-color)
     border-right 20px solid var(--main-color)

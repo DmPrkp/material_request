@@ -1,14 +1,34 @@
 <template lang="pug">
-header-bar
-nav-bar
-  div
-    h1 LAYOUT 
-    slot
+div
+  header-bar
+  main(class="main_container")
+    div(class="main_content")
+      slot
+    nav-bar
 </template>
-<script>
-import NavBar from "../components/nav-bar";
-import HeaderBar from "../components/header-bar";
-export default {
-  components: { HeaderBar, NavBar }
-}
+
+<script setup lang="ts">
+import {NavBar} from "#components";
+import {HeaderBar} from "#components";
+
+useHead({
+  title: 'matli. materials calculator',
+  // or, instead:
+  // titleTemplate: (title) => `My App - ${title}`,
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+  charset: 'utf-8',
+})
 </script>
+
+<style lang="stylus">
+.main
+  &_container
+    height 100%
+    display flex
+  &_content
+    width 100%
+    height 100%
+    display flex
+    justify-content center
+    align-items center
+</style>

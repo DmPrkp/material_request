@@ -3,15 +3,13 @@ header
   nav(class='header-bar')
     div(class="header-bar_items_wrapper")
       div(class="header-bar_logo_wrapper")
-        h1(class="header-bar_logo")
+        NuxtLink(class="header-bar_logo" to="/")
           span mat
           span li
       div
 </template>
 
 <script setup lang="ts">
-
-
 
 </script>
 
