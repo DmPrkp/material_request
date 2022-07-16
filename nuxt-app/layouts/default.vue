@@ -9,10 +9,9 @@ main(class="main_container")
 <script setup lang="ts">
 import {NavBar} from "#components";
 import {HeaderBar} from "#components";
-import {NavBarInterface} from "~/types";
-
-let mainMenu: NavBarInterface;
-mainMenu = [
+// import {NavBarInterface} from "~/types";
+// let mainMenu: NavBarInterface;
+let mainMenu = [
   {link: '/main', description: 'main'},
   {link: '/articles', description: 'articles'},
   {link: '/how-to-use', description: 'how to use'},

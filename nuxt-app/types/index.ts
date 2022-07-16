@@ -1,11 +1,4 @@
-// import {NavBarItemInterface, NavBarInterface} from "~/types/bars";
-
-interface NavBarItemInterface {
-    link: string,
-    description: string,
-}
-
-interface NavBarInterface  extends Array<NavBarItemInterface>{}
+import {NavBarItemInterface, NavBarInterface} from "~/types/bars";
 
 export {
     NavBarItemInterface,

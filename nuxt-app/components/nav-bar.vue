@@ -10,15 +10,6 @@ nav(class="menu-list_wrapper")
 </template>
 
 <script setup lang="ts">
-// import {NavBarItemInt} from "~/types/bars";
-
-// const navMenu =  [
-//   {link: '/main', description: 'main'},
-//   {link: '/articles', description: 'articles'},
-//   {link: '/how-to-use', description: 'how to use'},
-//   {link: '/about-project', description: 'about project'},
-// ];
-
 
 const props = defineProps({
   navMenu: {
