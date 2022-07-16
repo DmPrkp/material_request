@@ -1,18 +1,17 @@
 <template lang="pug">
 div(class="fill-height")
-  header-bar
+  bars-header-bar
   main(class="main_container")
     div(class="main_content")
       slot
-    nav-bar(:nav-menu="mainMenu")
+    bars-nav-bar(:nav-menu="mainMenu")
 </template>
 
 <script setup lang="ts">
-import {NavBar} from "#components";
-import {HeaderBar} from "#components";
-// import {NavBarInterface} from "~/types";
 // let mainMenu: NavBarInterface;
-let mainMenu = [
+// import {NavBarInterface} from "~/types";
+
+let mainMenu: NavBarInterface = [
   {link: '/calc', description: 'calc'},
   {link: '/articles', description: 'articles'},
   {link: '/how-to-use', description: 'how to use'},

@@ -6,7 +6,8 @@ header
         NuxtLink(class="header-bar_logo" to="/")
           span mat
           span li
-      div
+      div(class="header-bar_right-side")
+        u-i-mobile-menu
 </template>
 
 <script setup lang="ts">
@@ -26,9 +27,13 @@ header
   &_logo
     margin 0
     font-size 2rem
-    line-height 2rem
+    font-weight bold
+    line-height 3rem
     &_wrapper
       padding-left 10%
+  &_right-side
+    display flex
+    padding-right 20px
 
 span:first-child
   color: var(--bright-letter)
