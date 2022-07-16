@@ -18,7 +18,7 @@ const props = defineProps({
 })
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus">
 .menu-list
   width 200px
   list-style-type: none;
@@ -38,9 +38,9 @@ const props = defineProps({
     align-items center
     border-right 50px solid var(--main-color)
     border-bottom 2px solid rgba(0, 0, 0, 0)
-    color: var(--bright-letter)
-    a
-      color: var(--bright-letter)
+    &.menu-list_item
+      a
+        color: var(--bright-letter)
   &_wrapper
     height 100%
     border-left: 1px solid var(--borders)

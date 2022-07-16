@@ -1,9 +1,10 @@
 <template lang="pug">
-header-bar
-main(class="main_container")
-  div(class="main_content")
-    slot
-  nav-bar(:nav-menu="mainMenu")
+div(class="fill-height")
+  header-bar
+  main(class="main_container")
+    div(class="main_content")
+      slot
+    nav-bar(:nav-menu="mainMenu")
 </template>
 
 <script setup lang="ts">
@@ -12,7 +13,7 @@ import {HeaderBar} from "#components";
 // import {NavBarInterface} from "~/types";
 // let mainMenu: NavBarInterface;
 let mainMenu = [
-  {link: '/main', description: 'main'},
+  {link: '/calc', description: 'calc'},
   {link: '/articles', description: 'articles'},
   {link: '/how-to-use', description: 'how to use'},
   {link: '/about-project', description: 'about project'}

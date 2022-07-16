@@ -13,7 +13,7 @@ header
 
 </script>
 
-<style scoped lang="stylus">
+<style lang="stylus">
 .header-bar
   background var(--dark-main-color)
   height 70px
@@ -28,7 +28,7 @@ header
     font-size 2rem
     line-height 2rem
     &_wrapper
-      padding-left 140px
+      padding-left 10%
 
 span:first-child
   color: var(--bright-letter)
