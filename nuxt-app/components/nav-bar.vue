@@ -10,7 +10,7 @@ nav(class="menu-list_wrapper")
 </template>
 
 <script setup lang="ts">
-// import {NavBarItemInt} from "~/interfaces/bars";
+// import {NavBarItemInt} from "~/types/bars";
 
 // const navMenu =  [
 //   {link: '/main', description: 'main'},
@@ -47,11 +47,12 @@ const props = defineProps({
     align-items center
     border-right 50px solid var(--main-color)
     border-bottom 2px solid rgba(0, 0, 0, 0)
+    color: var(--bright-letter)
     a
       color: var(--bright-letter)
   &_wrapper
     height 100%
-    border: 1px solid var(--borders)
+    border-left: 1px solid var(--borders)
     background: var(--nav-bg)
   a
     display block

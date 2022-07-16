@@ -1,23 +1,23 @@
 <template lang="pug">
-div
-  header-bar
-  main(class="main_container")
-    div(class="main_content")
-      slot
-    nav-bar(:nav-menu="mainMenu")
+header-bar
+main(class="main_container")
+  div(class="main_content")
+    slot
+  nav-bar(:nav-menu="mainMenu")
 </template>
 
 <script setup lang="ts">
 import {NavBar} from "#components";
 import {HeaderBar} from "#components";
-// import {NavBarItemInt} from "~/interfaces/bars";
+import {NavBarInterface} from "~/types";
 
-const mainMenu = [
+let mainMenu: NavBarInterface;
+mainMenu = [
   {link: '/main', description: 'main'},
   {link: '/articles', description: 'articles'},
-  {link: '/how-to-use', description: 'how-to-use'},
-  {link: '/about-project', description: 'about-project'},
-]
+  {link: '/how-to-use', description: 'how to use'},
+  {link: '/about-project', description: 'about project'}
+];
 
 useHead({
   title: 'matli. materials calculator',
@@ -31,7 +31,7 @@ useHead({
 <style lang="stylus">
 .main
   &_container
-    height 100%
+    height calc(100% - 70px)
     display flex
   &_content
     width 100%
