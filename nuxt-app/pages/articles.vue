@@ -1,12 +1,11 @@
 <template lang="pug">
 div
-  h1 test
-  //h1 MATLI advanced building material calc.
+  h4 calc
 </template>
 
 <script lang="ts">
 export default {
-  name: "main"
+  name: "articles"
 }
 </script>
 

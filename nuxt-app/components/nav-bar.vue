@@ -1,5 +1,5 @@
 <template lang="pug">
-nav
+nav(class="menu-list_wrapper")
   ul(class="menu-list")
     li(
       v-for="(item) in navMenu"
@@ -10,11 +10,21 @@ nav
 </template>
 
 <script setup lang="ts">
-const navMenu = [
-  {link: '/main', description: 'main'},
-  {link: '/calc', description: 'calculator'},
-  {link: '/about', description: 'about'},
-];
+// import {NavBarItemInt} from "~/interfaces/bars";
+
+// const navMenu =  [
+//   {link: '/main', description: 'main'},
+//   {link: '/articles', description: 'articles'},
+//   {link: '/how-to-use', description: 'how to use'},
+//   {link: '/about-project', description: 'about project'},
+// ];
+
+
+const props = defineProps({
+  navMenu: {
+    type: Array
+  }
+})
 </script>
 
 <style scoped lang="stylus">
@@ -39,6 +49,11 @@ const navMenu = [
     border-bottom 2px solid rgba(0, 0, 0, 0)
     a
       color: var(--bright-letter)
+  &_wrapper
+    height 100%
+    border: 1px solid var(--borders)
+    background: var(--nav-bg)
   a
     display block
+    color: var(--dark-letter)
 </style>
