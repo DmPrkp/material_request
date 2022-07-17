@@ -10,7 +10,6 @@ nav(class="menu-list_wrapper")
 </template>
 
 <script setup lang="ts">
-
 const props = defineProps({
   navMenu: {
     type: Array
@@ -28,7 +27,7 @@ const props = defineProps({
     padding: 5px 0 5px 20px;
     font-size: 1.4rem
     margin-bottom: 2px
-    transition: background 0.5s ease-in, border 0.5s ease-out
+    transition: background 0.25s ease-in, color 0.25s ease-out
     border-bottom 2px solid var(--main-color)
     border-right 20px solid var(--main-color)
   &_chosen
@@ -36,8 +35,8 @@ const props = defineProps({
     display flex
     justify-content flex-start
     align-items center
-    border-right 50px solid var(--main-color)
-    border-bottom 2px solid rgba(0, 0, 0, 0)
+    //border-right 50px solid var(--main-color)
+    //border-bottom 2px solid rgba(0, 0, 0, 0)
     &.menu-list_item
       a
         color: var(--bright-letter)

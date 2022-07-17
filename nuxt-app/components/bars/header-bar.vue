@@ -16,7 +16,7 @@ header
 
 <style lang="stylus">
 .header-bar
-  background var(--dark-main-color)
+  background var(--header-bar-color)
   height 70px
   box-shadow 10px 5px 5px 5px grey
   &_items_wrapper
