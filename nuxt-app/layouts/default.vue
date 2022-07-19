@@ -8,7 +8,6 @@ div(class="fill-height")
 </template>
 
 <script setup lang="ts">
-// let mainMenu: NavBarInterface;
 // import {NavBarInterface} from "~/types";
 
 let mainMenu: NavBarInterface = [
@@ -20,8 +19,6 @@ let mainMenu: NavBarInterface = [
 
 useHead({
   title: 'matli. materials calculator',
-  // or, instead:
-  // titleTemplate: (title) => `My App - ${title}`,
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   charset: 'utf-8',
 })

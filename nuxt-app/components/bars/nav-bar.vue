@@ -10,11 +10,9 @@ nav(class="menu-list_wrapper")
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  navMenu: {
-    type: Array
-  }
-})
+interface Props { navMenu: NavBarInterface }
+
+const props = defineProps<Props>()
 </script>
 
 <style lang="stylus">

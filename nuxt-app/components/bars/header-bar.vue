@@ -7,7 +7,7 @@ header
           span mat
           span li
       div(class="header-bar_right-side")
-        u-i-mobile-menu
+        u-i-mobile-menu()
 </template>
 
 <script setup lang="ts">
@@ -15,10 +15,14 @@ header
 </script>
 
 <style lang="stylus">
+header
+  display flex
+  justify-content flex-end
 .header-bar
   background var(--header-bar-color)
   height 70px
-  box-shadow 10px 5px 5px 5px grey
+  width: calc(100%-50px)
+  box-shadow -5px 5px 5px 0 grey
   &_items_wrapper
     display flex
     justify-content space-between

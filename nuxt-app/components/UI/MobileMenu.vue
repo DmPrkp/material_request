@@ -3,28 +3,23 @@ div
   div(
       :class="{'close': isOpen}"
       class="burger"
-      @click="click")
+      @click="click"
+      )
     div(class="patty")
     div(class="patty")
     div(class="patty")
 </template>
-<script>
-export default {
-  name: 'MobileMenu',
 
-  data() {
-    return {
-      isOpen: false,
-    };
-  },
-  methods: {
-    click() {
-      this.isOpen = !this.isOpen;
-      this.$emit('change', this.isOpen)
-    },
+<script setup lang="ts">
+const emit = defineEmits(['change'])
+let isOpen = ref(false)
 
-  },
-};
+function click(event) {
+  console.log(event)
+  isOpen = !isOpen;
+  this.$emit('change', isOpen)
+
+}
 </script>
 <style scoped lang="stylus">
 .burger
