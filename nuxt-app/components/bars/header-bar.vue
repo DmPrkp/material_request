@@ -7,10 +7,11 @@ header
           span mat
           span li
       div(class="header-bar_right-side")
-        u-i-mobile-menu()
+        u-i-mobile-menu(@change="$emit('change')")
 </template>
 
 <script setup lang="ts">
+const emit = defineEmits(['change'])
 
 </script>
 

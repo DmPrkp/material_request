@@ -1,10 +1,10 @@
 <template lang="pug">
 div(class="fill-height")
-  bars-header-bar
+  bars-header-bar(@change="setBarState")
   main(class="main_container")
     div(class="main_content")
       slot
-    bars-nav-bar(:nav-menu="mainMenu")
+    bars-nav-bar(v-if="navBarState" :nav-menu="mainMenu")
 </template>
 
 <script setup lang="ts">
@@ -16,6 +16,9 @@ let mainMenu: NavBarInterface = [
   {link: '/how-to-use', description: 'how to use'},
   {link: '/about-project', description: 'about project'}
 ];
+
+let navBarState = ref(false)
+let setBarState = () => navBarState.value = !navBarState.value
 
 useHead({
   title: 'matli. materials calculator',

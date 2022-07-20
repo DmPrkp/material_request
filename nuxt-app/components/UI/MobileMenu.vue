@@ -1,7 +1,7 @@
 <template lang="pug">
 div
   div(
-      :class="{'close': isOpen}"
+      :class="{'close': !isOpen}"
       class="burger"
       @click="click"
       )
@@ -14,11 +14,9 @@ div
 const emit = defineEmits(['change'])
 let isOpen = ref(false)
 
-function click(event) {
-  console.log(event)
-  isOpen = !isOpen;
-  this.$emit('change', isOpen)
-
+function click() {
+  isOpen.value = !isOpen.value;
+  emit('change', isOpen)
 }
 </script>
 <style scoped lang="stylus">
