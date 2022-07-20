@@ -18,7 +18,12 @@ let mainMenu: NavBarInterface = [
 ];
 
 let navBarState = ref(false)
+let intFrameWidth = ref()
 let setBarState = () => navBarState.value = !navBarState.value
+
+provide('intFrameWidth', intFrameWidth)
+
+onBeforeMount(() => { intFrameWidth.value = window.innerWidth })
 
 useHead({
   title: 'matli. materials calculator',
