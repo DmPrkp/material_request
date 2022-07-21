@@ -1,6 +1,6 @@
 <template lang="pug">
 header
-  nav(class='header-bar')
+  nav(class='header-bar ')
     div(class="header-bar_items_wrapper")
       div(class="header-bar_logo_wrapper")
         NuxtLink(class="header-bar_logo" to="/")

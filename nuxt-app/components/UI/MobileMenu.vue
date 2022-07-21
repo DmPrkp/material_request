@@ -12,9 +12,8 @@ div(v-if="intFrameWidth < 800")
 
 <script setup lang="ts">
 const emit = defineEmits(['change'])
-let isOpen = ref(false)
+let isOpen = ref(true)
 const intFrameWidth = inject('intFrameWidth')
-console.log(intFrameWidth)
 function click() {
   isOpen.value = !isOpen.value;
   emit('change', isOpen)

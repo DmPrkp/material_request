@@ -1,5 +1,8 @@
 <template lang="pug">
-nav(class="menu-list_wrapper")
+nav(
+  class="menu-list_wrapper"
+  :class="{'menu-list_fixed-wrapper': (intFrameWidth < 800)}"
+  )
   ul(class="menu-list")
     li(
       v-for="(item) in navMenu"
@@ -13,6 +16,7 @@ nav(class="menu-list_wrapper")
 interface Props { navMenu: NavBarInterface }
 
 const props = defineProps<Props>()
+const intFrameWidth = inject('intFrameWidth')
 </script>
 
 <style lang="stylus">
@@ -42,6 +46,9 @@ const props = defineProps<Props>()
     height 100%
     border-left: 1px solid var(--borders)
     background: var(--nav-bg)
+  &_fixed-wrapper
+    position: fixed
+    right: 0
   a
     display block
     color: var(--dark-letter)
