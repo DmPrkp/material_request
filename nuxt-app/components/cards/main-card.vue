@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div(class="fill-height")
   div
   h3 {{mainCard.name}}
   div(class="container")
@@ -24,10 +24,12 @@ const props = defineProps({
   //margin: 10vmin;
   overflow: hidden;
   transform: skew(5deg);
+  height 20%
+  width 90%
   .card
     flex: 1;
     transition: all 1s ease-in-out;
-    height: 75vmin;
+    //height: 75vmin;
     position: relative;
     mairgin-right: 1rem;
     .card__head
@@ -45,12 +47,12 @@ const props = defineProps({
       font-size: 1em;
       white-space: nowrap;
     &:hover
-      flex-grow: 10;
+      flex-grow: 3;
       img
         filter: grayscale(0);
       .card__head
         text-align: center;
-        top: calc(100% - 2em);
+        //top: calc(100% - 2em);
         color: white;
         background: rgba(0, 0, 0, 0.5);
         font-size: 2em;

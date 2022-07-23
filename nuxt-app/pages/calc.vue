@@ -1,5 +1,5 @@
 <template lang="pug">
-div
+div(class="fill-height")
   h1 MATLI advanced building material calc.
   cards-main-card(v-for="item in mainCardsItems", :key='item.name', :main-card="item" )
 </template>
