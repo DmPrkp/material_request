@@ -5,7 +5,7 @@ div(class="fill-height")
   div(class="container")
     div(class="card" v-for="item in mainCard.childs" :key="item.name")
       img(:src="item.img" width="50")
-      div(class="card__head") item.name
+      div(class="card__head") {{ item.name }}
 </template>
 
 <script setup lang="ts">
@@ -24,7 +24,7 @@ const props = defineProps({
   //margin: 10vmin;
   overflow: hidden;
   transform: skew(5deg);
-  height 20%
+  //height 20%
   width 90%
   .card
     flex: 1;
@@ -47,7 +47,7 @@ const props = defineProps({
       font-size: 1em;
       white-space: nowrap;
     &:hover
-      flex-grow: 3;
+      //flex-grow: 3;
       img
         filter: grayscale(0);
       .card__head
