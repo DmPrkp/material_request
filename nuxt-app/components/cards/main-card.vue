@@ -404,6 +404,4 @@ function chooseCard() {
 .card.card__is-choosed .inside-page {
   box-shadow: inset 1rem 0px 5rem -2.5rem rgba(0,0,0,0.1);
 }
-
-
 </style>
