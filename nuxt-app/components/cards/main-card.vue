@@ -1,18 +1,17 @@
 <template>
-      <!-- Card: City -->
 <!--      <section class="card-section">-->
         <div class="card" :class="{'card__is-choosed': isChoosed}" @click="chooseCard">
           <div class="flip-card">
             <div class="flip-card__container">
               <div class="card-front">
-                <div class="card-front__tp card-front__tp--city">
-                  <img :src="mainCard.img" :alt="mainCard.name">
-<!--                  <h2 class="card-front__heading">  City break  </h2>-->
+                <div class="card-front__tp" :style="{background: mainCard.gradient}">
+                  <img class="card-front__icon" :src="mainCard.img" :alt="mainCard.name">
+<!--                  <h2 v-else class="card-front__heading">  {{mainCard.name}}  </h2>-->
 <!--                  <p class="card-front__text-price">  From £29  </ p>-->
                 </div>
 
                 <div class="card-front__bt">
-                  <p class="card-front__text-view card-front__text-view--city">
+                  <p class="card-front__text-view" :style="{color: mainCard.color}">
                     {{ mainCard.name }}
                   </p>
                 </div>
@@ -21,7 +20,8 @@
 <!--                <video class="video__container" autoplay muted loop>-->
 <!--                  <source class="video__media" src="https://player.vimeo.com/external/370331493.sd.mp4?s=e90dcaba73c19e0e36f03406b47bbd6992dd6c1c&profile_id=139&oauth2_token_id=57447761" type="video/mp4">-->
 <!--                </video>-->
-                <img :src="mainCard.img" :alt="mainCard.name">
+<!--                <img :src="mainCard.img" :alt="mainCard.name">-->
+                <h2 class="card-back__heading">  {{ mainCard.name }}  </h2>
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@ function chooseCard() {
 
 /* Front cover */
 
-.card-front__tp { color: #fafbfa; }
+.card-front__tp { color: var(--main-bg); }
 
 /* For pricing text on card front cover */
 /*.card-front__text-price {*/
@@ -118,13 +118,11 @@ function chooseCard() {
 
 /* Icons ===========================================*/
 
-/*.card-front__icon {*/
-/*  fill: #fafbfa;*/
-/*  font-size: 3vw;*/
-/*  height: 3.25rem;*/
-/*  margin-top: -.5rem;*/
-/*  width: 3.25rem;*/
-/*}*/
+.card-front__icon {
+  fill: var(--main-bg);
+  height: 9rem;
+  margin-top: -.5rem;
+}
 
 /* Buttons =================================================*/
 
@@ -165,37 +163,6 @@ function chooseCard() {
   background-color: #ff40a1;
 }
 
-.inside-page__btn--ski {
-  border-color: #279eb2;
-  color: #279eb2;
-}
-
-.inside-page__btn--ski::before {
-  background-color: #279eb2;
-}
-
-.inside-page__btn--beach {
-  border-color: #fa7f67;
-  color: #fa7f67;
-}
-
-.inside-page__btn--beach::before {
-  background-color: #fa7f67;
-}
-
-.inside-page__btn--camping {
-  border-color: #00b97d;
-  color: #00b97d;
-}
-
-.inside-page__btn--camping::before {
-  background-color: #00b97d;
-}
-
-.inside-page__btn:hover {
-  color: #fafbfa;
-}
-
 .inside-page__btn:hover::before {
   transform: scaleY(1);
 }
@@ -216,14 +183,14 @@ function chooseCard() {
 /*}*/
 
 /* Container to hold all cards in one place */
-.card-area {
-  align-items: center;
-  display: flex;
-  flex-wrap: nowrap;
-  height: 100%;
-  justify-content: space-evenly;
-  padding: 1rem;
-}
+/*.card-area {*/
+/*  align-items: center;*/
+/*  display: flex;*/
+/*  flex-wrap: nowrap;*/
+/*  height: 100%;*/
+/*  justify-content: space-evenly;*/
+/*  padding: 1rem;*/
+/*}*/
 
 /* Card ============================================*/
 
@@ -244,6 +211,7 @@ function chooseCard() {
   position: relative;
   transition: all 1s ease;
   width: 15rem;
+  --card-back: 3rem;
 }
 
 /* Flip card - covering both the front and inside front page */
@@ -277,12 +245,10 @@ function chooseCard() {
   width: 100%;
 }
 
-.card-front,
 .card-back {
   backface-visibility: hidden;
-  height: 100%;
+  height: var(--card-back);
   left: 0;
-  position: absolute;
   top: 0;
   width: 100%;
 }
@@ -291,7 +257,11 @@ function chooseCard() {
 
 /* container for the front side */
 .card-front {
-  background-color: #fafbfa;
+  backface-visibility: hidden;
+  left: 0;
+  position: absolute;
+  top: 0;
+  background-color: var(--main-bg);
   height: 15rem;
   width: 15rem;
 }
@@ -315,29 +285,6 @@ function chooseCard() {
   );
 }
 
-.card-front__tp--ski {
-  background: linear-gradient(
-      to bottom,
-      #47c2d7,
-      #279eb2
-  );
-}
-
-.card-front__tp--beach {
-  background: linear-gradient(
-      to bottom,
-      #fb9b88,
-      #f86647
-  );
-}
-
-.card-front__tp--camping {
-  background: linear-gradient(
-      to bottom,
-      #00db93,
-      #00b97d
-  );
-}
 
 /* Front card's bottom section */
 .card-front__bt {
@@ -349,8 +296,8 @@ function chooseCard() {
 /* Styling for the back side of the flip card */
 
 .card-back {
-  background-color: #fafbfa;
-  transform: rotateY(180deg);
+  background-color: var(--main-bg);
+  transform: rotateX(180deg);
 }
 
 /* Specifically targeting the <video> element */
@@ -365,8 +312,10 @@ function chooseCard() {
 /* Inside page */
 
 .inside-page {
+  margin-top: var(--card-back);
   display: flex;
-  background-color: #fafbfa;
+  flex-flow: column;
+  background-color: var(--main-bg);
   box-shadow: inset 20rem 0px 5rem -2.5rem rgba(0,0,0,0.25);
   height: 100%;
   padding: 1rem;
@@ -392,12 +341,12 @@ function chooseCard() {
 .card.card__is-choosed {
   box-shadow:
       -.1rem 1.7rem 6.6rem -3.2rem rgba(0,0,0,0.75);
-  width: 30rem;
+  height: 30rem;
 }
 
 /* When the card is hovered, the flip card container will rotate */
 .card.card__is-choosed .flip-card__container {
-  transform: rotateY(-180deg);
+  transform: rotateX(180deg);
 }
 
 /* When the card is hovered, the shadow on the inside page will shrink to the left */
