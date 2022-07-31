@@ -16,7 +16,7 @@
                   </p>
                 </div>
               </div>
-              <div class="card-back">
+              <div class="card-back" :style="{color: mainCard.color}">
 <!--                <video class="video__container" autoplay muted loop>-->
 <!--                  <source class="video__media" src="https://player.vimeo.com/external/370331493.sd.mp4?s=e90dcaba73c19e0e36f03406b47bbd6992dd6c1c&profile_id=139&oauth2_token_id=57447761" type="video/mp4">-->
 <!--                </video>-->
@@ -26,7 +26,10 @@
             </div>
           </div>
 
-          <div class="inside-page">
+          <div class="inside-page" :style="{
+            'margin-top': isChoosed ? 'var(--card-back)': 0,
+            'height': isChoosed ? '100%': '12rem',
+          }">
             <div class="inside-page__container" v-for="item of mainCard.childs" :key="item.description">
               <h3 class="inside-page__heading inside-page__heading--city">
                 {{item.name}}
@@ -121,7 +124,7 @@ function chooseCard() {
 .card-front__icon {
   fill: var(--main-bg);
   height: 9rem;
-  margin-top: -.5rem;
+  margin-top: -1.5rem;
 }
 
 /* Buttons =================================================*/
@@ -246,10 +249,11 @@ function chooseCard() {
 }
 
 .card-back {
+  position: absolute;
   backface-visibility: hidden;
   height: var(--card-back);
   left: 0;
-  top: 0;
+  top: 12rem;
   width: 100%;
 }
 
@@ -298,6 +302,9 @@ function chooseCard() {
 .card-back {
   background-color: var(--main-bg);
   transform: rotateX(180deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Specifically targeting the <video> element */
@@ -312,7 +319,6 @@ function chooseCard() {
 /* Inside page */
 
 .inside-page {
-  margin-top: var(--card-back);
   display: flex;
   flex-flow: column;
   background-color: var(--main-bg);
