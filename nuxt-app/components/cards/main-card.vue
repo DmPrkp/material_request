@@ -17,10 +17,6 @@
                 </div>
               </div>
               <div class="card-back" :style="{color: mainCard.color}">
-<!--                <video class="video__container" autoplay muted loop>-->
-<!--                  <source class="video__media" src="https://player.vimeo.com/external/370331493.sd.mp4?s=e90dcaba73c19e0e36f03406b47bbd6992dd6c1c&profile_id=139&oauth2_token_id=57447761" type="video/mp4">-->
-<!--                </video>-->
-<!--                <img :src="mainCard.img" :alt="mainCard.name">-->
                 <h2 class="card-back__heading">  {{ mainCard.name }}  </h2>
               </div>
             </div>
@@ -29,10 +25,6 @@
           <div class="inside-page"
             :class="{
               'inside-page__chosen': isChoosed
-            }"
-            :style="{
-              'margin-top': isChoosed ? 'var(--card-back)': 0,
-              'height': isChoosed ? '100%': '12rem',
             }">
             <div class="inside-page__container" v-for="item of mainCard.childs" :key="item.description">
               <h3 class="inside-page__heading">
@@ -329,14 +321,20 @@ function chooseCard() {
   flex-flow: column;
   background-color: var(--main-bg);
   box-shadow: inset 20rem 0px 5rem -2.5rem rgba(0,0,0,0.25);
-  height: 100%;
+  height: 12rem;
   /*padding: 1rem;*/
   position: absolute;
+  margin-top: 0;
   left: 0;
   transition: all 1s ease;
   /*width: 15rem;*/
   z-index: 1;
   width: 100%;
+}
+
+.inside-page__chosen {
+  margin-top: var(--card-back);
+  height: 100%
 }
 
 .inside-page__chosen > div {
