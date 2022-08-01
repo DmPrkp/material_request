@@ -22,11 +22,21 @@ const mainCardsItems = [
       { name: 'Вент фасад', description: 'curtain facade', img: '/facade-wet.jpg'},
       { name: 'Кирпичный фасад', description: 'brick facade', img: '/facade-wet.jpg'},
     ]
+  },
+  {
+    name: 'facade',
+    img: '/cards/facade.svg',
+    color: '#ff62b2',
+    gradient: 'linear-gradient(to bottom, #ff73b9, #ff40a1)',
+    childs: [
+      { name: 'Мокрый фасад', description: 'wet facade', img: '/facade-wet.jpg'},
+      { name: 'Вент фасад', description: 'curtain facade', img: '/facade-wet.jpg'},
+      { name: 'Кирпичный фасад', description: 'brick facade', img: '/facade-wet.jpg'},
+    ]
   }
 ];
 </script>
 
-#ff62b2
 #fa7f67
 #00b97c
 

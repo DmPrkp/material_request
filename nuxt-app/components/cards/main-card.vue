@@ -33,7 +33,7 @@
               <p class="inside-page__text">
                 {{item.description}}
               </p>
-              <a href="#" class="inside-page__btn inside-page__btn--city">View deals</a>
+              <a @click.stop="test" href="#" class="inside-page__btn inside-page__btn--city">View deals</a>
             </div>
           </div>
         </div>
@@ -48,6 +48,10 @@ const props = defineProps({
 })
 
 const isChoosed = ref(false)
+
+function test() {
+  console.log('test')
+}
 
 function chooseCard() {
   isChoosed.value = !isChoosed.value
