@@ -26,12 +26,16 @@
             </div>
           </div>
 
-          <div class="inside-page" :style="{
-            'margin-top': isChoosed ? 'var(--card-back)': 0,
-            'height': isChoosed ? '100%': '12rem',
-          }">
+          <div class="inside-page"
+            :class="{
+              'inside-page__chosen': isChoosed
+            }"
+            :style="{
+              'margin-top': isChoosed ? 'var(--card-back)': 0,
+              'height': isChoosed ? '100%': '12rem',
+            }">
             <div class="inside-page__container" v-for="item of mainCard.childs" :key="item.description">
-              <h3 class="inside-page__heading inside-page__heading--city">
+              <h3 class="inside-page__heading">
                 {{item.name}}
               </h3>
               <p class="inside-page__text">
@@ -88,6 +92,7 @@ function chooseCard() {
   font-size: 1.3rem;
   font-weight: 800;
   margin-top: .2rem;
+  margin-bottom: .5rem;
 }
 
 /*.inside-page__heading--city,*/
@@ -104,7 +109,7 @@ function chooseCard() {
 
 /* Front cover */
 
-.card-front__tp { color: var(--main-bg); }
+/*.card-front__tp { color: var(--main-bg); }*/
 
 /* For pricing text on card front cover */
 /*.card-front__text-price {*/
@@ -137,7 +142,7 @@ function chooseCard() {
   font-weight: 600;
   margin-top: 2rem;
   overflow: hidden;
-  padding: .7rem .75rem;
+  padding: .7rem .1rem;
   position: relative;
   text-decoration: none;
   transition: all .3s ease;
@@ -266,12 +271,13 @@ function chooseCard() {
   position: absolute;
   top: 0;
   background-color: var(--main-bg);
-  height: 15rem;
+  /*height: 15rem;*/
   width: 15rem;
 }
 
 /* Front side's top section */
 .card-front__tp {
+  color: var(--main-bg);
   align-items: center;
   clip-path: polygon(0 0, 100% 0, 100% 90%, 57% 90%, 50% 100%, 43% 90%, 0 90%);
   display: flex;
@@ -281,13 +287,13 @@ function chooseCard() {
   padding: .75rem;
 }
 
-.card-front__tp--city {
-  background: linear-gradient(
-      to bottom,
-      #ff73b9,
-      #ff40a1
-  );
-}
+/*.card-front__tp--city {*/
+/*  background: linear-gradient(*/
+/*      to bottom,*/
+/*      #ff73b9,*/
+/*      #ff40a1*/
+/*  );*/
+/*}*/
 
 
 /* Front card's bottom section */
@@ -324,13 +330,18 @@ function chooseCard() {
   background-color: var(--main-bg);
   box-shadow: inset 20rem 0px 5rem -2.5rem rgba(0,0,0,0.25);
   height: 100%;
-  padding: 1rem;
+  /*padding: 1rem;*/
   position: absolute;
-  right: 0;
+  left: 0;
   transition: all 1s ease;
   /*width: 15rem;*/
   z-index: 1;
+  width: 100%;
 }
+
+.inside-page__chosen > div {
+    position: static;
+  }
 
 .inside-page__container {
   align-items: center;
@@ -339,6 +350,9 @@ function chooseCard() {
   height: 100%;
   text-align: center;
   width: 100%;
+  position: absolute;
+  left: 0;
+  transition: position 1s ease;
 }
 
 /* Functionality ====================================*/

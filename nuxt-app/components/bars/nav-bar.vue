@@ -49,6 +49,7 @@ const intFrameWidth = inject('intFrameWidth')
   &_fixed-wrapper
     position: fixed
     right: 0
+    z-index 1000
   a
     display block
     color: var(--dark-letter)
