@@ -27,6 +27,9 @@ provide('intFrameWidth', intFrameWidth)
 onBeforeMount(() => { intFrameWidth.value = window.innerWidth })
 
 useHead({
+  htmlAttrs: {
+    lang: 'en'
+  },
   title: 'matli. materials calculator',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   charset: 'utf-8',

@@ -2,10 +2,22 @@
 div(class="fill-height")
   //h1 MATLI advanced building material calc.
   h1 Test test test
-  div(v-if="intFrameWidth >= 800")
-    cards-main-card(v-for="item in mainCardsItems", :key='item.name', :main-card="item" )
-  div(v-if="intFrameWidth < 800")
-    cards-main-card(v-for="item in mainCardsItems", :key='item.name', :main-card="item" )
+  div(
+    style='display: flex'
+    v-if="intFrameWidth >= 800"
+    )
+    cards-main-card(
+        class='col-6'
+        v-for="item in mainCardsItems", :key='item.name', :main-card="item"
+      )
+  div(
+    style='display: flex'
+    v-if="intFrameWidth < 800"
+    )
+    cards-main-card(
+        class='col-6'
+        v-for="item in mainCardsItems", :key='item.name', :main-card="item"
+      )
 </template>
 
 <script setup lang="ts">
