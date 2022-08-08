@@ -1,6 +1,6 @@
 <template lang="pug">
 header
-  nav(class='header-bar ')
+  nav(class='header-bar')
     div(class="header-bar_items_wrapper")
       div(class="header-bar_logo_wrapper")
         NuxtLink(class="header-bar_logo" to="/")
@@ -11,8 +11,7 @@ header
 </template>
 
 <script setup lang="ts">
-const emit = defineEmits(['change'])
-
+  const emit = defineEmits(['change'])
 </script>
 
 <style lang="stylus">

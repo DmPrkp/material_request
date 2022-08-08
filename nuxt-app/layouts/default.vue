@@ -19,12 +19,15 @@ let mainMenu: NavBarInterface = [
 ];
 
 let navBarState = ref(false)
-let intFrameWidth = ref()
+let isMobile = ref(false)
 let setBarState = () => navBarState.value = !navBarState.value
 
-provide('intFrameWidth', intFrameWidth)
+provide('isMobile', isMobile)
 
-onBeforeMount(() => { intFrameWidth.value = window.innerWidth })
+onBeforeMount(() => {
+  isMobile.value = window.innerWidth < 800
+  if (!isMobile.value) { navBarState.value = true }
+})
 
 useHead({
   htmlAttrs: {

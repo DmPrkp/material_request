@@ -4,7 +4,7 @@ div(class="fill-height")
   h1 Test test test
   div(
     style='display: flex'
-    v-if="intFrameWidth >= 800"
+    v-if="!isMobile"
     )
     cards-main-card(
         class='col-6'
@@ -12,7 +12,7 @@ div(class="fill-height")
       )
   div(
     style='display: flex'
-    v-if="intFrameWidth < 800"
+    v-if="isMobile"
     )
     cards-main-card(
         class='col-6'
@@ -21,7 +21,7 @@ div(class="fill-height")
 </template>
 
 <script setup lang="ts">
-const intFrameWidth = inject('intFrameWidth')
+const isMobile = inject('isMobile')
 
 const mainCardsItems = [
   {

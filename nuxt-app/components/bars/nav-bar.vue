@@ -1,7 +1,7 @@
 <template lang="pug">
 nav(
   class="menu-list_wrapper"
-  :class="{'menu-list_fixed-wrapper': (intFrameWidth < 800)}"
+  :class="{'menu-list_fixed-wrapper': isMobile}"
   )
   ul(class="menu-list")
     li(
@@ -16,7 +16,7 @@ nav(
 interface Props { navMenu: NavBarInterface }
 
 const props = defineProps<Props>()
-const intFrameWidth = inject('intFrameWidth')
+const isMobile = inject('isMobile')
 </script>
 
 <style lang="stylus">

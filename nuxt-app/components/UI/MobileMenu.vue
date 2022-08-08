@@ -1,5 +1,5 @@
 <template lang="pug">
-div(v-if="intFrameWidth < 800")
+div(v-if="isMobile")
   div(
       :class="{'close': !isOpen}"
       class="burger"
@@ -13,7 +13,7 @@ div(v-if="intFrameWidth < 800")
 <script setup lang="ts">
 const emit = defineEmits(['change'])
 let isOpen = ref(true)
-const intFrameWidth = inject('intFrameWidth')
+const isMobile = inject('isMobile')
 function click() {
   isOpen.value = !isOpen.value;
   emit('change', isOpen)
