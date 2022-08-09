@@ -5,7 +5,7 @@ div(class="fill-height")
     div(class="main_content")
       slot
     transition(name="fade")
-      bars-nav-bar(v-show="navBarState" :nav-menu="mainMenu")
+      bars-nav-bar(v-if="navBarState" :nav-menu="mainMenu")
 </template>
 
 <script setup lang="ts">

@@ -124,8 +124,8 @@ function chooseCard() {
 
 .card-front__icon {
   fill: var(--main-bg);
-  height: 9rem;
-  margin-top: -1.5rem;
+  height: 6rem;
+  margin-top: -0.75rem;
 }
 
 /* Buttons =================================================*/
@@ -211,10 +211,10 @@ function chooseCard() {
 .card {
   background-color: rgba(0,0,0, .05);
   box-shadow: -.1rem 1.7rem 6.6rem -3.2rem rgba(0,0,0,0.5);
-  height: 15rem;
+  height: 150px;
   position: relative;
   transition: all 1s ease;
-  width: 15rem;
+  width: 150px;
   --card-back: 3rem;
 }
 
@@ -222,13 +222,13 @@ function chooseCard() {
 
 /* An outer container to hold the flip card. This excludes the inside page */
 .flip-card {
-  height: 15rem;
-  perspective: 100rem;
+  height: 150px;
+  /*perspective: 100rem;*/
   position: absolute;
   right: 0;
   transition: all 1s ease;
   visibility: hidden;
-  width: 15rem;
+  width: 150px;
   z-index: 100;
 }
 
@@ -267,8 +267,8 @@ function chooseCard() {
   position: absolute;
   top: 0;
   background-color: var(--main-bg);
-  /*height: 15rem;*/
-  width: 15rem;
+  /*height: 150px;*/
+  width: 150px;
 }
 
 /* Front side's top section */
@@ -278,7 +278,7 @@ function chooseCard() {
   clip-path: polygon(0 0, 100% 0, 100% 90%, 57% 90%, 50% 100%, 43% 90%, 0 90%);
   display: flex;
   flex-direction: column;
-  height: 12rem;
+  height: 8rem;
   justify-content: center;
   padding: .75rem;
 }
@@ -303,7 +303,7 @@ function chooseCard() {
 
 .card-back {
   background-color: var(--main-bg);
-  transform: rotateX(180deg);
+  transform: rotateX(180deg) translate(0px, 60px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -324,14 +324,14 @@ function chooseCard() {
   display: flex;
   flex-flow: column;
   background-color: var(--main-bg);
-  box-shadow: inset 20rem 0px 5rem -2.5rem rgba(0,0,0,0.25);
+  box-shadow: inset 20rem 0 5rem -2.5rem rgba(0,0,0,0.25);
   height: 12rem;
   /*padding: 1rem;*/
   position: absolute;
   margin-top: 0;
   left: 0;
   transition: all 1s ease;
-  /*width: 15rem;*/
+  /*width: 150px;*/
   z-index: 1;
   width: 100%;
 }
@@ -373,6 +373,6 @@ function chooseCard() {
 
 /* When the card is hovered, the shadow on the inside page will shrink to the left */
 .card.card__is-choosed .inside-page {
-  box-shadow: inset 1rem 0px 5rem -2.5rem rgba(0,0,0,0.1);
+  box-shadow: inset 1rem 0 5rem -2.5rem rgba(0,0,0,0.1);
 }
 </style>

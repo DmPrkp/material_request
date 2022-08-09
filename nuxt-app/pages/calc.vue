@@ -1,5 +1,5 @@
 <template lang="pug">
-div(class="fill-height")
+div(class="fill-height fill-width")
   //h1 MATLI advanced building material calc.
   h1 Test test test
   div(
