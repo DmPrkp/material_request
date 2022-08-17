@@ -49,9 +49,7 @@ const props = defineProps({
 
 const isChoosed = ref(false)
 
-function test() {
-  console.log('test')
-}
+function test() {  console.log('test')}
 
 function chooseCard() {
   isChoosed.value = !isChoosed.value
@@ -207,10 +205,9 @@ function chooseCard() {
 /*  width: 100%;*/
 /*}*/
 
-/* A container to hold the flip card and the inside page */
 .card {
   background-color: rgba(0,0,0, .05);
-  box-shadow: -.1rem 1.7rem 6.6rem -3.2rem rgba(0,0,0,0.5);
+  box-shadow: -0.1rem 1.7rem 6.6rem -3.2rem rgba(0,0,0,0.5);
   height: 150px;
   position: relative;
   transition: all 1s ease;
@@ -218,31 +215,28 @@ function chooseCard() {
   --card-back: 3rem;
 }
 
-/* Flip card - covering both the front and inside front page */
 
-/* An outer container to hold the flip card. This excludes the inside page */
 .flip-card {
   height: 150px;
   /*perspective: 100rem;*/
   position: absolute;
-  right: 0;
+  /* right: 0; */
   transition: all 1s ease;
   visibility: hidden;
   width: 150px;
   z-index: 100;
 }
 
-/* The outer container's visibility is set to hidden. This is to make everything within the container NOT set to hidden  */
-/* This is done so content in the inside page can be selected */
+
 .flip-card > * {
   visibility: visible;
 }
 
-/* An inner container to hold the flip card. This excludes the inside page */
+
 .flip-card__container {
   height: 100%;
   position: absolute;
-  right: 0;
+  /* right: 0; */
   transform-origin: left;
   transform-style: preserve-3d;
   transition: all 1s ease;
@@ -258,9 +252,6 @@ function chooseCard() {
   width: 100%;
 }
 
-/* Styling for the front side of the flip card */
-
-/* container for the front side */
 .card-front {
   backface-visibility: hidden;
   left: 0;
@@ -271,7 +262,6 @@ function chooseCard() {
   width: 150px;
 }
 
-/* Front side's top section */
 .card-front__tp {
   color: var(--main-bg);
   align-items: center;
@@ -292,14 +282,11 @@ function chooseCard() {
 /*}*/
 
 
-/* Front card's bottom section */
 .card-front__bt {
   align-items: center;
   display: flex;
   justify-content: center;
 }
-
-/* Styling for the back side of the flip card */
 
 .card-back {
   background-color: var(--main-bg);
@@ -309,7 +296,6 @@ function chooseCard() {
   align-items: center;
 }
 
-/* Specifically targeting the <video> element */
 /*.video__container {*/
 /*  clip-path: polygon(0% 0%, 100% 0%, 90% 50%, 100% 100%, 0% 100%);*/
 /*  height: auto;*/
@@ -318,14 +304,12 @@ function chooseCard() {
 /*  width: 100%;*/
 /*}*/
 
-/* Inside page */
-
 .inside-page {
   display: flex;
   flex-flow: column;
   background-color: var(--main-bg);
   box-shadow: inset 20rem 0 5rem -2.5rem rgba(0,0,0,0.25);
-  height: 12rem;
+  height: 150px;
   /*padding: 1rem;*/
   position: absolute;
   margin-top: 0;
@@ -333,7 +317,7 @@ function chooseCard() {
   transition: all 1s ease;
   /*width: 150px;*/
   z-index: 1;
-  width: 100%;
+  width: 150px;
 }
 
 .inside-page__chosen {
@@ -359,19 +343,16 @@ function chooseCard() {
 
 /* Functionality ====================================*/
 
-/* This is to keep the card centered (within its container) when opened */
 .card.card__is-choosed {
   box-shadow:
       -.1rem 1.7rem 6.6rem -3.2rem rgba(0,0,0,0.75);
   height: 30rem;
 }
 
-/* When the card is hovered, the flip card container will rotate */
 .card.card__is-choosed .flip-card__container {
   transform: rotateX(180deg);
 }
 
-/* When the card is hovered, the shadow on the inside page will shrink to the left */
 .card.card__is-choosed .inside-page {
   box-shadow: inset 1rem 0 5rem -2.5rem rgba(0,0,0,0.1);
 }

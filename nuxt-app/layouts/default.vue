@@ -24,8 +24,8 @@ let setBarState = () => navBarState.value = !navBarState.value
 
 provide('isMobile', isMobile)
 
-onBeforeMount(() => {
-  isMobile.value = window.innerWidth < 800
+onMounted(() => {
+  isMobile.value = window.innerWidth < 600
   if (!isMobile.value) { navBarState.value = true }
 })
 

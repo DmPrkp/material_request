@@ -6,18 +6,14 @@ div(class="fill-height fill-width")
     style='display: flex'
     v-if="!isMobile"
     )
-    cards-main-card(
-        class='col-6'
-        v-for="item in mainCardsItems", :key='item.name', :main-card="item"
-      )
+    .col-6.col-sm-3(v-for="item in mainCardsItems", :key='item.name')
+      cards-main-card(:main-card="item")
   div(
     style='display: flex'
     v-if="isMobile"
     )
-    cards-main-card(
-        class='col-6'
-        v-for="item in mainCardsItems", :key='item.name', :main-card="item"
-      )
+    .col-6.col-sm-3(v-for="item in mainCardsItems", :key='item.name')
+      cards-main-card(:main-card="item")
 </template>
 
 <script setup lang="ts">
@@ -36,7 +32,7 @@ const mainCardsItems = [
     ]
   },
   {
-    name: 'facade',
+    name: 'roof',
     img: '/cards/facade.svg',
     color: '#ff62b2',
     gradient: 'linear-gradient(to bottom, #ff73b9, #ff40a1)',
@@ -45,7 +41,18 @@ const mainCardsItems = [
       { name: 'Вент фасад', description: 'curtain facade', img: '/facade-wet.jpg'},
       { name: 'Кирпичный фасад', description: 'brick facade', img: '/facade-wet.jpg'},
     ]
-  }
+  },
+  {
+    name: 'inner',
+    img: '/cards/facade.svg',
+    color: '#ff62b2',
+    gradient: 'linear-gradient(to bottom, #ff73b9, #ff40a1)',
+    childs: [
+      { name: 'Мокрый фасад', description: 'wet facade', img: '/facade-wet.jpg'},
+      { name: 'Вент фасад', description: 'curtain facade', img: '/facade-wet.jpg'},
+      { name: 'Кирпичный фасад', description: 'brick facade', img: '/facade-wet.jpg'},
+    ]
+  },
 ];
 </script>
 

@@ -11,9 +11,9 @@ div(v-if="isMobile")
 </template>
 
 <script setup lang="ts">
+const isMobile = inject('isMobile')
 const emit = defineEmits(['change'])
 let isOpen = ref(true)
-const isMobile = inject('isMobile')
 function click() {
   isOpen.value = !isOpen.value;
   emit('change', isOpen)
