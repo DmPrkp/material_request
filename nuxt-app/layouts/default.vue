@@ -11,7 +11,7 @@ div(class="fill-height")
 <script setup lang="ts">
 // import {NavBarInterface} from "~/types";
 
-let mainMenu: NavBarInterface = [
+let mainMenu = [
   {link: '/calc', description: 'calc'},
   {link: '/articles', description: 'articles'},
   {link: '/how-to-use', description: 'how to use'},

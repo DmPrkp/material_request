@@ -1,29 +1,119 @@
 <template>
-    <nav>
-        <LocaleSwitcher></LocaleSwitcher>         
-        <ul>
-            <li>
-                <RouterLink :to="{ name: 'home', params: { locale: $route.params.locale || 'ru' }}">
-                  {{ $t("message", {name: 'test'}) }}
-                </RouterLink>
-            </li>
-            <li>
-                <RouterLink :to="{ name: 'about', params: { locale: $route.params.locale || 'ru' }}">
-                  о нас
-                </RouterLink>
-            </li>
-        </ul>
-    </nav>
+  <nav
+    class="menu-list_wrapper"
+    :class="{'menu-list_fixed-wrapper': isMobile}"
+    >
+    <ul class="menu-list">
+      <li 
+        v-for="(item) in mainMenu"
+        :key="item.description"
+        class="menu-list_item"
+        :class="($route.path.match(item.link)) ? 'menu-list_chosen' : ''"
+        >
+        <router-link :to="item.link"> 
+          {{ item.description }} 
+        </router-link>        
+      </li>
+    </ul>
+  </nav>
 </template>
-
-<script lang="ts">
-import LocaleSwitcher from '../logicalSwitchers/LocaleSwitcher.vue';
-export default {
-  data() {
-    return { count: 0 }
-  },
-  components: {
-    LocaleSwitcher
-  }
+  
+<script setup lang="ts">
+import { inject } from 'vue';
+interface NavMenu {
+  link: string,
+  description: string,
 }
+
+let mainMenu: NavMenu[] = [
+  {link: '/calc', description: 'calc'},
+  {link: '/articles', description: 'articles'},
+  {link: '/how-to-use', description: 'how to use'},
+  {link: '/about-project', description: 'about project'}
+];
+const isMobile = inject('isMobile')
 </script>
+  
+<style>
+.menu-list {
+  width: 200px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-list_item {
+  padding: 5px 0 5px 20px;
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+  transition: background 0.25s ease-in, color 0.25s ease-out;
+  border-bottom: 2px solid var(--main-color);
+  border-right: 20px solid var(--main-color);
+}
+
+.menu-list_item_chosen {
+  background: var(--main-color);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.menu-list_item.menu-list_item a {
+color: var(--bright-letter);
+}
+.menu-list_wrapper {
+  height: 100%;
+  border-left: 1px solid var(--borders);
+  background: var(--nav-bg);
+}
+
+.menu-list_fixed-wrapper {
+  position: fixed;
+  right: 0;
+  z-index: 1000;
+}
+
+a {
+  display: block;
+  color: var(--dark-letter);
+}
+</style>
+
+<!-- <style lang="stylus">
+  .menu-list
+    width 200px
+    list-style-type: none;
+    padding 0
+    margin 0
+    &_item
+      padding: 5px 0 5px 20px;
+      font-size: 1.4rem
+      margin-bottom: 2px
+      transition: background 0.25s ease-in, color 0.25s ease-out
+      border-bottom 2px solid var(--main-color)
+      border-right 20px solid var(--main-color)
+    &_chosen
+      background var(--main-color)
+      display flex
+      justify-content flex-start
+      align-items center
+      //border-right 50px solid var(--main-color)
+      //border-bottom 2px solid rgba(0, 0, 0, 0)
+      &.menu-list_item
+        a
+          color: var(--bright-letter)
+    &_wrapper
+      height 100%
+      border-left: 1px solid var(--borders)
+      background: var(--nav-bg)
+    &_fixed-wrapper
+      position: fixed
+      right: 0
+      z-index 1000
+    a
+      display block
+      color: var(--dark-letter)
+</style> -->
+
+
+  
