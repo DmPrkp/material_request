@@ -12,11 +12,18 @@ nav(
       nuxt-link(:to="item.link") {{ item.description }}
 </template>
 
-<script setup lang="ts">
-interface Props { navMenu: NavBarInterface }
+<script lang="ts">
+import { inject } from 'vue';
+import type { NavBarInterface } from '../../types/bars';
 
-const props = defineProps<Props>()
+</script>
+
+<script setup lang="ts">
+
+
+const props = defineProps<NavBarInterface>()
 const isMobile = inject('isMobile')
+
 </script>
 
 <style lang="stylus">
