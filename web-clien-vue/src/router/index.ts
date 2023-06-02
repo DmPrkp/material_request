@@ -1,30 +1,32 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteLocationRaw, type RouteRecordRaw } from 'vue-router';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: { name: 'home', params: { locale: import.meta.env.VITE_RU_LOCALE } },
+      redirect: `/${import.meta.env.VITE_RU_LOCALE}/calc`
     },
     {
-      // path: "/:locale(^[a-z][a-z]$)",
-      path: "/:locale",
-      // redirect: { name: 'home', params: { locale: import.meta.env.VITE_RU_LOCALE } },
+      path: '/:locale',
+      redirect: to => `${to.path}/calc`,
+      component: {
+        template: '<router-view />'
+      },
       children: [
         {
-          path: '',
-          name: 'home',
-          component: () => import('@/views/HomeView.vue')
+          path: 'calc',
+          name: 'calc',
+          component: () => import('@/pages/CalcPage.vue')
         },
         {
-          path: 'about',
-          name: 'about',
-          component: () => import('@/views/AboutView.vue')
+          path: 'about-project',
+          name: 'about-project',
+          component: () => import('@/pages/AboutPage.vue')
         }
       ]
     }
   ]
-})
+});
 
-export default router
+export default router;

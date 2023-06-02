@@ -58,7 +58,7 @@ function handleLocale(locale: string, availableLocales) {
 const availableLocales = getAvailableLocales()
 
 watch(() => route.fullPath, (newVal, oldVal) => {
-    if (route.params.locale.constructor === String && oldVal === '/') {
+    if (route.params.locale && route.params.locale.constructor === String && oldVal === '/') {
         handleLocale(route?.params?.locale, availableLocales)
     }    
 })

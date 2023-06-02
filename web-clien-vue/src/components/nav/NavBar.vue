@@ -1,38 +1,34 @@
 <template>
-  <nav
-    class="menu-list_wrapper"
-    :class="{'menu-list_fixed-wrapper': isMobile}"
-    >
+  <nav class="menu-list_wrapper" :class="{'menu-list_fixed-wrapper': isMobile}">
     <ul class="menu-list">
-      <li 
-        v-for="(item) in mainMenu"
-        :key="item.description"
-        class="menu-list_item"
-        :class="($route.path.match(item.link)) ? 'menu-list_chosen' : ''"
-        >
-        <router-link :to="item.link"> 
-          {{ item.description }} 
-        </router-link>        
+      <li v-for="item in mainMenu" :key="item.description" class="menu-list_item">
+        <router-link :to="getLocalizedRoute(item.name)">
+          {{ item.description }}
+        </router-link>
       </li>
     </ul>
   </nav>
 </template>
-  
-<script setup lang="ts">
-import { inject } from 'vue';
-interface NavMenu {
-  link: string,
-  description: string,
-}
 
-let mainMenu: NavMenu[] = [
-  {link: '/calc', description: 'calc'},
-  {link: '/articles', description: 'articles'},
-  {link: '/how-to-use', description: 'how to use'},
-  {link: '/about-project', description: 'about project'}
+<script setup lang="ts">
+import { useRoute } from 'vue-router';
+import injectI18nToRoute from '@/mixins/injectI18nToRoute';
+
+const route = useRoute();
+const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
+
+const getLocalizedRoute = (routeName: string) => {
+  return injectI18nToRoute(routeName, locale);
+};
+
+const mainMenu = [
+  { name: 'calc', description: 'calc' },
+  { name: 'about-project', description: 'about project' }
 ];
-const isMobile = inject('isMobile')
+
+const isMobile = true;
 </script>
+
   
 <style>
 .menu-list {
@@ -51,7 +47,7 @@ const isMobile = inject('isMobile')
   border-right: 20px solid var(--main-color);
 }
 
-.menu-list_item_chosen {
+.menu-list_chosen {
   background: var(--main-color);
   display: flex;
   justify-content: flex-start;
