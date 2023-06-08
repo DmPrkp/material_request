@@ -10,7 +10,7 @@
       </div>
       <LocaleSwitcher />  
       <div class="header-bar_right-side">
-        <u-i-mobile-menu @change="$emit('change')"></u-i-mobile-menu>
+        <MobileMenu @change="$emit('change')"></MobileMenu>
       </div>
     </div>
   </nav>
@@ -18,9 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import LocaleSwitcher from '@/components/logicalSwitchers/LocaleSwitcher.vue';
+  import LocaleSwitcher from '@/components/logicalSwitchers/LocaleSwitcher.vue';
+  import MobileMenu from '../ui/MobileMenu.vue';
+  import type { Ref } from 'vue';
   
-  const emit = defineEmits(['change'])
+  const emit = defineEmits<{
+    (e: 'change', isOpen: Ref<boolean>) : void
+  }>()
 </script>
 
 <style>
