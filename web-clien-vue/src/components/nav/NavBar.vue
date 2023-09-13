@@ -1,5 +1,17 @@
-<template>
+<!-- <template>
   <nav class="menu-list_wrapper" :class="{'menu-list_fixed-wrapper': isMobile}">
+    <ul class="menu-list">
+      <li v-for="item in mainMenu" :key="item.description" class="menu-list_item">
+        <router-link :to="getLocalizedRoute(item.name)">
+          {{ item.description }}
+        </router-link>
+      </li>
+    </ul>
+  </nav>
+</template> -->
+
+<template>
+  <nav class="menu-list_wrapper" :class="{'fixed right-0': isMobile}">
     <ul class="menu-list">
       <li v-for="item in mainMenu" :key="item.description" class="menu-list_item">
         <router-link :to="getLocalizedRoute(item.name)">
@@ -30,7 +42,7 @@ const isMobile = true;
 </script>
 
   
-<style>
+<!-- <style>
 .menu-list {
   width: 200px;
   list-style-type: none;
@@ -73,7 +85,7 @@ a {
   display: block;
   color: var(--dark-letter);
 }
-</style>
+</style> -->
 
 <!-- <style lang="stylus">
   .menu-list

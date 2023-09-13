@@ -4,8 +4,8 @@
     <div class="header-bar_items_wrapper">
       <div class="header-bar_logo_wrapper">
         <router-link  class="header-bar_logo" to="/">
-          <span>mat</span>
-          <span>li</span>
+          <span class="text-3xl">test</span>
+          <span>test</span>
         </router-link>
       </div>
       <LocaleSwitcher />  

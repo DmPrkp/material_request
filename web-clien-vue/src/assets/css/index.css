@@ -1,5 +1,4 @@
 html {
-  /* main colors */
   --main-color: #42b883;
   --dark-main-color: #363636;
   --borders: #dadada;
@@ -8,7 +7,6 @@ html {
   --contrast-bg: #6da56d;
   --header-bar-color: linear-gradient(150deg, var(--contrast-bg), var(--dark-main-color) 70%, var(--dark-main-color) 30%);
 
-  /* text */
   --bright-letter: floralwhite;
   --dark-letter: black;
 }
