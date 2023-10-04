@@ -22,8 +22,7 @@ onMounted(() => {
 
 </script>
 
-<style>
+<!-- <style>
 @import "@/assets/css";
-@import "@/assets/css/tailwind.css";
-/* @import "@/assets/css/main.css"; */
-</style>
+@import "@/assets/css/main.css";
+</style> -->

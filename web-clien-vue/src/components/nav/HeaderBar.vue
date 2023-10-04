@@ -1,11 +1,11 @@
 <template>
-<header class="flex justify-end">
-  <nav class="header-gradient header-shadow h-14 w-[calc(100%-50px)]">
-    <div class="flex justify-between items-center h-full">
-      <div class="pl-10">
-        <router-link  class="m-0 text-2xl font-bold leading-12" to="/">
-          <span class="text-3xl text-[var(--bright-letter)]">test</span>
-          <span class="text-2xl text-[var(--main-color)]">test</span>
+<header>
+  <nav class="header-bar">
+    <div class="header-bar_items_wrapper">
+      <div class="header-bar_logo_wrapper">
+        <router-link  class="header-bar_logo" to="/">
+          <span>mat</span>
+          <span>li</span>
         </router-link>
       </div>
       <LocaleSwitcher />  
