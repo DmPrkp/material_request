@@ -4,7 +4,7 @@
     <div class="header-bar_items_wrapper">
       <div class="header-bar_logo_wrapper">
         <router-link  class="header-bar_logo" to="/">
-          <span>mat</span>
+          <span>test</span>
           <span>li</span>
         </router-link>
       </div>
@@ -37,4 +37,41 @@
 .header-shadow {
   box-shadow: -5px 5px 5px 0 grey
 }
+
+header {
+  display: flex;
+  justify-content: flex-end;
+}
+.header-bar {
+  background: var(--header-bar-color);
+  height: 70px;
+  width: calc(100% - 50px);
+  box-shadow: -5px 5px 5px 0 #808080;
+}
+.header-bar_items_wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+.header-bar_logo {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 3rem;
+}
+.header-bar_logo_wrapper {
+  padding-left: 10%;
+}
+.header-bar_right-side {
+  display: flex;
+  padding-right: 20px;
+}
+span:first-child {
+  color: var(--bright-letter);
+}
+span:last-child {
+  color: var(--main-color);
+}
+
 </style>
