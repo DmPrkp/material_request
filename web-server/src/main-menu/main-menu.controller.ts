@@ -7,22 +7,42 @@ export class MainMenuController {
   findAll(): Array<MainMenuItem> {
     return [
       {
-        title: 'facades',
-        description: 'facades items',
+        title: 'facade',
+        description: 'facade items',
         img: {
           src: '/main-menu/facade-main.jpg',
           alt: 'facade-main',
           width: 150,
         },
+        items: [
+          {
+            title: 'EIFS',
+            description: 'Exterior Insulation Finishing System',
+            img: {
+              src: '/main-menu/wet-facade.jpg',
+              alt: 'wet-facade',
+            },
+          },
+        ],
       },
       {
-        title: 'roofs',
-        description: 'roofs items',
+        title: 'roof',
+        description: 'roof items',
         img: {
           src: '/main-menu/roof-main.jpg',
           alt: 'roof-main',
           width: 150,
         },
+        items: [
+          {
+            title: 'flat',
+            description: 'flat roofs',
+            img: {
+              src: '/main-menu/flat-roof.jpg',
+              alt: 'flat-roof',
+            },
+          },
+        ],
       },
     ];
   }

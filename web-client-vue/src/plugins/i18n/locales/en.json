@@ -1,4 +1,8 @@
 {
-  "message": "Hello { name } by i18n !!"
-  
+  "message": "Hello { name } by i18n !!",
+  "main-menu": {
+    "facade": "Facade",
+    "roof": "Roof",
+    "EIFS": "EIFS"
+  }
 }
