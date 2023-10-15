@@ -1,7 +1,10 @@
 <template>
     <HeaderBar @change="setBarState"/>
     <NavBar v-if="navBarState"/>
-    <RouterView/>
+    <div style="padding: 20px;">
+      <RouterView/>
+    </div>
+
 </template>
 
 <script setup lang="ts">
@@ -16,7 +19,7 @@ let setBarState = () => { console.log('setBarState'); navBarState.value = !navBa
 provide('isMobile', isMobile)
 
 onMounted(() => {
-  isMobile.value = window.innerWidth < 600
+  isMobile.value = window.innerWidth < 900
   if (!isMobile.value) { navBarState.value = true }
 })
 

@@ -10,8 +10,8 @@ export class MainMenuController {
         title: 'facades',
         description: 'facades items',
         img: {
-          src: '/main-menu/house1.jpg',
-          alt: 'house1',
+          src: '/main-menu/facade-main.jpg',
+          alt: 'facade-main',
           width: 150,
         },
       },
@@ -19,8 +19,8 @@ export class MainMenuController {
         title: 'roofs',
         description: 'roofs items',
         img: {
-          src: '/main-menu/house2.jpg',
-          alt: 'house2',
+          src: '/main-menu/roof-main.jpg',
+          alt: 'roof-main',
           width: 150,
         },
       },

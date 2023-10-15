@@ -1,12 +1,13 @@
 <template>
-    <div>
-        <div v-for="(item, index) in mainMenu" :key="index">
-            <img :src="item.img.src" :alt="item.img.alt" :width="item.img.width">
+    <div class="calc-page">
+        <div class="calc-page_wrapper" v-for="(item, index) in mainMenu" :key="index">
+            <img :src="item.img.src" :alt="item.img.alt" >
+            <h2>{{ $t }}</h2>
         </div>
-        <input v-model="number1" type="number" placeholder="Enter a number" />
+        <!-- <input v-model="number1" type="number" placeholder="Enter a number" />
         <input v-model="number2" type="number" placeholder="Enter another number" />
         <button @click="addNumbers">Add</button>
-        <p>Result: {{ result }}</p>
+        <p>Result: {{ result }}</p> -->
     </div>
 </template>
 
@@ -32,6 +33,20 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Add any styling you want for the component */
+.calc-page {
+    display: flex;
+    justify-content: center;
+}
+
+.calc-page_wrapper {
+    width: 50%;
+    padding: 5px;
+    max-height: 150px;
+    overflow: hidden;
+}
+
+.calc-page_wrapper > img {
+    height: 100%;
+}
 </style>
   

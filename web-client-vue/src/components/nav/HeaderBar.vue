@@ -9,7 +9,7 @@
         </router-link>
       </div>
       <LocaleSwitcher />  
-      <div class="flex pr-5">
+      <div>
         <MobileMenu @change="$emit('change')"></MobileMenu>
       </div>
     </div>
