@@ -1,5 +1,5 @@
 <template>
-    <div class="calc-item_wrapper" @click="$emit('click', item.items)">
+    <div class="calc-item_wrapper" @click="$emit('click', item)">
         <h2 class="fb calc-page_menu">{{ $t(`main-menu.${item.title}`) }}</h2>
         <img :src="item.img.src" :alt="item.img.alt" >        
     </div>

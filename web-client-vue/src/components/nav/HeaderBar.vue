@@ -9,7 +9,7 @@
         </router-link>
       </div>
       <LocaleSwitcher />  
-      <div>
+      <div class="header-bar_burger_wrapper">
         <MobileMenu @change="$emit('change')"></MobileMenu>
       </div>
     </div>
@@ -63,6 +63,11 @@ header {
 .header-bar_logo_wrapper {
   padding-left: 10%;
 }
+
+.header-bar_burger_wrapper {
+  padding-right: 2rem;
+}
+
 .header-bar_right-side {
   display: flex;
   padding-right: 20px;
