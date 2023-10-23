@@ -10,7 +10,8 @@ import { MainMenuController } from './main-menu/main-menu.controller';
   imports: [
     UsersModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'web-client'),
+      // rootPath: join(__dirname, '..', 'web-client'),
+      rootPath: join(__dirname, '..', 'ionic-client'),
     }),
   ],
   controllers: [AppController, MainMenuController],

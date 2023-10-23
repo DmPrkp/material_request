@@ -37,3 +37,4 @@ lerna-debug.log*
 
 # current app
 /web-client
+/ionic-client
