@@ -5,12 +5,26 @@ import HomePage from '../views/HomePage.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/home'
+    redirect: `/${import.meta.env.VITE_RU_LOCALE}/calc`
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: HomePage
+    path: '/:locale',
+    redirect: to => `${to.path}/calc`,
+    component: {
+      template: '<router-view />'
+    },
+    children: [
+      {
+        path: 'calc',
+        name: 'calc',
+        component: () => import('@/pages/CalcPage.vue')
+      },
+      {
+        path: 'about-project',
+        name: 'about-project',
+        component: () => import('@/pages/HomePage.vue')
+      }
+    ]
   }
 ]
 

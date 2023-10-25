@@ -1,0 +1,9 @@
+{
+  "message": "Привет { name } от i18n !!",
+  "title": "MatLi",
+  "main-menu": {
+    "facade": "Фасад",
+    "roof": "Кровля",
+    "EIFS": "Мокрый фасад"
+  }
+}

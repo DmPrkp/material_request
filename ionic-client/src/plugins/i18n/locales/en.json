@@ -1,0 +1,9 @@
+{
+  "message": "Hello { name } by i18n !!",
+  "title": "MatLi",
+  "main-menu": {
+    "facade": "Facade",
+    "roof": "Roof",
+    "EIFS": "EIFS"
+  }
+}
