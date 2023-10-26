@@ -12,22 +12,52 @@
       </ion-refresher>
       <ion-router-outlet />
     </ion-content>
+    <!-- <ion-fab slot="fixed" vertical="bottom" horizontal="center">
+      <ion-fab-button class="bottom-icons">
+        <ion-icon :icon="calculatorOutline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab> -->
     <ion-footer>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="center">
-        <ion-fab-button>
-          <ion-icon :icon="calculatorOutline"></ion-icon>
-        </ion-fab-button>
-      </ion-fab>
-    </ion-footer>
-    
+      <ion-grid>
+        <ion-row >
+            <ion-col no-padding>
+              <ion-fab-button size="small" fill="outline">
+                <ion-ripple-effect></ion-ripple-effect>
+                <ion-icon :icon="informationCircleOutline"></ion-icon>
+              </ion-fab-button>
+              <ion-text>
+                О проекте
+              </ion-text>
+            </ion-col>
+            <ion-col no-padding>
+              <ion-fab-button fill="outline">
+                <ion-ripple-effect></ion-ripple-effect>
+                <ion-icon :icon="calculatorOutline"></ion-icon>
+              </ion-fab-button>
+              <ion-text>
+                Калькулятор
+              </ion-text>
+            </ion-col>
+            <ion-col no-padding>
+              <ion-fab-button size="small" fill="outline">
+                <ion-ripple-effect></ion-ripple-effect>
+                <ion-icon :icon="settingsOutline"></ion-icon>
+              </ion-fab-button>
+              <ion-text>
+                Настройки
+              </ion-text>
+            </ion-col>
+        </ion-row>
+      </ion-grid>
+  </ion-footer>
   </ion-app>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar, IonRefresher, IonRefresherContent, IonFooter, IonFab, IonFabButton, IonIcon } from '@ionic/vue';
-import { calculatorOutline } from 'ionicons/icons';
+import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar, IonRefresher, IonRefresherContent, IonFooter, IonFab, IonFabButton, IonIcon, IonRippleEffect } from '@ionic/vue';
+import { calculatorOutline, settingsOutline, informationCircleOutline } from 'ionicons/icons';
 
 const route = useRoute();
 const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
@@ -59,4 +89,13 @@ ion-toolbar {
     --padding-top: 20px;
     --padding-bottom: 20px; */
   }
+
+  ion-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
 </style>
