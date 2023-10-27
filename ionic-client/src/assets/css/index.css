@@ -11,6 +11,9 @@ html {
   /* text */
   --bright-letter: floralwhite;
   --dark-letter: black;
+
+  /* ionic */
+  --ion-margin: 8px
 }
 
 /* html {

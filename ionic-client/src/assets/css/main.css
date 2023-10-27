@@ -22,3 +22,7 @@ a {
 .fill-width {
   width: 100%;
 } */
+
+.small-text {
+  font-size: 0.8rem;
+}
