@@ -3,17 +3,10 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ $t("title") }}</ion-title>
-        <ion-progress-bar type="indeterminate"></ion-progress-bar>
+        <!-- <ion-progress-bar type="indeterminate"></ion-progress-bar> -->
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding">
-      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
-        <ion-refresher-content>
-       
-        </ion-refresher-content>
-        <ion-router-outlet></ion-router-outlet>
-      </ion-refresher>
-    </ion-content>
+    <ion-router-outlet></ion-router-outlet>
     <FooterBar></FooterBar>
   </ion-app>
 </template>
@@ -21,7 +14,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar, IonRefresher, IonRefresherContent } from '@ionic/vue';
+import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar} from '@ionic/vue';
 import FooterBar from './components/nav/FooterBar.vue';
 
 const route = useRoute();

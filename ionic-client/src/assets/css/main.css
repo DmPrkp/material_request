@@ -11,10 +11,6 @@ body {
 .fb { color: var(--bright-letter) }
 .fd { color: var(--dark-letter) }
 
-a {
-  text-decoration: none;
-}
-
 .fill-height {
   height: 100%;
 }
@@ -25,4 +21,8 @@ a {
 
 .small-text {
   font-size: 0.8rem;
+}
+
+a {
+  text-decoration: none;
 }
