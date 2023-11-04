@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
+import { createPinia } from 'pinia'
+const pinia = createPinia()
 
 import { IonicVue } from '@ionic/vue';
 import i18n from './plugins/i18n'
@@ -29,6 +31,7 @@ BaseModel.setBaseUrl()
 
 const app = createApp(App)
   .use(IonicVue)
+  .use(pinia)
   .use(i18n)
   .use(router);
   

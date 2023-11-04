@@ -2,29 +2,13 @@
   <ion-footer>
       <ion-grid>
         <ion-row >
-            <ion-col no-padding class="ion-align-self-end">
-              <router-link :to="`/${'ru'}/about`">
-                <ion-icon :icon="informationCircleOutline" size="large"></ion-icon>
+            <ion-col v-for="item in menuItems" :key="item.name" no-padding class="ion-align-self-end">
+              <router-link :to="getLocalizedRoute(item.link)">
+                <ion-icon :icon="item.icon" size="large"></ion-icon>
               </router-link>
               <ion-text class="small-text">
-                О проекте
+                {{ $t(`footer.${item.name}`) }}
               </ion-text>
-            </ion-col>
-            <ion-col no-padding class="ion-align-self-end">
-                <router-link :to="`/${'ru'}/calc`">
-                  <ion-icon :icon="calculatorOutline" size="large"></ion-icon>
-                </router-link>
-                <ion-text class="small-text">
-                  Калькулятор
-                </ion-text>
-            </ion-col>
-            <ion-col no-padding class="ion-align-self-end">
-              <router-link :to="`/${'ru'}/settings`">
-                <ion-icon :icon="settingsOutline" size="large"></ion-icon>
-              </router-link>
-              <ion-text class="small-text">
-                Настройки
-              </ion-text>            
             </ion-col>
         </ion-row>
       </ion-grid>
@@ -34,6 +18,34 @@
 <script setup lang="ts">
 import { IonIcon, IonFooter, IonGrid, IonCol, IonText, IonRow, IonFabButton, IonRippleEffect } from '@ionic/vue';
 import { calculatorOutline, settingsOutline, informationCircleOutline } from 'ionicons/icons';
+import { useRoute } from 'vue-router';
+import injectI18nToRoute from '@/mixins/injectI18nToRoute';
+
+const menuItems = [
+  {
+    link: 'about',
+    name: 'about',
+    icon: informationCircleOutline
+  },
+  {
+    link: 'main',
+    name: 'main',
+    icon: calculatorOutline
+  },
+  {
+    link: 'settings',
+    name: 'settings',
+    icon: settingsOutline
+  }
+]
+
+const getLocalizedRoute = (routeName: string) => {
+  const route = useRoute();
+  const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
+  return injectI18nToRoute(routeName, locale, route);
+};
+
+
 
 </script>
 

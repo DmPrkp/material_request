@@ -1,6 +1,11 @@
 {
   "message": "Привет { name } от i18n !!",
-  "title": "MatLi",
+  "title": "Zayavka.ru",
+  "footer": {
+    "settings": "Настройки",
+    "main": "Калькулятор",
+    "about": "О проекте"
+  },
   "main-menu": {
     "facade": "Фасад",
     "roof": "Кровля",

@@ -14,19 +14,40 @@ const routes: Array<RouteRecordRaw> = [
     },
     children: [
       {
-        path: 'calc',
-        name: 'calc',
-        component: () => import('@/pages/CalcPage.vue')
+        path: 'main',
+        name: 'main',
+        component: () => import('@/pages/MainPage.vue'),
+        children: [
+          {
+            path: 'systems',
+            name: 'systems',
+            component: () => import('@/pages/SystemsPage.vue'),
+            children: [
+              {
+                path: 'components',
+                name: 'components',
+                component: () => import('@/pages/ComponentsPage.vue'),
+                children: [
+                  {
+                    path: 'volumes',
+                    name: 'volumes',
+                    component: () => import('@/pages/VolumePage.vue'),
+                  },
+                ]
+              },
+            ]
+          },
+        ]
       },
       {
         path: 'about',
         name: 'about',
-        component: () => import('@/pages/HomePage.vue')
+        component: () => import('@/pages/AboutPage.vue')
       },
       {
         path: 'settings',
         name: 'settings',
-        component: () => import('@/pages/HomePage.vue')
+        component: () => import('@/pages/SettingsPage.vue')
       }
     ]
   }

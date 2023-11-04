@@ -1,6 +1,11 @@
 {
   "message": "Hello { name } by i18n !!",
   "title": "MatLi",
+  "footer": {
+    "settings": "Settings",
+    "main": "Main",
+    "about": "About"
+  },
   "main-menu": {
     "facade": "Facade",
     "roof": "Roof",

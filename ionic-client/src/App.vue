@@ -6,7 +6,10 @@
         <!-- <ion-progress-bar type="indeterminate"></ion-progress-bar> -->
       </ion-toolbar>
     </ion-header>
-    <ion-router-outlet></ion-router-outlet>
+    <ion-content>
+      <ion-router-outlet></ion-router-outlet>
+    </ion-content>
+
     <FooterBar></FooterBar>
   </ion-app>
 </template>
