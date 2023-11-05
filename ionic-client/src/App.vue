@@ -2,8 +2,11 @@
   <ion-app>
     <ion-header>
       <ion-toolbar>
+        <ion-buttons v-if="route.matched.length > 2" slot="start">
+          <ion-back-button default-href="" @click="router.back"></ion-back-button>
+        </ion-buttons>
         <ion-title>{{ $t("title") }}</ion-title>
-        <!-- <ion-progress-bar type="indeterminate"></ion-progress-bar> -->
+        <ion-progress-bar v-if="mainMenuStatus === 'none'" type="indeterminate"></ion-progress-bar>
       </ion-toolbar>
     </ion-header>
     <ion-content>
@@ -15,13 +18,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar} from '@ionic/vue';
+import { onMounted, type ComputedRef, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar, IonButtons, IonBackButton} from '@ionic/vue';
 import FooterBar from './components/nav/FooterBar.vue';
+import { mainMenuStore } from '@/store/MainMenuStore'
+const store = mainMenuStore()
+
+const mainMenuStatus : ComputedRef<string> = computed(() => store.status)
 
 const route = useRoute();
+const router = useRouter()
 const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
+
+console.log()
+console.log(router)
 
 const handleRefresh = (event: CustomEvent) => {
         setTimeout(() => {

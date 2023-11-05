@@ -1,6 +1,6 @@
 # initial client to develop
-cd ./web-client-vue 
-npm run build-only &
+cd ./ionic-client
+npm run dev &
 
 # initial server to develop
 cd ../web-server

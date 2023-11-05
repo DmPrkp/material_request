@@ -1,13 +1,18 @@
 import { defineStore } from 'pinia'
+import { MainMenuItem } from '../../../shared-types/controller/main-menu'
+
+interface StateMainMenu {
+  mainMenu: Array<MainMenuItem>,
+  status: 'none' | 'upload' 
+}
 
 export const mainMenuStore = defineStore('main-menu', {
-    state: () => ({ count: 0, name: 'Eduardo' }),
-    getters: {
-      doubleCount: (state) => state.count * 2,
-    },
+    state: () : StateMainMenu => ({mainMenu: [], status: 'none'}),
     actions: {
-      increment() {
-        this.count++
+      defineMeinMenu(mainMenu: Array<MainMenuItem>): void {
+        if (!mainMenu.length) return
+        this.mainMenu = mainMenu
+        this.status = 'upload'
       },
     },
   })

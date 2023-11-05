@@ -8,7 +8,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:locale',
-    redirect: to => `${to.path}/calc`,
+    redirect: to => `${to.path}/main`,
     component: {
       template: '<router-view />'
     },
@@ -19,12 +19,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/pages/MainPage.vue'),
         children: [
           {
-            path: 'systems',
+            path: ':systems',
             name: 'systems',
             component: () => import('@/pages/SystemsPage.vue'),
             children: [
               {
-                path: 'components',
+                path: ':components',
                 name: 'components',
                 component: () => import('@/pages/ComponentsPage.vue'),
                 children: [
