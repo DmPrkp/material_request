@@ -3,7 +3,7 @@
         <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
             <ion-refresher-content></ion-refresher-content> 
         </ion-refresher>
-        <ion-title v-if="mainMenu.length"> Выберите вид работ </ion-title>
+        <ion-title v-if="mainMenu.length"> Выберите технологию </ion-title>
         <main-menu-items :items="[]"></main-menu-items>
     </ion-content>
 </template>
@@ -14,9 +14,10 @@ import { IonContent, IonRefresher, IonRefresherContent, IonTitle  } from '@ionic
 import { computed, onMounted, reactive, type Ref, toRefs, type ComputedRef } from 'vue';
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
 import { mainMenuStore } from '@/store/MainMenuStore'
-import MainMenuItems from '@/components/ui/MainMenuItems.vue'
 const store = mainMenuStore()
-
+import MainMenuItems from '@/components/ui/MainMenuItems.vue'
+import { useRoute, useRouter } from 'vue-router';
+const route = useRoute()
 const mainMenu : ComputedRef<Array<MainMenuItem>> = computed(() => store.mainMenu)
 
 const handleRefresh = (event: CustomEvent) => {
@@ -26,6 +27,10 @@ const handleRefresh = (event: CustomEvent) => {
       };
 
 onMounted(async () => {
-    console.log('mainMenu', store.mainMenu)
+    // console.log('route', route.params)
+    // const menu = store.mainMenu
+    // console.log('store.mainMenu', store.mainMenu)
+    const currentItem = store.mainMenu.filter(item => item.title === route.params.systems)
+    console.log('currentItem', currentItem)
 });
 </script>

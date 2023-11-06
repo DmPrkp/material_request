@@ -31,9 +31,6 @@ const route = useRoute();
 const router = useRouter()
 const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
 
-console.log()
-console.log(router)
-
 const handleRefresh = (event: CustomEvent) => {
         setTimeout(() => {
           event.target.complete();

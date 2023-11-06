@@ -1,19 +1,21 @@
 <template>
-    <ion-content class="ion-padding">
+    <ion-content v-if="route.name === 'main'" class="ion-padding">
         <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
             <ion-refresher-content></ion-refresher-content> 
         </ion-refresher>
         <ion-title v-if="mainMenu.length"> Выберите вид работ </ion-title>
         <main-menu-items :items="store.mainMenu" @item="chooseItem"></main-menu-items>
     </ion-content>
+    <ion-router-outlet v-else></ion-router-outlet>
 </template>
 
 <script lang="ts" setup>
 import BaseModel from '@/models/BaseModel'
-import { IonContent, IonRefresher, IonRefresherContent, IonTitle  } from '@ionic/vue';
+import { IonContent, IonRefresher, IonRefresherContent, IonTitle, IonRouterOutlet  } from '@ionic/vue';
 import { computed, onMounted, reactive, type Ref, toRefs, type ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 const router = useRouter()
+const route = useRoute()
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
 import { mainMenuStore } from '@/store/MainMenuStore'
 import MainMenuItems from '@/components/ui/MainMenuItems.vue'
@@ -34,6 +36,7 @@ onMounted(async () => {
 });
 
 const chooseItem = (item : MainMenuItem) => {
+    // router.push({ name: 'systems', params: { systems: item.title } })
     router.push({ name: 'systems', params: { systems: item.title } })
 }
 </script>
