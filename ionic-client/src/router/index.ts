@@ -27,13 +27,6 @@ const routes: Array<RouteRecordRaw> = [
                 path: ':components',
                 name: 'components',
                 component: () => import('@/pages/ComponentsPage.vue'),
-                children: [
-                  {
-                    path: 'volumes',
-                    name: 'volumes',
-                    component: () => import('@/pages/VolumePage.vue'),
-                  },
-                ]
               },
             ]
           },
