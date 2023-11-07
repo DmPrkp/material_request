@@ -32,7 +32,6 @@ const handleRefresh = (event: CustomEvent) => {
 onMounted(async () => {
     const menu = await BaseModel.fetch(['main-menu'])
     store.defineMeinMenu(menu)
-    console.log('mainMenu', store.mainMenu)
 });
 
 const chooseItem = (item : MainMenuItem) => {
