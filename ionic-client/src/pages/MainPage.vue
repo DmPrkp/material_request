@@ -11,7 +11,6 @@
 
 <script lang="ts" setup>
 import BaseModel from '@/models/BaseModel'
-import { IonContent, IonRefresher, IonRefresherContent, IonTitle, IonRouterOutlet  } from '@ionic/vue';
 import { computed, onMounted, reactive, type Ref, toRefs, type ComputedRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 const router = useRouter()
@@ -35,7 +34,6 @@ onMounted(async () => {
 });
 
 const chooseItem = (item : MainMenuItem) => {
-    // router.push({ name: 'systems', params: { systems: item.title } })
     router.push({ name: 'systems', params: { systems: item.title } })
 }
 </script>

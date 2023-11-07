@@ -1,16 +1,16 @@
 <template>
-    <ion-content class="ion-padding">
+    <ion-content v-if="route.name === 'systems'" class="ion-padding">
         <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
             <ion-refresher-content></ion-refresher-content> 
         </ion-refresher>
         <ion-title> Выберите технологию </ion-title>
-        <main-menu-items v-if="currentItems[0]" :items="currentItems[0].items"></main-menu-items>
+        <main-menu-items v-if="currentItems[0]" :items="currentItems[0].items" @item="chooseItem"></main-menu-items>
     </ion-content>
+    <ion-router-outlet v-else></ion-router-outlet>
 </template>
 
 <script lang="ts" setup>
 import BaseModel from '@/models/BaseModel'
-import { IonContent, IonRefresher, IonRefresherContent, IonTitle  } from '@ionic/vue';
 import { computed, onMounted, ComputedRef } from 'vue';
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
 import { mainMenuStore } from '@/store/MainMenuStore'
@@ -27,7 +27,7 @@ const handleRefresh = (event: CustomEvent) => {
         }, 2000);
       };
 
-// onMounted(async () => {    
-//     // if (currentItems.)
-// });
+function chooseItem(item: MainMenuItem) {
+    router.push({ name: 'components', params: { systems: item.title } })
+} 
 </script>

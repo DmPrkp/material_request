@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { IonPage, IonCard, IonCardHeader, IonCardTitle, IonContent, IonRefresher, IonRefresherContent, IonGrid, IonRow, IonCol, IonTitle  } from '@ionic/vue';
+import { IonCard, IonCardHeader, IonCardTitle, IonGrid, IonRow, IonCol  } from '@ionic/vue';
 import { ref, onMounted, reactive, type Ref, toRefs } from 'vue';
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
 // import CalcItem from '@/components/ui/CalcItem.vue';

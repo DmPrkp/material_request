@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { onMounted, type ComputedRef, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { IonApp, IonRouterOutlet, IonContent, IonHeader, IonTitle, IonToolbar, IonProgressBar, IonButtons, IonBackButton} from '@ionic/vue';
+import { IonApp, IonHeader, IonToolbar, IonProgressBar, IonButtons, IonBackButton} from '@ionic/vue';
 import FooterBar from './components/nav/FooterBar.vue';
 import { mainMenuStore } from '@/store/MainMenuStore'
 const store = mainMenuStore()
