@@ -6,8 +6,8 @@ import { MainMenuController } from './main-menu/main-menu.controller';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      // rootPath: join(__dirname, '..', 'web-client'),
       rootPath: join(__dirname, '..', 'ionic-client'),
+      exclude: ['/api/(.*)'],
     }),
   ],
   controllers: [MainMenuController],

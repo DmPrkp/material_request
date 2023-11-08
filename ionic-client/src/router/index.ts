@@ -4,7 +4,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: `/${import.meta.env.VITE_RU_LOCALE}/calc`
+    redirect: `/${import.meta.env.VITE_RU_LOCALE}/main`
   },
   {
     path: '/:locale',

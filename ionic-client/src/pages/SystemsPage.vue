@@ -4,13 +4,12 @@
             <ion-refresher-content></ion-refresher-content> 
         </ion-refresher>
         <ion-title> Выберите технологию </ion-title>
-        <main-menu-items v-if="currentItems[0]" :items="currentItems[0].items" @item="chooseItem"></main-menu-items>
+        <main-menu-items v-if="currentItems[0]" :items="currentItems[0].items" @item="chooseItem"/>
     </ion-content>
     <ion-router-outlet v-else></ion-router-outlet>
 </template>
 
 <script lang="ts" setup>
-import BaseModel from '@/models/BaseModel'
 import { computed, onMounted, ComputedRef } from 'vue';
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
 import { mainMenuStore } from '@/store/MainMenuStore'
@@ -28,6 +27,6 @@ const handleRefresh = (event: CustomEvent) => {
       };
 
 function chooseItem(item: MainMenuItem) {
-    router.push({ name: 'components', params: { systems: item.title } })
+    router.push({ name: 'components', params: { components: item.title } })
 } 
 </script>

@@ -11,13 +11,16 @@ export default class BaseModel {
     }
 
     static async fetch(params: Array<string> = [], queries = [], opts?: RequestInit) : Promise<any> {
-        const query = this.baseURL + this.apiVersion + params.reduce((acc, param) => acc += `/${param}`, '')
-        const options = Object.assign({}, this.baseOpts, opts)
-        const response = await fetch(query)
-        if (!response.ok) {
-            throw new Error('Failed to fetch data');
-          }
-        return await response.json();
+        try {
+            const query = this.baseURL + this.apiVersion + params.reduce((acc, param) => acc += `/${param}`, '')
+            const options = Object.assign({}, this.baseOpts, opts)
+            const response = await fetch(query)
+            if (!response.ok) { throw new Error('Failed to fetch data'); }
+            return await response.json();
+        } catch (error) {
+            console.error(error);
+        }
+
     }
        
 }
