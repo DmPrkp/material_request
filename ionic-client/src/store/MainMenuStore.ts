@@ -6,7 +6,7 @@ interface StateMainMenu {
   status: 'none' | 'upload' 
 }
 
-export const mainMenuStore = defineStore('main-menu', {
+export const useMainMenuStore = defineStore('main-menu', {
     state: () : StateMainMenu => ({mainMenu: [], status: 'none'}),
     actions: {
       defineMeinMenu(mainMenu: Array<MainMenuItem>): void {
@@ -14,5 +14,9 @@ export const mainMenuStore = defineStore('main-menu', {
         this.mainMenu = mainMenu
         this.status = 'upload'
       },
+      clearMeinMenu() {
+        this.mainMenu = []
+        this.status = 'none'
+      }
     },
   })

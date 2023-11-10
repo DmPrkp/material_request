@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { MainMenuItem } from '../../../shared-types/controller/main-menu';
+import { MainMenuItem } from '../../../../shared-types/controller/main-menu';
 
 @Controller('main-menu')
 export class MainMenuController {
@@ -10,7 +10,7 @@ export class MainMenuController {
         title: 'facade',
         description: 'facade items',
         img: {
-          src: '/main-menu/facade-main.jpg',
+          src: '/main-menu/facade-main-narrow.jpg',
           alt: 'facade-main',
           width: 150,
         },
@@ -19,7 +19,7 @@ export class MainMenuController {
             title: 'EIFS',
             description: 'Exterior Insulation Finishing System',
             img: {
-              src: '/main-menu/wet-facade.jpg',
+              src: '/main-menu/wet-facade-narrow.jpg',
               alt: 'wet-facade',
             },
           },
@@ -29,7 +29,7 @@ export class MainMenuController {
         title: 'roof',
         description: 'roof items',
         img: {
-          src: '/main-menu/roof-main.jpg',
+          src: '/main-menu/roof-main-narrow.jpg',
           alt: 'roof-main',
           width: 150,
         },

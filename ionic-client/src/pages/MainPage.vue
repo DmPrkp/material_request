@@ -1,11 +1,14 @@
 <template>
-    <ion-content v-if="route.name === 'main'" class="ion-padding">
-        <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
-            <ion-refresher-content></ion-refresher-content> 
-        </ion-refresher>
+    <ion-page v-if="route.name === 'main'">
         <ion-title v-if="mainMenu.length"> Выберите вид работ </ion-title>
-        <main-menu-items :items="store.mainMenu" @item="chooseItem"></main-menu-items>
-    </ion-content>
+        <ion-content class="ion-padding">
+            <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
+                <ion-refresher-content></ion-refresher-content> 
+            </ion-refresher>
+            <main-menu-items :items="mainMenu" @item="chooseItem"></main-menu-items>
+        </ion-content>
+    </ion-page>
+
     <ion-router-outlet v-else></ion-router-outlet>
 </template>
 
@@ -16,21 +19,27 @@ import { useRoute, useRouter } from 'vue-router';
 const router = useRouter()
 const route = useRoute()
 import { type MainMenuItem } from '../../../shared-types/controller/main-menu'
-import { mainMenuStore } from '@/store/MainMenuStore'
+import { useMainMenuStore } from '@/store/MainMenuStore'
 import MainMenuItems from '@/components/ui/MainMenuItems.vue'
-const store = mainMenuStore()
+const mainMenuStore = useMainMenuStore()
 
-const mainMenu : ComputedRef<Array<MainMenuItem>> = computed(() => store.mainMenu)
+const mainMenu : ComputedRef<Array<MainMenuItem>> = computed(() => mainMenuStore.mainMenu)
 
-const handleRefresh = (event: CustomEvent) => {
-        setTimeout(() => {
-          event.target.complete();
-        }, 2000);
-      };
+async function getMainMenu() {
+    const menu = await BaseModel.fetch(['main-menu'])
+    mainMenuStore.defineMeinMenu(menu)
+}
+
+const handleRefresh = async (event: CustomEvent) => {
+    mainMenuStore.clearMeinMenu()
+    await getMainMenu()
+    event.target.complete()
+}
+
+
 
 onMounted(async () => {
-    const menu = await BaseModel.fetch(['main-menu'])
-    store.defineMeinMenu(menu)
+    await getMainMenu()
 });
 
 const chooseItem = (item : MainMenuItem) => {

@@ -11,5 +11,15 @@
     "roof": "Кровля",
     "EIFS": "Мокрый фасад",
     "flat": "Плоская кровля"
+  },
+  "components": {
+    "base coat adhesive": "Базовый клеевой слой",
+    "insulation": "Слой теплоизоляции",
+    "fiberglass mesh": "Армирующий клеевой слой",
+    "finish coat": "Финишный слой",
+    "paint layer": "Окрасочный слой"
+  },
+  "measure": {
+    "square": "м²"
   }
 }

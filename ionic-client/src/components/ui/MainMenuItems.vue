@@ -1,11 +1,11 @@
 <template>
     <ion-grid>
         <ion-row>
-            <ion-col size-xs="6" size-md="6" size-lg="4" v-for="(item, index) in props.items" :key="index" :item="item" @click="$emit('item', item)">
+            <ion-col size-xs="12" size-md="6" size-lg="4" v-for="(item, index) in props.items" :key="index" :item="item" @click="$emit('item', item)">
                 <ion-card>
                     <img :src="item.img.src" :alt="item.img.alt" />
                     <ion-card-header>
-                    <ion-card-title>{{ $t(`main-menu.${item.title}`) }}</ion-card-title>
+                        <ion-card-title>{{ $t(`main-menu.${item.title}`) }}</ion-card-title>
                     </ion-card-header>
                 </ion-card>
             </ion-col>

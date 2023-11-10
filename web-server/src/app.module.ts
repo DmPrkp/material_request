@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { MainMenuController } from './main-menu/main-menu.controller';
+import { MainMenuController } from './controller/main-menu/main-menu.controller';
+import { SystemComponentsController } from './controller/system-components/system-components.controller';
 
 @Module({
   imports: [
@@ -10,6 +11,6 @@ import { MainMenuController } from './main-menu/main-menu.controller';
       exclude: ['/api/(.*)'],
     }),
   ],
-  controllers: [MainMenuController],
+  controllers: [MainMenuController, SystemComponentsController],
 })
 export class AppModule {}

@@ -9,10 +9,7 @@
         <ion-progress-bar v-if="mainMenuStatus === 'none'" type="indeterminate"></ion-progress-bar>
       </ion-toolbar>
     </ion-header>
-    <ion-content>
-      <ion-router-outlet></ion-router-outlet>
-    </ion-content>
-
+    <ion-router-outlet></ion-router-outlet>
     <FooterBar></FooterBar>
   </ion-app>
 </template>
@@ -22,20 +19,14 @@ import { onMounted, type ComputedRef, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { IonApp, IonHeader, IonToolbar, IonProgressBar, IonButtons, IonBackButton} from '@ionic/vue';
 import FooterBar from './components/nav/FooterBar.vue';
-import { mainMenuStore } from '@/store/MainMenuStore'
-const store = mainMenuStore()
+import { useMainMenuStore } from '@/store/MainMenuStore'
+const mainMenuStore = useMainMenuStore()
 
-const mainMenuStatus : ComputedRef<string> = computed(() => store.status)
+const mainMenuStatus : ComputedRef<string> = computed(() => mainMenuStore.status)
 
 const route = useRoute();
 const router = useRouter()
 const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
-
-const handleRefresh = (event: CustomEvent) => {
-        setTimeout(() => {
-          event.target.complete();
-        }, 2000);
-      };
 
 onMounted(() => {
   const base = route.params.locale || locale;

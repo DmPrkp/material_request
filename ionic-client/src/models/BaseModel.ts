@@ -15,7 +15,7 @@ export default class BaseModel {
             const query = this.baseURL + this.apiVersion + params.reduce((acc, param) => acc += `/${param}`, '')
             const options = Object.assign({}, this.baseOpts, opts)
             const response = await fetch(query)
-            if (!response.ok) { throw new Error('Failed to fetch data'); }
+            if (!response.ok) { throw new Error(response.statusText); }
             return await response.json();
         } catch (error) {
             console.error(error);

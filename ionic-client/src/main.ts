@@ -4,7 +4,7 @@ import router from './router';
 import { createPinia } from 'pinia'
 const pinia = createPinia()
 
-import { IonicVue, IonContent, IonRefresher, IonRefresherContent, IonTitle, IonRouterOutlet } from '@ionic/vue';
+import { IonicVue, IonContent, IonRefresher, IonRefresherContent, IonTitle, IonRouterOutlet, IonList, IonItem, IonLabel, IonInput, IonToggle, IonText, IonPage } from '@ionic/vue';
 import i18n from './plugins/i18n'
 
 /* Core CSS required for Ionic components to work properly */
@@ -39,6 +39,13 @@ const app = createApp(App)
   .component('IonRefresherContent', IonRefresherContent)
   .component('IonTitle', IonTitle)
   .component('IonRouterOutlet', IonRouterOutlet)
+  .component('IonList', IonList)
+  .component('IonItem', IonItem)
+  .component('IonLabel', IonLabel)
+  .component('IonInput', IonInput)
+  .component('IonToggle', IonToggle)
+  .component('IonText', IonText)
+  .component('IonPage', IonPage)
   
 router.isReady().then(() => {
   app.mount('#app');
