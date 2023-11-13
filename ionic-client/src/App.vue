@@ -1,6 +1,6 @@
 <template>
   <ion-app>
-    <ion-header>
+    <ion-header :translucent="true">
       <ion-toolbar>
         <ion-buttons v-if="route.matched.length > 2" slot="start">
           <ion-back-button default-href="" @click="router.back"></ion-back-button>
@@ -9,7 +9,9 @@
         <ion-progress-bar v-if="mainMenuStatus === 'none'" type="indeterminate"></ion-progress-bar>
       </ion-toolbar>
     </ion-header>
-    <ion-router-outlet></ion-router-outlet>
+    <ion-content>
+      <ion-router-outlet></ion-router-outlet>
+    </ion-content>
     <FooterBar></FooterBar>
   </ion-app>
 </template>
