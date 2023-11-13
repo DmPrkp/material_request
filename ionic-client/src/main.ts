@@ -1,33 +1,46 @@
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 import {
-  IonicVue, IonContent, IonRefresher, IonRefresherContent, IonTitle, IonRouterOutlet, IonList, IonItem, IonLabel, IonInput, IonToggle, IonText, IonPage,
-} from '@ionic/vue';
-import App from './App.vue';
-import router from './router';
+  IonicVue,
+  IonContent,
+  IonRefresher,
+  IonRefresherContent,
+  IonTitle,
+  IonRouterOutlet,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonToggle,
+  IonText,
+  IonPage,
+  IonButton,
+} from "@ionic/vue";
+import App from "./App.vue";
+import router from "./router";
 
-import i18n from './plugins/i18n';
+import i18n from "./plugins/i18n";
 
 /* Core CSS required for Ionic components to work properly */
-import '@ionic/vue/css/core.css';
+import "@ionic/vue/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
-import '@ionic/vue/css/normalize.css';
-import '@ionic/vue/css/structure.css';
-import '@ionic/vue/css/typography.css';
+import "@ionic/vue/css/normalize.css";
+import "@ionic/vue/css/structure.css";
+import "@ionic/vue/css/typography.css";
 
 /* Optional CSS utils that can be commented out */
-import '@ionic/vue/css/padding.css';
-import '@ionic/vue/css/float-elements.css';
-import '@ionic/vue/css/text-alignment.css';
-import '@ionic/vue/css/text-transformation.css';
-import '@ionic/vue/css/flex-utils.css';
-import '@ionic/vue/css/display.css';
+import "@ionic/vue/css/padding.css";
+import "@ionic/vue/css/float-elements.css";
+import "@ionic/vue/css/text-alignment.css";
+import "@ionic/vue/css/text-transformation.css";
+import "@ionic/vue/css/flex-utils.css";
+import "@ionic/vue/css/display.css";
 
 /* Theme variables */
-import './theme/variables.css';
+import "./theme/variables.css";
 
-import BaseModel from './models/BaseModel';
+import BaseModel from "./models/BaseModel";
 
 const pinia = createPinia();
 BaseModel.setBaseUrl();
@@ -37,19 +50,20 @@ const app = createApp(App)
   .use(pinia)
   .use(i18n)
   .use(router)
-  .component('IonContent', IonContent)
-  .component('IonRefresher', IonRefresher)
-  .component('IonRefresherContent', IonRefresherContent)
-  .component('IonTitle', IonTitle)
-  .component('IonRouterOutlet', IonRouterOutlet)
-  .component('IonList', IonList)
-  .component('IonItem', IonItem)
-  .component('IonLabel', IonLabel)
-  .component('IonInput', IonInput)
-  .component('IonToggle', IonToggle)
-  .component('IonText', IonText)
-  .component('IonPage', IonPage);
+  .component("IonContent", IonContent)
+  .component("IonRefresher", IonRefresher)
+  .component("IonRefresherContent", IonRefresherContent)
+  .component("IonTitle", IonTitle)
+  .component("IonRouterOutlet", IonRouterOutlet)
+  .component("IonList", IonList)
+  .component("IonItem", IonItem)
+  .component("IonLabel", IonLabel)
+  .component("IonInput", IonInput)
+  .component("IonToggle", IonToggle)
+  .component("IonText", IonText)
+  .component("IonPage", IonPage)
+  .component("IonButton", IonButton);
 
 router.isReady().then(() => {
-  app.mount('#app');
+  app.mount("#app");
 });

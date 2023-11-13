@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const number1 = ref(0);
 const number2 = ref(0);

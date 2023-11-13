@@ -1,46 +1,46 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { RouteRecordRaw } from "vue-router";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
+    path: "/",
     redirect: `/${import.meta.env.VITE_RU_LOCALE}/main`,
   },
   {
-    path: '/:locale',
+    path: "/:locale",
     redirect: (to) => `${to.path}/main`,
     component: {
-      template: '<router-view />',
+      template: "<router-view />",
     },
     children: [
       {
-        path: 'main',
-        name: 'main',
-        component: () => import('@/pages/MainPage.vue'),
+        path: "main",
+        name: "main",
+        component: () => import("@/pages/MainPage.vue"),
         children: [
           {
-            path: ':systems',
-            name: 'systems',
-            component: () => import('@/pages/SystemsPage.vue'),
+            path: ":systems",
+            name: "systems",
+            component: () => import("@/pages/SystemsPage.vue"),
             children: [
               {
-                path: ':components',
-                name: 'components',
-                component: () => import('@/pages/ComponentsPage.vue'),
+                path: ":components",
+                name: "components",
+                component: () => import("@/pages/ComponentsPage.vue"),
               },
             ],
           },
         ],
       },
       {
-        path: 'about',
-        name: 'about',
-        component: () => import('@/pages/AboutPage.vue'),
+        path: "about",
+        name: "about",
+        component: () => import("@/pages/AboutPage.vue"),
       },
       {
-        path: 'settings',
-        name: 'settings',
-        component: () => import('@/pages/SettingsPage.vue'),
+        path: "settings",
+        name: "settings",
+        component: () => import("@/pages/SettingsPage.vue"),
       },
     ],
   },

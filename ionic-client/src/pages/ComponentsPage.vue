@@ -8,29 +8,50 @@
         <ion-title size="large">{{ $t("pages.components.title") }}</ion-title>
       </div>
       <ion-item>
-        <ion-toggle style="width: 20%;" justify="start" :checked="isValueToAll" @ionChange="setIsAllValue" /><br /><br />
-        <ion-input style="width: 80%;" :disabled="!isValueToAll" label="Общий объем" :value="allValue" type="number" @ionInput="setAllValue" />
+        <ion-toggle
+          style="width: 20%"
+          justify="start"
+          :checked="isValueToAll"
+          @ionChange="setIsAllValue"
+        />
+        <ion-input
+          style="width: 80%"
+          :disabled="!isValueToAll"
+          label="Общий объем"
+          placeholder="100"
+          type="number"
+          @ionInput="setAllValue"
+        />
         <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
       </ion-item>
       <ion-list>
         <ion-item v-for="(item, index) in pageComponents" :key="item + index">
-          <ion-input :disabled="isValueToAll" :label="$t(`pages.components.items.${item}`)" type="number" :value="allValue" />
+          <ion-input
+            :disabled="isValueToAll"
+            @ionInput="setVal($event, item)"
+            :label="$t(`pages.components.items.${item}`)"
+            type="number"
+            :value="systemsVolumes[item]"
+          />
           <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
         </ion-item>
       </ion-list>
       <div class="ion-padding">
-        <ion-button expand="full">{{ $t("pages.components.send") }}</ion-button>
+        <ion-button expand="full" @click="sendComponentsVal">{{ $t("pages.components.send") }}</ion-button>
       </div>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+interface ISystemsVolumes {
+  [key: string]: number | string | null | undefined;
+}
+import { onMounted, reactive, ref, toRaw } from "vue";
+import { useRoute } from "vue-router";
 
-import { RefresherCustomEvent } from '@ionic/vue';
-import BaseModel from '@/models/BaseModel';
+import { InputCustomEvent, RefresherCustomEvent, ToggleCustomEvent } from "@ionic/vue";
+import BaseModel from "@/models/BaseModel";
 
 const route = useRoute();
 // const router = useRouter();
@@ -38,9 +59,22 @@ const route = useRoute();
 const pageComponents = ref([]);
 const isValueToAll = ref(true);
 const allValue = ref(100);
+const systemsVolumes: ISystemsVolumes = reactive({});
 
-function setAllValue(val: any) { allValue.value = (val.detail.value > 9999) ? 9999 : val.detail.value; }
-function setIsAllValue(val: any) { console.log(val.detail.checked); isValueToAll.value = val.detail.checked; }
+function setAllValue(val: any) {
+  allValue.value = val.detail.value > 9999 ? 9999 : val.detail.value;
+  Object.keys(systemsVolumes).forEach(
+    (component) => (systemsVolumes[component] = allValue.value),
+  );
+}
+function setIsAllValue(val: ToggleCustomEvent) {
+  isValueToAll.value = val.detail.checked;
+  if (isValueToAll.value) setAllVolumes(Object.keys(systemsVolumes), allValue.value);
+}
+
+function setVal(val: InputCustomEvent, item: string) {
+  systemsVolumes[item] = val.detail.value
+}
 
 async function handleRefresh(event: RefresherCustomEvent) {
   await getComponents();
@@ -49,10 +83,27 @@ async function handleRefresh(event: RefresherCustomEvent) {
 
 async function getComponents() {
   const { components, systems } = route.params;
-  const systemsParam = Array.isArray(systems) ? systems.join('/') : systems;
-  const componentsParam = Array.isArray(components) ? components.join('/') : components;
-  const responseSystems = await BaseModel.fetch([systemsParam, componentsParam]);
+  const systemsParam = Array.isArray(systems) ? systems.join("/") : systems;
+  const componentsParam = Array.isArray(components)
+    ? components.join("/")
+    : components;
+  const responseSystems = await BaseModel.fetch([
+    systemsParam,
+    componentsParam,
+  ]);
   pageComponents.value = responseSystems;
+  setAllVolumes(responseSystems, '');
+}
+
+function setAllVolumes(components: Array<string>, val: any) {
+  components.forEach((component: string) => {
+    systemsVolumes[component] = val;
+  });
+}
+
+function sendComponentsVal() {
+  // TODO: set
+  console.log(toRaw(systemsVolumes))
 }
 
 onMounted(async () => {
