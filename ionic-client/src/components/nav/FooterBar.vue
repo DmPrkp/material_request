@@ -1,22 +1,24 @@
 <template>
   <ion-footer>
-      <ion-grid>
-        <ion-row >
-            <ion-col v-for="item in menuItems" :key="item.name" no-padding class="ion-align-self-end">
-              <router-link :to="getLocalizedRoute(item.link)">
-                <ion-icon :icon="item.icon" size="large"></ion-icon>
-              </router-link>
-              <ion-text class="small-text">
-                {{ $t(`footer.${item.name}`) }}
-              </ion-text>
-            </ion-col>
-        </ion-row>
-      </ion-grid>
+    <ion-grid>
+      <ion-row>
+        <ion-col v-for="item in menuItems" :key="item.name" no-padding class="ion-align-self-end">
+          <router-link :to="getLocalizedRoute(item.link)">
+            <ion-icon :icon="item.icon" size="large" />
+          </router-link>
+          <ion-text class="small-text">
+            {{ $t(`footer.${item.name}`) }}
+          </ion-text>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-footer>
 </template>
 
 <script setup lang="ts">
-import { IonIcon, IonFooter, IonGrid, IonCol, IonText, IonRow, IonFabButton, IonRippleEffect } from '@ionic/vue';
+import {
+  IonIcon, IonFooter, IonGrid, IonCol, IonText, IonRow,
+} from '@ionic/vue';
 import { calculatorOutline, settingsOutline, informationCircleOutline } from 'ionicons/icons';
 import { useRoute } from 'vue-router';
 import injectI18nToRoute from '@/mixins/injectI18nToRoute';
@@ -25,27 +27,25 @@ const menuItems = [
   {
     link: 'about',
     name: 'about',
-    icon: informationCircleOutline
+    icon: informationCircleOutline,
   },
   {
     link: 'main',
     name: 'main',
-    icon: calculatorOutline
+    icon: calculatorOutline,
   },
   {
     link: 'settings',
     name: 'settings',
-    icon: settingsOutline
-  }
-]
+    icon: settingsOutline,
+  },
+];
 
 const getLocalizedRoute = (routeName: string) => {
   const route = useRoute();
   const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
   return injectI18nToRoute(routeName, locale, route);
 };
-
-
 
 </script>
 

@@ -1,14 +1,14 @@
 <template>
-    <ion-content class="ion-padding">
-        settings
-    </ion-content>
+  <ion-content class="ion-padding">
+    settings
+  </ion-content>
 </template>
 
 <script lang="ts" setup>
 import { onMounted } from 'vue';
-import BaseModel from '@/models/BaseModel'
+import BaseModel from '@/models/BaseModel';
 
 onMounted(async () => {
-  await BaseModel.fetch(['main-menu'])
+  await BaseModel.fetch(['main-menu']);
 });
 </script>

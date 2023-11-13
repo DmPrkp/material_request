@@ -17,6 +17,7 @@
   },
   "pages": {
     "components": {
+      "title": "Укажите объем работ",
       "send": "Создать заявку",
       "items": {
         "base coat adhesive": "Базовый клеевой слой",
