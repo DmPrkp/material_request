@@ -1,5 +1,5 @@
 <template>
-  <ion-router-outlet v-if="route.name !== 'main'" />
+  <ion-router-outlet v-if="!isMainPage" />
   <ion-page v-else>
     <ion-content class="ion-padding">
       <ion-title v-if="mainMenu.length"> Выберите вид работ </ion-title>
@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, type ComputedRef } from "vue";
+import { computed, onMounted, type ComputedRef, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { RefresherCustomEvent } from "@ionic/vue";
 import MainMenuItems from "@/components/ui/MainMenuItems.vue";
@@ -24,13 +24,14 @@ const router = useRouter();
 const route = useRoute();
 
 const mainMenuStore = useMainMenuStore();
+const isMainPage = ref(route.name === 'main')
 
 const mainMenu: ComputedRef<Array<MainMenuItem>> = computed(
   () => mainMenuStore.mainMenu,
 );
 
 async function getMainMenu() {
-  const menu = await BaseModel.fetch(["main-menu"]);
+  const menu = await BaseModel.get(["main-menu"]);
   mainMenuStore.defineMeinMenu(menu);
 }
 
@@ -41,7 +42,7 @@ const handleRefresh = async (event: RefresherCustomEvent) => {
 };
 
 onMounted(async () => {
-  await getMainMenu();
+  if (isMainPage) await getMainMenu();
 });
 
 const chooseItem = (item: MainMenuItem) => {

@@ -18,7 +18,7 @@
           style="width: 80%"
           :disabled="!isValueToAll"
           label="Общий объем"
-          placeholder="100"
+          placeholder="_______"
           type="number"
           @ionInput="setAllValue"
         />
@@ -87,7 +87,7 @@ async function getComponents() {
   const componentsParam = Array.isArray(components)
     ? components.join("/")
     : components;
-  const responseSystems = await BaseModel.fetch([
+  const responseSystems = await BaseModel.get([
     systemsParam,
     componentsParam,
   ]);
@@ -101,12 +101,14 @@ function setAllVolumes(components: Array<string>, val: any) {
   });
 }
 
-function sendComponentsVal() {
+async function sendComponentsVal() {
   // TODO: set
-  console.log(toRaw(systemsVolumes))
+  const vol = toRaw(systemsVolumes)
+  await BaseModel.post([ 'calc_val' ], [], {body: JSON.stringify(vol)})
 }
 
 onMounted(async () => {
+
   await getComponents();
 });
 </script>

@@ -7,6 +7,6 @@ import { onMounted } from "vue";
 import BaseModel from "@/models/BaseModel";
 
 onMounted(async () => {
-  await BaseModel.fetch(["main-menu"]);
+  await BaseModel.get(["main-menu"]);
 });
 </script>
