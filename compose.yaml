@@ -21,12 +21,18 @@ networks:
 services:
   web-server:
     build:
-      context: ./web-server/
-      dockerfile: ./Dockerfile
+      context: ./
+      dockerfile: ./web-server/Dockerfile
     ports:
-      - 3000:3000
+      - 4000:4000
     # volumes:
     #   - ./:/usr/app/
+  nginx:
+    build: ./nginx
+    ports:
+    - '80:80'
+    depends_on:
+    - web-server
   
   
 

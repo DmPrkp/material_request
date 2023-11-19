@@ -14,13 +14,16 @@ FROM node:${NODE_VERSION}-alpine
 WORKDIR /usr/app
 
 # Copy the rest of the source files into the image.
-COPY ./package*.json .
-RUN npm ci
 RUN npm i -g @nestjs/cli
-COPY . .
+RUN npm i -g typescript
+COPY ./web-server/package*.json .
+RUN npm ci
+COPY ./web-server/ .
+COPY ./shared-types/ ./shared-types/
+
 
 # Expose the port that the application listens on.
-EXPOSE 3000
+EXPOSE 4000
 
 # Run the application.
 CMD npm run start:dev
