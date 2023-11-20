@@ -21,18 +21,37 @@ networks:
 services:
   web-server:
     build:
-      context: ./
-      dockerfile: ./web-server/Dockerfile
+      context: ./web-server
+      # dockerfile: ./web-server/Dockerfile
     ports:
       - 4000:4000
+    develop:
+      watch:
+        - action: sync
+          path: ./web-server
+          target: /usr/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./package.json
     # volumes:
     #   - ./:/usr/app/
+    
   nginx:
     build: ./nginx
     ports:
     - '80:80'
     depends_on:
     - web-server
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password    
   
   
 
@@ -48,17 +67,17 @@ services:
 #     depends_on:
 #       db:
 #         condition: service_healthy
-#   db:
-#     image: postgres
-#     restart: always
-#     user: postgres
-#     secrets:
-#       - db-password
-#     volumes:
-#       - db-data:/var/lib/postgresql/data
-#     environment:
-#       - POSTGRES_DB=example
-#       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   user: postgres
+  #   secrets:
+  #     - db-password
+  #   volumes:
+  #     - db-data:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_DB=example
+  #     - POSTGRES_PASSWORD_FILE=./db-password
 #     expose:
 #       - 5432
 #     healthcheck:

@@ -3,5 +3,7 @@ cd ./ionic-client
 npm run dev &
 
 # initial server to develop
-cd ../web-server
+cd ../
+cp -r ./shared-types ./web-server/shared-types
+cd ./web-server
 npm run start:dev

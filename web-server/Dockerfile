@@ -16,10 +16,10 @@ WORKDIR /usr/app
 # Copy the rest of the source files into the image.
 RUN npm i -g @nestjs/cli
 RUN npm i -g typescript
-COPY ./web-server/package*.json .
+COPY ./package*.json .
 RUN npm ci
-COPY ./web-server/ .
-COPY ./shared-types/ ./shared-types/
+COPY ./ .
+COPY ../shared-types/ ./shared-types/
 
 
 # Expose the port that the application listens on.

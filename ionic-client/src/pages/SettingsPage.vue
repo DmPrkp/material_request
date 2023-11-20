@@ -3,10 +3,10 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue";
-import BaseModel from "@/models/BaseModel";
+// import { onMounted } from "vue";
+// import BaseModel from "@/models/BaseModel";
 
-onMounted(async () => {
-  await BaseModel.get(["main-menu"]);
-});
+// onMounted(async () => {
+//   await BaseModel.get(["main-menu"]);
+// });
 </script>
