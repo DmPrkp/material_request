@@ -19,6 +19,11 @@ networks:
           gateway: 172.16.238.3
 
 services:
+  calc-server:
+    image: dmprkp/calc-server:0.0.2
+    ports:
+      - 5000:5000
+
   web-server:
     build:
       context: ./web-server
@@ -43,6 +48,7 @@ services:
     - '80:80'
     depends_on:
     - web-server
+    - calc-server
 
   db:
     image: postgres
@@ -51,9 +57,13 @@ services:
     volumes:
       - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
     environment:
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password    
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
   
-  
+  # mqtt:
+  #   image: eclipse-mosquitto:latest
+  #   restart: always
+  #   ports:
+  #     - '1883:1883'
 
 
 
