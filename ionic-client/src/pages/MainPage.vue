@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, type ComputedRef, ref } from "vue";
+import { computed, onMounted, type ComputedRef, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { RefresherCustomEvent } from "@ionic/vue";
 import MainMenuItems from "@/components/ui/MainMenuItems.vue";
@@ -25,6 +25,7 @@ const route = useRoute();
 
 const mainMenuStore = useMainMenuStore();
 const isMainPage = ref(route.name === 'main')
+watch(() => route.name, () => isMainPage.value = (route.name === 'main'))
 
 const mainMenu: ComputedRef<Array<MainMenuItem>> = computed(
   () => mainMenuStore.mainMenu,
