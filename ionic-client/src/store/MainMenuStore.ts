@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { MainMenuItem } from "../../../shared-types/controller/main-menu";
+import { MainMenuItem } from "../../types/controller/main-menu";
 
 interface StateMainMenu {
   mainMenu: Array<MainMenuItem>;

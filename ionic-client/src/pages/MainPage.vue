@@ -17,18 +17,21 @@ import { useRoute, useRouter } from "vue-router";
 import { RefresherCustomEvent } from "@ionic/vue";
 import MainMenuItems from "@/components/ui/MainMenuItems.vue";
 import BaseModel from "@/models/BaseModel";
-import { type MainMenuItem } from "../../../shared-types/controller/main-menu";
+import type { MainMenuItem } from "../../types/controller/main-menu";
 import { useMainMenuStore } from "@/store/MainMenuStore";
 
 const router = useRouter();
 const route = useRoute();
 
 const mainMenuStore = useMainMenuStore();
-const isMainPage = ref(route.name === 'main')
-watch(() => route.name, () => isMainPage.value = (route.name === 'main'))
+const isMainPage = ref(route.name === "main");
+watch(
+  () => route.name,
+  () => (isMainPage.value = route.name === "main")
+);
 
 const mainMenu: ComputedRef<Array<MainMenuItem>> = computed(
-  () => mainMenuStore.mainMenu,
+  () => mainMenuStore.mainMenu
 );
 
 async function getMainMenu() {

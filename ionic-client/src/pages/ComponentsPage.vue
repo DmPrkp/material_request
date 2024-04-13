@@ -37,7 +37,9 @@
         </ion-item>
       </ion-list>
       <div class="ion-padding">
-        <ion-button expand="full" @click="sendComponentsVal">{{ $t("pages.components.send") }}</ion-button>
+        <ion-button expand="full" @click="sendComponentsVal">{{
+          $t("pages.components.send")
+        }}</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -50,7 +52,11 @@ interface ISystemsVolumes {
 import { onMounted, reactive, ref, toRaw } from "vue";
 import { useRoute } from "vue-router";
 
-import { InputCustomEvent, RefresherCustomEvent, ToggleCustomEvent } from "@ionic/vue";
+import {
+  InputCustomEvent,
+  RefresherCustomEvent,
+  ToggleCustomEvent,
+} from "@ionic/vue";
 import BaseModel from "@/models/BaseModel";
 
 const route = useRoute();
@@ -69,11 +75,12 @@ function setAllValue(val: any) {
 }
 function setIsAllValue(val: ToggleCustomEvent) {
   isValueToAll.value = val.detail.checked;
-  if (isValueToAll.value) setAllVolumes(Object.keys(systemsVolumes), allValue.value);
+  if (isValueToAll.value)
+    setAllVolumes(Object.keys(systemsVolumes), allValue.value);
 }
 
 function setVal(val: InputCustomEvent, item: string) {
-  systemsVolumes[item] = val.detail.value
+  systemsVolumes[item] = val.detail.value;
 }
 
 async function handleRefresh(event: RefresherCustomEvent) {
@@ -87,12 +94,9 @@ async function getComponents() {
   const componentsParam = Array.isArray(components)
     ? components.join("/")
     : components;
-  const responseSystems = await BaseModel.get([
-    systemsParam,
-    componentsParam,
-  ]);
+  const responseSystems = await BaseModel.get([systemsParam, componentsParam]);
   pageComponents.value = responseSystems;
-  setAllVolumes(responseSystems, '');
+  setAllVolumes(responseSystems, "");
 }
 
 function setAllVolumes(components: Array<string>, val: any) {
@@ -103,12 +107,13 @@ function setAllVolumes(components: Array<string>, val: any) {
 
 async function sendComponentsVal() {
   // TODO: set
-  const vol = toRaw(systemsVolumes)
-  await BaseModel.post([ 'calc_val' ], [], {body: JSON.stringify(vol)})
+  const vol = toRaw(systemsVolumes);
+  await BaseModel.post(["calc_val"], [], {
+    body: JSON.stringify(vol),
+  });
 }
 
 onMounted(async () => {
-
   await getComponents();
 });
 </script>

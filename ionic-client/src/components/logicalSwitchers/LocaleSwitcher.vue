@@ -37,7 +37,10 @@ function setLocale(value: string) {
   localStorage.setItem("user-locale", i18n.global.locale.value);
   if (route.name && value !== route.params.locale) {
     if (route.fullPath === "/") {
-      router.push({ name: "home", params: { locale: value } });
+      router.push({
+        name: "home",
+        params: { locale: value },
+      });
     } else router.push({ params: { locale: value } });
   }
 }
@@ -47,7 +50,7 @@ function getUserLocale() {
   return persistLocale || window.navigator.language || defaultLocale;
 }
 
-function handleLocale(locale: string, availableLocales) {
+function handleLocale(locale: string, availableLocales: any[]) {
   const localeNoRegion = locale.split("-")[0];
   if (availableLocales.includes(locale)) {
     setLocale(locale);

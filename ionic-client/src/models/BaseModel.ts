@@ -26,7 +26,10 @@ export default class BaseModel {
         this.baseURL +
         this.apiVersion +
         params.reduce((acc, param) => (acc += `/${param}`), "");
-      const options = { ...this.baseOpts, ...opts };
+      const options = {
+        ...this.baseOpts,
+        ...opts,
+      };
       if (!queries && !options) return;
       const response = await fetch(query);
       if (!response.ok) {
@@ -48,7 +51,7 @@ export default class BaseModel {
         this.baseURL +
         this.apiVersion +
         params.reduce((acc, param) => (acc += `/${param}`), "");
-      const options = Object.assign({method: 'POST'}, this.baseOpts, opts);
+      const options = Object.assign({ method: "POST" }, this.baseOpts, opts);
       if (!queries && !options) return;
       const response = await fetch(query, options);
       if (!response.ok) {

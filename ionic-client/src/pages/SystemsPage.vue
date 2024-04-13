@@ -16,7 +16,7 @@
 import { computed, ComputedRef } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import MainMenuItems from "@/components/ui/MainMenuItems.vue";
-import { type MainMenuItem } from "../../../shared-types/controller/main-menu";
+import { type MainMenuItem } from "../../types/controller/main-menu";
 import { useMainMenuStore } from "@/store/MainMenuStore";
 
 const mainMenuStore = useMainMenuStore();
@@ -24,10 +24,13 @@ const mainMenuStore = useMainMenuStore();
 const route = useRoute();
 const router = useRouter();
 const currentItems: ComputedRef<Array<MainMenuItem>> = computed(() =>
-  mainMenuStore.mainMenu.filter((item) => item.title === route.params.systems),
+  mainMenuStore.mainMenu.filter((item) => item.title === route.params.systems)
 );
 
 function chooseItem(item: MainMenuItem) {
-  router.push({ name: "components", params: { components: item.title } });
+  router.push({
+    name: "components",
+    params: { components: item.title },
+  });
 }
 </script>

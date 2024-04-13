@@ -29,11 +29,8 @@ export default defineConfig({
       vue: "vue/dist/vue.esm-bundler.js",
     },
   },
-  test: {
-    globals: true,
-    environment: "jsdom",
-  },
   build: {
-    outDir: "../web-server/ionic-client",
+    // outDir: "../web-server/ionic-client",
+    outDir: "./build",
   },
 });
