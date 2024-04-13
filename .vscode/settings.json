@@ -1,0 +1,8 @@
+{
+  "prettier.singleAttributePerLine": true,
+  "prettier.vueIndentScriptAndStyle": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.eol": "\n",
+  "eslint.run": "onSave"
+}

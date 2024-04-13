@@ -1,5 +1,8 @@
 # syntax=docker/dockerfile:1
 
+# docker build -t ionic-client .
+# docker run -p 5173:5173 --name ionic-client ionic-client
+
 ARG NODE_VERSION=20
 
 FROM node:${NODE_VERSION}-alpine
@@ -31,7 +34,6 @@ RUN npm install
 COPY ./ .
 # RUN npm install -D @vitejs/plugin-vue
 # RUN npm install -D @vitejs/plugin-legacy
-
 # COPY ./shared ./shared
 
 EXPOSE 5173

@@ -1,0 +1,49 @@
+# DOCKER PROD FILE
+# docker compose -f compose-prod.yaml upv
+
+networks:
+  matli_network:
+    name: matli_network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.3
+
+services:
+  # calc-server:
+  #   image: dmprkp/calc-server:0.0.2
+  #   ports:
+  #     - 5000:5000
+
+  # web-server:
+  #   build:
+  #     context: ./web-server
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - 4000:4000
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./web-server
+  #         target: /usr/app
+  #         ignore:
+  #           - node_modules/
+  #       - action: rebuild
+  #         path: ./package.json
+
+  ionic-client:
+    build:
+      context: ./ionic-client
+      dockerfile: ./Dockerfile
+    ports:
+      - 5173:5173
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    # depends_on:
+    #   - web-server
+    #   - calc-server

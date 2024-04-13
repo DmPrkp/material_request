@@ -1,0 +1,89 @@
+# DOCKER DEV FILE
+# docker compose -f compose-dev.yaml -p matli-dev up --build
+
+networks:
+  matli_network:
+    name: matli_network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.3
+
+services:
+  # calc-server:
+  #   image: dmprkp/calc-server:0.0.2
+  #   ports:
+  #     - 5000:5000
+
+  # web-server:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./web-server/Dockerfile-dev
+  #   ports:
+  #     - 4000:4000
+  #   develop:
+  #     watch:
+  #       - action: sync
+  #         path: ./web-server
+  #         target: /usr/app
+  #         ignore:
+  #           - node_modules/
+  #       - action: rebuild
+  #         path: ./package.json
+
+  mobile-client:
+    build:
+      context: ./
+      dockerfile: ./ionic-client/compose.Dockerfile
+    ports:
+      - "5173:5173"
+
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   user: postgres
+  #   volumes:
+  #     - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
+  #   environment:
+  #     - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+
+  # mqtt:
+  #   image: eclipse-mosquitto:latest
+  #   restart: always
+  #   ports:
+  #     - '1883:1883'
+# The commented out section below is an example of how to define a PostgreSQL
+# database that your application can use. `depends_on` tells Docker Compose to
+# start the database before your application. The `db-data` volume persists the
+# database data between container restarts. The `db-password` secret is used
+# to set the database password. You must create `db/password.txt` and add
+# a password of your choosing to it before running `docker-compose up`.
+#     depends_on:
+#       db:
+#         condition: service_healthy
+# db:
+#   image: postgres
+#   restart: always
+#   user: postgres
+#   secrets:
+#     - db-password
+#   volumes:
+#     - db-data:/var/lib/postgresql/data
+#   environment:
+#     - POSTGRES_DB=example
+#     - POSTGRES_PASSWORD_FILE=./db-password
+#     expose:
+#       - 5432
+#     healthcheck:
+#       test: [ "CMD", "pg_isready" ]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+# volumes:
+#   db-data:
+# secrets:
+#   db-password:
+#     file: db/password.txt
+
