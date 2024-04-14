@@ -1,3 +1,4 @@
 .idea
-./calc-server
+/calc-server
 /secrets
+/ionic-client-old

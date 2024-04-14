@@ -27,14 +27,13 @@ RUN wget -O go.tgz "$GO_URL" \
 # Set the Go environment variables
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-RUN go version
-
+RUN npm i -g vue-tsc
 COPY ./package.json ./
 RUN npm install
+RUN npm install --save-dev @types/node
 COPY ./ .
-# RUN npm install -D @vitejs/plugin-vue
-# RUN npm install -D @vitejs/plugin-legacy
-# COPY ./shared ./shared
+
+RUN npm run build
 
 EXPOSE 5173
 

@@ -1,0 +1,29 @@
+# syntax=docker/dockerfile:1
+
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-alpine
+
+ENV NODE_ENV production
+
+WORKDIR /usr/app
+
+COPY ./ionic-client/package*.json ./ionic-client/
+RUN cd ./ionic-client && npm install
+COPY ./shared ./ionic-client/shared
+
+COPY ./ionic-client ./ionic-client/
+RUN cd ./ionic-client && npm run build
+
+RUN npm i -g @nestjs/cli typescript
+
+COPY ./web-server/package*.json ./web-server/
+RUN cd ./web-server && npm install
+
+COPY ./web-server ./web-server
+COPY ./shared ./web-server/shared
+
+EXPOSE 4000
+
+# Run the application.
+CMD npm run start:dev

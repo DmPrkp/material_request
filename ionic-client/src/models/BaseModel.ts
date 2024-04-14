@@ -19,7 +19,7 @@ export default class BaseModel {
   static async get(
     params: Array<string> = [],
     queries = [],
-    opts?: RequestInit,
+    opts?: RequestInit
   ): Promise<any> {
     try {
       const query =
@@ -44,7 +44,7 @@ export default class BaseModel {
   static async post(
     params: Array<string> = [],
     queries = [],
-    opts?: RequestInit,
+    opts?: RequestInit
   ): Promise<any> {
     try {
       const query =

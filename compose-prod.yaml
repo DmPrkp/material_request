@@ -1,5 +1,6 @@
 # DOCKER PROD FILE
-# docker compose -f compose-prod.yaml upv
+# docker compose -f compose-prod.yaml build
+# docker compose -f compose-prod.yaml up
 
 networks:
   matli_network:
@@ -44,6 +45,7 @@ services:
     build: ./nginx
     ports:
       - "80:80"
-    # depends_on:
+    depends_on:
+      - ionic-client
     #   - web-server
     #   - calc-server
