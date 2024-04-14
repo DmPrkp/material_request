@@ -9,7 +9,10 @@
           class="ion-align-self-end"
         >
           <router-link :to="getLocalizedRoute(item.link)">
-            <ion-icon :icon="item.icon" size="large" />
+            <ion-icon
+              :icon="item.icon"
+              size="large"
+            />
           </router-link>
           <ion-text class="small-text">
             {{ $t(`footer.${item.name}`) }}
@@ -21,53 +24,55 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonIcon,
-  IonFooter,
-  IonGrid,
-  IonCol,
-  IonText,
-  IonRow,
-} from "@ionic/vue";
-import {
-  calculatorOutline,
-  settingsOutline,
-  informationCircleOutline,
-} from "ionicons/icons";
-import { useRoute } from "vue-router";
-import injectI18nToRoute from "@/mixins/injectI18nToRoute";
+  import {
+    IonIcon,
+    IonFooter,
+    IonGrid,
+    IonCol,
+    IonText,
+    IonRow,
+  } from "@ionic/vue";
+  import {
+    calculatorOutline,
+    settingsOutline,
+    informationCircleOutline,
+  } from "ionicons/icons";
+  import { useRoute } from "vue-router";
+  import injectI18nToRoute from "@/mixins/injectI18nToRoute";
 
-const menuItems = [
-  {
-    link: "about",
-    name: "about",
-    icon: informationCircleOutline,
-  },
-  {
-    link: "main",
-    name: "main",
-    icon: calculatorOutline,
-  },
-  {
-    link: "settings",
-    name: "settings",
-    icon: settingsOutline,
-  },
-];
+  const menuItems = [
+    {
+      link: "about",
+      name: "about",
+      icon: informationCircleOutline,
+    },
+    {
+      link: "main",
+      name: "main",
+      icon: calculatorOutline,
+    },
+    {
+      link: "settings",
+      name: "settings",
+      icon: settingsOutline,
+    },
+  ];
 
-const getLocalizedRoute = (routeName: string) => {
-  const route = useRoute();
-  const locale = route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE;
-  return injectI18nToRoute(routeName, locale, route);
-};
+  const getLocalizedRoute = (routeName: string) => {
+    const route = useRoute();
+    const routeLocale =
+      typeof route.params.locale === "string" ? route.params.locale : null;
+    const locale = routeLocale || import.meta.env.VITE_DEFAULT_LOCALE;
+    return injectI18nToRoute(routeName, locale, route);
+  };
 </script>
 
 <style>
-ion-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
+  ion-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
 </style>

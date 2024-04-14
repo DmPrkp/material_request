@@ -11,7 +11,6 @@ ENV NODE_ENV production
 
 WORKDIR /usr/app
 
-RUN npm i -g typescript
 RUN rm -rf /usr/local/go
 # Set the Go version
 ARG GO_VERSION=1.22.2
@@ -27,11 +26,20 @@ RUN wget -O go.tgz "$GO_URL" \
 # Set the Go environment variables
 ENV PATH="/usr/local/go/bin:${PATH}"
 
+RUN npm i -g typescript
 RUN npm i -g vue-tsc
+RUN npm i -g vite
+
+RUN npm install --save-dev @types/node
+
 COPY ./package.json ./
 RUN npm install
-RUN npm install --save-dev @types/node
+
 COPY ./ .
+
+RUN npm install -D @vitejs/plugin-vue
+RUN npm install -D @vitejs/plugin-legacy
+
 
 RUN npm run build
 
