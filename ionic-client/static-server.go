@@ -1,19 +1,23 @@
 package main
 
 import (
-	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	fs := http.FileServer(http.Dir("./dist"))
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./build/index.html")
+		_, err := os.Stat("./dist" + r.URL.Path)
+
+		if os.IsNotExist(err) {
+			http.ServeFile(w, r, "./dist/index.html")
+			return
+		}
+
+		fs.ServeHTTP(w, r)
 	})
 
-
-	log.Print("Listening on :5173...")
-	err := http.ListenAndServe(":5173", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	http.ListenAndServe(":5173", nil)
 }

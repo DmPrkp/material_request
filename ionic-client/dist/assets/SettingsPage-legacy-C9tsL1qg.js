@@ -1,0 +1,1 @@
+System.register(["./index-legacy-5nWIwlCV.js"],(function(e,t){"use strict";var n,s,i,r,u,a;return{setters:[e=>{n=e.d,s=e.e,i=e.f,r=e.g,u=e.h,a=e.j}],execute:function(){e("default",n({__name:"SettingsPage",setup:e=>(e,t)=>{const n=r("ion-content");return u(),s(n,{class:"ion-padding"},{default:i((()=>[a(" settings ")])),_:1})}}))}}}));

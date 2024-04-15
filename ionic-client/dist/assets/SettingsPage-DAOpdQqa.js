@@ -1,0 +1,1 @@
+import{d as t,e as n,f as o,g as s,h as a,j as c}from"./index-CGiz-dex.js";const d=t({__name:"SettingsPage",setup(_){return(r,i)=>{const e=s("ion-content");return a(),n(e,{class:"ion-padding"},{default:o(()=>[c(" settings ")]),_:1})}}});export{d as default};
