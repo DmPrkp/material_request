@@ -17,37 +17,55 @@ services:
   #   ports:
   #     - 5000:5000
 
-  # web-server:
-  #   build:
-  #     context: ./
-  #     dockerfile: ./web-server/Dockerfile-dev
-  #   ports:
-  #     - 4000:4000
-  #   develop:
-  #     watch:
-  #       - action: sync
-  #         path: ./web-server
-  #         target: /usr/app
-  #         ignore:
-  #           - node_modules/
-  #       - action: rebuild
-  #         path: ./package.json
-
-  mobile-client:
+  web-server:
     build:
-      context: ./
-      dockerfile: ./ionic-client/compose.Dockerfile
+      context: ./web-server
+      dockerfile: ./Dockerfile.prod
     ports:
-      - "5173:5173"
+      - 4000:4000
+    develop:
+      watch:
+        - action: sync
+          path: ./web-server
+          target: /usr/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./package.json
 
-  # db:
-  #   image: postgres
-  #   restart: always
-  #   user: postgres
-  #   volumes:
-  #     - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
-  #   environment:
-  #     - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+  ionic-client:
+    build:
+      context: ./ionic-client
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - 5173:5173
+    develop:
+      watch:
+        - action: sync
+          path: ./web-server
+          target: /usr/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: ./package.json
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - ionic-client
+      - web-server
+    #   - calc-server
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
 
   # mqtt:
   #   image: eclipse-mosquitto:latest
