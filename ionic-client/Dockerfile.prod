@@ -32,8 +32,6 @@ RUN npm i -g vue-tsc vite @types/node
 COPY ./package*.json ./ 
 
 RUN npm install
-# RUN npm install --save-dev @vitejs/plugin-legacy
-# RUN npm i @vitejs/plugin-vue
 
 COPY ./ ./
 
@@ -41,7 +39,4 @@ RUN npm run build
 
 EXPOSE 5173
 
-# Run the application.
-# CMD node test.js
-# CMD vite
 CMD ["go", "run", "static-server.go"]
