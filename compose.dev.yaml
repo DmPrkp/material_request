@@ -1,5 +1,5 @@
 # DOCKER DEV FILE
-# docker compose -f compose.dev.yaml -p matli-dev up --build
+# docker compose -f compose.dev.yaml -p matli-dev watch
 
 networks:
   matli_network:
@@ -32,6 +32,8 @@ services:
             - node_modules/
         - action: rebuild
           path: ./package.json
+    depends_on:
+      - db
 
   ionic-client:
     build:
@@ -48,6 +50,8 @@ services:
             - node_modules/
         - action: rebuild
           path: ./package.json
+    depends_on:
+      - db
 
   nginx:
     build: ./nginx
@@ -56,6 +60,7 @@ services:
     depends_on:
       - ionic-client
       - web-server
+      - db
     #   - calc-server
 
   db:

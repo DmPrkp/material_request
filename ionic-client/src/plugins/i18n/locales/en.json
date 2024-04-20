@@ -1,6 +1,5 @@
 {
-  "message": "Hello { name } by i18n !!",
-  "title": "MatLi",
+  "title": "Zayavka.ru",
   "footer": {
     "settings": "Settings",
     "main": "Main",
@@ -9,6 +8,23 @@
   "main-menu": {
     "facade": "Facade",
     "roof": "Roof",
-    "EIFS": "EIFS"
+    "EIFS": "EIFS",
+    "flat": "Flat roof"
+  },
+  "measure": {
+    "square": "m²"
+  },
+  "pages": {
+    "components": {
+      "title": "Specify the scope of work",
+      "send": "Create a request",
+      "items": {
+        "base coat adhesive": "base coat adhesive",
+        "insulation": "insulation",
+        "fiberglass mesh": "fiberglass mesh",
+        "finish coat": "finish coat",
+        "paint layer": "paint layer"
+      }
+    }
   }
 }

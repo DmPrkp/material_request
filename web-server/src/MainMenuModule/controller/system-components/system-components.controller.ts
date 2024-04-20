@@ -17,7 +17,6 @@ export class SystemComponentsController {
     const systemRepositories = SystemComponentsRepositories.factory();
     const component = systemRepositories.getComponents(system, components);
     if (component instanceof Error) {
-      console.error('BadRequestException', component);
       throw new HttpException('BadRequestException', HttpStatus.BAD_REQUEST);
     }
     return component;

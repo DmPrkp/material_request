@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { MainMenuItem } from 'types/controller/main-menu';
+import { MainMenuItem } from '../../types/controller/main-menu';
 
 @Controller('main-menu')
 export class MainMenuController {
