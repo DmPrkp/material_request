@@ -1,6 +1,6 @@
 # DOCKER PROD FILE
-# docker compose -f compose-prod.yaml build
-# docker compose -f compose-prod.yaml up
+# docker compose -f compose.prod.yaml build --no-cache
+# docker compose -f compose.prod.yaml up --force-recreate --build
 
 networks:
   matli_network:
@@ -18,26 +18,17 @@ services:
   #   ports:
   #     - 5000:5000
 
-  # web-server:
-  #   build:
-  #     context: ./web-server
-  #     dockerfile: ./Dockerfile
-  #   ports:
-  #     - 4000:4000
-  #   develop:
-  #     watch:
-  #       - action: sync
-  #         path: ./web-server
-  #         target: /usr/app
-  #         ignore:
-  #           - node_modules/
-  #       - action: rebuild
-  #         path: ./package.json
+  web-server:
+    build:
+      context: ./web-server
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - 4000:4000
 
   ionic-client:
     build:
       context: ./ionic-client
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.prod
     ports:
       - 5173:5173
 
@@ -47,5 +38,5 @@ services:
       - "80:80"
     depends_on:
       - ionic-client
-    #   - web-server
+      - web-server
     #   - calc-server

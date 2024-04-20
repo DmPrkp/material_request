@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-# docker build -t ionic-client .
+# docker build -t ionic-client -f Dockerfile.prod .
 # docker run -p 5173:5173 --name ionic-client ionic-client
 
 ARG NODE_VERSION=20
@@ -26,19 +26,18 @@ RUN wget -O go.tgz "$GO_URL" \
 # Set the Go environment variables
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# RUN npm i -g typescript
-# RUN npm i -g vue-tsc
-# RUN npm i -g vite
 
-# RUN npm install --save-dev @types/node
+RUN npm i -g vue-tsc vite @types/node
 
-# COPY ./package*.json ./
-# RUN npm install
+COPY ./package*.json ./ 
 
-COPY ./dist ./dist
-COPY ./static-server.go ./
+RUN npm install
+# RUN npm install --save-dev @vitejs/plugin-legacy
+# RUN npm i @vitejs/plugin-vue
 
-# RUN npm run build
+COPY ./ ./
+
+RUN npm run build
 
 EXPOSE 5173
 

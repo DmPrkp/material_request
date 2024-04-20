@@ -1,4 +1,4 @@
-import { ImageType } from "../entity/image";
+import { ImageType } from '../entity/image';
 
 type MainMenuItem = {
   img: ImageType;

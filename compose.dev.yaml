@@ -1,5 +1,5 @@
 # DOCKER DEV FILE
-# docker compose -f compose-dev.yaml -p matli-dev up --build
+# docker compose -f compose.dev.yaml -p matli-dev up --build
 
 networks:
   matli_network:

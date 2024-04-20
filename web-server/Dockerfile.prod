@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+
+# docker build -t web-server -f Dockerfile.prod --no-cache .
+# docker run -p 4000:4000 --name web-server web-server
+
+FROM node:20.12-bookworm
+
+ENV NODE_ENV production
+
+WORKDIR /usr/web-server
+RUN npm install -g npm@10.5.2
+
+RUN npm i -g @nestjs/cli typescript
+
+COPY ./package.json ./
+RUN npm install
+RUN npm install --save-dev @types/node
+
+COPY ./ ./
+RUN npm run build
+
+EXPOSE 4000
+
+# Run the application.
+CMD node dist/main.js
