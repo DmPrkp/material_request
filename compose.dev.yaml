@@ -25,13 +25,13 @@ services:
       - 4000:4000
     develop:
       watch:
-        - action: sync
+        # - action: sync
+        #   path: ./web-server
+        #   target: /usr/web-server
+        - action: rebuild
           path: ./web-server
-          target: /usr/app
           ignore:
             - node_modules/
-        - action: rebuild
-          path: ./package.json
     depends_on:
       - db
 
@@ -43,13 +43,8 @@ services:
       - 5173:5173
     develop:
       watch:
-        - action: sync
-          path: ./web-server
-          target: /usr/app
-          ignore:
-            - node_modules/
         - action: rebuild
-          path: ./package.json
+          path: ./ionic-client
     depends_on:
       - db
 
