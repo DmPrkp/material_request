@@ -7,6 +7,6 @@ export class SystemComponentsController {
     @Param('system') system: string,
     @Param('components') components: string,
   ): Array<object> {
-    return [];
+    return [{}];
   }
 }

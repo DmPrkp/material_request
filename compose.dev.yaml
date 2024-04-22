@@ -20,16 +20,19 @@ services:
   web-server:
     build:
       context: ./web-server
-      dockerfile: ./Dockerfile.prod
+      dockerfile: ./Dockerfile.dev
     ports:
       - 4000:4000
     develop:
       watch:
-        # - action: sync
-        #   path: ./web-server
-        #   target: /usr/web-server
+        - action: sync
+          path: ./web-server/src
+          target: /usr/web-server/src
+          ignore:
+            - node_modules/
+            - dist/
         - action: rebuild
-          path: ./web-server
+          path: ./web-server/package.json
           ignore:
             - node_modules/
     depends_on:
@@ -66,21 +69,11 @@ services:
       - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
     environment:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-
-  # mqtt:
-  #   image: eclipse-mosquitto:latest
-  #   restart: always
-  #   ports:
-  #     - '1883:1883'
-# The commented out section below is an example of how to define a PostgreSQL
-# database that your application can use. `depends_on` tells Docker Compose to
-# start the database before your application. The `db-data` volume persists the
-# database data between container restarts. The `db-password` secret is used
-# to set the database password. You must create `db/password.txt` and add
-# a password of your choosing to it before running `docker-compose up`.
-#     depends_on:
-#       db:
-#         condition: service_healthy
+# mqtt:
+#   image: eclipse-mosquitto:latest
+#   restart: always
+#   ports:
+#     - '1883:1883'
 # db:
 #   image: postgres
 #   restart: always
