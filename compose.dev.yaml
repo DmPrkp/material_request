@@ -20,9 +20,11 @@ services:
   web-server:
     build:
       context: ./web-server
-      dockerfile: ./Dockerfile.dev
+      dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4000:4000
+    env_file:
+      - ./secrets/calc-db/.db.env
     develop:
       watch:
         - action: sync
@@ -33,8 +35,9 @@ services:
             - dist/
         - action: rebuild
           path: ./web-server/package.json
-          ignore:
-            - node_modules/
+        - action: rebuild
+          path: ./web-server/docker
+
     depends_on:
       - db
 

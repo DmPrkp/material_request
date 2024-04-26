@@ -1,25 +1,13 @@
-export default class SystemComponentsRepositories {
-  systemComponents = {
-    facade: {
-      EIFS: [
-        'base coat adhesive',
-        'insulation',
-        'fiberglass mesh',
-        'finish coat',
-        'paint layer',
-      ],
-    },
-  };
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 
-  getComponents(system, component) {
-    try {
-      return this.systemComponents[system][component];
-    } catch (error) {
-      return error;
-    }
-  }
+import { Client } from 'pg';
+import { PGClient } from 'src/db/db.factory';
 
-  static factory() {
-    return new SystemComponentsRepositories();
+@Injectable()
+export default class SystemComponentsRepositories implements OnModuleDestroy {
+  constructor(@Inject(PGClient) private readonly PGClientFactory: Client) {}
+
+  onModuleDestroy(): void {
+    this.PGClientFactory.quit();
   }
 }

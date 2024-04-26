@@ -5,11 +5,10 @@ ENV NODE_ENV production
 WORKDIR /usr/web-server
 RUN npm install -g npm@10.5.2
 
-RUN npm i -g @nestjs/cli typescript
+RUN npm i -g @nestjs/cli typescript@5.2.2 @types/node
 
 COPY ./package.json ./
 RUN npm install
-RUN npm install --save-dev @types/node
 
 COPY ./ ./
 

@@ -7,6 +7,7 @@ export class SystemComponentsController {
     @Param('system') system: string,
     @Param('components') components: string,
   ): Array<object> {
-    return [{}];
+    console.log(system, components);
+    return [{ system, components }];
   }
 }

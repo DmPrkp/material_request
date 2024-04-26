@@ -21,7 +21,7 @@ services:
   web-server:
     build:
       context: ./web-server
-      dockerfile: ./Dockerfile.prod
+      dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4000:4000
 
