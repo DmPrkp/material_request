@@ -3,18 +3,17 @@
 # docker build -t web-server -f Dockerfile.prod --no-cache .
 # docker run -p 4000:4000 --name web-server web-server
 
-FROM node:20.12-bookworm
+FROM node:20.12-alpine
 
 ENV NODE_ENV production
 
 WORKDIR /usr/web-server
-RUN npm install -g npm@10.5.2
+# RUN npm install -g npm@latest
 
 RUN npm i -g @nestjs/cli typescript
 
-COPY ./package.json ./
+COPY ./package*.json ./
 RUN npm install
-RUN npm install --save-dev @types/node
 
 COPY ./ ./
 RUN npm run build
