@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS work_type;
+DROP TABLE IF EXISTS system;
+DROP TABLE IF EXISTS component;
