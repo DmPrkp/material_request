@@ -1,18 +1,38 @@
-import { Client } from 'pg';
+import { Pool } from 'pg';
+import { readdir, readFile } from 'node:fs/promises';
+
+const MIGRATION_PATH = __dirname + '/migrations/';
 
 export const PGClient = Symbol('PGClient');
 
 export const PGClientFactory = {
   provide: PGClient,
-  useFactory: async (): Promise<typeof Client> => {
-    const client = new Client({
+  useFactory: async (): Promise<typeof Pool> => {
+    const client = await new Pool({
       host: 'db',
       port: '5432',
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
     });
 
-    await client.connect();
+    const fileNames = (await readdir(MIGRATION_PATH)).filter((elm) =>
+      elm.match(/.*\.(up.sql?)/gi),
+    );
+
+    const filesBuff = await Promise.all(
+      fileNames.map((name) => readFile(MIGRATION_PATH + name)),
+    );
+
+    const files = filesBuff.map((file) => file.toString());
+
+    await Promise.all(files.map((file) => client.query(file)));
+
+    // const tables = await client.query(
+    //   "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'",
+    // );
+    // console.log(tables);
+
+    // await client.connect();
     return client;
   },
 };

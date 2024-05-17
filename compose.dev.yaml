@@ -36,6 +36,10 @@ services:
         - action: rebuild
           path: ./web-server/package.json
         - action: rebuild
+          path: ./web-server/tsconfig.json
+        - action: rebuild
+          path: ./web-server/nest-cli.json
+        - action: rebuild
           path: ./web-server/docker
 
     depends_on:

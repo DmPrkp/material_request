@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 
 import { Client } from 'pg';
-import { PGClient } from 'src/db/db.factory';
+import { PGClient } from '~/db/db.factory';
 
 @Injectable()
 export default class SystemComponentsRepositories implements OnModuleDestroy {
