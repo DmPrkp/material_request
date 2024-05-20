@@ -16,17 +16,25 @@ export const PGClientFactory = {
       password: process.env.POSTGRES_PASSWORD,
     });
 
-    const fileNames = (await readdir(MIGRATION_PATH)).filter((elm) =>
-      elm.match(/.*\.(up.sql?)/gi),
+    const fileNames = await readdir(MIGRATION_PATH);
+
+    // remove old data
+    const downFileNames = fileNames.filter((elm) =>
+      elm.match(/.*\.(down.sql?)/gi),
     );
-
-    const filesBuff = await Promise.all(
-      fileNames.map((name) => readFile(MIGRATION_PATH + name)),
+    const downFilesBuff = await Promise.all(
+      downFileNames.map((name) => readFile(MIGRATION_PATH + name)),
     );
+    const downFiles = downFilesBuff.map((file) => file.toString());
+    await Promise.all(downFiles.map((file) => client.query(file)));
 
-    const files = filesBuff.map((file) => file.toString());
-
-    await Promise.all(files.map((file) => client.query(file)));
+    // add new data
+    const upFileNames = fileNames.filter((elm) => elm.match(/.*\.(up.sql?)/gi));
+    const upFilesBuff = await Promise.all(
+      upFileNames.map((name) => readFile(MIGRATION_PATH + name)),
+    );
+    const upFiles = upFilesBuff.map((file) => file.toString());
+    await Promise.all(upFiles.map((file) => client.query(file)));
 
     return client;
   },

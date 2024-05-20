@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS system(
+   id SMALLSERIAL PRIMARY KEY,
+   title VARCHAR (50) UNIQUE NOT NULL,
+   description VARCHAR (200)
+);
+
+INSERT INTO system (id, title) VALUES (1, 'EIFS');
