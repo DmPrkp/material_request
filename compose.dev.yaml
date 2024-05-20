@@ -76,6 +76,15 @@ services:
       - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
     environment:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_DB=matli
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
 # mqtt:
 #   image: eclipse-mosquitto:latest
 #   restart: always

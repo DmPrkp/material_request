@@ -11,6 +11,7 @@ export const PGClientFactory = {
     const client = await new Pool({
       host: 'db',
       port: '5432',
+      database: 'matli',
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
     });
@@ -27,12 +28,6 @@ export const PGClientFactory = {
 
     await Promise.all(files.map((file) => client.query(file)));
 
-    // const tables = await client.query(
-    //   "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'",
-    // );
-    // console.log(tables);
-
-    // await client.connect();
     return client;
   },
 };
