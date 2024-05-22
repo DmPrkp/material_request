@@ -19,7 +19,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      <ion-router-outlet />
+      <router-view></router-view>
     </ion-content>
     <FooterBar />
   </ion-app>
