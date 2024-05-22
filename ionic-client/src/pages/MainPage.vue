@@ -56,6 +56,6 @@
   });
 
   const chooseItem = (item: MainMenuItem) => {
-    router.push({ name: "systems", params: { systems: item.title } });
+    router.push({ name: "work-type", params: { workType: item.title } });
   };
 </script>

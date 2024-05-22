@@ -19,13 +19,13 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/MainPage.vue"),
         children: [
           {
-            path: ":systems",
-            name: "systems",
+            path: ":workType",
+            name: "work-type",
             component: () => import("@/pages/SystemsPage.vue"),
             children: [
               {
-                path: ":components",
-                name: "components",
+                path: ":system",
+                name: "system",
                 component: () => import("@/pages/ComponentsPage.vue"),
               },
             ],

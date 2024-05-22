@@ -1,5 +1,5 @@
 <template>
-  <router-view v-if="route.name !== 'systems'" />
+  <router-view v-if="route.name !== 'work-type'" />
   <ion-page v-else>
     <ion-content class="ion-padding">
       <ion-title> Выберите технологию </ion-title>
@@ -24,13 +24,15 @@
   const route = useRoute();
   const router = useRouter();
   const currentItems: ComputedRef<Array<MainMenuItem>> = computed(() =>
-    mainMenuStore.mainMenu.filter((item) => item.title === route.params.systems)
+    mainMenuStore.mainMenu.filter(
+      (item) => item.title === route.params.workType
+    )
   );
 
   function chooseItem(item: MainMenuItem) {
     router.push({
-      name: "components",
-      params: { components: item.title },
+      name: "system",
+      params: { system: item.title },
     });
   }
 </script>
