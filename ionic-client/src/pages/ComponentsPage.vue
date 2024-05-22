@@ -97,15 +97,12 @@
   }
 
   async function getComponents() {
-    const { components, systems } = route.params;
-    const systemsParam = Array.isArray(systems) ? systems.join("/") : systems;
-    const componentsParam = Array.isArray(components)
-      ? components.join("/")
-      : components;
-    const responseSystems = await BaseModel.get([
-      systemsParam,
-      componentsParam,
-    ]);
+    const { workType, system } = route.params;
+    const systemsParam = Array.isArray(system) ? system.join("/") : system;
+    const workTypeParam = Array.isArray(workType)
+      ? workType.join("/")
+      : workType;
+    const responseSystems = await BaseModel.get([workTypeParam, systemsParam]);
     pageComponents.value = responseSystems;
     setAllVolumes(responseSystems, "");
   }

@@ -11,7 +11,8 @@
             @click="router.back"
           />
         </ion-buttons>
-        <ion-title>{{ $t("title") }}</ion-title>
+        <!-- <ion-title>{{ $t("title") }}</ion-title> -->
+        <ion-title>testtesttest</ion-title>
         <ion-progress-bar
           v-if="mainMenuStatus === 'none'"
           type="indeterminate"

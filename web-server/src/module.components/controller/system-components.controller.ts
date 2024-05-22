@@ -1,13 +1,18 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { SystemComponentsRepositories } from '../repositories/system-components.repository';
 
-@Controller(':system/:components')
+@Controller(':workType/:system')
 export class SystemComponentsController {
+  constructor(
+    private readonly systemComponentsRepositories: SystemComponentsRepositories,
+  ) {}
+
   @Get()
-  findAll(
+  async findAll(
+    @Param('workType') workType: string,
     @Param('system') system: string,
-    @Param('components') components: string,
-  ): Array<object> {
-    console.log(system, components);
-    return [{ system, components }];
+  ): Promise<any> {
+    const test = await this.systemComponentsRepositories.getComponents(system);
+    return [test];
   }
 }
