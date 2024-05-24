@@ -30,14 +30,14 @@
       <ion-list>
         <ion-item
           v-for="(item, index) in pageComponents"
-          :key="item + index"
+          :key="item.title + index"
         >
           <ion-input
             :disabled="isValueToAll"
-            @ionInput="setVal($event, item)"
-            :label="$t(`pages.components.items.${item}`)"
+            @ionInput="setVal($event, item.title)"
+            :label="$t(`pages.components.items.${item.title}`)"
             type="number"
-            :value="systemsVolumes[item]"
+            :value="systemsVolumes[item.title]"
           />
           <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
         </ion-item>
@@ -66,11 +66,12 @@
     ToggleCustomEvent,
   } from "@ionic/vue";
   import BaseModel from "@/models/BaseModel";
+  import { ComponentsType } from "@/types";
 
   const route = useRoute();
   // const router = useRouter();
 
-  const pageComponents = ref([]);
+  const pageComponents = ref<ComponentsType[]>([]);
   const isValueToAll = ref(true);
   const allValue = ref(100);
   const systemsVolumes: ISystemsVolumes = reactive({});

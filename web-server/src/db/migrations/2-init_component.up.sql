@@ -12,3 +12,4 @@ INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (2, 'insulation', 1, 
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (3, 'fiberglass mesh', 1, 3);
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (4, 'finish coat', 1, 4);
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (5, 'paint layer', 1, 5);
+INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (6, 'test layer', 999, 1);

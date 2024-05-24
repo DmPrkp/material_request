@@ -6,7 +6,7 @@ export const FLAT_ROOF_SYSTEM = {
     src: '/system/flat-roof.jpg',
     alt: 'flat-roof',
   },
-};
+} as const;
 
 export const EIFS_FACADE_SYSTEM = {
   id: 2,
@@ -16,4 +16,6 @@ export const EIFS_FACADE_SYSTEM = {
     src: '/system/wet-facade-narrow.jpg',
     alt: 'wet-facade',
   },
-};
+} as const;
+
+export const SYSTEMS = [EIFS_FACADE_SYSTEM, FLAT_ROOF_SYSTEM];

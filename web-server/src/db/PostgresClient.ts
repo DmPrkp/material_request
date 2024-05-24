@@ -13,4 +13,9 @@ export class PostgresClient implements OnModuleDestroy {
   getClient() {
     return this.PGClientFactory;
   }
+
+  async query<R>(q: string): Promise<R[]> {
+    const { rows } = await this.PGClientFactory.query<R>(q);
+    return rows;
+  }
 }

@@ -5,3 +5,4 @@ CREATE TABLE IF NOT EXISTS system(
 );
 
 INSERT INTO system (id, title, description) VALUES (1, 'EIFS', 'Exterior insulation finishing systems');
+INSERT INTO system (id, title, description) VALUES (999, 'TEST', 'test system');
