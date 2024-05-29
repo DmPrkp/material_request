@@ -1,10 +1,6 @@
 import { defineStore } from "pinia";
 import { MainMenuItem } from "../../types/controller/main-menu";
-
-interface StateMainMenu {
-  mainMenu: Array<MainMenuItem>;
-  status: "none" | "upload";
-}
+import { StateMainMenu } from "./types";
 
 export const useMainMenuStore = defineStore("main-menu", {
   state: (): StateMainMenu => ({ mainMenu: [], status: "none" }),

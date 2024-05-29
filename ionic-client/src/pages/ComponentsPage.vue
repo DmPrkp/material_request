@@ -37,7 +37,7 @@
             @ionInput="setVal($event, item.title)"
             :label="$t(`pages.components.items.${item.title}`)"
             type="number"
-            :value="systemsVolumes[item.title]"
+            :value="componentList[item.title]"
           />
           <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
         </ion-item>
@@ -54,9 +54,6 @@
 </template>
 
 <script setup lang="ts">
-  interface ISystemsVolumes {
-    [key: string]: number | string | null | undefined;
-  }
   import { onMounted, reactive, ref, toRaw } from "vue";
   import { useRoute } from "vue-router";
 
@@ -67,63 +64,72 @@
   } from "@ionic/vue";
   import BaseModel from "@/models/BaseModel";
   import { ComponentsType } from "@/types";
+  import { ComponentsList } from "./types";
 
   const route = useRoute();
   // const router = useRouter();
 
   const pageComponents = ref<ComponentsType[]>([]);
+  const componentList: ComponentsList = reactive({});
   const isValueToAll = ref(true);
   const allValue = ref(100);
-  const systemsVolumes: ISystemsVolumes = reactive({});
 
-  function setAllValue(val: any) {
-    allValue.value = val.detail.value > 9999 ? 9999 : val.detail.value;
-    Object.keys(systemsVolumes).forEach(
-      (component) => (systemsVolumes[component] = allValue.value)
+  function setAllValue(value: InputCustomEvent) {
+    const val = Number(value.detail.value || 0);
+    allValue.value = val > 9999 ? 9999 : val;
+    pageComponents.value.forEach(
+      (component) => (componentList[component.title] = allValue.value)
     );
   }
+
   function setIsAllValue(val: ToggleCustomEvent) {
     isValueToAll.value = val.detail.checked;
-    if (isValueToAll.value)
-      setAllVolumes(Object.keys(systemsVolumes), allValue.value);
+
+    if (isValueToAll.value) {
+      setAllValues(pageComponents.value, allValue.value);
+    }
   }
 
-  function setVal(val: InputCustomEvent, item: string) {
-    systemsVolumes[item] = val.detail.value;
+  function setVal(value: InputCustomEvent, item: string) {
+    const val = Number(value.detail.value || 0);
+    componentList[item] = val;
   }
 
-  async function handleRefresh(event: RefresherCustomEvent) {
-    await getComponents();
-    event.target.complete();
-  }
-
-  async function getComponents() {
-    const { workType, system } = route.params;
-    const systemsParam = Array.isArray(system) ? system.join("/") : system;
-    const workTypeParam = Array.isArray(workType)
-      ? workType.join("/")
-      : workType;
-    const responseSystems = await BaseModel.get([workTypeParam, systemsParam]);
-    pageComponents.value = responseSystems;
-    setAllVolumes(responseSystems, "");
-  }
-
-  function setAllVolumes(components: Array<string>, val: any) {
-    components.forEach((component: string) => {
-      systemsVolumes[component] = val;
-    });
-  }
-
-  async function sendComponentsVal() {
-    // TODO: set
-    const vol = toRaw(systemsVolumes);
-    await BaseModel.post(["calc_val"], [], {
-      body: JSON.stringify(vol),
+  function setAllValues(components: ComponentsType[], val: any) {
+    components.forEach((component: ComponentsType) => {
+      componentList[component.title] = val;
     });
   }
 
   onMounted(async () => {
-    console.log("onMounted");
     await getComponents();
   });
+
+  // fetch func
+  async function sendComponentsVal() {
+    const { system } = route.params;
+    const val = toRaw(componentList);
+    await BaseModel.post(`/calc/${system}`, [], {
+      body: JSON.stringify(val),
+    });
+  }
+
+  async function getComponents() {
+    const { workType, system } = route.params;
+    const responseComponents = await BaseModel.get<ComponentsType[]>(
+      `/${workType}/${system}`
+    );
+    if (responseComponents) {
+      pageComponents.value = responseComponents;
+      setAllValues(responseComponents, 0);
+    } else {
+      throw new Error("No components to this system");
+    }
+  }
+
+  // ionic functions
+  async function handleRefresh(event: RefresherCustomEvent) {
+    await getComponents();
+    event.target.complete();
+  }
 </script>

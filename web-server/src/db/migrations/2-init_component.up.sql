@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS component(
    -- CONSTRAINT fk_system FOREIGN KEY(system_id) REFERENCES system(id)
 );
 
-INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (1, 'base coat adhesive', 1, 1);
+INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (1, 'base adhesive coat', 1, 1);
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (2, 'insulation', 1, 2);
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (3, 'fiberglass mesh', 1, 3);
 INSERT INTO component (id, title, SYSTEM_ID, LAYER) VALUES (4, 'finish coat', 1, 4);

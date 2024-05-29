@@ -23,7 +23,7 @@
 
   const route = useRoute();
   const router = useRouter();
-  const currentItems: ComputedRef<Array<MainMenuItem>> = computed(() =>
+  const currentItems: ComputedRef<MainMenuItem[]> = computed(() =>
     mainMenuStore.mainMenu.filter(
       (item) => item.title === route.params.workType
     )

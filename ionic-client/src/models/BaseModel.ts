@@ -16,22 +16,10 @@ export default class BaseModel {
       }`;
   }
 
-  static async get(
-    params: Array<string> = [],
-    queries = [],
-    opts?: RequestInit
-  ): Promise<any> {
+  static async get<R>(params: string): Promise<R | undefined> {
     try {
-      const query =
-        this.baseURL +
-        this.apiVersion +
-        params.reduce((acc, param) => (acc += `/${param}`), "");
-      const options = {
-        ...this.baseOpts,
-        ...opts,
-      };
-      if (!queries && !options) return;
-      const response = await fetch(query);
+      const url = this.baseURL + this.apiVersion + params;
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(response.statusText);
       }
@@ -41,18 +29,15 @@ export default class BaseModel {
     }
   }
 
-  static async post(
-    params: Array<string> = [],
+  static async post<R>(
+    params: string,
     queries = [],
     opts?: RequestInit
-  ): Promise<any> {
+  ): Promise<R | undefined> {
     try {
-      const query =
-        this.baseURL +
-        this.apiVersion +
-        params.reduce((acc, param) => (acc += `/${param}`), "");
+      const query = this.baseURL + this.apiVersion + params;
       const options = Object.assign({ method: "POST" }, this.baseOpts, opts);
-      if (!queries && !options) return;
+      console.log(queries);
       const response = await fetch(query, options);
       if (!response.ok) {
         throw new Error(response.statusText);

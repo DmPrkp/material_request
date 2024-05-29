@@ -36,13 +36,13 @@
     () => (isMainPage.value = route.name === "main")
   );
 
-  const mainMenu: ComputedRef<Array<MainMenuItem>> = computed(
+  const mainMenu: ComputedRef<MainMenuItem[]> = computed(
     () => mainMenuStore.mainMenu
   );
 
   async function getMainMenu() {
-    const menu = await BaseModel.get(["main-menu"]);
-    mainMenuStore.defineMeinMenu(menu);
+    const menu = await BaseModel.get<MainMenuItem[]>("/main-menu");
+    if (menu) mainMenuStore.defineMeinMenu(menu);
   }
 
   const handleRefresh = async (event: RefresherCustomEvent) => {

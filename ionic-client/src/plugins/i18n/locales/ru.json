@@ -19,7 +19,7 @@
       "title": "Укажите объем работ",
       "send": "Создать заявку",
       "items": {
-        "base coat adhesive": "Базовый клеевой слой",
+        "base adhesive coat": "Базовый клеевой слой",
         "insulation": "Слой теплоизоляции",
         "fiberglass mesh": "Армирующий клеевой слой",
         "finish coat": "Финишный слой",
