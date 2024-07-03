@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS system;
+DROP TABLE IF EXISTS systems;
