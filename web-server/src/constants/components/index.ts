@@ -1,7 +1,7 @@
-export const EIFS_FACADE_SYSTEM_COMPONENTS = [
-  { id: 1, title: 'base coat adhesive' },
-  { id: 2, title: 'insulation' },
-  { id: 3, title: 'fiberglass mesh' },
-  { id: 4, title: 'finish coat' },
-  { id: 5, title: 'paint layer' },
-];
+export const EIFS_FACADE_SYSTEM_COMPONENTS = {
+  BASE_COAT_ADHESIVE_EIFS: 1,
+  INSULATION_EIFS: 2,
+  FIBERGLASS_MESH_EIFS: 3,
+  FINISH_COAT_EIFS: 4,
+  PAINT_LAYER_EIFS: 5,
+};
