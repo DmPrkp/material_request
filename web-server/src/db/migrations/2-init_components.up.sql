@@ -1,3 +1,4 @@
+BEGIN;
 CREATE TABLE IF NOT EXISTS components(
    id SERIAL PRIMARY KEY UNIQUE,
    title VARCHAR (50) UNIQUE NOT NULL,
@@ -13,3 +14,5 @@ INSERT INTO components (id, title, system_id, layer) VALUES (3, 'fiberglass mesh
 INSERT INTO components (id, title, system_id, layer) VALUES (4, 'finish coat', 1, 4);
 INSERT INTO components (id, title, system_id, layer) VALUES (5, 'paint layer', 1, 5);
 INSERT INTO components (id, title, system_id, layer) VALUES (6, 'test layer', 999, 1);
+
+COMMIT;

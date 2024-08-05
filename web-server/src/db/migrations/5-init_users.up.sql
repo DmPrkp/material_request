@@ -1,0 +1,9 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY UNIQUE,
+  name VARCHAR NOT NULL
+);
+
+INSERT INTO users (id, name) VALUES (1, 'default');
+
+COMMIT;
