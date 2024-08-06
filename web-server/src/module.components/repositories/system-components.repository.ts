@@ -10,12 +10,12 @@ export class SystemComponentsRepositories {
 
   async getComponents(systemTitle: SystemType['title']) {
     return this.postgresClient.query<ComponentDTO>(
-      `SELECT component.id, component.title, component.layer
-       FROM system 
-       LEFT JOIN component
-       ON system.id = component.system_id
-       WHERE system.title = '${systemTitle}'
-       ORDER BY component.layer ASC
+      `SELECT components.id, components.title, components.layer
+       FROM systems 
+       LEFT JOIN components
+       ON systems.id = components.system_id
+       WHERE systems.title = '${systemTitle}'
+       ORDER BY components.layer ASC
        ;`,
     );
   }

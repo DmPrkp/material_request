@@ -2,8 +2,7 @@ import { Pool } from 'pg';
 import { readdir, readFile } from 'node:fs/promises';
 
 const MIGRATION_PATH = __dirname + '/migrations/';
-
-export const PGClientName = Symbol('PGClient');
+const PGClientName = Symbol('PGClient');
 
 async function checkIsDBExist(client) {
   const { rows } = await client.query(
@@ -14,12 +13,12 @@ async function checkIsDBExist(client) {
   return exists;
 }
 
-export const PGClientFactory = {
+const PGClientFactory = {
   provide: PGClientName,
   useFactory: async (): Promise<Pool> => {
     const client = await new Pool({
-      host: 'db',
-      port: 5432,
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
       database: 'matli',
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
@@ -28,6 +27,7 @@ export const PGClientFactory = {
     const fileNames = await readdir(MIGRATION_PATH);
 
     const isExist = await checkIsDBExist(client);
+    console.log('DB is exist: ' + isExist);
 
     if (isExist) {
       // Remove old data
@@ -41,7 +41,11 @@ export const PGClientFactory = {
       const downFiles = downFilesBuff.map((file) => file.toString());
 
       for (const file of downFiles) {
-        await client.query(file);
+        try {
+          await client.query(file);
+        } catch (error) {
+          console.error('Error executing remove query: ', error, file);
+        }
       }
     }
 
@@ -56,10 +60,13 @@ export const PGClientFactory = {
       try {
         await client.query(file);
       } catch (error) {
-        console.error('Error executing up migration:', error);
+        console.error('Error executing up migration file:', file);
+        console.error('Error executing up migration error:', error);
       }
     }
 
     return client;
   },
 };
+
+export { PGClientName, PGClientFactory };
