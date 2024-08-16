@@ -19,8 +19,7 @@
       "title": "Specify the scope of works",
       "send": "Create a request",
       "items": {
-        "base adhesive coat": "base adhesive coat",
-        "insulation": "insulation",
+        "insulation coat": "insulation coat",
         "fiberglass mesh": "fiberglass mesh",
         "finish coat": "finish coat",
         "paint layer": "paint layer"

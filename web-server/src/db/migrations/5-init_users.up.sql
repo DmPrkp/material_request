@@ -1,9 +1,4 @@
-BEGIN;
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY UNIQUE,
   login VARCHAR NOT NULL
 );
-
-INSERT INTO users (id, login) VALUES (1, 'default');
-
-COMMIT;

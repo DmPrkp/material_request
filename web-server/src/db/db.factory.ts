@@ -2,7 +2,7 @@ import { Pool } from 'pg';
 import { readdir, readFile } from 'node:fs/promises';
 
 const MIGRATION_PATH = __dirname + '/migrations/';
-const PGClientName = Symbol('PGClient');
+const SEED_PATH = __dirname + '/seed/';
 
 async function checkIsDBExist(client) {
   const { rows } = await client.query(
@@ -13,10 +13,20 @@ async function checkIsDBExist(client) {
   return exists;
 }
 
-const PGClientFactory = {
-  provide: PGClientName,
-  useFactory: async (): Promise<Pool> => {
-    const client = await new Pool({
+export class PGClientFactory {
+  private static instance: Pool;
+
+  private constructor() {}
+
+  public static async getInstance(): Promise<Pool> {
+    if (!PGClientFactory.instance) {
+      PGClientFactory.instance = await PGClientFactory.initialize();
+    }
+    return PGClientFactory.instance;
+  }
+
+  private static async initialize(): Promise<Pool> {
+    const client = new Pool({
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
       database: 'matli',
@@ -30,25 +40,36 @@ const PGClientFactory = {
     console.log('DB is exist: ' + isExist);
 
     if (isExist) {
-      // Remove old data
-      const downFileNames = fileNames
-        .filter((elm) => elm.match(/.*\.(down.sql?)/gi))
-        .reverse();
-
-      const downFilesBuff = await Promise.all(
-        downFileNames.map((name) => readFile(MIGRATION_PATH + name)),
-      );
-      const downFiles = downFilesBuff.map((file) => file.toString());
-
-      for (const file of downFiles) {
-        try {
-          await client.query(file);
-        } catch (error) {
-          console.error('Error executing remove query: ', error, file);
-        }
-      }
+      await PGClientFactory.downMigration(fileNames, client);
     }
 
+    await PGClientFactory.upMigration(fileNames, client);
+    await PGClientFactory.seedData(client);
+
+    return client;
+  }
+
+  private static async downMigration(fileNames, client) {
+    // Remove old data
+    const downFileNames = fileNames
+      .filter((elm) => elm.match(/.*\.(down.sql?)/gi))
+      .reverse();
+
+    const downFilesBuff = await Promise.all(
+      downFileNames.map((name) => readFile(MIGRATION_PATH + name)),
+    );
+    const downFiles = downFilesBuff.map((file) => file.toString());
+
+    for (const file of downFiles) {
+      try {
+        await client.query(file);
+      } catch (error) {
+        console.error('Error executing remove query: ', error, file);
+      }
+    }
+  }
+
+  private static async upMigration(fileNames, client) {
     // Add new data
     const upFileNames = fileNames.filter((elm) => elm.match(/.*\.(up.sql?)/gi));
     const upFilesBuff = await Promise.all(
@@ -64,9 +85,23 @@ const PGClientFactory = {
         console.error('Error executing up migration error:', error);
       }
     }
+  }
 
-    return client;
-  },
-};
+  private static async seedData(client) {
+    const fileNames = await readdir(SEED_PATH);
 
-export { PGClientName, PGClientFactory };
+    const filesBuff = await Promise.all(
+      fileNames.map((name) => readFile(SEED_PATH + name)),
+    );
+    const files = filesBuff.map((file) => file.toString());
+
+    for (const file of files) {
+      try {
+        await client.query(file);
+      } catch (error) {
+        console.error('Error executing up seed file:', file);
+        console.error('Error executing up seed error:', error);
+      }
+    }
+  }
+}

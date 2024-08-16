@@ -8,7 +8,7 @@ type HandTool = {
   title: string;
   ru_title: string;
   adjusted_consumption: number;
-  param: HandToolParam;
+  param: HandToolParam[];
 };
 
 export type CalcResponseDTO = {
@@ -29,6 +29,7 @@ export type RawResult = {
   component_id: number;
   component_title: string;
   hand_tool_id: number;
+  hand_tool_param_id: number;
   hand_tool_title: string;
   ru_title: string;
   parameter: string;

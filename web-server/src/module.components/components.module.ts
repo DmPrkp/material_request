@@ -2,17 +2,12 @@ import { Module } from '@nestjs/common';
 
 import { SystemComponentsRepositories } from './repositories/system-components.repository';
 import { SystemComponentsController } from './controller/system-components.controller';
-import { PostgresClient } from '~/db/PostgresClient';
-import { PGClientFactory } from '~/db/db.factory';
 import { SystemValidationPipe } from '~/validation/system.pipe';
+import { DatabaseModule } from '~/db/PostgresClient';
 
 @Module({
+  imports: [DatabaseModule],
   controllers: [SystemComponentsController],
-  providers: [
-    SystemComponentsRepositories,
-    PGClientFactory,
-    PostgresClient,
-    SystemValidationPipe,
-  ],
+  providers: [SystemComponentsRepositories, SystemValidationPipe],
 })
 export class SystemComponentsModule {}

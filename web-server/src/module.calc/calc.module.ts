@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 
 import { CalcRepositories } from './repositories/calc.repository';
 import { CalcController } from './controller/calc.controller';
-import { PostgresClient } from '~/db/PostgresClient';
-import { PGClientFactory } from '~/db/db.factory';
+import { DatabaseModule } from '~/db/PostgresClient';
 // import { SystemValidationPipe } from '~/validation/system.pipe';
 
 @Module({
+  imports: [DatabaseModule],
   controllers: [CalcController],
-  providers: [CalcRepositories, PGClientFactory, PostgresClient],
+  providers: [CalcRepositories],
 })
 export class CalcModule {}
