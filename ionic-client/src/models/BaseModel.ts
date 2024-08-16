@@ -3,7 +3,11 @@ export default class BaseModel {
 
   static apiVersion = "/api/v1";
 
-  static baseOpts: RequestInit = {};
+  static baseOpts: RequestInit = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
 
   static setBaseUrl(url?: string | undefined) {
     const port = import.meta.env.VITE_PORT

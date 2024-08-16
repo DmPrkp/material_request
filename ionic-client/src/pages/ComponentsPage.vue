@@ -11,21 +11,20 @@
         <ion-title size="large">{{ $t("pages.components.title") }}</ion-title>
       </div>
       <ion-item>
-        <ion-toggle
-          style="width: 20%"
-          justify="start"
-          :checked="isValueToAll"
-          @ionChange="setIsAllValue"
-        />
         <ion-input
           style="width: 80%"
           :disabled="!isValueToAll"
-          label="Общий объем"
+          label="Общий объем: "
           placeholder="_______"
           type="number"
           @ionInput="setAllValue"
         />
         <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
+        <ion-toggle
+          justify="start"
+          :checked="isValueToAll"
+          @ionChange="setIsAllValue"
+        />
       </ion-item>
       <ion-list>
         <ion-item
@@ -42,6 +41,16 @@
           <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
         </ion-item>
       </ion-list>
+      <ion-item>
+        <ion-input
+          :disabled="!isValueToAll"
+          label="Количество звеньев рабочих: "
+          placeholder="_______"
+          type="number"
+          :value="workerCrew"
+          @ionInput="setWorkerCrew"
+        />
+      </ion-item>
       <div class="ion-padding">
         <ion-button
           expand="full"
@@ -73,6 +82,8 @@
   const componentList: ComponentsList = reactive({});
   const isValueToAll = ref(true);
   const allValue = ref(100);
+  const workerCrew = ref(1);
+  const componentsTitleIdMap: Record<string, number> = {};
 
   function setAllValue(value: InputCustomEvent) {
     const val = Number(value.detail.value || 0);
@@ -80,6 +91,10 @@
     pageComponents.value.forEach(
       (component) => (componentList[component.title] = allValue.value)
     );
+  }
+
+  function setWorkerCrew(value: InputCustomEvent) {
+    workerCrew.value = Number(value.detail.value || 1);
   }
 
   function setIsAllValue(val: ToggleCustomEvent) {
@@ -97,6 +112,7 @@
 
   function setAllValues(components: ComponentsType[], val: any) {
     components.forEach((component: ComponentsType) => {
+      componentsTitleIdMap[component.title] = component.id;
       componentList[component.title] = val;
     });
   }
@@ -108,9 +124,17 @@
   // fetch func
   async function sendComponentsVal() {
     const { system } = route.params;
-    const val = toRaw(componentList);
+    let components = toRaw(componentList);
+    components = Object.keys(components).reduce<Record<string, number>>(
+      (acc, comp) => {
+        acc[String(componentsTitleIdMap[comp])] = components[comp];
+        return acc;
+      },
+      {}
+    );
+    const dataToSend = { components, workerCrews: workerCrew.value };
     await BaseModel.post(`/calc/${system}`, [], {
-      body: JSON.stringify(val),
+      body: JSON.stringify(dataToSend),
     });
   }
 
