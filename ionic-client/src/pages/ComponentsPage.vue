@@ -10,31 +10,35 @@
       <div class="ion-padding">
         <ion-title size="large">{{ $t("pages.components.title") }}</ion-title>
       </div>
-      <ion-item>
+      <div class="full-volume-block">
         <ion-input
-          style="width: 80%"
+          class="full-volume-block_input"
           :disabled="!isValueToAll"
-          label="Общий объем: "
-          placeholder="_______"
+          :label="isValueToAll ? 'Общий объем:' : 'По слоям'"
+          placeholder="_________"
+          :value="allValue"
           type="number"
           @ionInput="setAllValue"
         />
-        <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
+        <ion-text style="margin: 0 16px">{{ $t("measure.square") }}</ion-text>
         <ion-toggle
-          justify="start"
+          style="margin-left: auto"
           :checked="isValueToAll"
           @ionChange="setIsAllValue"
         />
-      </ion-item>
+      </div>
       <ion-list>
         <ion-item
           v-for="(item, index) in pageComponents"
           :key="item.title + index"
+          class="custom-item"
         >
+          <ion-label>
+            {{ $t(`pages.components.items.${item.title}`) }}
+          </ion-label>
           <ion-input
             :disabled="isValueToAll"
             @ionInput="setVal($event, item.title)"
-            :label="$t(`pages.components.items.${item.title}`)"
             type="number"
             :value="componentList[item.title]"
           />
@@ -42,9 +46,11 @@
         </ion-item>
       </ion-list>
       <ion-item>
+        <ion-label>
+          {{ $t(`pages.components.crew-num`) + ":" }}
+        </ion-label>
         <ion-input
           :disabled="!isValueToAll"
-          label="Количество звеньев рабочих: "
           placeholder="_______"
           type="number"
           :value="workerCrew"
@@ -145,7 +151,7 @@
     );
     if (responseComponents) {
       pageComponents.value = responseComponents;
-      setAllValues(responseComponents, 0);
+      setAllValues(responseComponents, allValue.value);
     } else {
       throw new Error("No components to this system");
     }
@@ -157,3 +163,34 @@
     event.target.complete();
   }
 </script>
+
+<style>
+  .full-volume-block {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 15px 0 15px;
+  }
+
+  .full-volume-block_input {
+    flex: 1;
+    --placeholder-width: 150px;
+  }
+
+  .custom-item {
+    display: flex;
+    align-items: center;
+  }
+
+  ion-label {
+    flex: 1; /* Take available space */
+    min-width: 250px; /* Minimum width of label */
+    white-space: nowrap; /* Prevent text wrapping */
+    overflow: hidden; /* Hide overflow text */
+    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  }
+
+  ion-input {
+    flex: 2; /* Adjust based on your layout needs */
+  }
+</style>

@@ -1,27 +1,6 @@
-/* html, body {
-  height: 100%;
-  font-size: 14px;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-}
-
-.fb { color: var(--bright-letter) }
-.fd { color: var(--dark-letter) }
-
-.fill-height {
-  height: 100%;
-}
-
-.fill-width {
-  width: 100%;
-} */
-
-.small-text {
+/* .small-text {
   font-size: 0.8rem;
-}
+} */
 
 a {
   text-decoration: none;

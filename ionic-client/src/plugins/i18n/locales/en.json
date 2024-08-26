@@ -23,7 +23,8 @@
         "fiberglass mesh": "fiberglass mesh",
         "finish coat": "finish coat",
         "paint layer": "paint layer"
-      }
+      },
+      "crew-num": "numbers of crew"
     }
   }
 }

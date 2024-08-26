@@ -11,9 +11,14 @@
         @click="$emit('item', item)"
       >
         <ion-card>
-          <img :src="item.img.src" :alt="item.img.alt" />
+          <img
+            :src="item.img.src"
+            :alt="item.img.alt"
+          />
           <ion-card-header>
-            <ion-card-title>{{ $t(`main-menu.${item.title}`) }}</ion-card-title>
+            <ion-card-title color="dark">{{
+              $t(`main-menu.${item.title}`)
+            }}</ion-card-title>
           </ion-card-header>
         </ion-card>
       </ion-col>
@@ -22,14 +27,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-} from "@ionic/vue";
+  import {
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+  } from "@ionic/vue";
 
-const props = defineProps(["items"]);
+  const props = defineProps(["items"]);
 </script>

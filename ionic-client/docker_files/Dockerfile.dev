@@ -1,0 +1,24 @@
+# syntax=docker/dockerfile:1
+
+# docker build -t ionic-client -f Dockerfile.prod .
+# docker run -p 5173:5173 --name ionic-client ionic-client
+
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-alpine
+
+ENV NODE_ENV production
+
+WORKDIR /usr/app
+
+RUN npm i -g vue-tsc vite @types/node
+
+COPY ./package*.json ./ 
+
+RUN npm install
+
+COPY ./ ./
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]

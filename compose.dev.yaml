@@ -1,5 +1,6 @@
 # DOCKER DEV FILE
 # docker compose -f compose.dev.yaml -p matli-dev watch
+# docker compose -f compose.dev.yaml -p matli-dev build --no-cache
 
 networks:
   matli_network:
@@ -48,13 +49,16 @@ services:
   ionic-client:
     build:
       context: ./ionic-client
-      dockerfile: ./Dockerfile.prod
+      dockerfile: ./docker_files/Dockerfile.dev
     ports:
       - 5173:5173
     develop:
       watch:
-        - action: rebuild
+        - action: sync
           path: ./ionic-client
+          target: /usr/app
+          ignore:
+            - node_modules/
     depends_on:
       - db
 

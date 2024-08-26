@@ -39,4 +39,4 @@ RUN npm run build
 
 EXPOSE 5173
 
-CMD ["go", "run", "static-server.go"]
+CMD ["npm", "run", "static-server.go"]

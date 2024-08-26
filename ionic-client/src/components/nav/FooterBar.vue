@@ -10,6 +10,7 @@
         >
           <router-link :to="getLocalizedRoute(item.link)">
             <ion-icon
+              color="dark"
               :icon="item.icon"
               size="large"
             />
