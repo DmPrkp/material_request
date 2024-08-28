@@ -18,11 +18,11 @@ export type CalcResponseDTO = {
 };
 
 type Components = Record<number, number>;
-type WorkerCrews = number;
+type Crew = number;
 
 export type CalcRequestDTO = {
   components: Components;
-  workerCrews: WorkerCrews;
+  crew: Crew;
 };
 
 export type RawResult = {

@@ -27,6 +27,13 @@ const routes: Array<RouteRecordRaw> = [
                 path: ":system",
                 name: "system",
                 component: () => import("@/pages/ComponentsPage.vue"),
+                children: [
+                  {
+                    path: "materialList",
+                    name: "material-list",
+                    component: () => import("@/pages/MaterialListPage.vue"),
+                  },
+                ],
               },
             ],
           },

@@ -1,8 +1,9 @@
 html {
-  /* text */
-  --main-title: #aa2527;
-  /* --bright-letter: floralwhite;
-  --dark-letter: black; */
+  --main-red: #aa2527;
+  --main-secondary: #9c9b31;
+  --main-secondary-tint: #a1a735;
+  --main-dark-bg: #24170b;
+  --main-gray: #7d7d7d;
 
   /* ionic */
   --ion-margin: 8px;

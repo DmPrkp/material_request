@@ -12,9 +12,9 @@ export class CalcRepositories {
   async getComponents(
     systemTitle: SystemType['title'],
     calcRequestDTO: CalcRequestDTO,
-  ) {
+  ): Promise<CalcResponseDTO[]> {
     console.log(`Get calc by ${systemTitle} system`);
-    const { components, workerCrews } = calcRequestDTO;
+    const { components, crew } = calcRequestDTO;
     const componentIds = Object.keys(components).join(',');
 
     const query = `
@@ -27,7 +27,7 @@ export class CalcRepositories {
         hand_tool_params.id AS hand_tool_param_id, 
         hand_tool_params.parameter, 
         hand_tool_params.measure,
-        components_hand_tools_consumption.consumption * ${workerCrews} AS adjusted_consumption
+        components_hand_tools_consumption.consumption * ${crew} AS adjusted_consumption
 
       FROM components_hand_tools_consumption
 

@@ -1,5 +1,6 @@
 <template>
-  <ion-page>
+  <router-view v-if="!isComponentPage" />
+  <ion-page v-else>
     <ion-content>
       <ion-refresher
         slot="fixed"
@@ -53,7 +54,7 @@
           :disabled="!isValueToAll"
           placeholder="_______"
           type="number"
-          :value="workerCrew"
+          :value="crew"
           @ionInput="setWorkerCrew"
         />
       </ion-item>
@@ -80,6 +81,7 @@
   import BaseModel from "@/models/BaseModel";
   import { ComponentsType } from "@/types";
   import { ComponentsList } from "./types";
+  import router from "@/router";
 
   const route = useRoute();
   // const router = useRouter();
@@ -88,8 +90,9 @@
   const componentList: ComponentsList = reactive({});
   const isValueToAll = ref(true);
   const allValue = ref(100);
-  const workerCrew = ref(1);
+  const crew = ref(1);
   const componentsTitleIdMap: Record<string, number> = {};
+  const isComponentPage = ref(route.name === "system");
 
   function setAllValue(value: InputCustomEvent) {
     const val = Number(value.detail.value || 0);
@@ -100,7 +103,7 @@
   }
 
   function setWorkerCrew(value: InputCustomEvent) {
-    workerCrew.value = Number(value.detail.value || 1);
+    crew.value = Number(value.detail.value || 1);
   }
 
   function setIsAllValue(val: ToggleCustomEvent) {
@@ -138,11 +141,19 @@
       },
       {}
     );
-    const dataToSend = { components, workerCrews: workerCrew.value };
+    const dataToSend = { components, crew: crew.value };
     await BaseModel.post(`/calc/${system}`, [], {
       body: JSON.stringify(dataToSend),
     });
+    chooseItem(components, crew.value);
   }
+
+  const chooseItem = (components: object, crew: number) => {
+    router.push({
+      name: "material-list",
+      query: { components: JSON.stringify(components), crew },
+    });
+  };
 
   async function getComponents() {
     const { workType, system } = route.params;

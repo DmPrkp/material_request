@@ -17,7 +17,7 @@
   "pages": {
     "components": {
       "title": "Specify the scope of works",
-      "send": "Create a request",
+      "send": "Calculate",
       "items": {
         "insulation coat": "insulation coat",
         "fiberglass mesh": "fiberglass mesh",

@@ -17,7 +17,7 @@
   "pages": {
     "components": {
       "title": "Укажите объемы работ",
-      "send": "Создать заявку",
+      "send": "Рассчитать",
       "items": {
         "insulation coat": "Слой теплоизоляции",
         "fiberglass mesh": "Армирующий клеевой слой",

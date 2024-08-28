@@ -1,13 +1,14 @@
 <template>
   <ion-app>
-    <ion-header
-      class="main-header"
-      :translucent="true"
-    >
-      <ion-toolbar color="light">
-        <!-- <ion-title>{{ $t("title") }}</ion-title> -->
+    <ion-header :translucent="true">
+      <ion-toolbar>
         <router-link :to="getLocalizedRoute('main')">
-          <ion-title class="main_title">zayávka.ru</ion-title>
+          <ion-title
+            color="primary"
+            class="main_title"
+          >
+            zayávka.ru
+          </ion-title>
         </router-link>
 
         <ion-buttons slot="end">
@@ -78,7 +79,7 @@
   @import "@/assets/css/main.css";
 
   .main_title {
-    color: var(--main-title);
+    /* color: var(--main-red); */
     font-weight: 1000;
   }
 </style>
