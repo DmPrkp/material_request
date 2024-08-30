@@ -1,8 +1,9 @@
 <template>
-  <router-view v-if="!isMainPage" />
-  <ion-page v-else>
+  <ion-page v-if="isMainPage">
     <ion-content class="ion-padding">
-      <ion-title v-if="mainMenu.length"> Выберите вид работ </ion-title>
+      <ion-item-divider>
+        <ion-title v-if="mainMenu.length"> Виды работ </ion-title>
+      </ion-item-divider>
       <ion-refresher
         slot="fixed"
         @ionRefresh="handleRefresh($event)"
@@ -15,6 +16,7 @@
       />
     </ion-content>
   </ion-page>
+  <router-view v-else />
 </template>
 
 <script lang="ts" setup>
@@ -23,7 +25,7 @@
   import { RefresherCustomEvent } from "@ionic/vue";
   import MainMenuItems from "@/components/ui/MainMenuItems.vue";
   import BaseModel from "@/models/BaseModel";
-  import type { MainMenuItem } from "../../types/controller/main-menu";
+  import type { MainMenuItem } from "../types/controller/main-menu";
   import { useMainMenuStore } from "@/store/MainMenuStore";
 
   const router = useRouter();

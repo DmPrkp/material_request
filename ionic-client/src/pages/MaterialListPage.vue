@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page v-if="route.name === 'material-list'">
     <ion-content>
       <ion-refresher
         slot="fixed"
@@ -17,44 +17,14 @@
               {{ $t(`pages.components.items.${component.title}`) }}
             </ion-label>
           </ion-item-divider>
-
-          <ion-list>
-            <ion-item
-              v-for="tool in component.hand_tools"
-              :key="tool.id"
-            >
-              <ion-grid>
-                <ion-row>
-                  <ion-col
-                    size="8"
-                    class="ion-align-items-center"
-                  >
-                    <div style="display: inline-block">
-                      {{ tool.ru_title }}
-                      <span
-                        v-for="param in tool.params"
-                        :key="param.parameter"
-                      >
-                        - {{ param.parameter }} {{ param.measure }}
-                      </span>
-                    </div>
-                  </ion-col>
-
-                  <!-- Right side: adjusted consumption -->
-                  <ion-col
-                    size="4"
-                    class="ion-text-right"
-                  >
-                    {{ tool.adjusted_consumption }} {{ "шт" }}
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-item>
-          </ion-list>
+          <MaterialListItems
+            :hand_tools="component.hand_tools"
+          ></MaterialListItems>
         </ion-item-group>
       </ion-list>
     </ion-content>
   </ion-page>
+  <router-view v-else />
 </template>
 
 <script setup lang="ts">
@@ -63,6 +33,7 @@
   import type { CalcResponseDTO } from "@/types/dto/index";
 
   import { RefresherCustomEvent } from "@ionic/vue";
+  import MaterialListItems from "@/components/ui/MaterialListItems.vue";
   import BaseModel from "@/models/BaseModel";
 
   const route = useRoute();
@@ -72,7 +43,6 @@
   onMounted(async () => {
     const values = await calculateValues();
     materialsList.value = values;
-    console.log(values);
   });
 
   function parseData(query: LocationQuery) {

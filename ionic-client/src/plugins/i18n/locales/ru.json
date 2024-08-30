@@ -12,7 +12,8 @@
     "flat": "Плоская кровля"
   },
   "measure": {
-    "square": "м²"
+    "square": "м²",
+    "l": "л"
   },
   "pages": {
     "components": {

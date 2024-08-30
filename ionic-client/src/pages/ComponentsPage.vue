@@ -1,6 +1,5 @@
 <template>
-  <router-view v-if="!isComponentPage" />
-  <ion-page v-else>
+  <ion-page v-if="route.name === 'system'">
     <ion-content>
       <ion-refresher
         slot="fixed"
@@ -9,7 +8,11 @@
         <ion-refresher-content />
       </ion-refresher>
       <div class="ion-padding">
-        <ion-title size="large">{{ $t("pages.components.title") }}</ion-title>
+        <ion-item-divider>
+          <ion-title size="large">
+            {{ $t("pages.components.title") }}
+          </ion-title>
+        </ion-item-divider>
       </div>
       <div class="full-volume-block">
         <ion-input
@@ -67,6 +70,7 @@
       </div>
     </ion-content>
   </ion-page>
+  <router-view v-else />
 </template>
 
 <script setup lang="ts">
@@ -92,7 +96,6 @@
   const allValue = ref(100);
   const crew = ref(1);
   const componentsTitleIdMap: Record<string, number> = {};
-  const isComponentPage = ref(route.name === "system");
 
   function setAllValue(value: InputCustomEvent) {
     const val = Number(value.detail.value || 0);
@@ -130,9 +133,7 @@
     await getComponents();
   });
 
-  // fetch func
   async function sendComponentsVal() {
-    const { system } = route.params;
     let components = toRaw(componentList);
     components = Object.keys(components).reduce<Record<string, number>>(
       (acc, comp) => {
@@ -141,19 +142,11 @@
       },
       {}
     );
-    const dataToSend = { components, crew: crew.value };
-    await BaseModel.post(`/calc/${system}`, [], {
-      body: JSON.stringify(dataToSend),
-    });
-    chooseItem(components, crew.value);
-  }
-
-  const chooseItem = (components: object, crew: number) => {
     router.push({
       name: "material-list",
-      query: { components: JSON.stringify(components), crew },
+      query: { components: JSON.stringify(components), crew: crew.value },
     });
-  };
+  }
 
   async function getComponents() {
     const { workType, system } = route.params;

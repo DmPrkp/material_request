@@ -12,7 +12,8 @@
     "flat": "Flat roof"
   },
   "measure": {
-    "square": "m²"
+    "square": "m²",
+    "l": "l"
   },
   "pages": {
     "components": {
