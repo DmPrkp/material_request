@@ -38,7 +38,7 @@ export class CalcRepositories {
         ON components_hand_tools_consumption.hand_tools_id = hand_tools.id
 
       LEFT JOIN hand_tool_params_hand_tools
-          ON hand_tools.id = hand_tool_params_hand_tools.id
+          ON components_hand_tools_consumption.id = hand_tool_params_hand_tools.id
 
       LEFT JOIN hand_tool_params
           ON hand_tool_params_hand_tools.params = hand_tool_params.id
@@ -48,6 +48,8 @@ export class CalcRepositories {
     `;
 
     const { rows } = await this.pgClient.query<RawResult>(query);
+
+    console.log(rows);
 
     const componentsMap = new Map();
 

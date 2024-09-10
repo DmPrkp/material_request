@@ -1,3 +1,4 @@
 INSERT INTO hand_tool_params_hand_tools 
 (id, params) VALUES 
-(3, 21);
+(1, 19),
+(1, 20);

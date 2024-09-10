@@ -55,10 +55,9 @@ export class PGClientFactory {
       .filter((elm) => elm.match(/.*\.(down.sql?)/gi))
       .reverse();
 
-    const downFilesBuff = await Promise.all(
-      downFileNames.map((name) => readFile(MIGRATION_PATH + name)),
+    const downFiles = await Promise.all(
+      downFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')),
     );
-    const downFiles = downFilesBuff.map((file) => file.toString());
 
     for (const file of downFiles) {
       try {
@@ -72,10 +71,10 @@ export class PGClientFactory {
   private static async upMigration(fileNames, client) {
     // Add new data
     const upFileNames = fileNames.filter((elm) => elm.match(/.*\.(up.sql?)/gi));
-    const upFilesBuff = await Promise.all(
-      upFileNames.map((name) => readFile(MIGRATION_PATH + name)),
+
+    const upFiles = await Promise.all(
+      upFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')),
     );
-    const upFiles = upFilesBuff.map((file) => file.toString());
 
     for (const file of upFiles) {
       try {
