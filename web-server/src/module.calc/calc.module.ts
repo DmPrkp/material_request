@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { CalcRepositories } from './repositories/calc.repository';
+import { CalcService } from './services/calc.service';
 import { CalcController } from './controller/calc.controller';
 import { DatabaseModule } from '~/db/PostgresClient';
 // import { SystemValidationPipe } from '~/validation/system.pipe';
@@ -8,6 +9,6 @@ import { DatabaseModule } from '~/db/PostgresClient';
 @Module({
   imports: [DatabaseModule],
   controllers: [CalcController],
-  providers: [CalcRepositories],
+  providers: [CalcRepositories, CalcService],
 })
 export class CalcModule {}

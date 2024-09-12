@@ -30,10 +30,18 @@ INSERT INTO hand_tool_params (id, parameter, measure) VALUES
 (22, '15', 'l'),
 (23, '20', 'l');
 
--- screwdriver
+-- weight gram
 INSERT INTO hand_tool_params (id, parameter, measure) VALUES
-(24, '5', 'l'),
-(25, '7', 'l'),
-(26, '12', 'l'),
-(27, '15', 'l'),
-(28, '20', 'l');
+(24, '100', 'g'),
+(25, '300', 'g'),
+(26, '400', 'g'),
+(27, '450', 'g'),
+(28, '500', 'g'),
+(29, '600', 'g'),
+(30, '700', 'g'),
+(31, '800', 'g'),
+(32, '900', 'g'),
+(33, '1000', 'g'),
+(34, '1100', 'g'),
+(35, '1300', 'g');
+

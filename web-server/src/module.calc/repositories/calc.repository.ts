@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { SystemType } from '~/types';
-import { RawResult, CalcRequestDTO, CalcResponseDTO } from '../types';
+import { RawHandToolResult, CalcRequestDTO } from '../types';
 import { Pool } from 'pg';
 import { PGClientName } from '~/db/PostgresClient';
 
@@ -9,15 +8,12 @@ import { PGClientName } from '~/db/PostgresClient';
 export class CalcRepositories {
   constructor(@Inject(PGClientName) private readonly pgClient: Pool) {}
 
-  async getComponents(
-    systemTitle: SystemType['title'],
-    calcRequestDTO: CalcRequestDTO,
-  ): Promise<CalcResponseDTO[]> {
-    console.log(`Get calc by ${systemTitle} system`);
-    const { components, crew } = calcRequestDTO;
-    const componentIds = Object.keys(components).join(',');
-
-    const query = `
+  async getHandTools(
+    components: CalcRequestDTO["components"],
+    crew: CalcRequestDTO["crew"]
+  ): Promise<RawHandToolResult[]> {
+   
+    const handToolQuery = `
       SELECT 
         components.id AS component_id, 
         components.title AS component_title,
@@ -43,61 +39,60 @@ export class CalcRepositories {
       LEFT JOIN hand_tool_params
           ON hand_tool_params_hand_tools.params = hand_tool_params.id
 
-      WHERE components_hand_tools_consumption.component_id IN (${componentIds})
+      WHERE components_hand_tools_consumption.component_id IN 
+      (${Object.keys(components).join(',')})
       ORDER BY components.layer ASC;
     `;
 
-    const { rows } = await this.pgClient.query<RawResult>(query);
-
-    console.log(rows);
-
-    const componentsMap = new Map();
-
-    rows.forEach((row) => {
-      const {
-        component_id,
-        component_title,
-        hand_tool_id,
-        hand_tool_title,
-        ru_title,
-        adjusted_consumption,
-        hand_tool_param_id,
-        parameter,
-        measure,
-      } = row;
-
-      // Check if the component is already in the map, if not, add it
-      if (!componentsMap.has(component_id)) {
-        componentsMap.set(component_id, {
-          id: component_id,
-          title: component_title,
-          hand_tools: [],
-        });
-      }
-
-      const component = componentsMap.get(component_id);
-
-      // Check if the hand tool is already in the component's hand_tools array, if not, add it
-      let handTool = component.hand_tools.find((ht) => ht.id === hand_tool_id);
-
-      if (!handTool) {
-        handTool = {
-          id: hand_tool_id,
-          title: hand_tool_title,
-          ru_title: ru_title,
-          adjusted_consumption: adjusted_consumption,
-          params: [], // Initialize an empty array for params
-        };
-        component.hand_tools.push(handTool);
-      }
-
-      // Add the parameter to the hand_tool's params array
-      handTool.params.push({
-        id: hand_tool_param_id,
-        parameter,
-        measure,
-      });
-    });
-    return Array.from<CalcResponseDTO>(componentsMap.values());
+    const { rows } = await this.pgClient.query<RawHandToolResult>(handToolQuery);
+    return rows;
   }
+
+  async getPowerTools(
+    components: CalcRequestDTO['components'],
+    crew: CalcRequestDTO['crew'],
+  ): Promise<RawHandToolResult[]> {
+
+    const powerToolQuery = `
+    SELECT 
+      components.id AS component_id, 
+      components.title AS component_title,
+      power_tools.id AS power_tool_id, 
+      power_tools.title AS power_tool_title, 
+      power_tools.ru_title,
+      power_tools.corded,
+      power_tool_params.id AS power_tool_param_id, 
+      power_tool_params.parameter, 
+      power_tool_params.measure,
+      components_power_tools_consumption.consumption * ${crew} AS adjusted_consumption
+
+    FROM components_power_tools_consumption
+
+    LEFT JOIN components
+      ON components_power_tools_consumption.component_id = components.id
+
+    LEFT JOIN power_tools
+      ON components_power_tools_consumption.power_tools_id = power_tools.id
+
+    LEFT JOIN power_tool_params_power_tools
+        ON components_power_tools_consumption.id = power_tool_params_power_tools.id
+
+    LEFT JOIN power_tool_params
+        ON power_tool_params_power_tools.params = power_tool_params.id
+
+    WHERE components_power_tools_consumption.component_id IN 
+    (${Object.keys(components).join(',')})
+    ORDER BY components.layer ASC;
+  `;
+
+    const { rows } = await this.pgClient.query<RawHandToolResult>(powerToolQuery);
+    return rows;
+  }
+
+  // async getMaterials(
+  //   components: CalcRequestDTO['components'],
+  // ): Promise<any[]> {
+  //   const { components, crew } = calcRequestDTO;
+  //   return []
+  // }
 }

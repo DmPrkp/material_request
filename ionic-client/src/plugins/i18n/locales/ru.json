@@ -13,7 +13,8 @@
   },
   "measure": {
     "square": "м²",
-    "l": "л"
+    "l": "л",
+    "g": "г"
   },
   "pages": {
     "components": {

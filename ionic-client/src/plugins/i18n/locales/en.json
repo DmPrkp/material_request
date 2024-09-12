@@ -13,7 +13,8 @@
   },
   "measure": {
     "square": "m²",
-    "l": "l"
+    "l": "l",
+    "g": "g"
   },
   "pages": {
     "components": {
