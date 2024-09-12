@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { RawHandToolResult, CalcRequestDTO } from '../types';
+import { RawHandToolResult, CalcRequestDTO, RawPowerToolResult } from '../types';
 import { Pool } from 'pg';
 import { PGClientName } from '~/db/PostgresClient';
 
@@ -9,10 +9,9 @@ export class CalcRepositories {
   constructor(@Inject(PGClientName) private readonly pgClient: Pool) {}
 
   async getHandTools(
-    components: CalcRequestDTO["components"],
-    crew: CalcRequestDTO["crew"]
+    components: CalcRequestDTO['components'],
+    crew: CalcRequestDTO['crew'],
   ): Promise<RawHandToolResult[]> {
-   
     const handToolQuery = `
       SELECT 
         components.id AS component_id, 
@@ -51,8 +50,7 @@ export class CalcRepositories {
   async getPowerTools(
     components: CalcRequestDTO['components'],
     crew: CalcRequestDTO['crew'],
-  ): Promise<RawHandToolResult[]> {
-
+  ): Promise<RawPowerToolResult[]> {
     const powerToolQuery = `
     SELECT 
       components.id AS component_id, 
@@ -85,7 +83,7 @@ export class CalcRepositories {
     ORDER BY components.layer ASC;
   `;
 
-    const { rows } = await this.pgClient.query<RawHandToolResult>(powerToolQuery);
+    const { rows } = await this.pgClient.query<RawPowerToolResult>(powerToolQuery);
     return rows;
   }
 
