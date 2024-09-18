@@ -87,10 +87,32 @@ export class CalcRepositories {
     return rows;
   }
 
-  // async getMaterials(
-  //   components: CalcRequestDTO['components'],
-  // ): Promise<any[]> {
-  //   const { components, crew } = calcRequestDTO;
-  //   return []
-  // }
+  async getMaterials(components: CalcRequestDTO['components']): Promise<any[]> {
+    const materialsQuery = `
+    SELECT 
+      components.id AS component_id, 
+      components.title AS component_title,
+      materials.id AS power_tool_id, 
+      materials.title AS power_tool_title, 
+      materials.ru_title,
+      power_tool_params.id AS power_tool_param_id, 
+      power_tool_params.parameter, 
+      power_tool_params.measure,
+      components_materials_consumption.consumption AS adjusted_consumption
+
+    FROM components_materials_consumption
+
+    LEFT JOIN components
+      ON components_materials_consumption.component_id = components.id
+
+    LEFT JOIN materials
+      ON components_materials_consumption.materials_id = materials.id
+
+    WHERE components_materials_consumption.component_id IN 
+    (${Object.keys(components).join(',')})
+    ORDER BY components.layer ASC;
+  `;
+    const { rows } = await this.pgClient.query<RawPowerToolResult>(materialsQuery);
+    return rows;
+  }
 }

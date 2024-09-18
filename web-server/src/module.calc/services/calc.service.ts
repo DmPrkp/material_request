@@ -10,7 +10,7 @@ export class CalcService {
     const { components, crew } = calcRequestDTO;
     const handTools = await this.calcRepositories.getHandTools(components, crew);
     const powerTools = await this.calcRepositories.getPowerTools(components, crew);
-    // const materials = await this.calcRepositories.getMaterials(components);
+    const materials = await this.calcRepositories.getMaterials(components);
 
     const componentsMap = new Map<number, CalcResponseDTO>();
 
@@ -29,7 +29,7 @@ export class CalcService {
         });
       }
 
-      const component = componentsMap.get(componentId)!;
+      const component = componentsMap.get(componentId);
 
       // Find or create the hand tool within the component's hand_tools array
       let handTool = component.hand_tools.find((ht) => ht.id === row.hand_tool_id);
@@ -55,7 +55,7 @@ export class CalcService {
     // Process Power Tools
     powerTools.forEach((row) => {
       const componentId = row.component_id;
-      const component = componentsMap.get(componentId)!;
+      const component = componentsMap.get(componentId);
 
       // Find or create the power tool within the component's power_tools array
       let powerTool = component.power_tools.find((pt) => pt.id === row.power_tool_id);
@@ -78,6 +78,8 @@ export class CalcService {
         measure: row.measure,
       });
     });
+
+    // Process Materials
 
     // Convert the map to an array
     return Array.from(componentsMap.values());
