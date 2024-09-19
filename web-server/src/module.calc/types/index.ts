@@ -23,6 +23,9 @@ type PowerTool = {
 type Material = {
   id: number;
   title: string;
+  consumption: number;
+  volume: number;
+  measure: string;
 };
 
 export type CalcResponseDTO = {
@@ -33,7 +36,8 @@ export type CalcResponseDTO = {
   materials: Material[];
 };
 
-type Components = Record<number, number>;
+type Volume = number;
+type Components = Record<number, Volume>;
 type Crew = number;
 
 export type CalcRequestDTO = {
@@ -64,4 +68,14 @@ export type RawPowerToolResult = {
   parameter: string;
   measure: string;
   adjusted_consumption: number;
+};
+
+export type RawMaterialResult = {
+  component_id: number;
+  component_title: string;
+  materials_id: number;
+  materials_title: string;
+  materials_ru_title: string;
+  measure: string;
+  consumption: number;
 };

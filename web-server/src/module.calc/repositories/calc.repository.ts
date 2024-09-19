@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { RawHandToolResult, CalcRequestDTO, RawPowerToolResult } from '../types';
+import { RawHandToolResult, CalcRequestDTO, RawPowerToolResult, RawMaterialResult } from '../types';
 import { Pool } from 'pg';
 import { PGClientName } from '~/db/PostgresClient';
 
@@ -87,18 +87,16 @@ export class CalcRepositories {
     return rows;
   }
 
-  async getMaterials(components: CalcRequestDTO['components']): Promise<any[]> {
+  async getMaterials(components: CalcRequestDTO['components']): Promise<RawMaterialResult[]> {
     const materialsQuery = `
     SELECT 
       components.id AS component_id, 
       components.title AS component_title,
-      materials.id AS power_tool_id, 
-      materials.title AS power_tool_title, 
-      materials.ru_title,
-      power_tool_params.id AS power_tool_param_id, 
-      power_tool_params.parameter, 
-      power_tool_params.measure,
-      components_materials_consumption.consumption AS adjusted_consumption
+      materials.id AS materials_id, 
+      materials.title AS materials_title, 
+      materials.ru_title AS materials_ru_title,
+      materials.measure,
+      components_materials_consumption.consumption AS consumption
 
     FROM components_materials_consumption
 
@@ -112,7 +110,7 @@ export class CalcRepositories {
     (${Object.keys(components).join(',')})
     ORDER BY components.layer ASC;
   `;
-    const { rows } = await this.pgClient.query<RawPowerToolResult>(materialsQuery);
+    const { rows } = await this.pgClient.query<RawMaterialResult>(materialsQuery);
     return rows;
   }
 }

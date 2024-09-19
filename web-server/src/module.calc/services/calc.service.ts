@@ -80,6 +80,22 @@ export class CalcService {
     });
 
     // Process Materials
+    materials.forEach((material) => {
+      const componentId = material.component_id;
+      const component = componentsMap.get(componentId);
+      const { materials_id, materials_title, consumption, measure, materials_ru_title } = material;
+
+      const resMaterial = {
+        id: materials_id,
+        title: materials_title,
+        ru_title: materials_ru_title,
+        measure,
+        consumption,
+        params: [],
+        volume: components[componentId],
+      };
+      component.materials.push(resMaterial);
+    });
 
     // Convert the map to an array
     return Array.from(componentsMap.values());
