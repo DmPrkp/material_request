@@ -46,10 +46,12 @@ export class CalcService {
       }
 
       // Add the parameter to the hand tool's params array
-      handTool.params.push({
-        parameter: row.parameter,
-        measure: row.measure,
-      });
+      if (row.parameter) {
+        handTool.params.push({
+          parameter: row.parameter,
+          measure: row.measure,
+        });
+      }
     });
 
     // Process Power Tools

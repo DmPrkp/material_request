@@ -51,13 +51,9 @@ export class PGClientFactory {
 
   private static async downMigration(fileNames, client) {
     // Remove old data
-    const downFileNames = fileNames
-      .filter((elm) => elm.match(/.*\.(down.sql?)/gi))
-      .reverse();
+    const downFileNames = fileNames.filter((elm) => elm.match(/.*\.(down.sql?)/gi)).reverse();
 
-    const downFiles = await Promise.all(
-      downFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')),
-    );
+    const downFiles = await Promise.all(downFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')));
 
     for (const file of downFiles) {
       try {
@@ -72,9 +68,7 @@ export class PGClientFactory {
     // Add new data
     const upFileNames = fileNames.filter((elm) => elm.match(/.*\.(up.sql?)/gi));
 
-    const upFiles = await Promise.all(
-      upFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')),
-    );
+    const upFiles = await Promise.all(upFileNames.map((name) => readFile(MIGRATION_PATH + name, 'utf-8')));
 
     for (const file of upFiles) {
       try {
@@ -89,9 +83,7 @@ export class PGClientFactory {
   private static async seedData(client) {
     const fileNames = await readdir(SEED_PATH);
 
-    const filesBuff = await Promise.all(
-      fileNames.map((name) => readFile(SEED_PATH + name)),
-    );
+    const filesBuff = await Promise.all(fileNames.map((name) => readFile(SEED_PATH + name)));
     const files = filesBuff.map((file) => file.toString());
 
     for (const file of files) {

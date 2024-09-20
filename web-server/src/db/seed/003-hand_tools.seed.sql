@@ -2,7 +2,7 @@ INSERT INTO hand_tools (id, title, ru_title) VALUES
 (1, 'tape measure', 'рулетка'),
 (2, 'level', 'уровень'),
 (3, 'pail', 'ведро'),
-(4, 'handsaw', 'пила'),
+(4, 'handsaw for metal', 'ножовка по металлу'),
 (5, 'metal shears', 'ножницы по металлу'),
 (6, 'box cutter', 'нож строительный'),
 (7, 'flat paint brush', 'малярная кисть'),
@@ -23,5 +23,7 @@ INSERT INTO hand_tools (id, title, ru_title) VALUES
 (22, 'masonry trowel', 'мастерок'),
 (23, 'hex key', 'шестигранный ключ'),
 (24, 'mallet', 'кувалда'),
-(25, 'rule', 'правило')
+(25, 'rule', 'правило'),
+(26, 'handsaw for wood', 'ножовка по дереву'),
+(27, 'paint trays', 'ванночка для краски')
 ;
