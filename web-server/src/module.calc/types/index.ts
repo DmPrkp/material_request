@@ -1,5 +1,6 @@
-type HandToolParam = {
-  parameter: string;
+type ToolParam = {
+  id: number;
+  param: string;
   measure: string;
 };
 
@@ -8,7 +9,7 @@ type HandTool = {
   title: string;
   ru_title: string;
   adjusted_consumption: number;
-  params: HandToolParam[];
+  params: ToolParam[];
 };
 
 type PowerTool = {
@@ -17,7 +18,7 @@ type PowerTool = {
   ru_title: string;
   corded: boolean;
   adjusted_consumption: number;
-  params: HandToolParam[];
+  params: ToolParam[];
 };
 
 type Material = {
@@ -46,15 +47,14 @@ export type CalcRequestDTO = {
 };
 
 export type RawHandToolResult = {
+  consumption_id: number;
   component_id: number;
   component_title: string;
   hand_tool_id: number;
-  hand_tool_param_id: number;
   hand_tool_title: string;
   ru_title: string;
-  parameter: string;
-  measure: string;
-  adjusted_consumption: number;
+  params: ToolParam[];
+  adjusted_consumption: 1;
 };
 
 export type RawPowerToolResult = {

@@ -13,47 +13,47 @@ export class CalcRepositories {
     crew: CalcRequestDTO['crew'],
   ): Promise<RawHandToolResult[]> {
     const handToolQuery = `
-SELECT 
-  components_hand_tools_consumption.id AS consumption_id,
-  components.id AS component_id, 
-  components.title AS component_title,
-  hand_tools.id AS hand_tool_id, 
-  hand_tools.title AS hand_tool_title, 
-  hand_tools.ru_title,
-  ARRAY_AGG(
-    json_build_object(
-      'id', hand_tool_params.id, 
-      'param', hand_tool_params.parameter, 
-      'measure', hand_tool_params.measure
-    )
-  ) AS params,
-  components_hand_tools_consumption.consumption * ${crew} AS adjusted_consumption
+      SELECT 
+        components_hand_tools_consumption.id AS consumption_id,
+        components.id AS component_id, 
+        components.title AS component_title,
+        hand_tools.id AS hand_tool_id, 
+        hand_tools.title AS hand_tool_title, 
+        hand_tools.ru_title,
+        ARRAY_AGG(
+          json_build_object(
+            'id', hand_tool_params.id, 
+            'param', hand_tool_params.parameter, 
+            'measure', hand_tool_params.measure
+          )
+        ) FILTER (WHERE hand_tool_params.id IS NOT NULL) AS params,
+        components_hand_tools_consumption.consumption * ${crew} AS adjusted_consumption
 
-FROM components_hand_tools_consumption
+      FROM components_hand_tools_consumption
 
-LEFT JOIN components
-  ON components_hand_tools_consumption.component_id = components.id
+      LEFT JOIN components
+        ON components_hand_tools_consumption.component_id = components.id
 
-LEFT JOIN hand_tools
-  ON components_hand_tools_consumption.hand_tools_id = hand_tools.id
+      LEFT JOIN hand_tools
+        ON components_hand_tools_consumption.hand_tools_id = hand_tools.id
 
-LEFT JOIN hand_tool_params_hand_tools
-  ON components_hand_tools_consumption.id = hand_tool_params_hand_tools.id
+      LEFT JOIN hand_tool_params_hand_tools
+        ON components_hand_tools_consumption.id = hand_tool_params_hand_tools.id
 
-LEFT JOIN hand_tool_params
-  ON hand_tool_params_hand_tools.params = hand_tool_params.id
+      LEFT JOIN hand_tool_params
+        ON hand_tool_params_hand_tools.params = hand_tool_params.id
 
-WHERE components_hand_tools_consumption.component_id IN (${Object.keys(components).join(',')})
+      WHERE components_hand_tools_consumption.component_id IN (${Object.keys(components).join(',')})
 
-GROUP BY 
-  components_hand_tools_consumption.id,
-  components.id,
-  hand_tools.id,
-  hand_tools.title,
-  hand_tools.ru_title,
-  components_hand_tools_consumption.consumption
+      GROUP BY 
+        components_hand_tools_consumption.id,
+        components.id,
+        hand_tools.id,
+        hand_tools.title,
+        hand_tools.ru_title,
+        components_hand_tools_consumption.consumption
 
-ORDER BY components.id ASC;
+      ORDER BY components.id ASC;
     `;
 
     const { rows } = await this.pgClient.query<RawHandToolResult>(handToolQuery);

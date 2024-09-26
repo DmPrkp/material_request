@@ -16,6 +16,7 @@ export class CalcService {
 
     // Process Hand Tools
     handTools.forEach((row) => {
+      console.log(row);
       const componentId = row.component_id;
 
       // Initialize component if not already in map
@@ -31,27 +32,14 @@ export class CalcService {
 
       const component = componentsMap.get(componentId);
 
-      // Find or create the hand tool within the component's hand_tools array
-      let handTool = component.hand_tools.find((ht) => ht.id === row.hand_tool_id);
-
-      if (!handTool) {
-        handTool = {
-          id: row.hand_tool_id,
-          title: row.hand_tool_title,
-          ru_title: row.ru_title,
-          adjusted_consumption: row.adjusted_consumption,
-          params: [],
-        };
-        component.hand_tools.push(handTool);
-      }
-
-      // Add the parameter to the hand tool's params array
-      if (row.parameter) {
-        handTool.params.push({
-          parameter: row.parameter,
-          measure: row.measure,
-        });
-      }
+      const handTool = {
+        id: row.hand_tool_id,
+        title: row.hand_tool_title,
+        ru_title: row.ru_title,
+        adjusted_consumption: row.adjusted_consumption,
+        params: row.params,
+      };
+      component.hand_tools.push(handTool);
     });
 
     // Process Power Tools
@@ -73,12 +61,6 @@ export class CalcService {
         };
         component.power_tools.push(powerTool);
       }
-
-      // Add the parameter to the power tool's params array
-      powerTool.params.push({
-        parameter: row.parameter,
-        measure: row.measure,
-      });
     });
 
     // Process Materials

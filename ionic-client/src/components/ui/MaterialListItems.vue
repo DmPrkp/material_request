@@ -6,23 +6,20 @@
     >
       <ion-grid>
         <ion-row color="secondary">
-          <ion-col
-            size="1"
-            class="ion-text-right"
-          >
+          <ion-col size="1">
             {{ num + 1 }}
           </ion-col>
           <ion-col
             size="7"
-            class="ion-align-items-center"
+            class="ion-align-items-start"
           >
-            <div style="display: inline-block">
+            <div>
               {{ tool.ru_title }}
               <span
                 v-for="param in tool.params"
-                :key="param.parameter"
+                :key="param.param"
               >
-                {{ param.parameter }} {{ $t(`measure.${param.measure}`) }}
+                {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
               </span>
             </div>
           </ion-col>

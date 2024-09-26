@@ -9,10 +9,11 @@ export type HandTool = {
   title: string;
   ru_title: string;
   adjusted_consumption: number;
-  params: HandToolParam[];
+  params: ToolParam[];
 };
 
-type HandToolParam = {
-  parameter: string;
+type ToolParam = {
+  id: number;
+  param: string;
   measure: string;
 };
