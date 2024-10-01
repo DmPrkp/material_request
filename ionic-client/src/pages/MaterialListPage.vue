@@ -17,9 +17,7 @@
               {{ $t(`pages.components.items.${component.title}`) }}
             </ion-label>
           </ion-item-divider>
-          <MaterialListItems
-            :hand_tools="component.hand_tools"
-          ></MaterialListItems>
+          <MaterialListItems :materials="component.materials" />
         </ion-item-group>
       </ion-list>
     </ion-content>

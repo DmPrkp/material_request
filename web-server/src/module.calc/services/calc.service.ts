@@ -16,7 +16,6 @@ export class CalcService {
 
     // Process Hand Tools
     handTools.forEach((row) => {
-      console.log(row);
       const componentId = row.component_id;
 
       // Initialize component if not already in map

@@ -13,8 +13,10 @@
   },
   "measure": {
     "square": "m²",
+    "m²": "m²",
     "l": "l",
     "g": "g",
+    "kg": "kg",
     "m": "m",
     "cm": "cm",
     "mm": "mm"
@@ -30,6 +32,13 @@
         "paint layer": "paint layer"
       },
       "crew-num": "numbers of crew"
+    },
+    "materials": {
+      "table": {
+        "title": "title",
+        "consumption": "consumption",
+        "totalVolume": "total"
+      }
     }
   }
 }

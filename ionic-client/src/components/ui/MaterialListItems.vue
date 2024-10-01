@@ -1,11 +1,35 @@
 <template>
   <ion-list>
+    <ion-grid class="custom-margin">
+      <ion-row>
+        <ion-col size="1"> № </ion-col>
+
+        <ion-col size="6">
+          <div>{{ $t(`pages.materials.table.title`) }}</div>
+        </ion-col>
+
+        <ion-col
+          size="3"
+          class="ion-text-right"
+        >
+          {{ $t(`pages.materials.table.consumption`) }}
+        </ion-col>
+
+        <ion-col
+          size="2"
+          class="ion-text-right"
+        >
+          {{ $t(`pages.materials.table.totalVolume`) }}
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
     <ion-item
-      v-for="(tool, num) in hand_tools"
-      :key="tool.id"
+      v-for="(material, num) in materials"
+      :key="material.id"
     >
       <ion-grid>
-        <ion-row color="secondary">
+        <ion-row>
           <ion-col size="1">
             {{ num + 1 }}
           </ion-col>
@@ -14,9 +38,9 @@
             class="ion-align-items-start"
           >
             <div>
-              {{ tool.ru_title }}
+              {{ material.ru_title }}
               <span
-                v-for="param in tool.params"
+                v-for="param in material.params"
                 :key="param.param"
               >
                 {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
@@ -26,10 +50,18 @@
 
           <!-- Right side: adjusted consumption -->
           <ion-col
-            size="4"
+            size="2"
             class="ion-text-right"
           >
-            {{ tool.adjusted_consumption }} {{ "шт" }}
+            {{ material.consumption }}
+            {{ $t(`measure.${material.measure}`) }}
+          </ion-col>
+          <ion-col
+            size="2"
+            class="ion-text-right"
+          >
+            {{ material.consumption * material.volume }}
+            {{ $t(`measure.${material.measure}`) }}
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -38,9 +70,16 @@
 </template>
 
 <script setup lang="ts">
-  import { HandTool } from "@/types/dto";
+  import { Material } from "@/types/dto";
 
   defineProps<{
-    hand_tools: HandTool[];
+    materials: Material[];
   }>();
 </script>
+
+<style scoped>
+  .custom-margin {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+</style>
