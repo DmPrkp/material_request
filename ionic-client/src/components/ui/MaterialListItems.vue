@@ -4,28 +4,22 @@
       <ion-row>
         <ion-col size="1"> № </ion-col>
 
-        <ion-col size="6">
+        <ion-col size="5">
           <div>{{ $t(`pages.materials.table.title`) }}</div>
         </ion-col>
 
-        <ion-col
-          size="3"
-          class="ion-text-right"
-        >
+        <ion-col size="4">
           {{ $t(`pages.materials.table.consumption`) }}
         </ion-col>
 
-        <ion-col
-          size="2"
-          class="ion-text-right"
-        >
+        <ion-col size="2">
           {{ $t(`pages.materials.table.totalVolume`) }}
         </ion-col>
       </ion-row>
     </ion-grid>
 
     <ion-item
-      v-for="(material, num) in materials"
+      v-for="(material, num) in localMaterials"
       :key="material.id"
     >
       <ion-grid>
@@ -51,10 +45,24 @@
           <!-- Right side: adjusted consumption -->
           <ion-col
             size="2"
-            class="ion-text-right"
+            @click="openPopover(material.id)"
           >
             {{ material.consumption }}
             {{ $t(`measure.${material.measure}`) }}
+
+            <ion-popover
+              :is-open="popoverOpen[material.id]"
+              @didDismiss="popoverOpen[material.id] = false"
+            >
+              <ion-content class="ion-padding">
+                <ion-input
+                  label=""
+                  type="number"
+                  :value="material.consumption"
+                  @ionBlur="(e) => setConsumption(e, material)"
+                />
+              </ion-content>
+            </ion-popover>
           </ion-col>
           <ion-col
             size="2"
@@ -71,10 +79,29 @@
 
 <script setup lang="ts">
   import { Material } from "@/types/dto";
+  import { ref } from "vue";
 
-  defineProps<{
+  const props = defineProps<{
     materials: Material[];
   }>();
+
+  // const defaultMaterials = props.materials;
+  const localMaterials = ref(props.materials);
+  const popoverOpen = ref(
+    props.materials.reduce((a, m) => {
+      a[m.id] = false;
+      return a;
+    }, {} as Record<number, boolean>)
+  );
+
+  function openPopover(event: Material["id"]) {
+    popoverOpen.value = { ...popoverOpen.value, [event]: true };
+  }
+
+  function setConsumption(value: any, m: any) {
+    console.log("value", value.detail);
+    console.log("value", m);
+  }
 </script>
 
 <style scoped>
