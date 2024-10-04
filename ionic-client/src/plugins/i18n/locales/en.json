@@ -22,6 +22,12 @@
     "mm": "mm"
   },
   "pages": {
+    "main": {
+      "title": "Systems types"
+    },
+    "system": {
+      "title": "Select a technology"
+    },
     "components": {
       "title": "Specify the scope of works",
       "send": "Calculate",
@@ -34,9 +40,10 @@
       "crew-num": "numbers of crew"
     },
     "materials": {
+      "title": "Materials request",
       "table": {
         "title": "title",
-        "consumption": "consumption",
+        "consumption": "consumption to m²",
         "totalVolume": "total"
       }
     }

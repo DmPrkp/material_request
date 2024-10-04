@@ -1,80 +1,62 @@
 <template>
-  <ion-list>
-    <ion-grid class="custom-margin">
+  <!-- <ion-list> -->
+  <ion-item
+    v-for="(material, num) in localMaterials"
+    :key="material.id"
+  >
+    <ion-grid>
       <ion-row>
-        <ion-col size="1"> № </ion-col>
-
-        <ion-col size="5">
-          <div>{{ $t(`pages.materials.table.title`) }}</div>
+        <ion-col size="1">
+          {{ num + 1 }}
+        </ion-col>
+        <ion-col
+          size="7"
+          class="ion-align-items-start"
+        >
+          <div>
+            {{ material.ru_title }}
+            <span
+              v-for="param in material.params"
+              :key="param.param"
+            >
+              {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
+            </span>
+          </div>
         </ion-col>
 
-        <ion-col size="4">
-          {{ $t(`pages.materials.table.consumption`) }}
-        </ion-col>
+        <!-- Right side: adjusted consumption -->
+        <ion-col
+          size="2"
+          @click="openPopover(material.id)"
+        >
+          {{ material.consumption }}
+          {{ $t(`measure.${material.measure}`) }}
 
-        <ion-col size="2">
-          {{ $t(`pages.materials.table.totalVolume`) }}
+          <ion-popover
+            :is-open="popoverOpen[material.id]"
+            @didDismiss="popoverOpen[material.id] = false"
+          >
+            <ion-content>
+              <ion-input
+                label=""
+                type="number"
+                :value="material.consumption"
+                @ionBlur="(e) => setConsumption(e, material)"
+              />
+            </ion-content>
+          </ion-popover>
+        </ion-col>
+        <ion-col
+          size="2"
+          class="ion-text-right"
+        >
+          {{ material.consumption * material.volume }}
+          {{ $t(`measure.${material.measure}`) }}
         </ion-col>
       </ion-row>
     </ion-grid>
-
-    <ion-item
-      v-for="(material, num) in localMaterials"
-      :key="material.id"
-    >
-      <ion-grid>
-        <ion-row>
-          <ion-col size="1">
-            {{ num + 1 }}
-          </ion-col>
-          <ion-col
-            size="7"
-            class="ion-align-items-start"
-          >
-            <div>
-              {{ material.ru_title }}
-              <span
-                v-for="param in material.params"
-                :key="param.param"
-              >
-                {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
-              </span>
-            </div>
-          </ion-col>
-
-          <!-- Right side: adjusted consumption -->
-          <ion-col
-            size="2"
-            @click="openPopover(material.id)"
-          >
-            {{ material.consumption }}
-            {{ $t(`measure.${material.measure}`) }}
-
-            <ion-popover
-              :is-open="popoverOpen[material.id]"
-              @didDismiss="popoverOpen[material.id] = false"
-            >
-              <ion-content class="ion-padding">
-                <ion-input
-                  label=""
-                  type="number"
-                  :value="material.consumption"
-                  @ionBlur="(e) => setConsumption(e, material)"
-                />
-              </ion-content>
-            </ion-popover>
-          </ion-col>
-          <ion-col
-            size="2"
-            class="ion-text-right"
-          >
-            {{ material.consumption * material.volume }}
-            {{ $t(`measure.${material.measure}`) }}
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-item>
-  </ion-list>
+  </ion-item>
+  <!-- </ion-list> -->
 </template>
 
 <script setup lang="ts">
@@ -103,10 +85,3 @@
     console.log("value", m);
   }
 </script>
-
-<style scoped>
-  .custom-margin {
-    margin-left: 18px;
-    margin-right: 18px;
-  }
-</style>

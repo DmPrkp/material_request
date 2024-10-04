@@ -7,19 +7,44 @@
       >
         <ion-refresher-content />
       </ion-refresher>
-      <ion-list>
-        <ion-item-group
-          v-for="component in materialsList"
-          :key="component.id"
-        >
-          <ion-item-divider>
-            <ion-label>
-              {{ $t(`pages.components.items.${component.title}`) }}
-            </ion-label>
-          </ion-item-divider>
-          <MaterialListItems :materials="component.materials" />
-        </ion-item-group>
-      </ion-list>
+      <div class="ion-padding">
+        <ion-item-divider>
+          <ion-title size="large">
+            {{ $t("pages.materials.title") }}
+          </ion-title>
+        </ion-item-divider>
+      </div>
+
+      <!-- <ion-grid > -->
+      <ion-row class="custom-margin">
+        <ion-col size="1"> № </ion-col>
+
+        <ion-col size="5">
+          <div>{{ $t(`pages.materials.table.title`) }}</div>
+        </ion-col>
+
+        <ion-col size="4">
+          {{ $t(`pages.materials.table.consumption`) }}
+        </ion-col>
+
+        <ion-col size="2">
+          {{ $t(`pages.materials.table.totalVolume`) }}
+        </ion-col>
+      </ion-row>
+      <!-- </ion-grid> -->
+      <!-- <ion-list> -->
+      <ion-item-group
+        v-for="component in materialsList"
+        :key="component.id"
+      >
+        <ion-item-divider>
+          <ion-label>
+            {{ $t(`pages.components.items.${component.title}`) }}
+          </ion-label>
+        </ion-item-divider>
+        <MaterialListItems :materials="component.materials" />
+      </ion-item-group>
+      <!-- </ion-list> -->
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -99,5 +124,10 @@
 
   ion-input {
     flex: 2; /* Adjust based on your layout needs */
+  }
+
+  .custom-margin {
+    margin-left: 18px;
+    margin-right: 18px;
   }
 </style>

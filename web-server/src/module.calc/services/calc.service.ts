@@ -44,6 +44,18 @@ export class CalcService {
     // Process Power Tools
     powerTools.forEach((row) => {
       const componentId = row.component_id;
+
+      // Initialize component if not already in map
+      if (!componentsMap.has(componentId)) {
+        componentsMap.set(componentId, {
+          id: componentId,
+          title: row.component_title,
+          hand_tools: [],
+          power_tools: [],
+          materials: [],
+        });
+      }
+
       const component = componentsMap.get(componentId);
 
       // Find or create the power tool within the component's power_tools array
@@ -65,6 +77,18 @@ export class CalcService {
     // Process Materials
     materials.forEach((material) => {
       const componentId = material.component_id;
+
+      // Initialize component if not already in map
+      if (!componentsMap.has(componentId)) {
+        componentsMap.set(componentId, {
+          id: componentId,
+          title: material.component_title,
+          hand_tools: [],
+          power_tools: [],
+          materials: [],
+        });
+      }
+
       const component = componentsMap.get(componentId);
       const { materials_id, materials_title, consumption, measure, materials_ru_title } = material;
 

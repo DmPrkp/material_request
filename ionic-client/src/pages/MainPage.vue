@@ -1,15 +1,17 @@
 <template>
   <ion-page v-if="isMainPage">
+    <ion-refresher
+      slot="fixed"
+      @ionRefresh="handleRefresh($event)"
+    >
+      <ion-refresher-content />
+    </ion-refresher>
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title v-if="mainMenu.length"> Виды работ </ion-title>
+        <ion-title v-if="mainMenu.length">
+          {{ $t(`pages.main.title`) }}
+        </ion-title>
       </ion-item-divider>
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh($event)"
-      >
-        <ion-refresher-content />
-      </ion-refresher>
       <main-menu-items
         :items="mainMenu"
         @item="chooseItem"

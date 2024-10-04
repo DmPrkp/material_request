@@ -2,7 +2,7 @@
   <ion-page v-if="route.name === 'work-type'">
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title> Выберите технологию </ion-title>
+        <ion-title> {{ $t(`pages.system.title`) }} </ion-title>
       </ion-item-divider>
       <main-menu-items
         v-if="currentItems[0]"
