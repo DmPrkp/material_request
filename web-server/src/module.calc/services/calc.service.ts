@@ -36,7 +36,7 @@ export class CalcService {
         title: row.hand_tool_title,
         ru_title: row.ru_title,
         adjusted_consumption: row.adjusted_consumption,
-        params: row.params,
+        params: row.params || [],
       };
       component.hand_tools.push(handTool);
     });

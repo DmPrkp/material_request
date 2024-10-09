@@ -41,7 +41,7 @@
                 label=""
                 type="number"
                 :value="material.consumption"
-                @ionBlur="(e) => setConsumption(e, material)"
+                @ionBlur="(e: Event) => setConsumption(e, material)"
               />
             </ion-content>
           </ion-popover>

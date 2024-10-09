@@ -14,50 +14,24 @@
           </ion-title>
         </ion-item-divider>
       </div>
+      <MaterialListComponent :materials="materialsList" />
 
-      <!-- <ion-grid > -->
-      <ion-row class="custom-margin">
-        <ion-col size="1"> № </ion-col>
-
-        <ion-col size="5">
-          <div>{{ $t(`pages.materials.table.title`) }}</div>
-        </ion-col>
-
-        <ion-col size="4">
-          {{ $t(`pages.materials.table.consumption`) }}
-        </ion-col>
-
-        <ion-col size="2">
-          {{ $t(`pages.materials.table.totalVolume`) }}
-        </ion-col>
-      </ion-row>
-      <!-- </ion-grid> -->
-      <!-- <ion-list> -->
-      <ion-item-group
-        v-for="component in materialsList"
-        :key="component.id"
-      >
-        <ion-item-divider>
-          <ion-label>
-            {{ $t(`pages.components.items.${component.title}`) }}
-          </ion-label>
-        </ion-item-divider>
-        <MaterialListItems :materials="component.materials" />
-      </ion-item-group>
-      <!-- </ion-list> -->
+      <HandToolComponent :materials="materialsList" />
     </ion-content>
   </ion-page>
   <router-view v-else />
 </template>
 
 <script setup lang="ts">
-  import { onMounted, reactive, ref, toRaw } from "vue";
+  import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
   import type { CalcResponseDTO } from "@/types/dto/index";
 
   import { RefresherCustomEvent } from "@ionic/vue";
-  import MaterialListItems from "@/components/ui/MaterialListItems.vue";
+
   import BaseModel from "@/models/BaseModel";
+  import MaterialListComponent from "@/components/ui/MaterialListComponent.vue";
+  import HandToolComponent from "@/components/ui/HandToolComponent.vue";
 
   const route = useRoute();
 

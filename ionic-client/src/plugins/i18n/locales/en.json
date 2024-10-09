@@ -41,9 +41,15 @@
     },
     "materials": {
       "title": "Materials request",
+      "subTitles": {
+        "materials": "Materials and consumables",
+        "handTools": "Hand tools",
+        "powerTools": "Power tools"
+      },
       "table": {
         "title": "title",
-        "consumption": "consumption to m²",
+        "consumption": "consumption",
+        "consumptionPerSq": "per m²",
         "totalVolume": "total"
       }
     }

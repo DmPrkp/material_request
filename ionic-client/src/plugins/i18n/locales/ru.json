@@ -41,9 +41,15 @@
     },
     "materials": {
       "title": "Заявка на материалы",
+      "subTitles": {
+        "materials": "Материалы и расходники",
+        "handTools": "Ручной инструмент",
+        "powerTools": "Электроинструмент"
+      },
       "table": {
         "title": "наименование",
-        "consumption": "расход на м²",
+        "consumption": "расход",
+        "consumptionPerSq": "на м²",
         "totalVolume": "общий"
       }
     }

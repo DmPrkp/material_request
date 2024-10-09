@@ -2,7 +2,7 @@
   <ion-list>
     <ion-item
       v-for="(tool, num) in hand_tools"
-      :key="tool.id"
+      :key="tool.uniqKey"
     >
       <ion-grid>
         <ion-row color="secondary">

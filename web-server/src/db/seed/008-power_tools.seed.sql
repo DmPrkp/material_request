@@ -2,7 +2,7 @@ INSERT INTO power_tools (id, title, ru_title, corded) VALUES
 (1, 'impact driver', 'ударный гайковерт', FALSE),
 (2, 'impact driver', 'ударный гайковерт', TRUE),
 (3, 'pistol-grip drill', 'шуруповерт', FALSE),
-(4, 'pistol-grip drilll', 'дрель', TRUE),
+(4, 'pistol-grip drill', 'дрель', TRUE),
 (5, 'hammer drill', 'ударный шуруповерт', FALSE),
 (6, 'hammer drill', 'ударная дрель', TRUE),
 (7, 'angle grinder', 'угловая шлифмашина', FALSE),

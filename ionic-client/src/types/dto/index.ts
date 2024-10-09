@@ -15,6 +15,7 @@ export type PowerTool = {
 };
 
 export type HandTool = {
+  uniqKey: string;
   id: number;
   title: string;
   ru_title: string;
