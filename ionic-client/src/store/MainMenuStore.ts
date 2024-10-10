@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { MainMenuItem } from "../../types/controller/main-menu";
 import { StateMainMenu } from "./types";
+import { MainMenuItem } from "@/types/controller/main-menu";
 
 export const useMainMenuStore = defineStore("main-menu", {
   state: (): StateMainMenu => ({ mainMenu: [], status: "none" }),

@@ -72,6 +72,7 @@ export class CalcRepositories {
         power_tools.id AS power_tool_id, 
         power_tools.title AS power_tool_title, 
         power_tools.ru_title,
+        power_tools.corded,
         ARRAY_AGG(
           json_build_object(
             'id', power_tool_params.id, 
@@ -102,8 +103,7 @@ export class CalcRepositories {
         components.id,
         power_tools.id,
         power_tools.title,
-        power_tools.ru_title,
-        components_power_tools_consumption.consumption
+        power_tools.ru_title
 
       ORDER BY components.id ASC;
   `;

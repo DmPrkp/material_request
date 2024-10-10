@@ -1,7 +1,7 @@
 <template>
   <ion-item-divider color="secondary">
     <ion-title>
-      {{ $t("pages.materials.subTitles.handTools") }}
+      {{ $t("pages.materials.subTitles.powerTools") }}
     </ion-title>
   </ion-item-divider>
 
@@ -17,39 +17,39 @@
     </ion-col>
   </ion-row>
   <ion-item-group>
-    <HandToolListItems :hand_tools="Object.values(mergedHandTools)" />
+    <PowerToolListItems :power_tools="Object.values(mergedPowerTools)" />
   </ion-item-group>
 </template>
 
 <script lang="ts" setup>
-  import { CalcResponseDTO, HandTool } from "@/types/dto";
-  import HandToolListItems from "@/components/ui/HandToolListItems.vue";
+  import { CalcResponseDTO, PowerTool } from "@/types/dto";
+  import PowerToolListItems from "@/components/ui/PowerToolListItems.vue";
   import { ref, watch } from "vue";
 
   const props = defineProps<{
     materials: CalcResponseDTO[];
   }>();
 
-  const mergedHandTools = ref<Record<string, HandTool>>({});
+  const mergedPowerTools = ref<Record<string, PowerTool>>({});
 
   watch(
     () => props.materials,
     (materials) => {
-      mergedHandTools.value = materials.reduce((acc, m) => {
-        m.hand_tools.forEach((h) => {
-          const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
+      mergedPowerTools.value = materials.reduce((acc, m) => {
+        m.power_tools.forEach((p) => {
+          const uniqKey = `${p.id}:${p.params.map((p) => p.id).join()}`;
 
           if (!acc[uniqKey]) {
-            acc[uniqKey] = { ...h, uniqKey };
+            acc[uniqKey] = { ...p, uniqKey };
             return acc;
           }
 
-          if (acc[uniqKey].adjusted_consumption < h.adjusted_consumption) {
-            acc[uniqKey] = { ...h, uniqKey };
+          if (acc[uniqKey].adjusted_consumption < p.adjusted_consumption) {
+            acc[uniqKey] = { ...p, uniqKey };
           }
         });
         return acc;
-      }, {} as Record<string, HandTool>);
+      }, {} as Record<string, PowerTool>);
     },
     { immediate: true }
   );

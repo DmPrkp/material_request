@@ -7,10 +7,12 @@ export type CalcResponseDTO = {
 };
 
 export type PowerTool = {
+  uniqKey: string;
   id: number;
   title: string;
   ru_title: string;
   adjusted_consumption: number;
+  corded: boolean;
   params: Param[];
 };
 

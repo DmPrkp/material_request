@@ -1,6 +1,6 @@
 <template>
-  <ion-item-divider>
-    <ion-title color="secondary">
+  <ion-item-divider color="secondary">
+    <ion-title>
       {{ $t("pages.materials.subTitles.materials") }}
     </ion-title>
   </ion-item-divider>

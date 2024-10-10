@@ -24,7 +24,6 @@
           </div>
         </ion-col>
 
-        <!-- Right side: adjusted consumption -->
         <ion-col
           size="2"
           @click="openPopover(material.id)"
@@ -50,7 +49,7 @@
           size="2"
           class="ion-text-right"
         >
-          {{ material.consumption * material.volume }}
+          {{ (material.consumption * material.volume).toFixed(0) }}
           {{ $t(`measure.${material.measure}`) }}
         </ion-col>
       </ion-row>

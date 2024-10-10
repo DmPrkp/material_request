@@ -9,7 +9,7 @@
       </ion-refresher>
       <div class="ion-padding">
         <ion-item-divider>
-          <ion-title size="large">
+          <ion-title>
             {{ $t("pages.materials.title") }}
           </ion-title>
         </ion-item-divider>
@@ -17,6 +17,8 @@
       <MaterialListComponent :materials="materialsList" />
 
       <HandToolComponent :materials="materialsList" />
+
+      <PowerToolComponent :materials="materialsList" />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -32,6 +34,7 @@
   import BaseModel from "@/models/BaseModel";
   import MaterialListComponent from "@/components/ui/MaterialListComponent.vue";
   import HandToolComponent from "@/components/ui/HandToolComponent.vue";
+  import PowerToolComponent from "@/components/ui/PowerToolComponent.vue";
 
   const route = useRoute();
 
