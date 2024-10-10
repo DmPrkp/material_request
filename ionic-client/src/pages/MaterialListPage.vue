@@ -69,6 +69,8 @@
 
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
+    const values = await calculateValues();
+    materialsList.value = values;
     event.target.complete();
   }
 </script>
