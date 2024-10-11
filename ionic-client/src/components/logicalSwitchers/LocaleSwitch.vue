@@ -24,7 +24,7 @@
   const route = useRoute();
   const { locale } = useI18n();
   const defaultLocale = import.meta.env.VITE_DEFAULT_LOCALE;
-  // type LocaleTypes = "en" | "ru";
+  type LocaleTypes = "en" | "ru";
 
   function getAvailableLocales() {
     // const envs = import.meta.env;
@@ -34,7 +34,7 @@
     return [];
   }
 
-  function setLocale(value: any) {
+  function setLocale(value: LocaleTypes) {
     i18n.global.locale.value = value;
     document
       .querySelector("html")
@@ -55,8 +55,8 @@
     return persistLocale || window.navigator.language || defaultLocale;
   }
 
-  function handleLocale(locale: any, availableLocales: any[]) {
-    const localeNoRegion: any = locale.split("-")[0];
+  function handleLocale(locale: LocaleTypes, availableLocales: string[]) {
+    const localeNoRegion = locale.split("-")[0] as LocaleTypes;
     if (availableLocales.includes(locale)) {
       setLocale(locale);
     } else if (availableLocales.includes(localeNoRegion)) {
@@ -76,7 +76,7 @@
         route.params.locale.constructor === String &&
         oldVal === "/"
       ) {
-        handleLocale(route?.params?.locale, availableLocales);
+        handleLocale(route?.params?.locale as LocaleTypes, availableLocales);
       }
     }
   );

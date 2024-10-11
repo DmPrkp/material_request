@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint . --fix"
   },
   "dependencies": {
     "@capacitor/app": "^6.0.0",
@@ -29,15 +29,17 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^6.0.0",
-    "@vue/eslint-config-typescript": "^12.0.0",
+    "@eslint/js": "^9.12.0",
     "@vue/test-utils": "^2.3.0",
     "cypress": "^13.5.0",
-    "eslint": "^8.35.0",
-    "eslint-plugin-vue": "^9.9.0",
+    "eslint": "^9.12.0",
+    "eslint-plugin-vue": "^9.29.0",
+    "globals": "^15.11.0",
     "jsdom": "^22.1.0",
     "terser": "^5.4.0",
     "typescript": "^5.1.6",
-    "vite": "5.2.10",
+    "typescript-eslint": "^8.8.1",
+    "vite": "^5.4.8",
     "vitest": "^0.34.6",
     "vue-tsc": "^1.0.24"
   },
