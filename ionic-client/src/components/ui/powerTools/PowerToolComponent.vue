@@ -17,18 +17,26 @@
     </ion-col>
   </ion-row>
   <ion-item-group>
-    <PowerToolListItems :power_tools="Object.values(mergedPowerTools)" />
+    <PowerToolListItems
+      @modal="setOpen"
+      :power_tools="Object.values(mergedPowerTools)"
+    />
   </ion-item-group>
 </template>
 
 <script lang="ts" setup>
   import { CalcResponseDTO, PowerTool } from "@/types/dto";
-  import PowerToolListItems from "@/components/ui/PowerToolListItems.vue";
+  import PowerToolListItems from "./PowerToolListItems.vue";
   import { ref, watch } from "vue";
 
   const props = defineProps<{
     materials: CalcResponseDTO[];
   }>();
+
+  const emit = defineEmits(["modal"]);
+  const setOpen = (tool: PowerTool) => {
+    emit("modal", tool);
+  };
 
   const mergedPowerTools = ref<Record<string, PowerTool>>({});
 

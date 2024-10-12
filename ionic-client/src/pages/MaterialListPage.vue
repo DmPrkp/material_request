@@ -14,11 +14,20 @@
           </ion-title>
         </ion-item-divider>
       </div>
-      <MaterialListComponent :materials="materialsList" />
+      <MaterialComponent
+        @modal="openMaterialModal"
+        :materials="materialsList"
+      />
 
-      <HandToolComponent :materials="materialsList" />
+      <HandToolComponent
+        @modal="openHandToolModal"
+        :materials="materialsList"
+      />
 
-      <PowerToolComponent :materials="materialsList" />
+      <PowerToolComponent
+        @modal="openPowerToolModal"
+        :materials="materialsList"
+      />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -27,23 +36,72 @@
 <script setup lang="ts">
   import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
-  import type { CalcResponseDTO } from "@/types/dto/index";
+  import type { CalcResponseDTO, HandTool } from "@/types/dto/index";
 
-  import { RefresherCustomEvent } from "@ionic/vue";
+  import { modalController, RefresherCustomEvent } from "@ionic/vue";
 
   import BaseModel from "@/models/BaseModel";
-  import MaterialListComponent from "@/components/ui/MaterialListComponent.vue";
-  import HandToolComponent from "@/components/ui/HandToolComponent.vue";
-  import PowerToolComponent from "@/components/ui/PowerToolComponent.vue";
+  import MaterialComponent from "@/components/ui/materials/MaterialComponent.vue";
+  import HandToolComponent from "@/components/ui/handTools/HandToolComponent.vue";
+  import PowerToolComponent from "@/components/ui/powerTools/PowerToolComponent.vue";
+  import HandToolModal from "@/components/ui/handTools/HandToolModal.vue";
+  import PowerToolModal from "@/components/ui/powerTools/PowerToolModal.vue";
+  import MaterialModal from "@/components/ui/materials/MaterialModal.vue";
 
   const route = useRoute();
 
   const materialsList = ref<CalcResponseDTO[]>([]);
+  const message = ref(
+    "This modal example uses the modalController to present and dismiss modals."
+  );
 
-  onMounted(async () => {
-    const values = await calculateValues();
-    materialsList.value = values;
-  });
+  const openHandToolModal = async (tool: HandTool) => {
+    const modal = await modalController.create({
+      component: HandToolModal,
+      componentProps: { tool },
+    });
+
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    console.log(data.title, role);
+    if (role === "confirm") {
+      message.value = `Hello, ${data.title}!`;
+    }
+  };
+
+  const openPowerToolModal = async (tool: HandTool) => {
+    const modal = await modalController.create({
+      component: PowerToolModal,
+      componentProps: { tool },
+    });
+
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    console.log(data.title, role);
+    if (role === "confirm") {
+      message.value = `Hello, ${data.title}!`;
+    }
+  };
+
+  const openMaterialModal = async (material: HandTool) => {
+    const modal = await modalController.create({
+      component: MaterialModal,
+      componentProps: { material },
+    });
+
+    modal.present();
+
+    const { data, role } = await modal.onWillDismiss();
+
+    console.log(data.title, role);
+    if (role === "confirm") {
+      message.value = `Hello, ${data.title}!`;
+    }
+  };
 
   function parseData(query: LocationQuery) {
     const { components, crew } = query;
@@ -73,40 +131,9 @@
     materialsList.value = values;
     event.target.complete();
   }
+
+  onMounted(async () => {
+    const values = await calculateValues();
+    materialsList.value = values;
+  });
 </script>
-
-<style>
-  .full-volume-block {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0 15px 0 15px;
-  }
-
-  .full-volume-block_input {
-    flex: 1;
-    --placeholder-width: 150px;
-  }
-
-  .custom-item {
-    display: flex;
-    align-items: center;
-  }
-
-  ion-label {
-    flex: 1; /* Take available space */
-    min-width: 250px; /* Minimum width of label */
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Add ellipsis for overflow text */
-  }
-
-  ion-input {
-    flex: 2; /* Adjust based on your layout needs */
-  }
-
-  .custom-margin {
-    margin-left: 18px;
-    margin-right: 18px;
-  }
-</style>

@@ -28,12 +28,15 @@
   import MainMenuItems from "@/components/ui/MainMenuItems.vue";
   import BaseModel from "@/models/BaseModel";
   import type { MainMenuItem } from "../types/controller/main-menu";
-  import { useMainMenuStore } from "@/store/MainMenuStore";
+  import { useMainMenuStore } from "@/store/mainMenu";
+  import { usePreloader } from "@/store/preloader";
 
   const router = useRouter();
   const route = useRoute();
 
   const mainMenuStore = useMainMenuStore();
+  const preloaderStore = usePreloader();
+
   const isMainPage = ref(route.name === "main");
   watch(
     () => route.name,
@@ -45,7 +48,9 @@
   );
 
   async function getMainMenu() {
+    preloaderStore.setPreloader(true);
     const menu = await BaseModel.get<MainMenuItem[]>("/main-menu");
+    preloaderStore.setPreloader(false);
     if (menu) mainMenuStore.defineMeinMenu(menu);
   }
 

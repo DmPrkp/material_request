@@ -5,12 +5,12 @@
     :key="material.id"
   >
     <ion-grid>
-      <ion-row>
+      <ion-row @click="setOpen(material)">
         <ion-col size="1">
           {{ num + 1 }}
         </ion-col>
         <ion-col
-          size="7"
+          size="6"
           class="ion-align-items-start"
         >
           <div>
@@ -25,7 +25,7 @@
         </ion-col>
 
         <ion-col
-          size="2"
+          size="3"
           @click="openPopover(material.id)"
         >
           {{ material.consumption }}
@@ -83,4 +83,9 @@
     console.log("value", value.detail);
     console.log("value", m);
   }
+
+  const emit = defineEmits(["modal"]);
+  const setOpen = (material: Material) => {
+    emit("modal", material);
+  };
 </script>

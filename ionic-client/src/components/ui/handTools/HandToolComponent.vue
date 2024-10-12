@@ -17,13 +17,16 @@
     </ion-col>
   </ion-row>
   <ion-item-group>
-    <HandToolListItems :hand_tools="Object.values(mergedHandTools)" />
+    <HandToolListItems
+      @modal="setOpen"
+      :hand_tools="Object.values(mergedHandTools)"
+    />
   </ion-item-group>
 </template>
 
 <script lang="ts" setup>
   import { CalcResponseDTO, HandTool } from "@/types/dto";
-  import HandToolListItems from "@/components/ui/HandToolListItems.vue";
+  import HandToolListItems from "./HandToolListItems.vue";
   import { ref, watch } from "vue";
 
   const props = defineProps<{
@@ -31,6 +34,11 @@
   }>();
 
   const mergedHandTools = ref<Record<string, HandTool>>({});
+
+  const emit = defineEmits(["modal"]);
+  const setOpen = (tool: HandTool) => {
+    emit("modal", tool);
+  };
 
   watch(
     () => props.materials,

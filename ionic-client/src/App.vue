@@ -20,7 +20,7 @@
           />
         </ion-buttons>
         <ion-progress-bar
-          v-if="mainMenuStatus === 'none'"
+          v-if="preloaderStatus"
           type="indeterminate"
         />
       </ion-toolbar>
@@ -45,14 +45,12 @@
   } from "@ionic/vue";
   import ThemeSwitch from "@/components/logicalSwitchers/ThemeSwitch.vue";
   import FooterBar from "@/components/nav/FooterBar.vue";
-  import { useMainMenuStore } from "@/store/MainMenuStore";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
+  import { usePreloader } from "./store/preloader";
 
-  const mainMenuStore = useMainMenuStore();
+  const preloader = usePreloader();
 
-  const mainMenuStatus: ComputedRef<string> = computed(
-    () => mainMenuStore.status
-  );
+  const preloaderStatus: ComputedRef<boolean> = computed(() => preloader.state);
 
   const route = useRoute();
   const router = useRouter();

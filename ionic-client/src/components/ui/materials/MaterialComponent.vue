@@ -38,15 +38,23 @@
         {{ $t(`pages.components.items.${component.title}`) }}
       </ion-label>
     </ion-item-divider>
-    <MaterialListItems :materials="component.materials" />
+    <MaterialListItems
+      @modal="setOpen"
+      :materials="component.materials"
+    />
   </ion-item-group>
 </template>
 
 <script lang="ts" setup>
-  import MaterialListItems from "@/components/ui/MaterialListItems.vue";
-  import { CalcResponseDTO } from "@/types/dto";
+  import MaterialListItems from "./MateriaListItems.vue";
+  import { CalcResponseDTO, Material } from "@/types/dto";
 
   defineProps<{
     materials: CalcResponseDTO[];
   }>();
+
+  const emit = defineEmits(["modal"]);
+  const setOpen = (material: Material) => {
+    emit("modal", material);
+  };
 </script>

@@ -122,7 +122,7 @@
     componentList[item] = val;
   }
 
-  function setAllValues(components: ComponentsType[], val: any) {
+  function setAllValues(components: ComponentsType[], val: number) {
     components.forEach((component: ComponentsType) => {
       componentsTitleIdMap[component.title] = component.id;
       componentList[component.title] = val;

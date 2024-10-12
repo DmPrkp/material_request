@@ -19,7 +19,7 @@
   import { useRoute, useRouter } from "vue-router";
   import MainMenuItems from "@/components/ui/MainMenuItems.vue";
   import { type MainMenuItem } from "../types/controller/main-menu";
-  import { useMainMenuStore } from "@/store/MainMenuStore";
+  import { useMainMenuStore } from "@/store/mainMenu";
 
   const mainMenuStore = useMainMenuStore();
 
