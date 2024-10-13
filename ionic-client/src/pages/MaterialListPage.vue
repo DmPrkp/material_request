@@ -16,17 +16,17 @@
       </div>
       <MaterialComponent
         @modal="openMaterialModal"
-        :materials="materialsList"
+        :components="components"
       />
 
       <HandToolComponent
         @modal="openHandToolModal"
-        :materials="materialsList"
+        :components="components"
       />
 
       <PowerToolComponent
         @modal="openPowerToolModal"
-        :materials="materialsList"
+        :components="components"
       />
     </ion-content>
   </ion-page>
@@ -50,7 +50,7 @@
 
   const route = useRoute();
 
-  const materialsList = ref<CalcResponseDTO[]>([]);
+  const components = ref<CalcResponseDTO[]>([]);
   const message = ref(
     "This modal example uses the modalController to present and dismiss modals."
   );
@@ -128,12 +128,12 @@
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
     const values = await calculateValues();
-    materialsList.value = values;
+    components.value = values;
     event.target.complete();
   }
 
   onMounted(async () => {
     const values = await calculateValues();
-    materialsList.value = values;
+    components.value = values;
   });
 </script>

@@ -5,7 +5,7 @@
     </ion-title>
   </ion-item-divider>
 
-  <ion-row class="custom-margin">
+  <ion-row>
     <ion-col size="1"> № </ion-col>
 
     <ion-col size="7">
@@ -30,7 +30,7 @@
   import { ref, watch } from "vue";
 
   const props = defineProps<{
-    materials: CalcResponseDTO[];
+    components: CalcResponseDTO[];
   }>();
 
   const emit = defineEmits(["modal"]);
@@ -41,9 +41,9 @@
   const mergedPowerTools = ref<Record<string, PowerTool>>({});
 
   watch(
-    () => props.materials,
-    (materials) => {
-      mergedPowerTools.value = materials.reduce((acc, m) => {
+    () => props.components,
+    (components) => {
+      mergedPowerTools.value = components.reduce((acc, m) => {
         m.power_tools.forEach((p) => {
           const uniqKey = `${p.id}:${p.params.map((p) => p.id).join()}`;
 

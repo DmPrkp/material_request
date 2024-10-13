@@ -101,7 +101,10 @@ export class CalcService {
         params: [],
         volume: components[componentId],
       };
-      component.materials.push(resMaterial);
+
+      if (components[componentId]) {
+        component.materials.push(resMaterial);
+      }
     });
 
     // Convert the map to an array
