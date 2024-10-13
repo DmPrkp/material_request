@@ -11,17 +11,15 @@
         </ion-col>
         <ion-col
           size="6"
-          class="ion-align-items-start"
+          class="ion-align-items-start ion-text-start"
         >
-          <div>
-            {{ material.ru_title }}
-            <span
-              v-for="param in material.params"
-              :key="param.param"
-            >
-              {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
-            </span>
-          </div>
+          {{ material.ru_title }}
+          <span
+            v-for="param in material.params"
+            :key="param.param"
+          >
+            {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
+          </span>
         </ion-col>
 
         <ion-col

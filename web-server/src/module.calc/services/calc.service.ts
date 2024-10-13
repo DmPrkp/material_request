@@ -90,14 +90,13 @@ export class CalcService {
       }
 
       const component = componentsMap.get(componentId);
-      const { materials_id, materials_title, consumption, measure, materials_ru_title } = material;
 
       const resMaterial = {
-        id: materials_id,
-        title: materials_title,
-        ru_title: materials_ru_title,
-        measure,
-        consumption,
+        id: material.materials_id,
+        title: material.materials_title,
+        ru_title: material.materials_ru_title,
+        measure: material.measure,
+        consumption: material.consumption,
         params: [],
         volume: components[componentId],
       };

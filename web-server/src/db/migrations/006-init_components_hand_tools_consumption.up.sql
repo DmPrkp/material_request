@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS components_hand_tools_consumption(
    hand_tools_id INTEGER REFERENCES hand_tools(id),
    -- consumption REAL,
    consumption SMALLINT,
+   description VARCHAR(500),
    user_id SERIAL REFERENCES users(id)
 );

@@ -25,5 +25,8 @@ INSERT INTO hand_tools (id, title, ru_title) VALUES
 (24, 'mallet', 'кувалда'),
 (25, 'rule', 'правило'),
 (26, 'handsaw for wood', 'ножовка по дереву'),
-(27, 'paint trays', 'ванночка для краски')
+(27, 'paint trays', 'ванночка для краски'),
+(28, 'hard brush', 'щетка с жесткой щетиной'),
+(29, 'wire brush', 'щетка с металлической щетиной'),
+(30, 'sweeping brush', 'подметальная щетка')
 ;

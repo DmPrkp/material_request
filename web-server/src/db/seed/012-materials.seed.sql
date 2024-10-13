@@ -37,6 +37,10 @@ INSERT INTO materials (id, title, ru_title, description, ru_description, measure
 
 (10, 'Fiberglass Corner Beads', 'Стекловолоконные угловые профили',
 'Beads applied to reinforce and protect the corners of walls and openings in the insulation system',
-'Профили, используемые для усиления и защиты углов стен и проемов в системе утепления', 'm')
+'Профили, используемые для усиления и защиты углов стен и проемов в системе утепления', 'm'),
+
+(11, 'Metal Starter Profile', 'Металлический стартовый профиль', 
+'Metal or PVC profile used at the base of the insulation system to align and support the insulation boards',
+'Металлический или ПВХ профиль, используемый в нижней части системы утепления для выравнивания и поддержки теплоизоляционных плит', 'm')
 
 ;
