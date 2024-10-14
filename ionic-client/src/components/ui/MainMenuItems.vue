@@ -17,7 +17,7 @@
           />
           <ion-card-header>
             <ion-card-title color="dark">{{
-              $t(`main-menu.${item.title}`)
+              $t(`pages.main.types.${item.title}`)
             }}</ion-card-title>
           </ion-card-header>
         </ion-card>

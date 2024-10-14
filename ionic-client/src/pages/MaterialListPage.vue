@@ -36,7 +36,7 @@
 <script setup lang="ts">
   import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
-  import type { CalcResponseDTO, HandTool } from "@/types/dto/index";
+  import type { CalcResponseDTO, HandTool, Material } from "@/types/dto/index";
 
   import { modalController, RefresherCustomEvent } from "@ionic/vue";
 
@@ -51,9 +51,6 @@
   const route = useRoute();
 
   const components = ref<CalcResponseDTO[]>([]);
-  const message = ref(
-    "This modal example uses the modalController to present and dismiss modals."
-  );
 
   const openHandToolModal = async (tool: HandTool) => {
     const modal = await modalController.create({
@@ -67,7 +64,7 @@
 
     console.log(data.title, role);
     if (role === "confirm") {
-      message.value = `Hello, ${data.title}!`;
+      // message.value = `Hello, ${data.title}!`;
     }
   };
 
@@ -83,24 +80,33 @@
 
     console.log(data.title, role);
     if (role === "confirm") {
-      message.value = `Hello, ${data.title}!`;
+      // message.value = `Hello, ${data.title}!`;
     }
   };
 
-  const openMaterialModal = async (material: HandTool) => {
+  const openMaterialModal = async (material: Material) => {
     const modal = await modalController.create({
       component: MaterialModal,
       componentProps: { material },
     });
 
-    modal.present();
+    await modal.present();
 
     const { data, role } = await modal.onWillDismiss();
 
-    console.log(data.title, role);
-    if (role === "confirm") {
-      message.value = `Hello, ${data.title}!`;
-    }
+    components.value.forEach((component) => {
+      const materialIndex = component.materials.findIndex(
+        (mat) => mat.id === material.id
+      );
+
+      if (materialIndex === -1) return;
+
+      if (role === "confirm" && data) {
+        component.materials[materialIndex] = { ...data };
+      } else if (role === "confirm" && data === null) {
+        component.materials.splice(materialIndex, 1);
+      }
+    });
   };
 
   function parseData(query: LocationQuery) {
@@ -128,7 +134,7 @@
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
     const values = await calculateValues();
-    components.value = values;
+    components.value = [...values];
     event.target.complete();
   }
 

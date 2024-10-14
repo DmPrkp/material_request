@@ -1,11 +1,11 @@
 <template>
-  <!-- <ion-list> -->
   <ion-item
-    v-for="(material, num) in localMaterials"
+    v-for="(material, num) in materials"
     :key="material.id"
+    @click="setOpen(material)"
   >
     <ion-grid>
-      <ion-row @click="setOpen(material)">
+      <ion-row>
         <ion-col size="1">
           {{ num + 1 }}
         </ion-col>
@@ -21,27 +21,8 @@
             {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
           </span>
         </ion-col>
-
-        <ion-col
-          size="3"
-          @click="openPopover(material.id)"
-        >
-          {{ material.consumption }}
-          {{ $t(`measure.${material.measure}`) }}
-
-          <ion-popover
-            :is-open="popoverOpen[material.id]"
-            @didDismiss="popoverOpen[material.id] = false"
-          >
-            <ion-content>
-              <ion-input
-                label=""
-                type="number"
-                :value="material.consumption"
-                @ionBlur="(e: Event) => setConsumption(e, material)"
-              />
-            </ion-content>
-          </ion-popover>
+        <ion-col size="3">
+          {{ material.consumption }} {{ $t(`measure.${material.measure}`) }}
         </ion-col>
         <ion-col
           size="2"
@@ -53,36 +34,18 @@
       </ion-row>
     </ion-grid>
   </ion-item>
-  <!-- </ion-list> -->
 </template>
 
 <script setup lang="ts">
   import { Material } from "@/types/dto";
-  import { ref } from "vue";
+  import { defineProps, defineEmits } from "vue";
 
-  const props = defineProps<{
+  defineProps<{
     materials: Material[];
   }>();
 
-  // const defaultMaterials = props.materials;
-  const localMaterials = ref(props.materials);
-  const popoverOpen = ref(
-    props.materials.reduce((a, m) => {
-      a[m.id] = false;
-      return a;
-    }, {} as Record<number, boolean>)
-  );
-
-  function openPopover(event: Material["id"]) {
-    popoverOpen.value = { ...popoverOpen.value, [event]: true };
-  }
-
-  function setConsumption(value: any, m: any) {
-    console.log("value", value.detail);
-    console.log("value", m);
-  }
-
   const emit = defineEmits(["modal"]);
+
   const setOpen = (material: Material) => {
     emit("modal", material);
   };

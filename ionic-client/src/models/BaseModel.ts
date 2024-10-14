@@ -41,7 +41,7 @@ export default class BaseModel {
     try {
       const query = this.baseURL + this.apiVersion + params;
       const options = Object.assign({ method: "POST" }, this.baseOpts, opts);
-      console.log(queries);
+      console.log("queries", queries);
       const response = await fetch(query, options);
       if (!response.ok) {
         throw new Error(response.statusText);

@@ -5,11 +5,13 @@
     "main": "Main",
     "about": "About"
   },
-  "main-menu": {
-    "facade": "Facade",
-    "roof": "Roof",
-    "EIFS": "EIFS",
-    "flat": "Flat roof"
+  "ui": {
+    "buttons": {
+      "save": "save",
+      "cancel": "cancel",
+      "add": "add",
+      "remove": "remove"
+    }
   },
   "measure": {
     "square": "m²",
@@ -23,7 +25,13 @@
   },
   "pages": {
     "main": {
-      "title": "Systems types"
+      "title": "Systems types",
+      "types": {
+        "facade": "Facade",
+        "roof": "Roof",
+        "EIFS": "EIFS",
+        "flat": "Flat roof"
+      }
     },
     "system": {
       "title": "Select a technology"
@@ -51,6 +59,12 @@
         "consumption": "consumption",
         "consumptionPerSq": "per m²",
         "totalVolume": "total"
+      },
+      "modal": {
+        "titles": {
+          "add": "Add",
+          "edit": "Edit"
+        }
       }
     }
   },
