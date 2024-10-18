@@ -25,7 +25,7 @@
   import { computed, onMounted, type ComputedRef, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { RefresherCustomEvent } from "@ionic/vue";
-  import MainMenuItems from "@/components/ui/MainMenuItems.vue";
+  import MainMenuItems from "@/components/pagesParts/MainMenuItems.vue";
   import BaseModel from "@/models/BaseModel";
   import type { MainMenuItem } from "../types/controller/main-menu";
   import { useMainMenuStore } from "@/store/mainMenu";

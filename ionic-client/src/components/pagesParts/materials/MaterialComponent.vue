@@ -10,9 +10,21 @@
       </ion-label>
     </ion-item-divider>
     <MaterialListItems
-      @modal="setOpen"
+      @modal="(e) => setOpen(component.id, e)"
       :materials="component.materials"
     />
+    <ion-grid v-if="component.materials.length">
+      <ion-row class="ion-justify-content-end">
+        <ion-col size="auto">
+          <ion-button
+            size="small"
+            @click="$emit('modal', { volume: component.materials[0].volume })"
+          >
+            {{ $t("ui.buttons.add") }}
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-item-group>
 </template>
 
@@ -26,7 +38,7 @@
   }>();
 
   const emit = defineEmits(["modal"]);
-  const setOpen = (material: Material) => {
-    emit("modal", material);
+  const setOpen = (componentId: number, material: Material) => {
+    emit("modal", { id: componentId, material });
   };
 </script>

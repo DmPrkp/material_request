@@ -11,9 +11,13 @@
       "cancel": "cancel",
       "add": "add",
       "remove": "remove"
+    },
+    "labels": {
+      "measure": "measure"
     }
   },
   "measure": {
+    "pcs": "pcs",
     "square": "m²",
     "m²": "m²",
     "l": "l",

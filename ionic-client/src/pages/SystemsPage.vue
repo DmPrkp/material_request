@@ -17,7 +17,7 @@
 <script lang="ts" setup>
   import { computed, ComputedRef } from "vue";
   import { useRoute, useRouter } from "vue-router";
-  import MainMenuItems from "@/components/ui/MainMenuItems.vue";
+  import MainMenuItems from "@/components/pagesParts/MainMenuItems.vue";
   import { type MainMenuItem } from "../types/controller/main-menu";
   import { useMainMenuStore } from "@/store/mainMenu";
 

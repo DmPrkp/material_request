@@ -15,17 +15,17 @@
         </ion-item-divider>
       </div>
       <MaterialComponent
-        @modal="openMaterialModal"
+        @modal="(e) => openModal('materials', e)"
         :components="components"
       />
 
       <HandToolComponent
-        @modal="openHandToolModal"
+        @modal="(e) => openModal('hand_tools', e)"
         :components="components"
       />
 
       <PowerToolComponent
-        @modal="openPowerToolModal"
+        @modal="(e) => openModal('power_tools', e)"
         :components="components"
       />
     </ion-content>
@@ -36,78 +36,107 @@
 <script setup lang="ts">
   import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
-  import type { CalcResponseDTO, HandTool, Material } from "@/types/dto/index";
+  import type {
+    CalcResponseDTO,
+    HandTool,
+    Material,
+    PowerTool,
+  } from "@/types/dto/index";
+  type ModalKey = "hand_tools" | "power_tools" | "materials";
 
   import { modalController, RefresherCustomEvent } from "@ionic/vue";
 
   import BaseModel from "@/models/BaseModel";
-  import MaterialComponent from "@/components/ui/materials/MaterialComponent.vue";
-  import HandToolComponent from "@/components/ui/handTools/HandToolComponent.vue";
-  import PowerToolComponent from "@/components/ui/powerTools/PowerToolComponent.vue";
-  import HandToolModal from "@/components/ui/handTools/HandToolModal.vue";
-  import PowerToolModal from "@/components/ui/powerTools/PowerToolModal.vue";
-  import MaterialModal from "@/components/ui/materials/MaterialModal.vue";
+  import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
+  import HandToolComponent from "@/components/pagesParts/handTools/HandToolComponent.vue";
+  import PowerToolComponent from "@/components/pagesParts/powerTools/PowerToolComponent.vue";
+  import HandToolModal from "@/components/pagesParts/handTools/HandToolModal.vue";
+  import PowerToolModal from "@/components/pagesParts/powerTools/PowerToolModal.vue";
+  import MaterialModal from "@/components/pagesParts/materials/MaterialModal.vue";
 
   const route = useRoute();
-
   const components = ref<CalcResponseDTO[]>([]);
-
-  const openHandToolModal = async (tool: HandTool) => {
-    const modal = await modalController.create({
-      component: HandToolModal,
-      componentProps: { tool },
-    });
-
-    modal.present();
-
-    const { data, role } = await modal.onWillDismiss();
-
-    console.log(data.title, role);
-    if (role === "confirm") {
-      // message.value = `Hello, ${data.title}!`;
-    }
+  const modals = {
+    hand_tools: HandToolModal,
+    power_tools: PowerToolModal,
+    materials: MaterialModal,
   };
 
-  const openPowerToolModal = async (tool: HandTool) => {
+  const openModal = async (
+    key: ModalKey,
+    item: Material | HandTool | PowerTool
+  ) => {
     const modal = await modalController.create({
-      component: PowerToolModal,
-      componentProps: { tool },
-    });
-
-    modal.present();
-
-    const { data, role } = await modal.onWillDismiss();
-
-    console.log(data.title, role);
-    if (role === "confirm") {
-      // message.value = `Hello, ${data.title}!`;
-    }
-  };
-
-  const openMaterialModal = async (material: Material) => {
-    const modal = await modalController.create({
-      component: MaterialModal,
-      componentProps: { material },
+      component: modals[key],
+      componentProps: { item },
     });
 
     await modal.present();
 
-    const { data, role } = await modal.onWillDismiss();
+    const { data, role } = await modal.onWillDismiss<{
+      id: number;
+      material: Material | HandTool | PowerTool;
+    }>();
+
+    if (!data?.material || !role) return;
 
     components.value.forEach((component) => {
-      const materialIndex = component.materials.findIndex(
-        (mat) => mat.id === material.id
-      );
+      if (component.id !== data.id) return;
 
-      if (materialIndex === -1) return;
+      const { material } = data;
 
-      if (role === "confirm" && data) {
-        component.materials[materialIndex] = { ...data };
-      } else if (role === "confirm" && data === null) {
-        component.materials.splice(materialIndex, 1);
+      if (isMaterial(material)) {
+        handleMaterialUpdate<Material>(key, material, component, role);
+      }
+      if (isHandTool(material)) {
+        handleMaterialUpdate<HandTool>(key, material, component, role);
+      }
+      if (isPowerTool(material)) {
+        handleMaterialUpdate<PowerTool>(key, material, component, role);
       }
     });
   };
+
+  function handleMaterialUpdate<T extends Material | HandTool | PowerTool>(
+    key: ModalKey,
+    material: T,
+    component: CalcResponseDTO,
+    role: string
+  ) {
+    const itemIndex = component[key].findIndex(
+      (mat) => mat.ru_title === material.ru_title
+    );
+
+    if (itemIndex === -1) {
+      if (key === "materials") {
+        component[key].push(material as Material);
+      } else if (key === "hand_tools") {
+        component[key].push(material as HandTool);
+      } else if (key === "power_tools") {
+        component[key].push(material as PowerTool);
+      }
+    } else if (role === "confirm" && material) {
+      component[key][itemIndex] = { ...material };
+    } else if (role === "confirm" && material === null) {
+      component[key].splice(itemIndex, 1);
+    }
+  }
+
+  function isHandTool(item: object): item is HandTool {
+    return (
+      "uniqKey" in item && "adjusted_consumption" in item && "params" in item
+    );
+  }
+
+  function isPowerTool(item: object): item is PowerTool {
+    return (
+      "corded" in item && "adjusted_consumption" in item && "params" in item
+    );
+  }
+
+  function isMaterial(item: object): item is Material {
+    return "consumption" in item && "volume" in item && "measure" in item;
+  }
 
   function parseData(query: LocationQuery) {
     const { components, crew } = query;

@@ -1,13 +1,13 @@
 <template>
   <ion-list>
     <ion-item
-      v-for="(tool, num) in power_tools"
+      v-for="(tool, num) in hand_tools"
       :key="tool.uniqKey"
     >
       <ion-grid>
         <ion-row
-          @click="setOpen(tool)"
           color="secondary"
+          @click="setOpen(tool)"
         >
           <ion-col size="1">
             {{ num + 1 }}
@@ -18,12 +18,11 @@
           >
             <div>
               {{ tool.ru_title }}
-              {{ $t(`current.${tool.corded ? "ac" : "dc"}`) }}
               <span
                 v-for="param in tool.params"
                 :key="param.param"
               >
-                {{ param.param }} {{ $t(`measure.${param.measure}`) }}
+                {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
               </span>
             </div>
           </ion-col>
@@ -33,7 +32,7 @@
             size="4"
             class="ion-text-right"
           >
-            {{ tool.adjusted_consumption }} {{ "шт" }}
+            {{ tool.adjusted_consumption }} {{ $t("measure.pcs") }}
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -42,14 +41,14 @@
 </template>
 
 <script setup lang="ts">
-  import { PowerTool } from "@/types/dto";
+  import { HandTool } from "@/types/dto";
 
   defineProps<{
-    power_tools: PowerTool[];
+    hand_tools: HandTool[];
   }>();
 
   const emit = defineEmits(["modal"]);
-  const setOpen = (tool: PowerTool) => {
+  const setOpen = (tool: HandTool) => {
     emit("modal", tool);
   };
 </script>
