@@ -73,29 +73,33 @@
     </ion-item>
 
     <ion-item v-if="!localMaterial.id">
-      <ion-picker
-        :value="localMaterial.measure"
-        @ionChange="onPickerChange"
-      >
-        <ion-picker-column>
-          <div slot="prefix">{{ $t("ui.labels.measure") }}</div>
-          <ion-picker-column-option value="m²">{{
-            $t("measure.m²")
-          }}</ion-picker-column-option>
-          <ion-picker-column-option value="l">{{
-            $t("measure.l")
-          }}</ion-picker-column-option>
-          <ion-picker-column-option value="kg">{{
-            $t("measure.kg")
-          }}</ion-picker-column-option>
-          <ion-picker-column-option value="m">{{
-            $t("measure.m")
-          }}</ion-picker-column-option>
-          <ion-picker-column-option value="pcs">{{
-            $t("measure.pcs")
-          }}</ion-picker-column-option>
-        </ion-picker-column>
-      </ion-picker>
+      <ion-row>
+        <ion-col size="12">
+          <ion-picker
+            :value="localMaterial.measure"
+            @ionChange="onPickerChange"
+          >
+            <ion-picker-column>
+              <div slot="prefix">{{ $t("ui.labels.measure") }}</div>
+              <ion-picker-column-option value="m²">{{
+                $t("measure.m²")
+              }}</ion-picker-column-option>
+              <ion-picker-column-option value="l">{{
+                $t("measure.l")
+              }}</ion-picker-column-option>
+              <ion-picker-column-option value="kg">{{
+                $t("measure.kg")
+              }}</ion-picker-column-option>
+              <ion-picker-column-option value="m">{{
+                $t("measure.m")
+              }}</ion-picker-column-option>
+              <ion-picker-column-option value="pcs">{{
+                $t("measure.pcs")
+              }}</ion-picker-column-option>
+            </ion-picker-column>
+          </ion-picker>
+        </ion-col>
+      </ion-row>
     </ion-item>
   </ion-content>
   <ion-footer>
@@ -137,7 +141,7 @@
   import { IonInputCustomEvent, IonPickerCustomEvent } from "@ionic/core";
   import { modalController } from "@ionic/vue";
   import { trashBin } from "ionicons/icons";
-  import { ref } from "vue";
+  import { onMounted, ref } from "vue";
 
   const props = defineProps<{
     id: number;
@@ -167,10 +171,6 @@
     }>);
   }
 
-  function getI18Title() {
-    return props.id ? "edit" : "add";
-  }
-
   const onPickerChange = (event: IonPickerCustomEvent<{ value: string }>) => {
     localMaterial.value.measure = event.detail.value;
   };
@@ -192,4 +192,19 @@
       },
       "remove"
     );
+
+  function getI18Title() {
+    return props.material.id ? "edit" : "add";
+  }
+
+  onMounted(() => {
+    if (getI18Title() === "edit") return;
+    localMaterial.value.measure = "pcs";
+  });
 </script>
+
+<style scoped>
+  ion-picker-column {
+    font-size: medium;
+  }
+</style>
