@@ -18,7 +18,10 @@
         <ion-col size="auto">
           <ion-button
             size="small"
-            @click="$emit('modal', { volume: component.materials[0].volume })"
+            @click="
+              () =>
+                setOpen(component.id, { volume: component.materials[0].volume })
+            "
           >
             {{ $t("ui.buttons.add") }}
           </ion-button>
@@ -38,7 +41,7 @@
   }>();
 
   const emit = defineEmits(["modal"]);
-  const setOpen = (componentId: number, material: Material) => {
+  const setOpen = (componentId: number, material: Partial<Material>) => {
     emit("modal", { id: componentId, material });
   };
 </script>

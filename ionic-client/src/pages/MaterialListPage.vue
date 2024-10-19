@@ -64,11 +64,15 @@
 
   const openModal = async (
     key: ModalKey,
-    item: Material | HandTool | PowerTool
+    item: {
+      id: number;
+      material: Material | HandTool | PowerTool;
+    }
   ) => {
+    const { id, material } = item;
     const modal = await modalController.create({
       component: modals[key],
-      componentProps: { item },
+      componentProps: { id, material },
     });
 
     await modal.present();
@@ -87,11 +91,9 @@
 
       if (isMaterial(material)) {
         handleMaterialUpdate<Material>(key, material, component, role);
-      }
-      if (isHandTool(material)) {
+      } else if (isHandTool(material)) {
         handleMaterialUpdate<HandTool>(key, material, component, role);
-      }
-      if (isPowerTool(material)) {
+      } else if (isPowerTool(material)) {
         handleMaterialUpdate<PowerTool>(key, material, component, role);
       }
     });
@@ -117,7 +119,7 @@
       }
     } else if (role === "confirm" && material) {
       component[key][itemIndex] = { ...material };
-    } else if (role === "confirm" && material === null) {
+    } else if (role === "remove") {
       component[key].splice(itemIndex, 1);
     }
   }

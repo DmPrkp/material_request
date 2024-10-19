@@ -3,6 +3,7 @@
     <ion-toolbar>
       <ion-title>
         {{ $t(`pages.materials.modal.titles.${getI18Title()}`) }}
+        {{ $t("pages.materials.subTitles.materials") }}
       </ion-title>
     </ion-toolbar>
   </ion-header>
@@ -90,6 +91,9 @@
           <ion-picker-column-option value="m">{{
             $t("measure.m")
           }}</ion-picker-column-option>
+          <ion-picker-column-option value="pcs">{{
+            $t("measure.pcs")
+          }}</ion-picker-column-option>
         </ion-picker-column>
       </ion-picker>
     </ion-item>
@@ -136,10 +140,12 @@
   import { ref } from "vue";
 
   const props = defineProps<{
-    item: Material;
+    id: number;
+    material: Material;
   }>();
 
-  const localMaterial = ref<Material>({ ...props.item });
+  const localMaterial = ref<Material>({ ...props.material });
+  const componentId = ref<number>(props.id);
 
   function calcByConsumption(
     event: IonInputCustomEvent<{ value: string | number }>
@@ -162,7 +168,7 @@
   }
 
   function getI18Title() {
-    return props.item.id ? "edit" : "add";
+    return props.id ? "edit" : "add";
   }
 
   const onPickerChange = (event: IonPickerCustomEvent<{ value: string }>) => {
@@ -170,6 +176,20 @@
   };
 
   const cancel = () => modalController.dismiss(null, "cancel");
-  const confirm = () => modalController.dismiss(localMaterial.value, "confirm");
-  const remove = () => modalController.dismiss(null, "confirm");
+  const confirm = () =>
+    modalController.dismiss(
+      {
+        id: componentId.value,
+        material: localMaterial.value,
+      },
+      "confirm"
+    );
+  const remove = () =>
+    modalController.dismiss(
+      {
+        id: componentId.value,
+        material: localMaterial.value,
+      },
+      "remove"
+    );
 </script>

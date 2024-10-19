@@ -3,6 +3,7 @@
     <ion-toolbar>
       <ion-title>
         {{ $t(`pages.materials.modal.titles.${getI18Title()}`) }}
+        {{ $t("pages.materials.subTitles.handTools") }}
       </ion-title>
     </ion-toolbar>
   </ion-header>
