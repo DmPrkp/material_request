@@ -15,7 +15,7 @@
     </ion-item-divider>
     <ion-item v-else>
       <ion-input
-        label="материал"
+        :label="$t('pages.materials.table.title') + ':'"
         v-model="localHandTool.ru_title"
       ></ion-input>
     </ion-item>
@@ -86,12 +86,10 @@
   import { ref } from "vue";
 
   const props = defineProps<{
-    id: number;
-    material: HandTool;
+    handTool: HandTool;
   }>();
 
-  const localHandTool = ref<HandTool>({ ...props.material });
-  const componentId = ref<number>(props.id);
+  const localHandTool = ref<HandTool>({ ...props.handTool });
 
   function calcByConsumption(
     event: IonInputCustomEvent<{ value: string | number }>
@@ -105,23 +103,11 @@
 
   const cancel = () => modalController.dismiss(null, "cancel");
   const confirm = () =>
-    modalController.dismiss(
-      {
-        id: componentId.value,
-        material: localHandTool.value,
-      },
-      "confirm"
-    );
+    modalController.dismiss({ handTool: localHandTool.value }, "confirm");
   const remove = () =>
-    modalController.dismiss(
-      {
-        id: componentId.value,
-        material: localHandTool.value,
-      },
-      "remove"
-    );
+    modalController.dismiss({ handTool: localHandTool.value }, "remove");
 
   function getI18Title() {
-    return props.material.id ? "edit" : "add";
+    return props.handTool.id ? "edit" : "add";
   }
 </script>

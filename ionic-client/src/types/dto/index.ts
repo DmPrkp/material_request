@@ -16,6 +16,8 @@ export type PowerTool = {
   params: Param[];
 };
 
+export type MergedHandTools = Record<string, HandTool>;
+
 export type HandTool = {
   uniqKey: string;
   id: number;

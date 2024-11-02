@@ -36,25 +36,52 @@
 </template>
 
 <script lang="ts" setup>
-  import { CalcResponseDTO, HandTool } from "@/types/dto";
+  import { CalcResponseDTO, HandTool, MergedHandTools } from "@/types/dto";
   import HandToolListItems from "./HandToolListItems.vue";
   import { ref, watch } from "vue";
+  import { modalController } from "@ionic/vue";
+  import HandToolModal from "./HandToolModal.vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
   }>();
 
-  const mergedHandTools = ref<Record<string, HandTool>>({});
+  const mergedHandTools = ref<MergedHandTools>({});
 
-  const emit = defineEmits(["modal"]);
-  const setOpen = (material: Partial<HandTool>) => {
-    emit("modal", { id: props.components[0].id, material });
+  const setOpen = async (handTool: Partial<HandTool>) => {
+    const modal = await modalController.create({
+      component: HandToolModal,
+      componentProps: { handTool },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<{
+      handTool: HandTool;
+    }>();
+
+    if (!data?.handTool || !role) return;
+
+    handleMaterialUpdate(data.handTool, role);
   };
+
+  function handleMaterialUpdate(handTool: HandTool, role: string) {
+    const isNewTool = !handTool.uniqKey;
+
+    if (isNewTool && role === "confirm") {
+      handTool.uniqKey = String(Date.now());
+    }
+
+    if (role === "confirm") {
+      mergedHandTools.value[handTool.uniqKey] = { ...handTool };
+    } else if (role === "remove") {
+      delete mergedHandTools.value[handTool.uniqKey];
+    }
+  }
 
   watch(
     () => props.components,
     (components) => {
-      console.log("watch", components);
       mergedHandTools.value = components.reduce((acc, m) => {
         m.hand_tools.forEach((h) => {
           const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
@@ -69,7 +96,7 @@
           }
         });
         return acc;
-      }, {} as Record<string, HandTool>);
+      }, {} as MergedHandTools);
     },
     { immediate: true }
   );
