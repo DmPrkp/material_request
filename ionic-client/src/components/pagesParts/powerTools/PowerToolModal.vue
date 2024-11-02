@@ -109,9 +109,8 @@
 
   const localPowerTool = ref<PowerTool>({ ...props.powerTool });
 
-  function handleChange(ev: IonInputCustomEvent<boolean>) {
-    const val = Boolean(ev.detail.value);
-    localPowerTool.value.corded = val;
+  function handleChange(ev: IonInputCustomEvent<{ value: boolean }>) {
+    localPowerTool.value.corded = ev.detail.value;
   }
 
   function calcByConsumption(
