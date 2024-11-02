@@ -59,18 +59,18 @@
         </ion-col>
         <ion-col size="5">
           <ion-button
-            expand="block"
-            fill="clear"
-            @click="cancel()"
-            >{{ $t(`ui.buttons.cancel`) }}</ion-button
-          >
-        </ion-col>
-        <ion-col size="5">
-          <ion-button
             fill="outline"
             expand="block"
             @click="confirm()"
             >{{ $t(`ui.buttons.save`) }}</ion-button
+          >
+        </ion-col>
+        <ion-col size="5">
+          <ion-button
+            expand="block"
+            fill="clear"
+            @click="cancel()"
+            >{{ $t(`ui.buttons.cancel`) }}</ion-button
           >
         </ion-col>
       </ion-row>
