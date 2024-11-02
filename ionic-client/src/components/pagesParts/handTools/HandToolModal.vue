@@ -8,16 +8,17 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
-    <ion-item-divider>
-      <ion-label v-if="localHandTool.ru_title">
+    <ion-item-divider v-if="localHandTool.id">
+      <ion-label>
         {{ localHandTool.ru_title }}
       </ion-label>
+    </ion-item-divider>
+    <ion-item v-else>
       <ion-input
-        v-else
-        label="Вид Работ"
+        label="материал"
         v-model="localHandTool.ru_title"
       ></ion-input>
-    </ion-item-divider>
+    </ion-item>
 
     <ion-item>
       <ion-row>
@@ -30,7 +31,7 @@
               $t(`pages.materials.table.totalVolume`) +
               ': '
             "
-            :value="localHandTool.adjusted_consumption.toFixed(0)"
+            :value="localHandTool.adjusted_consumption"
             @ionInput="calcByConsumption"
           ></ion-input>
         </ion-col>
@@ -85,10 +86,12 @@
   import { ref } from "vue";
 
   const props = defineProps<{
-    item: HandTool;
+    id: number;
+    material: HandTool;
   }>();
 
-  const localHandTool = ref<HandTool>({ ...props.item });
+  const localHandTool = ref<HandTool>({ ...props.material });
+  const componentId = ref<number>(props.id);
 
   function calcByConsumption(
     event: IonInputCustomEvent<{ value: string | number }>
@@ -100,11 +103,25 @@
     localHandTool.value.adjusted_consumption = Number(consum.toFixed(2));
   }
 
-  function getI18Title() {
-    return props.item ? "edit" : "add";
-  }
-
   const cancel = () => modalController.dismiss(null, "cancel");
-  const confirm = () => modalController.dismiss(localHandTool.value, "confirm");
-  const remove = () => modalController.dismiss(null, "confirm");
+  const confirm = () =>
+    modalController.dismiss(
+      {
+        id: componentId.value,
+        material: localHandTool.value,
+      },
+      "confirm"
+    );
+  const remove = () =>
+    modalController.dismiss(
+      {
+        id: componentId.value,
+        material: localHandTool.value,
+      },
+      "remove"
+    );
+
+  function getI18Title() {
+    return props.material.id ? "edit" : "add";
+  }
 </script>

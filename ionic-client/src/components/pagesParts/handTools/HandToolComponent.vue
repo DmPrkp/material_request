@@ -16,12 +16,23 @@
       {{ $t(`pages.materials.table.consumption`) }}
     </ion-col>
   </ion-row>
-  <ion-item-group>
-    <HandToolListItems
-      @modal="setOpen"
-      :hand_tools="Object.values(mergedHandTools)"
-    />
-  </ion-item-group>
+
+  <HandToolListItems
+    @modal="setOpen"
+    :hand_tools="Object.values(mergedHandTools)"
+  />
+  <ion-grid>
+    <ion-row class="ion-justify-content-end">
+      <ion-col size="auto">
+        <ion-button
+          size="small"
+          @click="setOpen"
+        >
+          {{ $t("ui.buttons.add") }}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </template>
 
 <script lang="ts" setup>
@@ -36,13 +47,14 @@
   const mergedHandTools = ref<Record<string, HandTool>>({});
 
   const emit = defineEmits(["modal"]);
-  const setOpen = (tool: HandTool) => {
-    emit("modal", tool);
+  const setOpen = (material: Partial<HandTool>) => {
+    emit("modal", { id: props.components[0].id, material });
   };
 
   watch(
     () => props.components,
     (components) => {
+      console.log("watch", components);
       mergedHandTools.value = components.reduce((acc, m) => {
         m.hand_tools.forEach((h) => {
           const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;

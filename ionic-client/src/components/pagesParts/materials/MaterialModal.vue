@@ -75,29 +75,27 @@
     <ion-item v-if="!localMaterial.id">
       <ion-row>
         <ion-col size="12">
-          <ion-picker
+          <ion-select
             :value="localMaterial.measure"
             @ionChange="onPickerChange"
           >
-            <ion-picker-column>
-              <div slot="prefix">{{ $t("ui.labels.measure") }}</div>
-              <ion-picker-column-option value="m²">{{
-                $t("measure.m²")
-              }}</ion-picker-column-option>
-              <ion-picker-column-option value="l">{{
-                $t("measure.l")
-              }}</ion-picker-column-option>
-              <ion-picker-column-option value="kg">{{
-                $t("measure.kg")
-              }}</ion-picker-column-option>
-              <ion-picker-column-option value="m">{{
-                $t("measure.m")
-              }}</ion-picker-column-option>
-              <ion-picker-column-option value="pcs">{{
-                $t("measure.pcs")
-              }}</ion-picker-column-option>
-            </ion-picker-column>
-          </ion-picker>
+            <div slot="prefix">{{ $t("ui.labels.measure") }}</div>
+            <ion-select-option value="m²">{{
+              $t("measure.m²")
+            }}</ion-select-option>
+            <ion-select-option value="l">{{
+              $t("measure.l")
+            }}</ion-select-option>
+            <ion-select-option value="kg">{{
+              $t("measure.kg")
+            }}</ion-select-option>
+            <ion-select-option value="m">{{
+              $t("measure.m")
+            }}</ion-select-option>
+            <ion-select-option value="pcs">{{
+              $t("measure.pcs")
+            }}</ion-select-option>
+          </ion-select>
         </ion-col>
       </ion-row>
     </ion-item>
@@ -117,18 +115,18 @@
         </ion-col>
         <ion-col size="5">
           <ion-button
-            expand="block"
-            fill="clear"
-            @click="cancel()"
-            >{{ $t(`ui.buttons.cancel`) }}</ion-button
-          >
-        </ion-col>
-        <ion-col size="5">
-          <ion-button
             fill="outline"
             expand="block"
             @click="confirm()"
             >{{ $t(`ui.buttons.save`) }}</ion-button
+          >
+        </ion-col>
+        <ion-col size="5">
+          <ion-button
+            expand="block"
+            fill="clear"
+            @click="cancel()"
+            >{{ $t(`ui.buttons.cancel`) }}</ion-button
           >
         </ion-col>
       </ion-row>

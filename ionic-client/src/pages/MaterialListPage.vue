@@ -70,6 +70,7 @@
     }
   ) => {
     const { id, material } = item;
+    console.log(material);
     const modal = await modalController.create({
       component: modals[key],
       componentProps: { id, material },
@@ -82,6 +83,7 @@
       material: Material | HandTool | PowerTool;
     }>();
 
+    // console.log(data?.material, key);
     if (!data?.material || !role) return;
 
     components.value.forEach((component) => {
@@ -90,50 +92,38 @@
       const { material } = data;
 
       if (isMaterial(material)) {
-        handleMaterialUpdate<Material>(key, material, component, role);
-      } else if (isHandTool(material)) {
-        handleMaterialUpdate<HandTool>(key, material, component, role);
+        handleMaterialUpdate(material, component, role);
       } else if (isPowerTool(material)) {
-        handleMaterialUpdate<PowerTool>(key, material, component, role);
+        handleMaterialUpdate(key, material, component, role);
+      } else if (isHandTool(material)) {
+        handleMaterialUpdate(key, material, component, role);
       }
     });
   };
 
-  function handleMaterialUpdate<T extends Material | HandTool | PowerTool>(
-    key: ModalKey,
-    material: T,
+  function handleMaterialUpdate(
+    material: Material,
     component: CalcResponseDTO,
     role: string
   ) {
-    const itemIndex = component[key].findIndex(
+    const itemIndex = component.materials.findIndex(
       (mat) => mat.ru_title === material.ru_title
     );
-
     if (itemIndex === -1) {
-      if (key === "materials") {
-        component[key].push(material as Material);
-      } else if (key === "hand_tools") {
-        component[key].push(material as HandTool);
-      } else if (key === "power_tools") {
-        component[key].push(material as PowerTool);
-      }
+      component.materials.push(material as Material);
     } else if (role === "confirm" && material) {
-      component[key][itemIndex] = { ...material };
+      component.materials[itemIndex] = { ...material };
     } else if (role === "remove") {
-      component[key].splice(itemIndex, 1);
+      component.materials.splice(itemIndex, 1);
     }
   }
 
   function isHandTool(item: object): item is HandTool {
-    return (
-      "uniqKey" in item && "adjusted_consumption" in item && "params" in item
-    );
+    return "adjusted_consumption" in item && "ru_title" in item;
   }
 
   function isPowerTool(item: object): item is PowerTool {
-    return (
-      "corded" in item && "adjusted_consumption" in item && "params" in item
-    );
+    return "corded" in item;
   }
 
   function isMaterial(item: object): item is Material {
