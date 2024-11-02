@@ -16,7 +16,7 @@ export type PowerTool = {
   params: Param[];
 };
 
-export type MergedHandTools = Record<string, HandTool>;
+export type MergedPowerTools = Record<string, PowerTool>;
 
 export type HandTool = {
   uniqKey: string;
@@ -26,6 +26,8 @@ export type HandTool = {
   adjusted_consumption: number;
   params: Param[];
 };
+
+export type MergedHandTools = Record<string, HandTool>;
 
 export type Material = {
   consumption: number;

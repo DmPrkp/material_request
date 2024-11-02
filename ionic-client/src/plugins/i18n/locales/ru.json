@@ -13,7 +13,8 @@
       "add": "добавить"
     },
     "labels": {
-      "measure": "ед.изм"
+      "measure": "ед.изм",
+      "corded": "питание"
     }
   },
   "measure": {

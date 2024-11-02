@@ -16,29 +16,72 @@
       {{ $t(`pages.materials.table.consumption`) }}
     </ion-col>
   </ion-row>
-  <ion-item-group>
-    <PowerToolListItems
-      @modal="setOpen"
-      :power_tools="Object.values(mergedPowerTools)"
-    />
-  </ion-item-group>
+
+  <PowerToolListItems
+    @modal="setOpen"
+    :power_tools="Object.values(mergedPowerTools)"
+  />
+  <ion-grid>
+    <ion-row class="ion-justify-content-end">
+      <ion-col size="auto">
+        <ion-button
+          size="small"
+          @click="setOpen"
+        >
+          {{ $t("ui.buttons.add") }}
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </template>
 
 <script lang="ts" setup>
-  import { CalcResponseDTO, PowerTool } from "@/types/dto";
+  import { CalcResponseDTO, PowerTool, MergedPowerTools } from "@/types/dto";
   import PowerToolListItems from "./PowerToolListItems.vue";
   import { ref, watch } from "vue";
+  import { modalController } from "@ionic/vue";
+  import PowerToolModal from "./PowerToolModal.vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
   }>();
 
-  const emit = defineEmits(["modal"]);
-  const setOpen = (tool: PowerTool) => {
-    emit("modal", tool);
+  const mergedPowerTools = ref<MergedPowerTools>({});
+
+  const setOpen = async (powerTool: PowerTool) => {
+    const modal = await modalController.create({
+      component: PowerToolModal,
+      componentProps: { powerTool },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<{
+      powerTool: PowerTool;
+    }>();
+
+    if (!data?.powerTool || !role) return;
+
+    handleMaterialUpdate(data.powerTool, role);
   };
 
-  const mergedPowerTools = ref<Record<string, PowerTool>>({});
+  function handleMaterialUpdate(powerTool: PowerTool, role: string) {
+    const isNewTool = !powerTool.uniqKey;
+
+    if (isNewTool && role === "confirm") {
+      const id = Date.now();
+      powerTool.uniqKey = String(id);
+      powerTool.id = id;
+    }
+
+    console.log(powerTool);
+
+    if (role === "confirm") {
+      mergedPowerTools.value[powerTool.uniqKey] = { ...powerTool };
+    } else if (role === "remove") {
+      delete mergedPowerTools.value[powerTool.uniqKey];
+    }
+  }
 
   watch(
     () => props.components,
@@ -57,7 +100,7 @@
           }
         });
         return acc;
-      }, {} as Record<string, PowerTool>);
+      }, {} as MergedPowerTools);
     },
     { immediate: true }
   );

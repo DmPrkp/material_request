@@ -13,7 +13,8 @@
       "remove": "remove"
     },
     "labels": {
-      "measure": "measure"
+      "measure": "measure",
+      "corded": "power supply"
     }
   },
   "measure": {

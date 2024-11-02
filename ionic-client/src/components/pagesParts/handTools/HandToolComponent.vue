@@ -69,7 +69,9 @@
     const isNewTool = !handTool.uniqKey;
 
     if (isNewTool && role === "confirm") {
-      handTool.uniqKey = String(Date.now());
+      const id = Date.now();
+      handTool.uniqKey = String(id);
+      handTool.id = id;
     }
 
     if (role === "confirm") {

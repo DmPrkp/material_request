@@ -15,9 +15,7 @@
         </ion-item-divider>
       </div>
       <MaterialComponent :components="components" />
-
       <HandToolComponent :components="components" />
-
       <PowerToolComponent :components="components" />
     </ion-content>
   </ion-page>
