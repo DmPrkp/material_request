@@ -32,16 +32,54 @@
 </template>
 
 <script lang="ts" setup>
+  import { modalController } from "@ionic/vue";
   import MaterialComponentHeader from "./MaterialComponentHeader.vue";
   import MaterialListItems from "./MateriaListItems.vue";
   import { CalcResponseDTO, Material } from "@/types/dto";
+  import MaterialModal from "./MaterialModal.vue";
 
-  defineProps<{
+  const props = defineProps<{
     components: CalcResponseDTO[];
   }>();
 
-  const emit = defineEmits(["modal"]);
-  const setOpen = (componentId: number, material: Partial<Material>) => {
-    emit("modal", { id: componentId, material });
+  const setOpen = async (componentId: number, material: Partial<Material>) => {
+    const modal = await modalController.create({
+      component: MaterialModal,
+      componentProps: { id: componentId, material },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<{
+      id: number;
+      material: Material;
+    }>();
+
+    if (!data?.material || !role) return;
+
+    props.components.forEach((component) => {
+      if (component.id !== data.id) return;
+
+      const { material } = data;
+
+      handleMaterialUpdate(material, component, role);
+    });
   };
+
+  function handleMaterialUpdate(
+    material: Material,
+    component: CalcResponseDTO,
+    role: string
+  ) {
+    const itemIndex = component.materials.findIndex(
+      (mat) => mat.ru_title === material.ru_title
+    );
+    if (itemIndex === -1) {
+      component.materials.push(material as Material);
+    } else if (role === "confirm" && material) {
+      component.materials[itemIndex] = { ...material };
+    } else if (role === "remove") {
+      component.materials.splice(itemIndex, 1);
+    }
+  }
 </script>
