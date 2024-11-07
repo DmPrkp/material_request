@@ -5,7 +5,7 @@ import ru from "./locales/ru.json";
 export default createI18n({
   legacy: false,
   locale: import.meta.env.VITE_RU_LOCALE,
-  fallbackLocale: import.meta.env.VITE_EN_LOCALE.en,
+  fallbackLocale: import.meta.env.VITE_EN_LOCALE,
   globalInjection: true,
   messages: {
     ru,
