@@ -9,25 +9,9 @@ FROM node:${NODE_VERSION}-alpine
 
 ENV NODE_ENV production
 
-WORKDIR /usr/app
-
-RUN rm -rf /usr/local/go
-# Set the Go version
-ARG GO_VERSION=1.22.2
-
-# Set the URL for downloading Go
-ARG GO_URL=https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz
-
-# Download and install Go
-RUN wget -O go.tgz "$GO_URL" \
-    && tar -C /usr/local -xzf go.tgz \
-    && rm go.tgz
-
-# Set the Go environment variables
-ENV PATH="/usr/local/go/bin:${PATH}"
-
-
 RUN npm i -g vue-tsc vite @types/node
+
+WORKDIR /usr/app
 
 COPY ./package*.json ./ 
 
@@ -39,4 +23,4 @@ RUN npm run build
 
 EXPOSE 5173
 
-CMD ["npm", "run", "static-server.go"]
+CMD ["npm", "run", "preview"]

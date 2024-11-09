@@ -13,11 +13,6 @@ networks:
           gateway: 172.16.238.3
 
 services:
-  # calc-server:
-  #   image: dmprkp/calc-server:0.0.2
-  #   ports:
-  #     - 5000:5000
-
   web-server:
     build:
       context: ./web-server
