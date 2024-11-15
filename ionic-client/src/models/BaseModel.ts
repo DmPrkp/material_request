@@ -14,10 +14,7 @@ export default class BaseModel {
       ? `:${import.meta.env.VITE_PORT}`
       : "";
     this.baseURL =
-      url ||
-      `${import.meta.env.VITE_PROTOCOL}://${
-        import.meta.env.VITE_BASE_HOST + port
-      }`;
+      url || `${import.meta.env.VITE_PROTOCOL}://${location.hostname + port}`;
   }
 
   static async get<R>(params: string): Promise<R | undefined> {
