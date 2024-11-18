@@ -1,16 +1,14 @@
-# syntax=docker/dockerfile:1
-
 # docker build -t web-server -f Dockerfile.prod --no-cache .
 # docker run -p 4000:4000 --name web-server web-server
 
-FROM node:20.12-alpine
+FROM node:20-alpine
 
 ENV NODE_ENV production
 
 WORKDIR /usr/web-server
-# RUN npm install -g npm@latest
 
-RUN npm i -g @nestjs/cli typescript
+RUN npm i -g typescript
+RUN npm i -g @nestjs/cli
 
 COPY ./package*.json ./
 RUN npm install
