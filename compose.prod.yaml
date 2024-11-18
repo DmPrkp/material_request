@@ -19,6 +19,8 @@ services:
       dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4000:4000
+    env_file:
+      - ./secrets/calc-db/.db.env
 
   ionic-client:
     build:
@@ -34,4 +36,3 @@ services:
     depends_on:
       - ionic-client
       - web-server
-    #   - calc-server
