@@ -31,7 +31,7 @@ jobs:
       - name: Deploy services with Docker Compose
         run: |
           ssh -p 5022 ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
-            cd /home/${{ secrets.REMOTE_USER }}/app
+            cd /home/${{ secrets.REMOTE_USER }}/App/matli
             docker compose -f compose.prod.yaml down
             docker compose -f compose.prod.yaml up --build -d
           EOF
