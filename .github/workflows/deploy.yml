@@ -26,7 +26,7 @@ jobs:
 
       - name: Copy files to remote server
         run: |
-          rsync -avz --exclude='.git' -e "ssh -p 5022" ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/
+          rsync -avz --exclude='.git' -e "ssh -p 5022" ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/matli
 
       - name: Deploy services with Docker Compose
         run: |
