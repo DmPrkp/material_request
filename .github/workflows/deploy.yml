@@ -18,6 +18,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Add remote server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 5022 ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Copy files to remote server
         run: |
           rsync -avz --exclude='.git' -e "ssh -p 5022" ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/
