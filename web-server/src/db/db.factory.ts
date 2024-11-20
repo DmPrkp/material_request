@@ -6,7 +6,7 @@ const SEED_PATH = __dirname + '/seed/';
 
 async function checkIsDBExist(client) {
   const { rows } = await client.query(
-    "SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('matli'));",
+    `SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${process.env.POSTGRES_DB}'));`,
   );
 
   const { exists } = rows[0];
