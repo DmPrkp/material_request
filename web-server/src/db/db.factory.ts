@@ -39,6 +39,7 @@ export class PGClientFactory {
         database: process.env.POSTGRES_DB,
         user: process.env.POSTGRES_USER,
         password: process.env.POSTGRES_PASSWORD,
+        log: (message) => console.log(message),
       });
       await client.connect();
     } catch (error) {
