@@ -75,7 +75,7 @@ services:
       - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
     environment:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-      - POSTGRES_DB=matli
+      - POSTGRES_DB=calc
 
   adminer:
     image: adminer

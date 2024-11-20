@@ -31,13 +31,19 @@ export class PGClientFactory {
   }
 
   private static async initialize(): Promise<Pool> {
-    const client = new Pool({
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      database: process.env.POSTGRES_DB,
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-    });
+    let client;
+    try {
+      client = new Pool({
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        database: process.env.POSTGRES_DB,
+        user: process.env.POSTGRES_USER,
+        password: process.env.POSTGRES_PASSWORD,
+      });
+      await client.connect();
+    } catch (error) {
+      console.log('DB connect error: ', error.message);
+    }
 
     const fileNames = await readdir(MIGRATION_PATH);
 
