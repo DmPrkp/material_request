@@ -4,14 +4,14 @@ import { readdir, readFile } from 'node:fs/promises';
 const MIGRATION_PATH = __dirname + '/migrations/';
 const SEED_PATH = __dirname + '/seed/';
 
-async function checkIsDBExist(client) {
-  const { rows } = await client.query(
-    `SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${process.env.POSTGRES_DB}'));`,
-  );
+// async function checkIsDBExist(client) {
+//   const { rows } = await client.query(
+//     `SELECT EXISTS(SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${process.env.POSTGRES_DB}'));`,
+//   );
 
-  const { exists } = rows[0];
-  return exists;
-}
+//   const { exists } = rows[0];
+//   return exists;
+// }
 
 console.log('process.env.DB_HOST', process.env.DB_HOST);
 console.log('process.env.DB_PORT', process.env.DB_PORT);
@@ -48,7 +48,8 @@ export class PGClientFactory {
 
     const fileNames = await readdir(MIGRATION_PATH);
 
-    const isExist = await checkIsDBExist(client);
+    // const isExist = await checkIsDBExist(client);
+    const isExist = true;
     console.log('DB is exist: ' + isExist);
 
     if (isExist) {
