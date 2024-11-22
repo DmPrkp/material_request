@@ -89,6 +89,7 @@ export class PGClientFactory {
       } catch (error) {
         console.error('Error executing up migration file:', file);
         console.error('Error executing up migration error:', error);
+        return;
       }
     }
   }
@@ -105,6 +106,7 @@ export class PGClientFactory {
       } catch (error) {
         console.error('Error executing up seed file:', file);
         console.error('Error executing up seed error:', error);
+        return;
       }
     }
   }
