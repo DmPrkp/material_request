@@ -15,7 +15,7 @@ jobs:
 
       - name: add .db.env file
         run: |
-          mkdir ./secrets/calc-db 
+          mkdir -p ./secrets/calc-db 
           touch ./secrets/calc-db/.db.env
 
       - name: Validate Docker Compose file
