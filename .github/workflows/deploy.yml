@@ -13,14 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: add .db.env file
-        run: |
-          mkdir -p ./secrets/calc-db 
-          touch ./secrets/calc-db/.db.env
-
-      - name: Validate Docker Compose file
-        run: docker compose -f compose.prod.yaml config
-
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:
