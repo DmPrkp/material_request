@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Validate Docker Compose file
+        run: docker compose -f compose.prod.yaml config
+
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.3
         with:

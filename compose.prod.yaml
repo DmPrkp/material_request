@@ -13,10 +13,6 @@ networks:
     #       gateway: 172.16.238.3
 
 services:
-  myservices:
-    extra_host:
-      - host.docker.internal:host-gateway
-
   web-server:
     build:
       context: ./web-server
@@ -27,6 +23,8 @@ services:
       - ./secrets/calc-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   ionic-client:
     build:
