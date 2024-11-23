@@ -5,14 +5,18 @@
 networks:
   matli_network:
     name: matli_network
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.16.238.0/24
-          gateway: 172.16.238.3
+    # driver: bridge
+    # ipam:
+    #   driver: default
+    #   config:
+    #     - subnet: 172.16.238.0/24
+    #       gateway: 172.16.238.3
 
 services:
+  myservices:
+    extra_host:
+      - host.docker.internal:host-gateway
+
   web-server:
     build:
       context: ./web-server
@@ -21,6 +25,8 @@ services:
       - 4000:4000
     env_file:
       - ./secrets/calc-db/.db.env
+    environment:
+      - DB_HOST=host.docker.internal
 
   ionic-client:
     build:
