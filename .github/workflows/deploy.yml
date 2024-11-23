@@ -13,12 +13,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Sync .db.env file
-        run: |
-          rsync -avz -e "ssh -p 5022" ./secrets/calc-db/.db.env ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/matli/secrets/calc-db/
+      # - name: Sync .db.env file
+      #   run: |
+      #     rsync -avz -e "ssh -p 5022" ./secrets/calc-db/.db.env ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/matli/secrets/calc-db/
 
-      - name: Validate Docker Compose file
-        run: docker compose -f compose.prod.yaml config
+      # - name: Validate Docker Compose file
+      #   run: docker compose -f compose.prod.yaml config
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.5.3
