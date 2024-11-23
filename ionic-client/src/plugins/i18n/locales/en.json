@@ -45,10 +45,11 @@
       "title": "Specify the scope of works",
       "send": "Calculate",
       "items": {
-        "insulation coat": "insulation coat",
-        "fiberglass mesh": "fiberglass mesh",
-        "finish coat": "finish coat",
-        "paint layer": "paint layer"
+        "insulation coat": "Insulation coat",
+        "fiberglass mesh": "Fiberglass mesh",
+        "finish coat": "Finish coat",
+        "paint layer": "Paint layer",
+        "surface preparation": "Surface preparation"
       },
       "crew-num": "numbers of crew"
     },

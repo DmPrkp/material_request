@@ -48,7 +48,8 @@
         "insulation coat": "Слой теплоизоляции",
         "fiberglass mesh": "Армирующий клеевой слой",
         "finish coat": "Финишный слой",
-        "paint layer": "Окрасочный слой"
+        "paint layer": "Окрасочный слой",
+        "surface preparation": "Подготовка поверхности"
       },
       "crew-num": "Количество звеньев рабочих"
     },
