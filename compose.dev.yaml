@@ -44,7 +44,7 @@ services:
   ionic-client:
     build:
       context: ./ionic-client
-      dockerfile: ./docker_files/Dockerfile.dev
+      dockerfile: ./docker/Dockerfile.dev
     ports:
       - 5173:5173
     develop:

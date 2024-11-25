@@ -23,7 +23,7 @@ services:
   ionic-client:
     build:
       context: ./ionic-client
-      dockerfile: ./docker_files/Dockerfile.prod
+      dockerfile: ./docker/Dockerfile.prod
     ports:
       - 5173:5173
 
