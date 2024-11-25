@@ -11,7 +11,9 @@ ENV NODE_ENV production
 
 WORKDIR /usr/app
 
-RUN npm i -g vue-tsc vite @types/node
+RUN npm i -g vue-tsc
+RUN npm i -g @types/node
+RUN npm i -g vite
 
 COPY ./package*.json ./ 
 

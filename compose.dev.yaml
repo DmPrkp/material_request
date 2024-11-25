@@ -5,12 +5,6 @@
 networks:
   matli_network:
     name: matli_network
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.16.238.0/24
-          gateway: 172.16.238.3
 
 services:
   web-server:
@@ -65,16 +59,24 @@ services:
       - ionic-client
       - web-server
       - db
-    #   - calc-server
+
+  # db:
+  #   image: postgres
+  #   restart: always
+  #   user: postgres
+  #   volumes:
+  #     - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
+  #   environment:
+  #     - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+  #     - POSTGRES_DB=calc
 
   db:
     image: postgres
     restart: always
     user: postgres
-    volumes:
-      - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
     environment:
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
       - POSTGRES_DB=calc
 
   adminer:
@@ -84,32 +86,3 @@ services:
       - 8080:8080
     depends_on:
       - db
-# mqtt:
-#   image: eclipse-mosquitto:latest
-#   restart: always
-#   ports:
-#     - '1883:1883'
-# db:
-#   image: postgres
-#   restart: always
-#   user: postgres
-#   secrets:
-#     - db-password
-#   volumes:
-#     - db-data:/var/lib/postgresql/data
-#   environment:
-#     - POSTGRES_DB=example
-#     - POSTGRES_PASSWORD_FILE=./db-password
-#     expose:
-#       - 5432
-#     healthcheck:
-#       test: [ "CMD", "pg_isready" ]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
-# volumes:
-#   db-data:
-# secrets:
-#   db-password:
-#     file: db/password.txt
-
