@@ -74,8 +74,6 @@
       powerTool.id = id;
     }
 
-    console.log(powerTool);
-
     if (role === "confirm") {
       mergedPowerTools.value[powerTool.uniqKey] = { ...powerTool };
     } else if (role === "remove") {

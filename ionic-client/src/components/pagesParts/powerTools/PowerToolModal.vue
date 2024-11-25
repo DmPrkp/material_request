@@ -65,17 +65,7 @@
   <ion-footer>
     <ion-toolbar>
       <ion-row>
-        <ion-col size="2">
-          <ion-button
-            expand="block"
-            @click="remove()"
-            ><ion-icon
-              slot="icon-only"
-              :icon="trashBin"
-            ></ion-icon
-          ></ion-button>
-        </ion-col>
-        <ion-col size="5">
+        <ion-col size="6">
           <ion-button
             fill="outline"
             expand="block"
@@ -83,7 +73,7 @@
             >{{ $t(`ui.buttons.save`) }}</ion-button
           >
         </ion-col>
-        <ion-col size="5">
+        <ion-col size="6">
           <ion-button
             expand="block"
             fill="clear"
@@ -100,7 +90,6 @@
   import { PowerTool } from "@/types/dto";
   import { IonInputCustomEvent } from "@ionic/core";
   import { modalController } from "@ionic/vue";
-  import { trashBin } from "ionicons/icons";
   import { ref } from "vue";
 
   const props = defineProps<{
@@ -126,8 +115,6 @@
   const cancel = () => modalController.dismiss(null, "cancel");
   const confirm = () =>
     modalController.dismiss({ powerTool: localPowerTool.value }, "confirm");
-  const remove = () =>
-    modalController.dismiss({ powerTool: localPowerTool.value }, "remove");
 
   function getI18Title() {
     return props.powerTool.id ? "edit" : "add";

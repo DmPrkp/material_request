@@ -38,7 +38,6 @@
 
 <script setup lang="ts">
   import { Material } from "@/types/dto";
-  import { defineProps, defineEmits } from "vue";
 
   defineProps<{
     materials: Material[];

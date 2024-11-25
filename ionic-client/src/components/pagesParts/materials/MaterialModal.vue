@@ -2,7 +2,7 @@
   <ion-header>
     <ion-toolbar>
       <ion-title>
-        {{ $t(`pages.materials.modal.titles.${getI18Title()}`) }}
+        {{ $t(`pages.materials.modal.titles.${getModalType()}`) }}
         {{ $t("pages.materials.subTitles.materials") }}
       </ion-title>
     </ion-toolbar>
@@ -105,6 +105,7 @@
       <ion-row>
         <ion-col size="2">
           <ion-button
+            v-if="getModalType() === 'edit'"
             expand="block"
             @click="remove()"
             ><ion-icon
@@ -191,12 +192,12 @@
       "remove"
     );
 
-  function getI18Title() {
+  function getModalType() {
     return props.material.id ? "edit" : "add";
   }
 
   onMounted(() => {
-    if (getI18Title() === "edit") return;
+    if (getModalType() === "edit") return;
     localMaterial.value.measure = "pcs";
   });
 </script>

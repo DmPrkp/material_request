@@ -5,10 +5,7 @@
       :key="tool.uniqKey"
     >
       <ion-grid>
-        <ion-row
-          @click="setOpen(tool)"
-          color="secondary"
-        >
+        <ion-row color="secondary">
           <ion-col size="1">
             {{ num + 1 }}
           </ion-col>
@@ -88,9 +85,4 @@
   defineProps<{
     power_tools: PowerTool[];
   }>();
-
-  // const emit = defineEmits(["modal"]);
-  const setOpen = (tool: PowerTool) => {
-    // emit("modal", tool);
-  };
 </script>

@@ -5,10 +5,7 @@
       :key="tool.uniqKey"
     >
       <ion-grid>
-        <ion-row
-          color="secondary"
-          @click="setOpen(tool)"
-        >
+        <ion-row color="secondary">
           <ion-col size="1">
             {{ num + 1 }}
           </ion-col>
@@ -29,10 +26,50 @@
 
           <!-- Right side: adjusted consumption -->
           <ion-col
-            size="4"
+            size="1"
             class="ion-text-right"
           >
-            {{ tool.adjusted_consumption }} {{ $t("measure.pcs") }}
+            <ion-button
+              shape="round"
+              fill="outline"
+              color="medium"
+              @click="tool.adjusted_consumption = --tool.adjusted_consumption"
+            >
+              <ion-icon
+                slot="icon-only"
+                :icon="remove"
+              ></ion-icon>
+            </ion-button>
+          </ion-col>
+
+          <ion-col
+            size="1"
+            class="ion-text-right"
+          >
+            {{ tool.adjusted_consumption }}
+          </ion-col>
+
+          <ion-col
+            size="1"
+            class="ion-text-right"
+          >
+            <ion-button
+              shape="round"
+              fill="outline"
+              color="medium"
+              @click="tool.adjusted_consumption = ++tool.adjusted_consumption"
+            >
+              <ion-icon
+                slot="icon-only"
+                :icon="add"
+              ></ion-icon>
+            </ion-button>
+          </ion-col>
+          <ion-col
+            size="1"
+            class="ion-text-right"
+          >
+            {{ $t("measure.pcs") }}
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -42,6 +79,7 @@
 
 <script setup lang="ts">
   import { HandTool } from "@/types/dto";
+  import { add, remove } from "ionicons/icons";
 
   defineProps<{
     hand_tools: HandTool[];
