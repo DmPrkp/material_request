@@ -7,6 +7,7 @@
       >
         <ion-refresher-content />
       </ion-refresher>
+      <MaterialActionPanel></MaterialActionPanel>
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title>
@@ -17,7 +18,6 @@
       <MaterialComponent :components="components" />
       <HandToolComponent :components="components" />
       <PowerToolComponent :components="components" />
-      <MaterialActionPanel></MaterialActionPanel>
     </ion-content>
   </ion-page>
   <router-view v-else />

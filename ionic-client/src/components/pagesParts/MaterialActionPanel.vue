@@ -1,26 +1,53 @@
 <template>
   <div>
-    <ion-row>
-      <ion-button @click="shareOnWhatsApp">
-        <ion-icon
-          :icon="logoWhatsapp"
-          slot="start"
-        ></ion-icon>
-      </ion-button>
-      <ion-button @click="shareOnTelegram">
-        <ion-icon
-          :icon="paperPlaneOutline"
-          slot="start"
-        ></ion-icon>
-        Share on Telegram
-      </ion-button>
-      <ion-button @click="downloadPage">Download Current Page</ion-button>
+    <ion-row class="ion-justify-content-end">
+      <!-- WhatsApp Custom Button -->
+      <ion-col size="auto">
+        <ion-button
+          @click="shareOnWhatsApp"
+          class="whatsapp-btn custom-btn"
+          expand="block"
+        >
+          <ion-icon
+            :icon="logoWhatsapp"
+            slot="icon-only"
+          ></ion-icon>
+        </ion-button>
+      </ion-col>
+
+      <!-- Telegram Custom Button -->
+      <ion-col size="auto">
+        <ion-button
+          @click="shareOnTelegram"
+          class="telegram-btn custom-btn"
+          expand="block"
+        >
+          <ion-icon
+            :icon="paperPlaneOutline"
+            slot="icon-only"
+          ></ion-icon>
+        </ion-button>
+      </ion-col>
+
+      <!-- download -->
+      <ion-col size="auto">
+        <ion-button @click="downloadPage"
+          ><ion-icon
+            :icon="downloadOutline"
+            slot="icon-only"
+          ></ion-icon
+        ></ion-button>
+      </ion-col>
     </ion-row>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { logoWhatsapp, paperPlaneOutline } from "ionicons/icons";
+  import {
+    logoWhatsapp,
+    paperPlaneOutline,
+    downloadOutline,
+  } from "ionicons/icons";
   function downloadPage() {
     console.log();
   }
@@ -46,3 +73,28 @@
     window.open(telegramUrl, "_blank");
   }
 </script>
+
+<style scoped>
+  /* Customizing the shared buttons */
+  .custom-btn {
+    --color: white; /* Icon and text color */
+    --background: transparent; /* Remove default background */
+  }
+
+  /* WhatsApp Button */
+  .whatsapp-btn {
+    --background: #25d366; /* WhatsApp color */
+    --border: none;
+  }
+
+  /* Telegram Button */
+  .telegram-btn {
+    --background: #0088cc; /* Telegram color */
+    --border: none;
+  }
+
+  /* Styling for the icon */
+  ion-icon {
+    font-size: 28px; /* Adjust icon size */
+  }
+</style>
