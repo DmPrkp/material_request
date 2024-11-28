@@ -17,14 +17,7 @@
       <MaterialComponent :components="components" />
       <HandToolComponent :components="components" />
       <PowerToolComponent :components="components" />
-      <ion-button
-        shape="round"
-        fill="outline"
-        color="medium"
-        @click="check()"
-      >
-        Создать заявку
-      </ion-button>
+      <MaterialActionPanel></MaterialActionPanel>
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -39,6 +32,7 @@
   import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
   import HandToolComponent from "@/components/pagesParts/handTools/HandToolComponent.vue";
   import PowerToolComponent from "@/components/pagesParts/powerTools/PowerToolComponent.vue";
+  import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
 
   const route = useRoute();
   const components = ref<CalcResponseDTO[]>([]);
@@ -58,9 +52,7 @@
     const data = await BaseModel.post<CalcResponseDTO[]>(
       `/calc/${system}`,
       [],
-      {
-        body: JSON.stringify(dataToSend),
-      }
+      { body: JSON.stringify(dataToSend) }
     );
     return data || [];
   }
