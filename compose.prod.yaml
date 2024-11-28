@@ -7,9 +7,9 @@ networks:
     name: matli_network
 
 services:
-  web-server:
+  calc-server:
     build:
-      context: ./web-server
+      context: ./calc-server
       dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4000:4000
@@ -33,4 +33,4 @@ services:
       - "80:80"
     depends_on:
       - ionic-client
-      - web-server
+      - calc-server

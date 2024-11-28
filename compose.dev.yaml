@@ -7,9 +7,9 @@ networks:
     name: matli_network
 
 services:
-  web-server:
+  calc-server:
     build:
-      context: ./web-server
+      context: ./calc-server
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4000:4000
@@ -18,19 +18,19 @@ services:
     develop:
       watch:
         - action: sync
-          path: ./web-server/src
-          target: /usr/web-server/src
+          path: ./calc-server/src
+          target: /usr/calc-server/src
           ignore:
             - node_modules/
             - dist/
         - action: rebuild
-          path: ./web-server/package.json
+          path: ./calc-server/package.json
         - action: rebuild
-          path: ./web-server/tsconfig.json
+          path: ./calc-server/tsconfig.json
         - action: rebuild
-          path: ./web-server/nest-cli.json
+          path: ./calc-server/nest-cli.json
         - action: rebuild
-          path: ./web-server/docker
+          path: ./calc-server/docker
 
     depends_on:
       - db
@@ -57,7 +57,7 @@ services:
       - "80:80"
     depends_on:
       - ionic-client
-      - web-server
+      - calc-server
       - db
 
   # db:

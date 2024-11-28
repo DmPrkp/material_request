@@ -17,6 +17,14 @@
       <MaterialComponent :components="components" />
       <HandToolComponent :components="components" />
       <PowerToolComponent :components="components" />
+      <ion-button
+        shape="round"
+        fill="outline"
+        color="medium"
+        @click="check()"
+      >
+        Создать заявку
+      </ion-button>
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -26,9 +34,7 @@
   import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
   import type { CalcResponseDTO } from "@/types/dto/index";
-
   import { RefresherCustomEvent } from "@ionic/vue";
-
   import BaseModel from "@/models/BaseModel";
   import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
   import HandToolComponent from "@/components/pagesParts/handTools/HandToolComponent.vue";
@@ -64,6 +70,10 @@
     const values = await calculateValues();
     components.value = [...values];
     event.target.complete();
+  }
+
+  function check() {
+    console.log(JSON.parse(JSON.stringify(components.value)));
   }
 
   onMounted(async () => {
