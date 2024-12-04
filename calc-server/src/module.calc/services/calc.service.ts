@@ -1,13 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CalcRepositories } from '../repositories/calc.repository';
 import { CalcRequestDTO, CalcResponseDTO } from '../types';
+import { CacheRepositories } from '~/cache';
 
 @Injectable()
 export class CalcService {
-  constructor(private readonly calcRepositories: CalcRepositories) {}
+  constructor(
+    private readonly calcRepositories: CalcRepositories,
+    private readonly cacheRepositories: CacheRepositories,
+  ) {}
 
   async calculateMatList(calcRequestDTO: CalcRequestDTO): Promise<CalcResponseDTO[]> {
     const { components, crew } = calcRequestDTO;
+    const cachedKey = JSON.stringify(components) + JSON.stringify(crew);
+    const cachedVal = await this.cacheRepositories.get<{ key: string; value: CalcResponseDTO[] }>(cachedKey);
+
+    if (cachedVal) {
+      return cachedVal.value;
+    }
+
     const handTools = await this.calcRepositories.getHandTools(components, crew);
     const powerTools = await this.calcRepositories.getPowerTools(components, crew);
     const materials = await this.calcRepositories.getMaterials(components);
@@ -106,7 +117,9 @@ export class CalcService {
       }
     });
 
-    // Convert the map to an array
+    /* Add to cache */
+    await this.cacheRepositories.set(cachedKey, JSON.stringify(Array.from(componentsMap.values())));
+
     return Array.from(componentsMap.values());
   }
 }

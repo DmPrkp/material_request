@@ -1,11 +1,11 @@
-# docker build -t web-server -f Dockerfile.prod --no-cache .
-# docker run -p 4000:4000 --name web-server web-server
+# docker build -t calc-server -f Dockerfile.prod --no-cache .
+# docker run -p 4000:4000 --name calc-server calc-server
 
 FROM node:20-alpine
 
 ENV NODE_ENV production
 
-WORKDIR /usr/web-server
+WORKDIR /usr/calc-server
 
 RUN npm i -g typescript
 RUN npm i -g @nestjs/cli
