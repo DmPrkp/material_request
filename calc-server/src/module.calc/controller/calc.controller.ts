@@ -12,6 +12,6 @@ export class CalcController {
     @Param('system', SystemValidationPipe) system: string,
     @Body() reqData: CalcRequestDTO,
   ): Promise<CalcResponseDTO[]> {
-    return this.calcService.calculateMatList(reqData)
+    return this.calcService.calculateMatList(reqData);
   }
 }

@@ -37,10 +37,20 @@
   import MaterialListItems from "./MateriaListItems.vue";
   import { CalcResponseDTO, Material } from "@/types/dto";
   import MaterialModal from "./MaterialModal.vue";
+  import { watch } from "vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
   }>();
+
+  const emit = defineEmits(["update"]);
+
+  watch(
+    () => props.components,
+    (c: CalcResponseDTO[]) => {
+      emit("update", c);
+    }
+  );
 
   const setOpen = async (componentId: number, material: Partial<Material>) => {
     const modal = await modalController.create({
@@ -64,6 +74,7 @@
 
       handleMaterialUpdate(material, component, role);
     });
+    emit("update", props.components);
   };
 
   function handleMaterialUpdate(

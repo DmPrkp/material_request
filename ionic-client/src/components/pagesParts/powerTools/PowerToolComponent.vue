@@ -46,40 +46,9 @@
     components: CalcResponseDTO[];
   }>();
 
+  const emit = defineEmits(["update"]);
+
   const mergedPowerTools = ref<MergedPowerTools>({});
-
-  const setOpen = async (powerTool: PowerTool) => {
-    const modal = await modalController.create({
-      component: PowerToolModal,
-      componentProps: { powerTool },
-    });
-
-    await modal.present();
-
-    const { data, role } = await modal.onWillDismiss<{
-      powerTool: PowerTool;
-    }>();
-
-    if (!data?.powerTool || !role) return;
-
-    handleMaterialUpdate(data.powerTool, role);
-  };
-
-  function handleMaterialUpdate(powerTool: PowerTool, role: string) {
-    const isNewTool = !powerTool.uniqKey;
-
-    if (isNewTool && role === "confirm") {
-      const id = Date.now();
-      powerTool.uniqKey = String(id);
-      powerTool.id = id;
-    }
-
-    if (role === "confirm") {
-      mergedPowerTools.value[powerTool.uniqKey] = { ...powerTool };
-    } else if (role === "remove") {
-      delete mergedPowerTools.value[powerTool.uniqKey];
-    }
-  }
 
   watch(
     () => props.components,
@@ -99,7 +68,42 @@
         });
         return acc;
       }, {} as MergedPowerTools);
+      emit("update", mergedPowerTools.value);
     },
     { immediate: true }
   );
+
+  const setOpen = async (powerTool: PowerTool) => {
+    const modal = await modalController.create({
+      component: PowerToolModal,
+      componentProps: { powerTool },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<{
+      powerTool: PowerTool;
+    }>();
+
+    if (!data?.powerTool || !role) return;
+
+    handleMaterialUpdate(data.powerTool, role);
+    emit("update", mergedPowerTools.value);
+  };
+
+  function handleMaterialUpdate(powerTool: PowerTool, role: string) {
+    const isNewTool = !powerTool.uniqKey;
+
+    if (isNewTool && role === "confirm") {
+      const id = Date.now();
+      powerTool.uniqKey = String(id);
+      powerTool.id = id;
+    }
+
+    if (role === "confirm") {
+      mergedPowerTools.value[powerTool.uniqKey] = { ...powerTool };
+    } else if (role === "remove") {
+      delete mergedPowerTools.value[powerTool.uniqKey];
+    }
+  }
 </script>

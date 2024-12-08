@@ -7,7 +7,6 @@
       >
         <ion-refresher-content />
       </ion-refresher>
-      <MaterialActionPanel></MaterialActionPanel>
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title>
@@ -15,9 +14,19 @@
           </ion-title>
         </ion-item-divider>
       </div>
-      <MaterialComponent :components="components" />
-      <HandToolComponent :components="components" />
-      <PowerToolComponent :components="components" />
+      <MaterialComponent
+        :components="components"
+        @update="(event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)"
+      />
+      <HandToolComponent
+        :components="components"
+        @update="(event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)"
+      />
+      <PowerToolComponent
+        :components="components"
+        @update="(event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
+      />
+      <MaterialActionPanel></MaterialActionPanel>
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -34,8 +43,15 @@
   import PowerToolComponent from "@/components/pagesParts/powerTools/PowerToolComponent.vue";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
 
+  const MATERIALS_KEYS = {
+    MATERIALS: "materials",
+    HAND_TOOLS: "hand_tools",
+    POWER_TOOLS: "power_tools",
+  } as const;
+
   const route = useRoute();
   const components = ref<CalcResponseDTO[]>([]);
+  const resultMatList = ref({});
 
   function parseData(query: LocationQuery) {
     const { components, crew } = query;
@@ -64,8 +80,13 @@
     event.target.complete();
   }
 
-  function check() {
-    console.log(JSON.parse(JSON.stringify(components.value)));
+  function mergeMaterials(
+    material: (typeof MATERIALS_KEYS)[keyof typeof MATERIALS_KEYS],
+    event: Event
+  ) {
+    resultMatList.value = Object.assign({}, resultMatList.value, {
+      [material]: event,
+    });
   }
 
   onMounted(async () => {

@@ -46,40 +46,7 @@
     components: CalcResponseDTO[];
   }>();
 
-  const mergedHandTools = ref<MergedHandTools>({});
-
-  const setOpen = async (handTool: Partial<HandTool>) => {
-    const modal = await modalController.create({
-      component: HandToolModal,
-      componentProps: { handTool },
-    });
-
-    await modal.present();
-
-    const { data, role } = await modal.onWillDismiss<{
-      handTool: HandTool;
-    }>();
-
-    if (!data?.handTool || !role) return;
-
-    handleMaterialUpdate(data.handTool, role);
-  };
-
-  function handleMaterialUpdate(handTool: HandTool, role: string) {
-    const isNewTool = !handTool.uniqKey;
-
-    if (isNewTool && role === "confirm") {
-      const id = Date.now();
-      handTool.uniqKey = String(id);
-      handTool.id = id;
-    }
-
-    if (role === "confirm") {
-      mergedHandTools.value[handTool.uniqKey] = { ...handTool };
-    } else if (role === "remove") {
-      delete mergedHandTools.value[handTool.uniqKey];
-    }
-  }
+  const emit = defineEmits(["update"]);
 
   watch(
     () => props.components,
@@ -99,7 +66,44 @@
         });
         return acc;
       }, {} as MergedHandTools);
+      emit("update", mergedHandTools.value);
     },
     { immediate: true }
   );
+
+  const mergedHandTools = ref<MergedHandTools>({});
+
+  const setOpen = async (handTool: Partial<HandTool>) => {
+    const modal = await modalController.create({
+      component: HandToolModal,
+      componentProps: { handTool },
+    });
+
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<{
+      handTool: HandTool;
+    }>();
+
+    if (!data?.handTool || !role) return;
+
+    handleMaterialUpdate(data.handTool, role);
+    emit("update", mergedHandTools.value);
+  };
+
+  function handleMaterialUpdate(handTool: HandTool, role: string) {
+    const isNewTool = !handTool.uniqKey;
+
+    if (isNewTool && role === "confirm") {
+      const id = Date.now();
+      handTool.uniqKey = String(id);
+      handTool.id = id;
+    }
+
+    if (role === "confirm") {
+      mergedHandTools.value[handTool.uniqKey] = { ...handTool };
+    } else if (role === "remove") {
+      delete mergedHandTools.value[handTool.uniqKey];
+    }
+  }
 </script>
