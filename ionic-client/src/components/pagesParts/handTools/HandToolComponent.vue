@@ -17,10 +17,7 @@
     </ion-col>
   </ion-row>
 
-  <HandToolListItems
-    @modal="setOpen"
-    :hand_tools="Object.values(mergedHandTools)"
-  />
+  <HandToolListItems v-model="mergedHandTools" />
   <ion-grid>
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
@@ -47,11 +44,21 @@
   }>();
 
   const emit = defineEmits(["update"]);
+  const mergedHandToolsMap = ref<MergedHandTools>({});
+  const mergedHandTools = ref<HandTool[]>([]);
+
+  watch(
+    () => mergedHandTools.value,
+    (newVal) => {
+      emit("update", newVal);
+    },
+    { deep: true }
+  );
 
   watch(
     () => props.components,
     (components) => {
-      mergedHandTools.value = components.reduce((acc, m) => {
+      mergedHandToolsMap.value = components.reduce((acc, m) => {
         m.hand_tools.forEach((h) => {
           const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
 
@@ -66,12 +73,11 @@
         });
         return acc;
       }, {} as MergedHandTools);
+      mergedHandTools.value = Object.values(mergedHandToolsMap.value);
       emit("update", mergedHandTools.value);
     },
     { immediate: true }
   );
-
-  const mergedHandTools = ref<MergedHandTools>({});
 
   const setOpen = async (handTool: Partial<HandTool>) => {
     const modal = await modalController.create({
@@ -101,9 +107,9 @@
     }
 
     if (role === "confirm") {
-      mergedHandTools.value[handTool.uniqKey] = { ...handTool };
+      mergedHandToolsMap.value[handTool.uniqKey] = { ...handTool };
     } else if (role === "remove") {
-      delete mergedHandTools.value[handTool.uniqKey];
+      delete mergedHandToolsMap.value[handTool.uniqKey];
     }
   }
 </script>

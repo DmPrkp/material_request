@@ -1,7 +1,7 @@
 <template>
   <ion-list>
     <ion-item
-      v-for="(tool, num) in hand_tools"
+      v-for="(tool, num) in modelValue"
       :key="tool.uniqKey"
     >
       <ion-grid>
@@ -33,7 +33,7 @@
               shape="round"
               fill="outline"
               color="medium"
-              @click="tool.adjusted_consumption = --tool.adjusted_consumption"
+              @click="action(--tool.adjusted_consumption, tool)"
             >
               <ion-icon
                 slot="icon-only"
@@ -57,7 +57,7 @@
               shape="round"
               fill="outline"
               color="medium"
-              @click="tool.adjusted_consumption = ++tool.adjusted_consumption"
+              @click="action(++tool.adjusted_consumption, tool)"
             >
               <ion-icon
                 slot="icon-only"
@@ -81,12 +81,14 @@
   import { HandTool } from "@/types/dto";
   import { add, remove } from "ionicons/icons";
 
-  defineProps<{
-    hand_tools: HandTool[];
+  const props = defineProps<{
+    modelValue: HandTool[];
   }>();
 
-  const emit = defineEmits(["modal"]);
-  const setOpen = (tool: HandTool) => {
-    emit("modal", tool);
-  };
+  const emit = defineEmits(["update:modelValue"]);
+
+  function action(val: number, tool: HandTool) {
+    tool.adjusted_consumption = val;
+    emit("update:modelValue", props.modelValue);
+  }
 </script>

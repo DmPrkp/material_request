@@ -26,7 +26,7 @@
         :components="components"
         @update="(event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
       />
-      <MaterialActionPanel></MaterialActionPanel>
+      <MaterialActionPanel :materials="resultMatList" />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -87,6 +87,9 @@
     resultMatList.value = Object.assign({}, resultMatList.value, {
       [material]: event,
     });
+
+    const val = JSON.parse(JSON.stringify(resultMatList.value));
+    console.log("mergeMaterials", val);
   }
 
   onMounted(async () => {
