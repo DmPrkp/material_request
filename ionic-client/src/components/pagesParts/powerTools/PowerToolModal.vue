@@ -20,7 +20,7 @@
       ></ion-input>
     </ion-item>
 
-    <ion-item>
+    <ion-item v-if="!isDelete()">
       <ion-row>
         <ion-col size="10">
           <ion-input
@@ -67,7 +67,7 @@
       <ion-row>
         <ion-col size="2">
           <ion-button
-            v-if="getModalType() === 'delete'"
+            v-if="isDelete()"
             expand="block"
             @click="remove()"
             ><ion-icon
@@ -78,7 +78,7 @@
         </ion-col>
         <ion-col size="5">
           <ion-button
-            v-if="getModalType() === 'add'"
+            v-if="!isDelete()"
             fill="outline"
             expand="block"
             @click="confirm()"
@@ -135,7 +135,7 @@
     return props.powerTool.id ? "delete" : "add";
   }
 
-  function getModalType() {
-    return props.powerTool.id ? "delete" : "add";
+  function isDelete() {
+    return Boolean(props.powerTool.id);
   }
 </script>

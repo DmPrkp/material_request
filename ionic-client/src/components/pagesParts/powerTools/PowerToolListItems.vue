@@ -15,6 +15,7 @@
           >
             <div>
               {{ tool.ru_title }}
+              {{ $t(`current.${tool.corded ? "ac" : "dc"}`) }}
               <span
                 v-for="param in tool.params"
                 :key="param.param"
