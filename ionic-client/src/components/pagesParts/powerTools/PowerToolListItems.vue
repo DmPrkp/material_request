@@ -1,7 +1,7 @@
 <template>
   <ion-list>
     <ion-item
-      v-for="(tool, num) in power_tools"
+      v-for="(tool, num) in modelValue"
       :key="tool.uniqKey"
     >
       <ion-grid>
@@ -15,12 +15,11 @@
           >
             <div>
               {{ tool.ru_title }}
-              {{ $t(`current.${tool.corded ? "ac" : "dc"}`) }}
               <span
                 v-for="param in tool.params"
                 :key="param.param"
               >
-                {{ param.param }} {{ $t(`measure.${param.measure}`) }}
+                {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
               </span>
             </div>
           </ion-col>
@@ -34,7 +33,7 @@
               shape="round"
               fill="outline"
               color="medium"
-              @click="tool.adjusted_consumption = --tool.adjusted_consumption"
+              @click="action(--tool.adjusted_consumption, tool)"
             >
               <ion-icon
                 slot="icon-only"
@@ -58,7 +57,7 @@
               shape="round"
               fill="outline"
               color="medium"
-              @click="tool.adjusted_consumption = ++tool.adjusted_consumption"
+              @click="action(++tool.adjusted_consumption, tool)"
             >
               <ion-icon
                 slot="icon-only"
@@ -82,7 +81,19 @@
   import { PowerTool } from "@/types/dto";
   import { add, remove } from "ionicons/icons";
 
-  defineProps<{
-    power_tools: PowerTool[];
+  const props = defineProps<{
+    modelValue: PowerTool[];
   }>();
+
+  const emit = defineEmits(["update:modelValue", "delete"]);
+
+  function action(val: number, tool: PowerTool) {
+    if (val < 0) {
+      emit("delete", tool.uniqKey);
+      val = 0;
+    }
+
+    tool.adjusted_consumption = val;
+    emit("update:modelValue", props.modelValue);
+  }
 </script>

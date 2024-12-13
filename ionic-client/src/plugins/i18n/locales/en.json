@@ -69,7 +69,8 @@
       "modal": {
         "titles": {
           "add": "Add",
-          "edit": "Edit"
+          "edit": "Edit",
+          "delete": "Delete"
         }
       }
     }

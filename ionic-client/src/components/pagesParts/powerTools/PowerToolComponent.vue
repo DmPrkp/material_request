@@ -18,8 +18,8 @@
   </ion-row>
 
   <PowerToolListItems
-    @modal="setOpen"
-    :power_tools="Object.values(mergedPowerTools)"
+    v-model="mergedPowerTools"
+    @delete="setOpen"
   />
   <ion-grid>
     <ion-row class="ion-justify-content-end">
@@ -47,13 +47,21 @@
   }>();
 
   const emit = defineEmits(["update"]);
+  const mergedPowerToolsMap = ref<MergedPowerTools>({});
+  const mergedPowerTools = ref<PowerTool[]>([]);
 
-  const mergedPowerTools = ref<MergedPowerTools>({});
+  watch(
+    () => mergedPowerTools.value,
+    (newVal) => {
+      emit("update", newVal);
+    },
+    { deep: true }
+  );
 
   watch(
     () => props.components,
     (components) => {
-      mergedPowerTools.value = components.reduce((acc, m) => {
+      mergedPowerToolsMap.value = components.reduce((acc, m) => {
         m.power_tools.forEach((p) => {
           const uniqKey = `${p.id}:${p.params.map((p) => p.id).join()}`;
 
@@ -68,12 +76,13 @@
         });
         return acc;
       }, {} as MergedPowerTools);
-      emit("update", mergedPowerTools.value);
+      mergedPowerTools.value = Object.values(mergedPowerToolsMap.value);
     },
     { immediate: true }
   );
 
-  const setOpen = async (powerTool: PowerTool) => {
+  const setOpen = async (powerToolKey: PowerTool["uniqKey"]) => {
+    const powerTool = mergedPowerToolsMap.value[powerToolKey] || {};
     const modal = await modalController.create({
       component: PowerToolModal,
       componentProps: { powerTool },
@@ -88,7 +97,7 @@
     if (!data?.powerTool || !role) return;
 
     handleMaterialUpdate(data.powerTool, role);
-    emit("update", mergedPowerTools.value);
+    mergedPowerTools.value = Object.values(mergedPowerToolsMap.value);
   };
 
   function handleMaterialUpdate(powerTool: PowerTool, role: string) {
@@ -101,9 +110,9 @@
     }
 
     if (role === "confirm") {
-      mergedPowerTools.value[powerTool.uniqKey] = { ...powerTool };
+      mergedPowerToolsMap.value[powerTool.uniqKey] = { ...powerTool };
     } else if (role === "remove") {
-      delete mergedPowerTools.value[powerTool.uniqKey];
+      delete mergedPowerToolsMap.value[powerTool.uniqKey];
     }
   }
 </script>

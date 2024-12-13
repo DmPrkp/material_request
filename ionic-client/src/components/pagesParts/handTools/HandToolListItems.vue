@@ -85,9 +85,14 @@
     modelValue: HandTool[];
   }>();
 
-  const emit = defineEmits(["update:modelValue"]);
+  const emit = defineEmits(["update:modelValue", "delete"]);
 
   function action(val: number, tool: HandTool) {
+    if (val < 0) {
+      emit("delete", tool.uniqKey);
+      val = 0;
+    }
+
     tool.adjusted_consumption = val;
     emit("update:modelValue", props.modelValue);
   }

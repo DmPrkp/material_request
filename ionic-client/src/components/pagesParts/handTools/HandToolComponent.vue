@@ -17,7 +17,10 @@
     </ion-col>
   </ion-row>
 
-  <HandToolListItems v-model="mergedHandTools" />
+  <HandToolListItems
+    v-model="mergedHandTools"
+    @delete="setOpen"
+  />
   <ion-grid>
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
@@ -74,12 +77,12 @@
         return acc;
       }, {} as MergedHandTools);
       mergedHandTools.value = Object.values(mergedHandToolsMap.value);
-      emit("update", mergedHandTools.value);
     },
     { immediate: true }
   );
 
-  const setOpen = async (handTool: Partial<HandTool>) => {
+  const setOpen = async (handToolKey: HandTool["uniqKey"]) => {
+    const handTool = mergedHandToolsMap.value[handToolKey] || {};
     const modal = await modalController.create({
       component: HandToolModal,
       componentProps: { handTool },
@@ -94,7 +97,7 @@
     if (!data?.handTool || !role) return;
 
     handleMaterialUpdate(data.handTool, role);
-    emit("update", mergedHandTools.value);
+    mergedHandTools.value = Object.values(mergedHandToolsMap.value);
   };
 
   function handleMaterialUpdate(handTool: HandTool, role: string) {
