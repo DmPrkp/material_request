@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS hand_tool_params_hand_tools;

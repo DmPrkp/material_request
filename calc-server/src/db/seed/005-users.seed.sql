@@ -1,1 +1,0 @@
-INSERT INTO users (id, login) VALUES (1, 'default');
