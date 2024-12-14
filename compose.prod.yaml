@@ -8,9 +8,10 @@ networks:
 
 services:
   calc-server:
-    build:
-      context: ./calc-server
-      dockerfile: ./docker/Dockerfile.prod
+    image: dmprkp/calc-server:0.0.2
+    # build:
+    #   context: ./calc-server
+    #   dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4000:4000
     env_file:
