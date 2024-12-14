@@ -1,6 +1,6 @@
 {
   "name": "calc-server",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "author": "",
   "private": true,
@@ -19,8 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "version:update": "npm version patch -m \"Bump version to %s\"",
-    "docker:build": "sh -c 'docker build -t dmprkp/calc-server:$(node -p \"require(\\\"./package.json\\\").version\") -f docker/Dockerfile.prod .'",
-    "docker:push": "sh -c 'docker push dmprkp/calc-server:$(node -p \"require(\\\"./package.json\\\").version\")'",
+    "docker:build": "sh -c 'docker build -t dmprkp/calc-server:$(node -p \"require(\\\"./package.json\\\").version\") -t dmprkp/calc-server:latest -f docker/Dockerfile.prod .'",
+    "docker:push": "sh -c 'docker push dmprkp/calc-server:$(node -p \"require(\\\"./package.json\\\").version\") && docker push dmprkp/calc-server:latest'",
     "docker:deploy": "npm run version:update && npm run docker:build && npm run docker:push"
   },
   "dependencies": {
