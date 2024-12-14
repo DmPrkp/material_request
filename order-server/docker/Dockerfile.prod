@@ -1,0 +1,23 @@
+# docker build -t calc-server -f Dockerfile.prod --no-cache .
+# docker run -p 4000:4000 --name calc-server calc-server
+
+FROM node:20-alpine
+
+ENV NODE_ENV production
+
+WORKDIR /usr/order-server
+
+RUN npm i -g typescript
+RUN npm i -g @nestjs/cli
+
+COPY ./package*.json ./
+RUN npm install
+
+COPY ./ ./
+RUN npm run build
+
+EXPOSE 4100
+
+# Run the application.
+CMD node dist/main.js
+# CMD node test.js

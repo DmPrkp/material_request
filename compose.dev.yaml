@@ -31,7 +31,33 @@ services:
           path: ./calc-server/nest-cli.json
         - action: rebuild
           path: ./calc-server/docker
+    depends_on:
+      - db
 
+  order-server:
+    build:
+      context: ./order-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4100:4100
+    env_file:
+      - ./secrets/order-db/.db.env
+    develop:
+      watch:
+        - action: sync
+          path: ./order-server/src
+          target: /usr/order-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./order-server/package.json
+        - action: rebuild
+          path: ./order-server/tsconfig.json
+        - action: rebuild
+          path: ./order-server/nest-cli.json
+        - action: rebuild
+          path: ./order-server/docker
     depends_on:
       - db
 
@@ -58,17 +84,8 @@ services:
     depends_on:
       - ionic-client
       - calc-server
+      - order-server
       - db
-
-  # db:
-  #   image: postgres
-  #   restart: always
-  #   user: postgres
-  #   volumes:
-  #     - ./secrets/calc-db/db-password.txt:/run/secrets/db-password
-  #   environment:
-  #     - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-  #     - POSTGRES_DB=calc
 
   db:
     image: postgres
