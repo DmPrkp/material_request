@@ -26,7 +26,7 @@
   import { useRoute, useRouter } from "vue-router";
   import { RefresherCustomEvent } from "@ionic/vue";
   import MainMenuItems from "@/components/pagesParts/MainMenuItems.vue";
-  import BaseModel from "@/models/BaseModel";
+  import BaseModel from "@/models/calc/BaseCalcModel";
   import type { MainMenuItem } from "../types/controller/main-menu";
   import { useMainMenuStore } from "@/store/mainMenu";
   import { usePreloader } from "@/store/preloader";

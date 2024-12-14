@@ -82,7 +82,7 @@
     RefresherCustomEvent,
     ToggleCustomEvent,
   } from "@ionic/vue";
-  import BaseModel from "@/models/BaseModel";
+  import BaseModel from "@/models/calc/BaseCalcModel";
   import { ComponentsType } from "@/types";
   import { ComponentsList } from "./types";
   import router from "@/router";

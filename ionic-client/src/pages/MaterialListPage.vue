@@ -37,7 +37,7 @@
   import { LocationQuery, useRoute } from "vue-router";
   import type { CalcResponseDTO } from "@/types/dto/index";
   import { RefresherCustomEvent } from "@ionic/vue";
-  import BaseModel from "@/models/BaseModel";
+  import BaseModel from "@/models/calc/BaseCalcModel";
   import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
   import HandToolComponent from "@/components/pagesParts/handTools/HandToolComponent.vue";
   import PowerToolComponent from "@/components/pagesParts/powerTools/PowerToolComponent.vue";

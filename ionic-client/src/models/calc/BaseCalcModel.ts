@@ -1,7 +1,7 @@
 export default class BaseModel {
   static baseURL: string;
 
-  static apiVersion = "/api/v1";
+  static apiVersion = "/calc/api/v1";
 
   static baseOpts: RequestInit = {
     headers: {
