@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS power_tool_params;

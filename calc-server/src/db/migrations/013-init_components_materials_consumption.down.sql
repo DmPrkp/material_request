@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS components_materials_consumption;

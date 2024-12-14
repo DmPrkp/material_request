@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS power_tools (
-    id INTEGER PRIMARY KEY UNIQUE,
-    title VARCHAR(50) NOT NULL,
-    ru_title VARCHAR(50) NOT NULL,
-    corded BOOLEAN NOT NULL
-);

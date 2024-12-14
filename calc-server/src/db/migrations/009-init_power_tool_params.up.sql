@@ -1,5 +1,0 @@
-CREATE TABLE IF NOT EXISTS power_tool_params(
-   id INTEGER PRIMARY KEY UNIQUE,
-   parameter VARCHAR (50) NOT NULL,
-   measure VARCHAR (20) NOT NULL
-);

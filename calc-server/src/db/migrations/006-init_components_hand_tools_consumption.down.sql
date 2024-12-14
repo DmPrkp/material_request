@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS components_hand_tools_consumption;

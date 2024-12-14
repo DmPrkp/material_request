@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS components_power_tools_consumption;
