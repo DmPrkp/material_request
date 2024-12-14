@@ -89,7 +89,7 @@
   const emit = defineEmits(["update:modelValue", "delete"]);
 
   function action(val: number, tool: PowerTool) {
-    if (val < 0) {
+    if (val < 1) {
       emit("delete", tool.uniqKey);
       val = 0;
     }

@@ -87,9 +87,6 @@
     resultMatList.value = Object.assign({}, resultMatList.value, {
       [material]: event,
     });
-
-    const val = JSON.parse(JSON.stringify(resultMatList.value));
-    console.log("mergeMaterials", val);
   }
 
   onMounted(async () => {
