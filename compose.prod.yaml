@@ -8,7 +8,7 @@ networks:
 
 services:
   calc-server:
-    image: dmprkp/calc-server:0.0.3
+    image: dmprkp/calc-server:latest
     # build:
     #   context: ./calc-server
     #   dockerfile: ./docker/Dockerfile.prod
