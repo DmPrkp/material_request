@@ -9,13 +9,23 @@ networks:
 services:
   calc-server:
     image: dmprkp/calc-server:latest
-    # build:
-    #   context: ./calc-server
-    #   dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4000:4000
     env_file:
       - ./secrets/calc-db/.db.env
+    environment:
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  order-server:
+    build:
+      context: ./order-server
+      dockerfile: ./docker/Dockerfile.prod
+    ports:
+      - 4100:4100
+    env_file:
+      - ./secrets/order-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
