@@ -14,9 +14,7 @@ RUN npm install
 # Copy source files
 COPY ./ ./ 
 
-# Run TypeScript compiler
-RUN npm run build
-
 EXPOSE 4100
 
-CMD npm run start:dev
+# npx prisma migrate dev --name init
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]

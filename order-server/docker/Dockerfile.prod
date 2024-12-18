@@ -15,9 +15,9 @@ RUN npm install
 
 COPY ./ ./
 RUN npm run build
+RUN npx prisma migrate dev --name init
 
 EXPOSE 4100
 
-# Run the application.
-CMD node dist/main.js
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
 # CMD node test.js

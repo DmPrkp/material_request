@@ -42,6 +42,8 @@ services:
       - 4100:4100
     env_file:
       - ./secrets/order-db/.db.env
+    volumes:
+      - ./order-server/prisma/migrations:/usr/order-server/prisma/migrations
     develop:
       watch:
         - action: sync
@@ -58,6 +60,8 @@ services:
           path: ./order-server/nest-cli.json
         - action: rebuild
           path: ./order-server/docker
+        - action: rebuild
+          path: ./order-server/prisma/schema.prisma
     depends_on:
       - db
 
