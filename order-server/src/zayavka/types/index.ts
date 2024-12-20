@@ -1,12 +1,5 @@
-export type CalcResponseDTO = {
-  id: number;
-  title: string;
-  hand_tools: HandTool[];
-  materials: Material[];
-  power_tools: PowerTool[];
-};
-
-export type ResultMaterialsDTO = {
+export type CreateZayavkaDto = {
+  uuid: string;
   hand_tools: HandTool[];
   materials: Material[];
   power_tools: PowerTool[];
@@ -22,8 +15,6 @@ export type PowerTool = {
   params: Param[];
 };
 
-export type MergedPowerTools = Record<string, PowerTool>;
-
 export type HandTool = {
   uniqKey: string;
   id: number;
@@ -32,8 +23,6 @@ export type HandTool = {
   adjusted_consumption: number;
   params: Param[];
 };
-
-export type MergedHandTools = Record<string, HandTool>;
 
 export type Material = {
   consumption: number;

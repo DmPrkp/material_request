@@ -53,6 +53,8 @@
 </template>
 
 <script setup lang="ts">
+  import Order from "@/models/zayavka";
+  import { ResultMaterialsDTO } from "@/types/dto";
   import {
     logoWhatsapp,
     paperPlaneOutline,
@@ -61,11 +63,14 @@
   } from "ionicons/icons";
 
   const props = defineProps<{
-    materials: unknown;
+    materials: ResultMaterialsDTO;
   }>();
 
-  function save() {
-    console.log(props.materials);
+  async function save() {
+    console.log(JSON.parse(JSON.stringify(props.materials)));
+    const order = new Order(props.materials);
+    const res = await order.create();
+    console.log(res);
   }
 
   function downloadPage() {

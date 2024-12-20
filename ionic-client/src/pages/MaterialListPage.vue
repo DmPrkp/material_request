@@ -35,7 +35,7 @@
 <script setup lang="ts">
   import { onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
-  import type { CalcResponseDTO } from "@/types/dto/index";
+  import type { CalcResponseDTO, ResultMaterialsDTO } from "@/types/dto/index";
   import { RefresherCustomEvent } from "@ionic/vue";
   import BaseModel from "@/models/calc/BaseCalcModel";
   import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
@@ -51,7 +51,11 @@
 
   const route = useRoute();
   const components = ref<CalcResponseDTO[]>([]);
-  const resultMatList = ref({});
+  const resultMatList = ref<ResultMaterialsDTO>({
+    hand_tools: [],
+    power_tools: [],
+    materials: [],
+  });
 
   function parseData(query: LocationQuery) {
     const { components, crew } = query;
@@ -65,11 +69,10 @@
     const { components, crew } = parseData(route.query);
     if (!components || !crew) return [];
     const dataToSend = { components, crew };
-    const data = await BaseModel.post<CalcResponseDTO[]>(
-      `/calc/${system}`,
-      [],
-      { body: JSON.stringify(dataToSend) }
-    );
+    const data = await BaseModel.post<CalcResponseDTO[]>({
+      params: `/calc/${system}`,
+      body: dataToSend,
+    });
     return data || [];
   }
 
