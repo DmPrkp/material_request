@@ -3,7 +3,8 @@
   "footer": {
     "settings": "Settings",
     "main": "Main",
-    "about": "About"
+    "about": "About",
+    "zayavka": "Material Requests"
   },
   "ui": {
     "buttons": {
@@ -73,6 +74,9 @@
           "delete": "Delete"
         }
       }
+    },
+    "zayavka": {
+      "title": "Zayavki"
     }
   },
   "current": { "ac": "mains", "dc": "battery" }

@@ -61,15 +61,23 @@
     downloadOutline,
     saveOutline,
   } from "ionicons/icons";
+  import { useRoute, useRouter } from "vue-router";
 
   const props = defineProps<{
     materials: ResultMaterialsDTO;
   }>();
+  const route = useRoute();
+  const router = useRouter();
 
   async function save() {
-    console.log(JSON.parse(JSON.stringify(props.materials)));
-    const order = new Order(props.materials);
+    const order = new Order({
+      ...props.materials,
+      system: route.params.system.toString(),
+    });
     const res = await order.create();
+    if (res?.id) {
+      router.push({ name: "zayavka", params: { zayavka: res.id } });
+    }
     console.log(res);
   }
 

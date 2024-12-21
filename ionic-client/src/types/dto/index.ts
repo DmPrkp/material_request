@@ -50,3 +50,10 @@ type Param = {
   param: string;
   measure: string;
 };
+
+export type ZayavkaDTO = {
+  data: string;
+  createdAt: Date;
+  updatedAt: Date;
+  id: number;
+};

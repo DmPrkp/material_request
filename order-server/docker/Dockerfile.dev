@@ -15,6 +15,7 @@ RUN npm install
 COPY ./ ./ 
 
 EXPOSE 4100
+RUN npm run prisma:gen
 
 # npx prisma migrate dev --name init
 CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]

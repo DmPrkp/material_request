@@ -37,6 +37,7 @@
     calculatorOutline,
     settingsOutline,
     informationCircleOutline,
+    documentsOutline,
   } from "ionicons/icons";
   import { useRoute } from "vue-router";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
@@ -51,6 +52,11 @@
       link: "main",
       name: "main",
       icon: calculatorOutline,
+    },
+    {
+      link: "zayavka",
+      name: "zayavka",
+      icon: documentsOutline,
     },
     {
       link: "settings",

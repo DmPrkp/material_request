@@ -14,6 +14,11 @@ const routes: Array<RouteRecordRaw> = [
     },
     children: [
       {
+        path: "about",
+        name: "about",
+        component: () => import("@/pages/AboutPage.vue"),
+      },
+      {
         path: "main",
         name: "main",
         component: () => import("@/pages/MainPage.vue"),
@@ -40,9 +45,16 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        path: "about",
-        name: "about",
-        component: () => import("@/pages/AboutPage.vue"),
+        path: "zayavka",
+        name: "zayavka-list",
+        component: () => import("@/pages/ZayavkaListPage.vue"),
+        children: [
+          {
+            path: ":zayavka",
+            name: "zayavka",
+            component: () => import("@/pages/ZayavkaPage.vue"),
+          },
+        ],
       },
       {
         path: "settings",

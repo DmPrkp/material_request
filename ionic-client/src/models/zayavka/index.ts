@@ -1,14 +1,13 @@
 import { ZayavkaType } from "@/types/entity/zayavka";
 import BaseOrderModel from "./BaseZayavkaModel";
-import { v4 as uuidv4 } from "uuid";
+import { ZayavkaDTO } from "@/types/dto";
 
 export default class Order {
   data: ZayavkaType;
 
-  constructor(data: Partial<ZayavkaType>) {
+  constructor(data: ZayavkaType) {
     this.data = {
-      ...data,
-      uuid: data.uuid ?? uuidv4(),
+      system: data.system,
       hand_tools: data.hand_tools ?? [],
       materials: data.materials ?? [],
       power_tools: data.power_tools ?? [],
@@ -16,6 +15,9 @@ export default class Order {
   }
 
   create() {
-    return BaseOrderModel.post({ params: "/zayavka", body: this.data });
+    return BaseOrderModel.post<ZayavkaDTO>({
+      params: "/zayavka",
+      body: this.data,
+    });
   }
 }

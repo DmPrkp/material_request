@@ -5,5 +5,5 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.eol": "\n",
   "eslint.run": "onSave",
-  "cSpell.words": ["EIFS"]
+  "cSpell.words": ["EIFS", "Zayavki"]
 }
