@@ -1,0 +1,9 @@
+-- CreateTable
+CREATE TABLE "Zayavka" (
+    "id" SERIAL NOT NULL,
+    "data" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Zayavka_pkey" PRIMARY KEY ("id")
+);
