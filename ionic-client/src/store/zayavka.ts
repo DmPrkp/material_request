@@ -7,13 +7,18 @@ export const useZayavkaStore = defineStore("materialRequests", {
   },
   actions: {
     setMaterialRequest(materialRequest: MaterialRequestDTO): void {
-      this[materialRequest.id] = materialRequest;
+      this.$state[materialRequest.id] = materialRequest;
     },
-    getMaterialRequest(id: MaterialRequestDTO["id"]) {
-      return this[id];
+    getMaterialRequest(
+      id: MaterialRequestDTO["id"]
+    ): MaterialRequestDTO | undefined {
+      return this.$state[id];
     },
     getAll(): MaterialRequestDTO[] {
-      return Object.values(this);
+      return Object.values(this.$state);
+    },
+    define(materialsRequests: MaterialRequestDTO[]): void {
+      this.$state = materialsRequests;
     },
   },
 });

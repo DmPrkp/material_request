@@ -79,9 +79,10 @@
   onMounted(async () => {
     materialRequests.value = store.getAll();
 
-    if (materialRequests.value.length) {
-      materialRequests.value = await Order.findAll();
-    }
+    if (materialRequests.value.length) return;
+
+    materialRequests.value = await Order.findAll();
+    store.define(materialRequests.value);
   });
 
   // ionic functions
