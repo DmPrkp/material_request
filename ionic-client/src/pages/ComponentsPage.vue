@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
   import { onMounted, reactive, ref, toRaw } from "vue";
-  import { useRoute } from "vue-router";
+  import { useRoute, useRouter } from "vue-router";
 
   import {
     InputCustomEvent,
@@ -85,10 +85,9 @@
   import BaseModel from "@/models/calc/BaseCalcModel";
   import { ComponentsType } from "@/types";
   import { ComponentsList } from "./types";
-  import router from "@/router";
 
   const route = useRoute();
-  // const router = useRouter();
+  const router = useRouter();
 
   const pageComponents = ref<ComponentsType[]>([]);
   const componentList: ComponentsList = reactive({});

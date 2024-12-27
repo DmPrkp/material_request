@@ -75,8 +75,10 @@
         }
       }
     },
-    "zayavka": {
-      "title": "Заявки"
+    "zayavka_list": {
+      "title": "Заявки на материалы",
+      "item_title": "Заявка №",
+      "from": "от"
     }
   },
   "current": { "ac": "сетевой", "dc": "аккум" }

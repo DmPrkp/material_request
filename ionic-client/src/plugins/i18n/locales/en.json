@@ -75,8 +75,10 @@
         }
       }
     },
-    "zayavka": {
-      "title": "Zayavki"
+    "zayavka_list": {
+      "title": "Materials requests",
+      "item_title": "Materials request #",
+      "from": "from"
     }
   },
   "current": { "ac": "mains", "dc": "battery" }

@@ -15,4 +15,9 @@ export class ZayavkaController {
   findOne(@Param('id') id: number) {
     return this.zayavkaService.findOne(id);
   }
+
+  @Get()
+  findAll() {
+    return this.zayavkaService.findAll();
+  }
 }

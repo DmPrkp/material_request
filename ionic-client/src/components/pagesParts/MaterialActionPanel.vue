@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
   import Order from "@/models/zayavka";
+  import { useZayavkaStore } from "@/store/zayavka";
   import { ResultMaterialsDTO } from "@/types/dto";
   import {
     logoWhatsapp,
@@ -68,6 +69,7 @@
   }>();
   const route = useRoute();
   const router = useRouter();
+  const store = useZayavkaStore();
 
   async function save() {
     const order = new Order({
@@ -76,9 +78,9 @@
     });
     const res = await order.create();
     if (res?.id) {
+      store.setMaterialRequest(res);
       router.push({ name: "zayavka", params: { zayavka: res.id } });
     }
-    console.log(res);
   }
 
   function downloadPage() {

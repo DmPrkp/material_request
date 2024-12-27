@@ -1,9 +1,16 @@
 import { ZayavkaType } from "@/types/entity/zayavka";
 import BaseOrderModel from "./BaseZayavkaModel";
-import { ZayavkaDTO } from "@/types/dto";
+import { MaterialRequestDTO } from "@/types/dto";
 
 export default class Order {
   data: ZayavkaType;
+
+  static async findAll() {
+    const materialRequests = await BaseOrderModel.get<MaterialRequestDTO[]>(
+      "/zayavka"
+    );
+    return materialRequests || [];
+  }
 
   constructor(data: ZayavkaType) {
     this.data = {
@@ -15,7 +22,7 @@ export default class Order {
   }
 
   create() {
-    return BaseOrderModel.post<ZayavkaDTO>({
+    return BaseOrderModel.post<MaterialRequestDTO>({
       params: "/zayavka",
       body: this.data,
     });

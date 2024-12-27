@@ -51,9 +51,9 @@ type Param = {
   measure: string;
 };
 
-export type ZayavkaDTO = {
+export type MaterialRequestDTO = {
   data: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   id: number;
 };
