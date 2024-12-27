@@ -23,6 +23,7 @@
             <ion-row
               color="secondary"
               @click="openItem(zayavka.id)"
+              style="cursor: pointer"
             >
               <ion-col
                 size="1"
