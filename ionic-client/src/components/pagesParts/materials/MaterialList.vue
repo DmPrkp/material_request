@@ -60,7 +60,6 @@
   watch(
     () => props.components,
     (components) => {
-      console.log(components);
       clearedComponents.value = components
         .filter((m) => m.materials?.length)
         .map((m) => ({

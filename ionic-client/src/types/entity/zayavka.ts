@@ -1,9 +1,9 @@
-import { HandTool, Material, PowerTool } from "../dto";
+import { HandTool, MaterialListDTO, PowerTool } from "../dto";
 
 export type ZayavkaType = {
   id?: number;
   system: string;
   hand_tools: HandTool[];
-  materials: Material[];
+  materials: MaterialListDTO[];
   power_tools: PowerTool[];
 };
