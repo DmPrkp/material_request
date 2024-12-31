@@ -1,7 +1,7 @@
 <template>
-  <MaterialComponentHeader />
+  <MaterialHeader />
   <ion-item-group
-    v-for="component in components"
+    v-for="component in clearedComponents"
     :key="component.id"
   >
     <ion-item-divider v-if="component.materials.length">
@@ -33,23 +33,43 @@
 
 <script lang="ts" setup>
   import { modalController } from "@ionic/vue";
-  import MaterialComponentHeader from "./MaterialComponentHeader.vue";
+  import MaterialHeader from "./MaterialHeader.vue";
   import MaterialListItems from "./MateriaListItems.vue";
-  import { CalcResponseDTO, Material } from "@/types/dto";
+  import { Material, MaterialListDTO } from "@/types/dto";
   import MaterialModal from "./MaterialModal.vue";
-  import { watch } from "vue";
+  import { ref, watch } from "vue";
 
   const props = defineProps<{
-    components: CalcResponseDTO[];
+    components: MaterialListDTO[];
   }>();
 
   const emit = defineEmits(["update"]);
 
+  const clearedComponents = ref<
+    { id: number; materials: Material[]; title: string }[]
+  >([]);
+
+  watch(
+    () => clearedComponents.value,
+    (newVal) => {
+      emit("update", newVal);
+    },
+    { deep: true }
+  );
+
   watch(
     () => props.components,
-    (c: CalcResponseDTO[]) => {
-      emit("update", c);
-    }
+    (components) => {
+      console.log(components);
+      clearedComponents.value = components
+        .filter((m) => m.materials?.length)
+        .map((m) => ({
+          id: m.id,
+          title: m.title,
+          materials: m.materials,
+        }));
+    },
+    { immediate: true }
   );
 
   const setOpen = async (componentId: number, material: Partial<Material>) => {
@@ -79,7 +99,7 @@
 
   function handleMaterialUpdate(
     material: Material,
-    component: CalcResponseDTO,
+    component: MaterialListDTO,
     role: string
   ) {
     const itemIndex = component.materials.findIndex(

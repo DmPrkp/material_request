@@ -1,9 +1,19 @@
+import { ZayavkaType } from "../entity/zayavka";
+
 export type CalcResponseDTO = {
   id: number;
   title: string;
   hand_tools: HandTool[];
   materials: Material[];
   power_tools: PowerTool[];
+};
+
+export type MaterialListDTO = {
+  id: number;
+  title: string;
+  hand_tools?: HandTool[];
+  materials: Material[];
+  power_tools?: PowerTool[];
 };
 
 export type ResultMaterialsDTO = {
@@ -53,6 +63,13 @@ type Param = {
 
 export type MaterialRequestDTO = {
   data: string;
+  createdAt: string;
+  updatedAt: string;
+  id: number;
+};
+
+export type StoredMaterialRequestDTO = {
+  data: ZayavkaType;
   createdAt: string;
   updatedAt: string;
   id: number;

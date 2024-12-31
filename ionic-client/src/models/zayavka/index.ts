@@ -2,7 +2,7 @@ import { ZayavkaType } from "@/types/entity/zayavka";
 import BaseOrderModel from "./BaseZayavkaModel";
 import { MaterialRequestDTO } from "@/types/dto";
 
-export default class Order {
+export default class Zayavka {
   data: ZayavkaType;
 
   static async findAll() {
@@ -10,6 +10,13 @@ export default class Order {
       "/zayavka"
     );
     return materialRequests || [];
+  }
+
+  static async find(id: number) {
+    const materialRequest = await BaseOrderModel.get<MaterialRequestDTO>(
+      `/zayavka/${id}`
+    );
+    return materialRequest;
   }
 
   constructor(data: ZayavkaType) {

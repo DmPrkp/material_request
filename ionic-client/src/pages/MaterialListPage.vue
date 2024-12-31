@@ -14,15 +14,15 @@
           </ion-title>
         </ion-item-divider>
       </div>
-      <MaterialComponent
+      <MaterialList
         :components="components"
         @update="(event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)"
       />
-      <HandToolComponent
+      <HandToolList
         :components="components"
         @update="(event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)"
       />
-      <PowerToolComponent
+      <PowerToolList
         :components="components"
         @update="(event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
       />
@@ -38,9 +38,9 @@
   import type { CalcResponseDTO, ResultMaterialsDTO } from "@/types/dto/index";
   import { RefresherCustomEvent } from "@ionic/vue";
   import BaseModel from "@/models/calc/BaseCalcModel";
-  import MaterialComponent from "@/components/pagesParts/materials/MaterialComponent.vue";
-  import HandToolComponent from "@/components/pagesParts/handTools/HandToolComponent.vue";
-  import PowerToolComponent from "@/components/pagesParts/powerTools/PowerToolComponent.vue";
+  import MaterialList from "@/components/pagesParts/materials/MaterialList.vue";
+  import HandToolList from "@/components/pagesParts/handTools/HandToolList.vue";
+  import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
 
   const MATERIALS_KEYS = {

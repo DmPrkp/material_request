@@ -14,7 +14,7 @@
           </ion-title>
         </ion-item-divider>
       </div>
-      div
+      <MaterialList :components="materials"></MaterialList>
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -22,19 +22,45 @@
 <script setup lang="ts">
   import { useZayavkaStore } from "@/store/zayavka";
   import { RefresherCustomEvent } from "@ionic/vue";
-  import { onMounted } from "vue";
+  import { onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
+  import MaterialList from "@/components/pagesParts/materials/MaterialList.vue";
+  import { StoredMaterialRequestDTO } from "@/types/dto";
+  import Zayavka from "@/models/zayavka";
   const store = useZayavkaStore();
 
   const route = useRoute();
+  const materials = ref<StoredMaterialRequestDTO["data"]["materials"]>([]);
 
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
     event.target.complete();
   }
 
-  onMounted(() => {
-    console.log(store.$state);
-    console.log(store.getMaterialRequest(Number(route.params.zayavka)));
+  onMounted(async () => {
+    let mr = store.getMaterialRequest(Number(route.params.zayavka));
+
+    if (mr) {
+      materials.value = mr.data.materials;
+      return;
+    }
+
+    const materialRequestsDTO = await Zayavka.find(
+      Number(route.params.zayavka)
+    );
+
+    if (!materialRequestsDTO) {
+      return;
+    }
+
+    store.setMaterialRequest(materialRequestsDTO);
+
+    mr = store.getMaterialRequest(Number(route.params.zayavka));
+
+    if (!mr) {
+      return;
+    }
+
+    materials.value = mr.data.materials;
   });
 </script>

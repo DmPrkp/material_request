@@ -19,18 +19,18 @@ export class ZayavkaService {
     return this.prisma.zayavka.findMany();
   }
 
-  async findOne(id: number) {
-    const zayavka = await this.prisma.zayavka.findUnique({
+  findOne(id: number) {
+    return this.prisma.zayavka.findUnique({
       where: { id },
     });
 
-    if (zayavka) {
-      return {
-        ...zayavka,
-        data: JSON.parse(zayavka.data as string),
-      };
-    }
+    // if (zayavka) {
+    //   return {
+    //     ...zayavka,
+    //     data: JSON.parse(zayavka.data as string),
+    //   };
+    // }
 
-    return null;
+    // return null;
   }
 }

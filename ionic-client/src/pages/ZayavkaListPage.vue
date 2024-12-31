@@ -55,9 +55,9 @@
 </template>
 
 <script setup lang="ts">
-  import Order from "@/models/zayavka";
+  import Zayavka from "@/models/zayavka";
   import { useZayavkaStore } from "@/store/zayavka";
-  import { MaterialRequestDTO } from "@/types/dto";
+  import { StoredMaterialRequestDTO } from "@/types/dto";
   import { RefresherCustomEvent } from "@ionic/vue";
   import { onMounted, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
@@ -70,19 +70,20 @@
     return l.toLocaleString(route.params.locale);
   }
 
-  function openItem(id: MaterialRequestDTO["id"]) {
+  function openItem(id: StoredMaterialRequestDTO["id"]) {
     router.push({ name: "zayavka", params: { zayavka: id } });
   }
 
-  const materialRequests = ref<MaterialRequestDTO[]>([]);
+  const materialRequests = ref<StoredMaterialRequestDTO[]>([]);
 
   onMounted(async () => {
     materialRequests.value = store.getAll();
 
     if (materialRequests.value.length) return;
 
-    materialRequests.value = await Order.findAll();
-    store.define(materialRequests.value);
+    const materialRequestsDTO = await Zayavka.findAll();
+    store.define(materialRequestsDTO);
+    materialRequests.value = store.getAll();
   });
 
   // ionic functions
