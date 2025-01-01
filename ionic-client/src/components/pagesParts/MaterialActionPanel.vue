@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-  import Order from "@/models/zayavka";
+  import Zayavka from "@/models/zayavka";
   import { useZayavkaStore } from "@/store/zayavka";
   import { ResultMaterialsDTO } from "@/types/dto";
   import {
@@ -72,7 +72,7 @@
   const store = useZayavkaStore();
 
   async function save() {
-    const order = new Order({
+    const order = new Zayavka({
       ...props.materials,
       system: route.params.system.toString(),
     });

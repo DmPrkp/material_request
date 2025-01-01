@@ -18,7 +18,7 @@ export type MaterialListDTO = {
 
 export type ResultMaterialsDTO = {
   hand_tools: HandTool[];
-  materials: Material[];
+  materials: MaterialListDTO[];
   power_tools: PowerTool[];
 };
 
