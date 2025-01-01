@@ -15,7 +15,7 @@
               size="large"
             />
           </router-link>
-          <ion-text class="small-text">
+          <ion-text style="font-size: small">
             {{ $t(`footer.${item.name}`) }}
           </ion-text>
         </ion-col>
