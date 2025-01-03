@@ -55,7 +55,7 @@
 <script setup lang="ts">
   import Zayavka from "@/models/zayavka";
   import { useZayavkaStore } from "@/store/zayavka";
-  import { ResultMaterialsDTO } from "@/types/dto";
+  import { MaterialRequestDTO, ResultMaterialsDTO } from "@/types/dto";
   import {
     logoWhatsapp,
     paperPlaneOutline,
@@ -73,21 +73,24 @@
   let orderId: number;
 
   async function save() {
-    if (!orderId) {
-      const order = new Zayavka({
-        ...props.materials,
-        system: route.params.system.toString(),
-      });
-
-      const res = await order.create();
-
-      if (!res?.id) {
-        return;
-      }
-
-      store.setMaterialRequest(res);
+    let res: MaterialRequestDTO;
+    const data = {
+      ...props.materials,
+      system: route.params.system.toString(),
+    };
+    const zayavka = new Zayavka(data);
+    if (orderId) {
+      res = await zayavka.update(data);
+    } else {
+      res = await zayavka.create();
       orderId = res.id;
     }
+
+    if (!res?.id) {
+      return;
+    }
+
+    store.setMaterialRequest(res);
   }
 
   function createFullPath(orderId: number): string {

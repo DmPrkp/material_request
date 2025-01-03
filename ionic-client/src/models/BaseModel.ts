@@ -40,29 +40,57 @@ export default class BaseModel {
     body?: Record<string, unknown>;
     queries?: string[];
     opts?: RequestInit;
-  }): Promise<R | undefined> {
-    try {
-      const queryString = queries.length ? `?${queries.join("&")}` : "";
-      const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
+  }): Promise<R> {
+    const queryString = queries.length ? `?${queries.join("&")}` : "";
+    const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
 
-      const options = Object.assign(
-        {
-          method: "POST",
-          body: body ? JSON.stringify(body) : undefined,
-        },
-        this.baseOpts,
-        opts
-      );
+    const options = Object.assign(
+      {
+        method: "POST",
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      this.baseOpts,
+      opts
+    );
 
-      const response = await fetch(query, options);
+    const response = await fetch(query, options);
 
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error during POST request:", { error });
+    if (!response.ok) {
+      throw new Error(response.statusText);
     }
+
+    return await response.json();
+  }
+
+  static async put<R>({
+    params,
+    queries = [],
+    body,
+    opts,
+  }: {
+    params: string;
+    body?: Record<string, unknown>;
+    queries?: string[];
+    opts?: RequestInit;
+  }): Promise<R> {
+    const queryString = queries.length ? `?${queries.join("&")}` : "";
+    const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
+
+    const options = Object.assign(
+      {
+        method: "PUT",
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      this.baseOpts,
+      opts
+    );
+
+    const response = await fetch(query, options);
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    return await response.json();
   }
 }
