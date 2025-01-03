@@ -80,7 +80,7 @@
     };
     const zayavka = new Zayavka(data);
     if (orderId) {
-      res = await zayavka.update(data);
+      res = await zayavka.update(orderId, data);
     } else {
       res = await zayavka.create();
       orderId = res.id;

@@ -11,7 +11,7 @@ export class ZayavkaController {
     return this.zayavkaService.create(createZayavkaDto);
   }
 
-  @Put()
+  @Put(':id')
   put(@Param('id') id: string, @Body() createZayavkaDto: CreateZayavkaDto) {
     return this.zayavkaService.put(Number(id), createZayavkaDto);
   }

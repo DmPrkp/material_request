@@ -35,9 +35,9 @@ export default class Zayavka {
     });
   }
 
-  update(data: ZayavkaType) {
+  update(id: number, data: ZayavkaType) {
     return BaseOrderModel.put<MaterialRequestDTO>({
-      params: `/zayavka/${data.id}`,
+      params: `/zayavka/${id}`,
       body: data,
     });
   }
