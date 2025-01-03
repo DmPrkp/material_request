@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { ZayavkaService } from './zayavka.service';
 import { CreateZayavkaDto } from './dto/create-zayavka.dto';
 
@@ -9,6 +9,11 @@ export class ZayavkaController {
   @Post()
   create(@Body() createZayavkaDto: CreateZayavkaDto) {
     return this.zayavkaService.create(createZayavkaDto);
+  }
+
+  @Put()
+  put(@Param('id') id: string, @Body() createZayavkaDto: CreateZayavkaDto) {
+    return this.zayavkaService.put(Number(id), createZayavkaDto);
   }
 
   @Get(':id')

@@ -7,8 +7,18 @@ export class ZayavkaService {
   constructor(private prisma: PrismaService) {}
 
   async create(createZayavkaDto: CreateZayavkaDto) {
-    createZayavkaDto;
     return this.prisma.zayavka.create({
+      data: {
+        data: JSON.stringify(createZayavkaDto), // Serialize the nested data
+      },
+    });
+  }
+
+  async put(id: number, createZayavkaDto: CreateZayavkaDto) {
+    return this.prisma.zayavka.update({
+      where: {
+        id: id, // Assuming `id` is the primary key or unique identifier
+      },
       data: {
         data: JSON.stringify(createZayavkaDto), // Serialize the nested data
       },
