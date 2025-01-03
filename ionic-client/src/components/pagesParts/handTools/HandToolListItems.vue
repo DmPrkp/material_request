@@ -30,6 +30,7 @@
             class="ion-text-right"
           >
             <ion-button
+              v-if="checkIsDisableToChange()"
               shape="round"
               fill="outline"
               color="medium"
@@ -43,7 +44,7 @@
           </ion-col>
 
           <ion-col
-            size="1"
+            :size="checkIsDisableToChange() ? 1 : 3"
             class="ion-text-right"
           >
             {{ tool.adjusted_consumption }}
@@ -54,6 +55,7 @@
             class="ion-text-right"
           >
             <ion-button
+              v-if="checkIsDisableToChange()"
               shape="round"
               fill="outline"
               color="medium"
@@ -78,11 +80,14 @@
 </template>
 
 <script setup lang="ts">
+  import { MATERIAL_LIST_STATUS } from "@/constants";
   import { HandTool } from "@/types/dto";
+  import { MaterialListStatus } from "@/types/ui";
   import { add, remove } from "ionicons/icons";
 
   const props = defineProps<{
     modelValue: HandTool[];
+    status?: MaterialListStatus;
   }>();
 
   const emit = defineEmits(["update:modelValue", "delete"]);
@@ -95,5 +100,9 @@
 
     tool.adjusted_consumption = val;
     emit("update:modelValue", props.modelValue);
+  }
+
+  function checkIsDisableToChange() {
+    return props.status !== MATERIAL_LIST_STATUS.DISABLED;
   }
 </script>

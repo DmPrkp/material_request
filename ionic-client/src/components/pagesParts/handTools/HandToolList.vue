@@ -1,27 +1,14 @@
 <template>
-  <ion-item-divider color="secondary">
-    <ion-title>
-      {{ $t("pages.materials.subTitles.handTools") }}
-    </ion-title>
-  </ion-item-divider>
-
-  <ion-row>
-    <ion-col size="1"> № </ion-col>
-
-    <ion-col size="7">
-      <div>{{ $t(`pages.materials.table.title`) }}</div>
-    </ion-col>
-
-    <ion-col size="4">
-      {{ $t(`pages.materials.table.consumption`) }}
-    </ion-col>
-  </ion-row>
+  <HandToolListHeader />
 
   <HandToolListItems
     v-model="mergedHandTools"
     @delete="setOpen"
   />
-  <ion-grid>
+  <ion-grid
+    class="ion-justify-content-end"
+    v-if="status !== MATERIAL_LIST_STATUS.DISABLED"
+  >
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
         <ion-button
@@ -36,14 +23,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { CalcResponseDTO, HandTool, MergedHandTools } from "@/types/dto";
-  import HandToolListItems from "./HandToolListItems.vue";
   import { ref, watch } from "vue";
   import { modalController } from "@ionic/vue";
+  import { CalcResponseDTO, HandTool, MergedHandTools } from "@/types/dto";
+  import { MaterialListStatus } from "@/types/ui";
+  import { MATERIAL_LIST_STATUS } from "@/constants";
+  import HandToolListItems from "./HandToolListItems.vue";
   import HandToolModal from "./HandToolModal.vue";
+  import HandToolListHeader from "./HandToolListHeader.vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
+    status: MaterialListStatus;
   }>();
 
   const emit = defineEmits(["update"]);

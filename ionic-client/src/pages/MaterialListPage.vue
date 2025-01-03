@@ -16,15 +16,18 @@
       </div>
       <MaterialList
         :components="components"
-        @update="(event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)"
+        :status="MATERIAL_LIST_STATUS.NEW"
+        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)"
       />
       <HandToolList
         :components="components"
-        @update="(event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)"
+        :status="MATERIAL_LIST_STATUS.NEW"
+        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)"
       />
       <PowerToolList
         :components="components"
-        @update="(event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
+        :status="MATERIAL_LIST_STATUS.NEW"
+        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
       />
       <MaterialActionPanel :materials="resultMatList" />
     </ion-content>
@@ -38,10 +41,10 @@
   import type { CalcResponseDTO, ResultMaterialsDTO } from "@/types/dto/index";
   import { RefresherCustomEvent } from "@ionic/vue";
   import BaseModel from "@/models/calc/BaseCalcModel";
-  import MaterialList from "@/components/pagesParts/materials/MaterialList.vue";
+  import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
   import HandToolList from "@/components/pagesParts/handTools/HandToolList.vue";
   import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
-  import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
+  import { MATERIAL_LIST_STATUS } from "@/constants";
 
   const MATERIALS_KEYS = {
     MATERIALS: "materials",

@@ -40,14 +40,14 @@
       </ion-col>
 
       <!-- save -->
-      <ion-col size="auto">
+      <!-- <ion-col size="auto">
         <ion-button @click="save"
           ><ion-icon
             :icon="saveOutline"
             slot="icon-only"
           ></ion-icon
         ></ion-button>
-      </ion-col>
+      </ion-col> -->
     </ion-row>
   </div>
 </template>
@@ -60,7 +60,7 @@
     logoWhatsapp,
     paperPlaneOutline,
     downloadOutline,
-    saveOutline,
+    // saveOutline,
   } from "ionicons/icons";
   import { useRoute, useRouter } from "vue-router";
 
@@ -70,66 +70,87 @@
   const route = useRoute();
   const router = useRouter();
   const store = useZayavkaStore();
+  let orderId: number;
 
   async function save() {
-    const order = new Zayavka({
-      ...props.materials,
-      system: route.params.system.toString(),
-    });
-    const res = await order.create();
-    if (res?.id) {
+    if (!orderId) {
+      const order = new Zayavka({
+        ...props.materials,
+        system: route.params.system.toString(),
+      });
+
+      const res = await order.create();
+
+      if (!res?.id) {
+        return;
+      }
+
       store.setMaterialRequest(res);
-      router.push({ name: "zayavka", params: { zayavka: res.id } });
+      orderId = res.id;
     }
+  }
+
+  function createFullPath(orderId: number): string {
+    const origin = window.location.origin;
+    const route = router.resolve({
+      name: "zayavka",
+      params: { zayavka: orderId },
+    });
+    return origin + route.fullPath;
   }
 
   function downloadPage() {
     console.log();
   }
 
-  function shareOnWhatsApp() {
-    const pageUrl = window.location.href; // Current page URL
+  async function shareOnWhatsApp() {
+    await save();
+
+    if (!orderId) return;
+
+    const pageUrl = createFullPath(orderId);
     const message = `Materials to work: ${pageUrl}`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
 
-    // Open the WhatsApp sharing link
     window.open(whatsappUrl, "_blank");
   }
 
-  function shareOnTelegram() {
-    const pageUrl = window.location.href; // Current page URL
+  async function shareOnTelegram() {
+    await save();
+
+    if (!orderId) return;
+
+    const pageUrl = createFullPath(orderId);
     const message = "Materials to work:"; // Your custom message
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(
       pageUrl
     )}&text=${encodeURIComponent(message)}`;
 
-    // Open the Telegram sharing link
     window.open(telegramUrl, "_blank");
   }
 </script>
 
 <style scoped>
-  /* Customizing the shared buttons */
   .custom-btn {
-    --color: white; /* Icon and text color */
-    --background: transparent; /* Remove default background */
+    --color: white;
+    --background: transparent;
   }
 
   /* WhatsApp Button */
   .whatsapp-btn {
-    --background: #25d366; /* WhatsApp color */
+    --background: #25d366;
     --border: none;
   }
 
   /* Telegram Button */
   .telegram-btn {
-    --background: #0088cc; /* Telegram color */
+    --background: #0088cc;
     --border: none;
   }
 
   /* Styling for the icon */
   ion-icon {
-    font-size: 28px; /* Adjust icon size */
+    font-size: 28px;
   }
 </style>

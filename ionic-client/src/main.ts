@@ -18,6 +18,7 @@ import {
 } from "@ionic/vue";
 import App from "./App.vue";
 import router from "./router";
+import MaterialList from "./components/pagesParts/materials/MaterialList.vue";
 
 import i18n from "./plugins/i18n";
 
@@ -62,7 +63,8 @@ const app = createApp(App)
   .component("IonToggle", IonToggle)
   .component("IonText", IonText)
   .component("IonPage", IonPage)
-  .component("IonButton", IonButton);
+  .component("IonButton", IonButton)
+  .component("MaterialList", MaterialList);
 
 router.isReady().then(() => {
   app.mount("#app");

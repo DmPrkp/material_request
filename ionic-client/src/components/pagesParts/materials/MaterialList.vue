@@ -14,7 +14,10 @@
       :materials="component.materials"
     />
     <ion-grid v-if="component.materials.length">
-      <ion-row class="ion-justify-content-end">
+      <ion-row
+        class="ion-justify-content-end"
+        v-if="status !== MATERIAL_LIST_STATUS.DISABLED"
+      >
         <ion-col size="auto">
           <ion-button
             size="small"
@@ -32,15 +35,18 @@
 </template>
 
 <script lang="ts" setup>
-  import { modalController } from "@ionic/vue";
-  import MaterialHeader from "./MaterialHeader.vue";
-  import MaterialListItems from "./MateriaListItems.vue";
-  import { Material, MaterialListDTO } from "@/types/dto";
-  import MaterialModal from "./MaterialModal.vue";
   import { ref, watch } from "vue";
+  import { modalController } from "@ionic/vue";
+  import { Material, MaterialListDTO } from "@/types/dto";
+  import { MaterialListStatus } from "@/types/ui";
+  import { MATERIAL_LIST_STATUS } from "@/constants";
+  import MaterialListItems from "./MateriaListItems.vue";
+  import MaterialModal from "./MaterialModal.vue";
+  import MaterialHeader from "./MaterialHeader.vue";
 
   const props = defineProps<{
     components: MaterialListDTO[];
+    status: MaterialListStatus;
   }>();
 
   const emit = defineEmits(["update"]);
@@ -104,6 +110,7 @@
     const itemIndex = component.materials.findIndex(
       (mat) => mat.ru_title === material.ru_title
     );
+
     if (itemIndex === -1) {
       component.materials.push(material as Material);
     } else if (role === "confirm" && material) {
