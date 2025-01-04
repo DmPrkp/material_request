@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { ZayavkaService } from './zayavka.service';
-import { CreateZayavkaDto } from './dto/create-zayavka.dto';
+import { CreateZayavkaDto } from './types/index';
 
 @Controller('zayavka')
 export class ZayavkaController {
@@ -18,11 +18,11 @@ export class ZayavkaController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.zayavkaService.findOne(Number(id));
+    return this.zayavkaService.get(Number(id));
   }
 
   @Get()
   findAll() {
-    return this.zayavkaService.findAll();
+    return this.zayavkaService.getAll();
   }
 }

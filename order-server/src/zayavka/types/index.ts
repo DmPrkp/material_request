@@ -1,8 +1,14 @@
 export type CreateZayavkaDto = {
-  uuid: string;
   hand_tools: HandTool[];
-  materials: Material[];
+  materials: MaterialDTO[];
   power_tools: PowerTool[];
+  system: string;
+};
+
+type MaterialDTO = {
+  id: number;
+  title: string;
+  materials: Material[];
 };
 
 export type PowerTool = {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateZayavkaDto } from './dto/create-zayavka.dto';
+import { CreateZayavkaDto } from './types';
 
 @Injectable()
 export class ZayavkaService {
@@ -25,22 +25,13 @@ export class ZayavkaService {
     });
   }
 
-  async findAll() {
+  async getAll() {
     return this.prisma.zayavka.findMany();
   }
 
-  findOne(id: number) {
+  get(id: number) {
     return this.prisma.zayavka.findUnique({
       where: { id },
     });
-
-    // if (zayavka) {
-    //   return {
-    //     ...zayavka,
-    //     data: JSON.parse(zayavka.data as string),
-    //   };
-    // }
-
-    // return null;
   }
 }
