@@ -2,19 +2,19 @@ import { createApp } from "vue";
 import { createPinia } from "pinia";
 import {
   IonicVue,
-  IonContent,
-  IonRefresher,
-  IonRefresherContent,
-  IonTitle,
-  IonRouterOutlet,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonToggle,
-  IonText,
-  IonPage,
-  IonButton,
+  // IonContent,
+  // IonRefresher,
+  // IonRefresherContent,
+  // IonTitle,
+  // IonRouterOutlet,
+  // IonList,
+  // IonItem,
+  // IonLabel,
+  // IonInput,
+  // IonToggle,
+  // IonText,
+  // IonPage,
+  // IonButton,
 } from "@ionic/vue";
 import App from "./App.vue";
 import router from "./router";
@@ -51,19 +51,19 @@ const app = createApp(App)
   .use(pinia)
   .use(i18n)
   .use(router)
-  .component("IonContent", IonContent)
-  .component("IonRefresher", IonRefresher)
-  .component("IonRefresherContent", IonRefresherContent)
-  .component("IonTitle", IonTitle)
-  .component("IonRouterOutlet", IonRouterOutlet)
-  .component("IonList", IonList)
-  .component("IonItem", IonItem)
-  .component("IonLabel", IonLabel)
-  .component("IonInput", IonInput)
-  .component("IonToggle", IonToggle)
-  .component("IonText", IonText)
-  .component("IonPage", IonPage)
-  .component("IonButton", IonButton)
+  // .component("IonContent", IonContent)
+  // .component("IonRefresher", IonRefresher)
+  // .component("IonRefresherContent", IonRefresherContent)
+  // .component("IonTitle", IonTitle)
+  // .component("IonRouterOutlet", IonRouterOutlet)
+  // .component("IonList", IonList)
+  // .component("IonItem", IonItem)
+  // .component("IonLabel", IonLabel)
+  // .component("IonInput", IonInput)
+  // .component("IonToggle", IonToggle)
+  // .component("IonText", IonText)
+  // .component("IonPage", IonPage)
+  // .component("IonButton", IonButton)
   .component("MaterialList", MaterialList);
 
 router.isReady().then(() => {
