@@ -15,7 +15,7 @@ export class XlsxGeneratorController {
     const id = Date.now();
     const fileName = `zayavka_${id}.xlsx`;
     const filePath = path.resolve('./static', fileName);
-    await createExcelFile(createZayavkaDto, filePath);
+    await createSheetFile(createZayavkaDto, filePath);
     console.log('Excel file created successfully!');
 
     if (!fs.existsSync(filePath)) {
@@ -39,44 +39,50 @@ export class XlsxGeneratorController {
   }
 }
 
-async function createExcelFile(data: CreateZayavkaDto, outputPath: string) {
-  // Prepare rows for the Excel sheet
-  const rows: any[][] = [];
-  let number = 1; // Counter for the `number` column
+async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
+  // Initialize an array to hold the rows
+  let rows: any[] = [];
+
+  // Helper function to add rows for hand tools or power tools
+  function addToolsToRows(tools: any[], sectionTitle: string) {
+    rows.push([sectionTitle]); // Section title as a row
+    tools.forEach((tool, index) => {
+      rows.push([
+        index + 1, // Incremented number
+        tool.title,
+        tool.adjusted_consumption,
+      ]);
+    });
+    rows.push([]); // Empty row for separation
+  }
 
   // Add Hand Tools section
-  rows.push(['Hand Tools']); // Section header
-  rows.push(['Number', 'Title', 'Adjusted Consumption']); // Column headers
-  data.hand_tools.forEach((tool) => {
-    rows.push([number++, tool.title, tool.adjusted_consumption]);
-  });
+  addToolsToRows(data.hand_tools, 'Hand Tools');
 
   // Add Power Tools section
-  rows.push([]); // Empty row for spacing
-  rows.push(['Power Tools']); // Section header
-  rows.push(['Number', 'Title', 'Adjusted Consumption']); // Column headers
-  data.power_tools.forEach((tool) => {
-    rows.push([number++, tool.title, tool.adjusted_consumption]);
-  });
+  addToolsToRows(data.power_tools, 'Power Tools');
 
   // Add Materials section
-  rows.push([]); // Empty row for spacing
-  rows.push(['Materials']); // Section header
+  rows.push(['Materials']); // Section title for Materials
   data.materials.forEach((materialDTO) => {
-    rows.push([`Category: ${materialDTO.title}`]); // Subsection header
-    rows.push(['Number', 'Title', 'Adjusted Consumption']); // Column headers
-    materialDTO.materials.forEach((material) => {
-      rows.push([number++, material.title, material.consumption]);
+    rows.push([materialDTO.title]); // Material title as section title
+    materialDTO.materials.forEach((material, index) => {
+      rows.push([
+        index + 1, // Incremented number
+        material.title,
+        material.volume,
+      ]);
     });
+    rows.push([]); // Empty row for separation
   });
 
-  // Convert the rows into a sheet
-  const sheet = XLSX.utils.aoa_to_sheet(rows);
+  // Convert the rows to a worksheet
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
 
-  // Create a new workbook and append the sheet
+  // Create a new workbook
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, sheet, 'Data');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Zayavka Data');
 
-  // Write the workbook to a file
-  XLSX.writeFile(workbook, outputPath);
+  // Write the workbook to the desired output path with the ODS format
+  XLSX.writeFile(workbook, outputPath, { bookType: 'ods' });
 }
