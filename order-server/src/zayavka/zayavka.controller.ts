@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { ZayavkaService } from './zayavka.service';
-import { CreateZayavkaDto } from './types/index';
+import { CreateZayavkaDto } from '../types/index';
 
 @Controller('zayavka')
 export class ZayavkaController {

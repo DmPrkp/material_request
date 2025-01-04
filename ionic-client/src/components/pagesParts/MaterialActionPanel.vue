@@ -102,8 +102,13 @@
     return origin + route.fullPath;
   }
 
-  function downloadPage() {
-    console.log();
+  async function downloadPage() {
+    const data = {
+      ...props.materials,
+      system: route.params.system.toString(),
+    };
+    const zayavka = new Zayavka(data);
+    await zayavka.generateXLSX();
   }
 
   async function shareOnWhatsApp() {

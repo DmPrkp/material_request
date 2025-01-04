@@ -93,4 +93,56 @@ export default class BaseModel {
 
     return await response.json();
   }
+
+  static async downloadFile({
+    params,
+    queries = [],
+    body,
+    opts,
+  }: {
+    params: string;
+    body?: Record<string, unknown>;
+    queries?: string[];
+    opts?: RequestInit;
+  }): Promise<void> {
+    const queryString = queries.length ? `?${queries.join("&")}` : "";
+    const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
+
+    const options = Object.assign(
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      this.baseOpts,
+      opts
+    );
+
+    const response = await fetch(query, options);
+
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+
+    const blob = await response.blob();
+
+    // Get file name from `Content-Disposition` header if provided
+    const contentDisposition = response.headers.get("Content-Disposition");
+    const fileName =
+      contentDisposition?.match(/filename="(.+)"/)?.[1] ||
+      "downloaded_file.xlsx";
+
+    // Create a link element to trigger download
+    const link = document.createElement("a");
+    const url = window.URL.createObjectURL(blob);
+
+    link.href = url;
+    link.download = fileName;
+    link.click();
+
+    // Clean up the object URL after the download
+    window.URL.revokeObjectURL(url);
+  }
 }

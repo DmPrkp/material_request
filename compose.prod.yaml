@@ -30,6 +30,8 @@ services:
       - DB_HOST=host.docker.internal
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - ./order-server/static:/usr/order-server/static
 
   ionic-client:
     build:

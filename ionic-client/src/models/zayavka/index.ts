@@ -35,6 +35,13 @@ export default class Zayavka {
     });
   }
 
+  generateXLSX() {
+    return BaseOrderModel.downloadFile({
+      params: "/xlsx-generator",
+      body: this.data,
+    });
+  }
+
   update(id: number, data: ZayavkaType) {
     return BaseOrderModel.put<MaterialRequestDTO>({
       params: `/zayavka/${id}`,

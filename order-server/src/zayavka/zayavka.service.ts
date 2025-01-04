@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateZayavkaDto } from './types';
+import { CreateZayavkaDto } from '../types';
 
 @Injectable()
 export class ZayavkaService {

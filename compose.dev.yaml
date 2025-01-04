@@ -44,6 +44,7 @@ services:
       - ./secrets/order-db/.db.env
     volumes:
       - ./order-server/prisma/migrations:/usr/order-server/prisma/migrations
+      - ./order-server/static:/usr/order-server/static
     develop:
       watch:
         - action: sync
