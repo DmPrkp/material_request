@@ -1,1 +1,1 @@
-test Vue3
+This app allows users to create material requests for building projects. It helps manage hand tools, power tools, and materials, including detailed information like consumption, measures, and parameters.
