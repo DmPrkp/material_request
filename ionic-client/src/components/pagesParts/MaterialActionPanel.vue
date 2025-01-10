@@ -108,7 +108,7 @@
       system: route.params.system.toString(),
     };
     const zayavka = new Zayavka(data);
-    await zayavka.generateXLSX();
+    await zayavka.generateSheetFile("ods");
   }
 
   async function shareOnWhatsApp() {

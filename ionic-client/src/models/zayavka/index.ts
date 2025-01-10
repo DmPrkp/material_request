@@ -35,9 +35,9 @@ export default class Zayavka {
     });
   }
 
-  generateXLSX() {
+  generateSheetFile(format: string) {
     return BaseOrderModel.downloadFile({
-      params: "/xlsx-generator",
+      params: `/${format}-generator`,
       body: this.data,
     });
   }

@@ -40,7 +40,7 @@ export type Material = {
   volume: number;
 };
 
-type Param = {
+export type Param = {
   id: number;
   param: string;
   measure: string;

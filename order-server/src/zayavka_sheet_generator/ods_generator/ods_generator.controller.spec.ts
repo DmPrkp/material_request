@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { XlsxGeneratorController } from './xlsx_generator.controller';
+import { XlsxGeneratorController } from './ods_generator.controller';
 
 describe('XlsxGeneratorController', () => {
   let controller: XlsxGeneratorController;

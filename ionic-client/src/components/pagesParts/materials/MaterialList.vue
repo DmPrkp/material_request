@@ -6,7 +6,7 @@
   >
     <ion-item-divider v-if="component.materials.length">
       <ion-label>
-        {{ $t(`pages.components.items.${component.title}`) }}
+        {{ component.title }}
       </ion-label>
     </ion-item-divider>
     <MaterialListItems
@@ -43,6 +43,9 @@
   import MaterialListItems from "./MateriaListItems.vue";
   import MaterialModal from "./MaterialModal.vue";
   import MaterialHeader from "./MaterialHeader.vue";
+  import { useI18n } from "vue-i18n";
+
+  const { t } = useI18n({ useScope: "global" });
 
   const props = defineProps<{
     components: MaterialListDTO[];
@@ -70,8 +73,11 @@
         .filter((m) => m.materials?.length)
         .map((m) => ({
           id: m.id,
-          title: m.title,
-          materials: m.materials,
+          title: t(`pages.components.items.${m.title}`),
+          materials: m.materials.map((m) => ({
+            ...m,
+            measure: t(`measure.${m.measure}`),
+          })),
         }));
     },
     { immediate: true }

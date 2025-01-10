@@ -22,14 +22,14 @@
           </span>
         </ion-col>
         <ion-col size="3">
-          {{ material.consumption }} {{ $t(`measure.${material.measure}`) }}
+          {{ material.consumption }} {{ material.measure }}
         </ion-col>
         <ion-col
           size="2"
           class="ion-text-right"
         >
           {{ (material.consumption * material.volume).toFixed(0) }}
-          {{ $t(`measure.${material.measure}`) }}
+          {{ material.measure }}
         </ion-col>
       </ion-row>
     </ion-grid>
