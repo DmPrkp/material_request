@@ -10,7 +10,7 @@
             {{ num + 1 }}
           </ion-col>
           <ion-col
-            size="7"
+            :size="checkIsDisableToChange() ? 7 : 9"
             class="ion-align-items-start"
           >
             <div>
@@ -26,11 +26,11 @@
 
           <!-- Right side: adjusted consumption -->
           <ion-col
+            v-if="checkIsDisableToChange()"
             size="1"
             class="ion-text-right"
           >
             <ion-button
-              v-if="checkIsDisableToChange()"
               shape="round"
               fill="outline"
               color="medium"
@@ -44,18 +44,18 @@
           </ion-col>
 
           <ion-col
-            :size="checkIsDisableToChange() ? 1 : 3"
+            size="1"
             class="ion-text-right"
           >
             {{ tool.adjusted_consumption }}
           </ion-col>
 
           <ion-col
+            v-if="checkIsDisableToChange()"
             size="1"
             class="ion-text-right"
           >
             <ion-button
-              v-if="checkIsDisableToChange()"
               shape="round"
               fill="outline"
               color="medium"

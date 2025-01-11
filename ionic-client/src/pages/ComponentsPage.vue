@@ -24,12 +24,13 @@
           type="number"
           @ionInput="setAllValue"
         />
-        <ion-text style="margin: 0 16px">{{ $t("measure.square") }}</ion-text>
-        <ion-toggle
+        <ion-text>{{ $t("measure.square") }}</ion-text>
+        <!-- <ion-text style="margin: 0 16px">{{ $t("measure.square") }}</ion-text> -->
+        <!-- <ion-toggle
           style="margin-left: auto"
           :checked="isValueToAll"
           @ionChange="setIsAllValue"
-        />
+        /> -->
       </div>
       <ion-list>
         <ion-item
@@ -40,8 +41,13 @@
           <ion-label>
             {{ $t(`pages.components.items.${item.title}`) }}
           </ion-label>
-          <ion-input
+          <!-- <ion-input
             :disabled="isValueToAll"
+            @ionInput="setVal($event, item.title)"
+            type="number"
+            :value="componentList[item.title]"
+          /> -->
+          <ion-input
             @ionInput="setVal($event, item.title)"
             type="number"
             :value="componentList[item.title]"
@@ -80,7 +86,7 @@
   import {
     InputCustomEvent,
     RefresherCustomEvent,
-    ToggleCustomEvent,
+    // ToggleCustomEvent,
   } from "@ionic/vue";
   import BaseModel from "@/models/calc/BaseCalcModel";
   import { ComponentsType } from "@/types";
@@ -108,13 +114,13 @@
     crew.value = Number(value.detail.value || 1);
   }
 
-  function setIsAllValue(val: ToggleCustomEvent) {
-    isValueToAll.value = val.detail.checked;
+  // function setIsAllValue(val: ToggleCustomEvent) {
+  //   isValueToAll.value = val.detail.checked;
 
-    if (isValueToAll.value) {
-      setAllValues(pageComponents.value, allValue.value);
-    }
-  }
+  //   if (isValueToAll.value) {
+  //     setAllValues(pageComponents.value, allValue.value);
+  //   }
+  // }
 
   function setVal(value: InputCustomEvent, item: string) {
     const val = Number(value.detail.value || 0);

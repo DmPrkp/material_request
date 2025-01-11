@@ -10,7 +10,7 @@
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title>
-            {{ $t("pages.materials.title") }}
+            {{ pages.materials.title }}
           </ion-title>
         </ion-item-divider>
       </div>

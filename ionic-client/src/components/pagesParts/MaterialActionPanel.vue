@@ -1,6 +1,16 @@
 <template>
   <div>
     <ion-row class="ion-justify-content-end">
+      <!-- save -->
+      <ion-col size="auto">
+        <ion-button @click="save"
+          ><ion-icon
+            :icon="saveOutline"
+            slot="icon-only"
+          ></ion-icon
+        ></ion-button>
+      </ion-col>
+
       <!-- WhatsApp Custom Button -->
       <ion-col size="auto">
         <ion-button
@@ -38,16 +48,6 @@
           ></ion-icon
         ></ion-button>
       </ion-col>
-
-      <!-- save -->
-      <!-- <ion-col size="auto">
-        <ion-button @click="save"
-          ><ion-icon
-            :icon="saveOutline"
-            slot="icon-only"
-          ></ion-icon
-        ></ion-button>
-      </ion-col> -->
     </ion-row>
   </div>
 </template>
@@ -60,7 +60,7 @@
     logoWhatsapp,
     paperPlaneOutline,
     downloadOutline,
-    // saveOutline,
+    saveOutline,
   } from "ionicons/icons";
   import { useRoute, useRouter } from "vue-router";
 

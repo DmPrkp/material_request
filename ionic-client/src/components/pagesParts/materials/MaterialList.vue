@@ -69,14 +69,21 @@
   watch(
     () => props.components,
     (components) => {
+      console.log(status);
       clearedComponents.value = components
         .filter((m) => m.materials?.length)
         .map((m) => ({
           id: m.id,
-          title: t(`pages.components.items.${m.title}`),
+          title:
+            props.status === MATERIAL_LIST_STATUS.DISABLED
+              ? m.title
+              : t(`pages.components.items.${m.title}`),
           materials: m.materials.map((m) => ({
             ...m,
-            measure: t(`measure.${m.measure}`),
+            measure:
+              props.status === MATERIAL_LIST_STATUS.DISABLED
+                ? m.measure
+                : t(`measure.${m.measure}`),
           })),
         }));
     },
