@@ -45,6 +45,8 @@
   import MaterialHeader from "./MaterialHeader.vue";
   import { useI18n } from "vue-i18n";
 
+  type ClearedComponent = { id: number; materials: Material[]; title: string };
+
   const { t } = useI18n({ useScope: "global" });
 
   const props = defineProps<{
@@ -54,9 +56,7 @@
 
   const emit = defineEmits(["update"]);
 
-  const clearedComponents = ref<
-    { id: number; materials: Material[]; title: string }[]
-  >([]);
+  const clearedComponents = ref<ClearedComponent[]>([]);
 
   watch(
     () => clearedComponents.value,
@@ -92,14 +92,15 @@
     await modal.present();
 
     const { data, role } = await modal.onWillDismiss<{
-      id: number;
+      componentId: number;
       material: Material;
     }>();
 
-    if (!data?.material || !role) return;
+    if (!role || role === "cancel" || !data?.material) return;
 
-    props.components.forEach((component) => {
-      if (component.id !== data.id) return;
+    clearedComponents.value.forEach((component) => {
+      console.log(component.id !== componentId, component.id, componentId);
+      if (component.id !== componentId) return;
 
       const { material } = data;
 
@@ -113,16 +114,20 @@
     component: MaterialListDTO,
     role: string
   ) {
-    const itemIndex = component.materials.findIndex(
-      (mat) => mat.ru_title === material.ru_title
-    );
+    const i = component.materials.findIndex((mat) => mat.id === material.id);
 
-    if (itemIndex === -1) {
-      component.materials.push(material as Material);
-    } else if (role === "confirm" && material) {
-      component.materials[itemIndex] = { ...material };
-    } else if (role === "remove") {
-      component.materials.splice(itemIndex, 1);
+    switch (role) {
+      case "add":
+        component.materials.push(material);
+        break;
+      case "edit":
+        component.materials[i] = { ...material };
+        break;
+      case "remove":
+        component.materials.splice(i, 1);
+        break;
+      default:
+        break;
     }
   }
 </script>

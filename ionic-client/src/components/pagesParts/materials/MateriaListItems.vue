@@ -3,6 +3,7 @@
     v-for="(material, num) in materials"
     :key="material.id"
     @click="setOpen(material)"
+    style="cursor: pointer"
   >
     <ion-grid>
       <ion-row>

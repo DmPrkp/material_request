@@ -14,10 +14,9 @@
       </ion-label>
     </ion-item-divider>
     <ion-item v-else>
-      <ion-input
-        label="материал"
-        v-model="localMaterial.ru_title"
-      ></ion-input>
+      <ion-input v-model="localMaterial.ru_title">
+        <div slot="label">Материал <ion-text color="danger">* </ion-text></div>
+      </ion-input>
     </ion-item>
 
     <ion-item>
@@ -25,22 +24,26 @@
         <ion-col size="10">
           <ion-input
             type="number"
-            :label="
-              $t(`pages.materials.table.consumption`) +
-              ' ' +
-              $t(`pages.materials.table.consumptionPerSq`) +
-              ': '
-            "
             :value="localMaterial.consumption"
             @ionInput="calcByConsumption"
-          ></ion-input>
+          >
+            <div slot="label">
+              {{
+                $t(`pages.materials.table.consumption`) +
+                " " +
+                $t(`pages.materials.table.consumptionPerSq`) +
+                ": "
+              }}
+              <ion-text color="danger">* </ion-text>
+            </div>
+          </ion-input>
         </ion-col>
         <ion-col
           v-if="localMaterial.measure"
           size="2"
           class="ion-text-right"
         >
-          {{ $t(`measure.${localMaterial.measure}`) }}
+          {{ localMaterial.measure }}
         </ion-col>
       </ion-row>
     </ion-item>
@@ -50,24 +53,28 @@
         <ion-col size="10">
           <ion-input
             type="number"
-            :label="
-              $t(`pages.materials.table.consumption`) +
-              ' ' +
-              $t(`pages.materials.table.totalVolume`) +
-              ': '
-            "
             :value="
               (localMaterial.consumption * localMaterial.volume).toFixed(0)
             "
             @ionInput="calcByTotalVolume"
-          ></ion-input>
+          >
+            <div slot="label">
+              {{
+                $t(`pages.materials.table.consumption`) +
+                " " +
+                $t(`pages.materials.table.totalVolume`) +
+                ": "
+              }}
+              <ion-text color="danger">* </ion-text>
+            </div>
+          </ion-input>
         </ion-col>
         <ion-col
           v-if="localMaterial.measure"
           size="2"
           class="ion-text-right"
         >
-          {{ $t(`measure.${localMaterial.measure}`) }}
+          {{ localMaterial.measure }}
         </ion-col>
       </ion-row>
     </ion-item>
@@ -79,26 +86,34 @@
             :value="localMaterial.measure"
             @ionChange="onPickerChange"
           >
-            <div slot="prefix">{{ $t("ui.labels.measure") }}</div>
-            <ion-select-option value="m²">{{
+            <div slot="label">
+              {{ $t("ui.labels.measure") }}
+              <ion-text color="danger">* </ion-text>
+            </div>
+            <ion-select-option :value="$t('measure.m²')">{{
               $t("measure.m²")
             }}</ion-select-option>
-            <ion-select-option value="l">{{
+            <ion-select-option :value="$t('measure.l')">{{
               $t("measure.l")
             }}</ion-select-option>
-            <ion-select-option value="kg">{{
+            <ion-select-option :value="$t('measure.kg')">{{
               $t("measure.kg")
             }}</ion-select-option>
-            <ion-select-option value="m">{{
+            <ion-select-option :value="$t('measure.m')">{{
               $t("measure.m")
             }}</ion-select-option>
-            <ion-select-option value="pcs">{{
+            <ion-select-option :value="$t('measure.pcs')">{{
               $t("measure.pcs")
             }}</ion-select-option>
           </ion-select>
         </ion-col>
       </ion-row>
     </ion-item>
+    <ion-row>
+      <ion-col>
+        <ion-text color="danger">* - все поля обязательные</ion-text>
+      </ion-col>
+    </ion-row>
   </ion-content>
   <ion-footer>
     <ion-toolbar>
@@ -118,7 +133,7 @@
           <ion-button
             fill="outline"
             expand="block"
-            @click="confirm()"
+            @click="confirm(getModalType() === 'edit' ? 'edit' : 'add')"
             >{{ $t(`ui.buttons.save`) }}</ion-button
           >
         </ion-col>
@@ -140,7 +155,7 @@
   import { IonInputCustomEvent, IonPickerCustomEvent } from "@ionic/core";
   import { modalController } from "@ionic/vue";
   import { trashBin } from "ionicons/icons";
-  import { onMounted, ref } from "vue";
+  import { ref } from "vue";
 
   const props = defineProps<{
     id: number;
@@ -148,7 +163,6 @@
   }>();
 
   const localMaterial = ref<Material>({ ...props.material });
-  const componentId = ref<number>(props.id);
 
   function calcByConsumption(
     event: IonInputCustomEvent<{ value: string | number }>
@@ -175,35 +189,36 @@
   };
 
   const cancel = () => modalController.dismiss(null, "cancel");
-  const confirm = () =>
+  const confirm = (role: string) => {
     modalController.dismiss(
       {
-        id: componentId.value,
-        material: localMaterial.value,
+        id: props.id,
+        material: {
+          ...localMaterial.value,
+          id: localMaterial.value.id || Date.now(),
+        },
       },
-      "confirm"
+      role
     );
-  const remove = () =>
+  };
+
+  const remove = () => {
     modalController.dismiss(
       {
-        id: componentId.value,
+        id: props.id,
         material: localMaterial.value,
       },
       "remove"
     );
+  };
 
   function getModalType() {
     return props.material.id ? "edit" : "add";
   }
-
-  onMounted(() => {
-    if (getModalType() === "edit") return;
-    localMaterial.value.measure = "pcs";
-  });
 </script>
 
 <style scoped>
-  ion-picker-column {
-    font-size: medium;
+  .label-text-wrapper.sc-ion-input-md {
+    max-width: 400px;
   }
 </style>

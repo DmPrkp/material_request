@@ -45,46 +45,50 @@ export class XlsxGeneratorController {
   }
 }
 
+function addToolsToRows<
+  T extends {
+    ru_title: string;
+    adjusted_consumption: number;
+    corded?: boolean;
+    params: Param[];
+  }[],
+>(tools: T, sectionTitle: string, rows: unknown[]) {
+  rows.push([sectionTitle]);
+
+  tools.forEach((tool, index) => {
+    const params = tool.params.map((p) => p.param + p.measure).join(', ');
+    let corded = '';
+
+    if (typeof tool.corded === 'boolean') {
+      corded = tool.corded ? 'сетевой' : 'аккумуляторный';
+    }
+
+    rows.push([
+      index + 1,
+      `${tool.ru_title} ${params} ${corded}`,
+      tool.adjusted_consumption,
+      'шт',
+    ]);
+  });
+  rows.push([]);
+  return rows;
+}
+
 async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
   let rows: any[] = [];
 
-  function addToolsToRows<
-    T extends {
-      ru_title: string;
-      adjusted_consumption: number;
-      corded?: boolean;
-      params: Param[];
-    }[],
-  >(tools: T, sectionTitle: string) {
-    rows.push([sectionTitle]);
-    tools.forEach((tool, index) => {
-      const params = tool.params.map((p) => p.param + p.measure).join(', ');
-      let corded = '';
-
-      if (typeof tool.corded === 'boolean') {
-        corded = tool.corded ? 'сетевой' : 'аккумуляторный';
-      }
-
-      rows.push([
-        index + 1,
-        `${tool.ru_title} ${params} ${corded}`,
-        tool.adjusted_consumption,
-        'шт',
-      ]);
-    });
-    rows.push([]);
-  }
-
   // Add Hand Tools section
-  addToolsToRows<CreateZayavkaDto['hand_tools']>(
+  rows = addToolsToRows<CreateZayavkaDto['hand_tools']>(
     data.hand_tools,
     TITLES.HAND_TOOLS,
+    rows,
   );
 
   // Add Power Tools section
-  addToolsToRows<CreateZayavkaDto['power_tools']>(
+  rows = addToolsToRows<CreateZayavkaDto['power_tools']>(
     data.power_tools,
     TITLES.POWER_TOOLS,
+    rows,
   );
 
   // Add Materials section
@@ -104,15 +108,6 @@ async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
 
   // Convert the rows to a worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
-
-  Object.keys(worksheet).forEach((key) => {
-    if (key.startsWith('!')) return;
-    if (worksheet[key]) {
-      worksheet[key].s = {
-        alignment: { wrapText: true },
-      };
-    }
-  });
 
   worksheet['!cols'] = [
     { wch: 5 }, // Column 1: "Number"
