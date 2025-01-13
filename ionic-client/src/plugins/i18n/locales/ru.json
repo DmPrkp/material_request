@@ -15,7 +15,8 @@
     },
     "labels": {
       "measure": "ед.изм",
-      "corded": "питание"
+      "corded": "питание",
+      "disable": "в разработке"
     }
   },
   "measure": {

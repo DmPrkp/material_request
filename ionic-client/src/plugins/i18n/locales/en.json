@@ -15,7 +15,8 @@
     },
     "labels": {
       "measure": "measure",
-      "corded": "power supply"
+      "corded": "power supply",
+      "disable": "in progress"
     }
   },
   "measure": {
