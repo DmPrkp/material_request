@@ -8,11 +8,11 @@
         v-for="(item, index) in props.items"
         :key="index"
         :item="item"
-        @click="!item.img.disable && $emit('item', item)"
+        @click="!item.disable && $emit('item', item)"
       >
         <ion-card>
           <div
-            v-if="item.img.disable"
+            v-if="item.disable"
             class="inscription"
           >
             {{ $t("ui.labels.disable") }}
@@ -20,7 +20,7 @@
           <img
             :src="item.img.src"
             :alt="item.img.alt"
-            :class="item.img.disable ? 'grayscale-image' : ''"
+            :class="item.disable ? 'grayscale-image' : ''"
           />
           <ion-card-header>
             <ion-card-title color="dark">{{
