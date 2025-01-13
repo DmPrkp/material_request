@@ -69,7 +69,6 @@
   watch(
     () => props.components,
     (components) => {
-      console.log(status);
       clearedComponents.value = components
         .filter((m) => m.materials?.length)
         .map((m) => ({
@@ -106,7 +105,6 @@
     if (!role || role === "cancel" || !data?.material) return;
 
     clearedComponents.value.forEach((component) => {
-      console.log(component.id !== componentId, component.id, componentId);
       if (component.id !== componentId) return;
 
       const { material } = data;

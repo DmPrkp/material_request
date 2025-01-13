@@ -61,6 +61,8 @@
 
     if (mr) {
       materials.value = mr.data.materials;
+      handTools.value = mr.data.hand_tools;
+      powerTools.value = mr.data.power_tools;
       return;
     }
 
@@ -78,8 +80,6 @@
     if (!mr) {
       return;
     }
-
-    console.log(mr);
 
     materials.value = mr.data.materials;
     handTools.value = mr.data.hand_tools;
