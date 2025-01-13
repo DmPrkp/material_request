@@ -12,7 +12,7 @@
           {{ $t(`pages.main.title`) }}
         </ion-title>
       </ion-item-divider>
-      <main-menu-items
+      <MainMenuItems
         :items="mainMenu"
         @item="chooseItem"
       />
