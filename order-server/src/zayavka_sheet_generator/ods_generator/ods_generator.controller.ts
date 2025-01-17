@@ -77,20 +77,6 @@ function addToolsToRows<
 async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
   let rows: any[] = [];
 
-  // Add Hand Tools section
-  rows = addToolsToRows<CreateZayavkaDto['hand_tools']>(
-    data.hand_tools,
-    TITLES.HAND_TOOLS,
-    rows,
-  );
-
-  // Add Power Tools section
-  rows = addToolsToRows<CreateZayavkaDto['power_tools']>(
-    data.power_tools,
-    TITLES.POWER_TOOLS,
-    rows,
-  );
-
   // Add Materials section
   rows.push([TITLES.MATERIALS]);
   data.materials.forEach((materialDTO) => {
@@ -105,6 +91,20 @@ async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
     });
     rows.push([]);
   });
+
+  // Add Hand Tools section
+  rows = addToolsToRows<CreateZayavkaDto['hand_tools']>(
+    data.hand_tools,
+    TITLES.HAND_TOOLS,
+    rows,
+  );
+
+  // Add Power Tools section
+  rows = addToolsToRows<CreateZayavkaDto['power_tools']>(
+    data.power_tools,
+    TITLES.POWER_TOOLS,
+    rows,
+  );
 
   // Convert the rows to a worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(rows);

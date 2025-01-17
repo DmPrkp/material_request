@@ -2,7 +2,10 @@
   <div>
     <ion-row class="ion-justify-content-end">
       <!-- save -->
-      <ion-col size="auto">
+      <ion-col
+        v-if="!id"
+        size="auto"
+      >
         <ion-button @click="save"
           ><ion-icon
             :icon="saveOutline"
@@ -66,6 +69,8 @@
 
   const props = defineProps<{
     materials: ResultMaterialsDTO;
+    id?: number;
+    system?: string;
   }>();
   const route = useRoute();
   const router = useRouter();
@@ -105,14 +110,18 @@
   async function downloadPage() {
     const data = {
       ...props.materials,
-      system: route.params.system.toString(),
+      system: props.system || route.params.system.toString(),
     };
     const zayavka = new Zayavka(data);
     await zayavka.generateSheetFile("ods");
   }
 
   async function shareOnWhatsApp() {
-    await save();
+    if (props.id) {
+      orderId = props.id;
+    } else {
+      await save();
+    }
 
     if (!orderId) return;
 
@@ -125,7 +134,11 @@
   }
 
   async function shareOnTelegram() {
-    await save();
+    if (props.id) {
+      orderId = props.id;
+    } else {
+      await save();
+    }
 
     if (!orderId) return;
 
