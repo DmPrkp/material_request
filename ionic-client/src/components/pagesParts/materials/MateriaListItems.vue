@@ -22,14 +22,19 @@
             {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
           </span>
         </ion-col>
-        <ion-col size="3">
-          {{ material.consumption }} {{ material.measure }}
+        <ion-col size="2">
+          {{ material.consumption }}
         </ion-col>
         <ion-col
           size="2"
           class="ion-text-right"
         >
           {{ (material.consumption * material.volume).toFixed(0) }}
+        </ion-col>
+        <ion-col
+          size="1"
+          class="ion-text-right"
+        >
           {{ material.measure }}
         </ion-col>
       </ion-row>

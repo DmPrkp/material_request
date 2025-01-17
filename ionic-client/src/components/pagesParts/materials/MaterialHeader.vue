@@ -13,17 +13,25 @@
     </ion-col>
 
     <ion-col
-      size="5"
+      size="3"
       class="ion-text-right"
     >
       {{ $t(`pages.materials.table.consumption`) }}
+    </ion-col>
+
+    <ion-col size="2">
+      {{ $t(`ui.labels.measure`) }}
     </ion-col>
   </ion-row>
 
   <ion-row>
     <ion-col size="1"></ion-col>
 
-    <ion-col size="6"> </ion-col>
+    <ion-col
+      size="6"
+      class="ion-text-right"
+    >
+    </ion-col>
 
     <ion-col
       size="2"
@@ -33,11 +41,13 @@
     </ion-col>
 
     <ion-col
-      size="3"
+      size="2"
       class="ion-text-right"
     >
       {{ $t(`pages.materials.table.totalVolume`) }}
     </ion-col>
+
+    <ion-col size="1"></ion-col>
   </ion-row>
 </template>
 
