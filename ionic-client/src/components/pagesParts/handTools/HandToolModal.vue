@@ -51,8 +51,8 @@
             v-for="(desc, i) in localHandTool.descriptions"
             :key="i"
           >
-            {{ desc }}</span
-          >
+            {{ desc }}
+          </span>
         </ion-col>
       </ion-row>
     </ion-item>
