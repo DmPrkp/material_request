@@ -43,6 +43,19 @@
         </ion-col>
       </ion-row>
     </ion-item>
+
+    <ion-item>
+      <ion-row>
+        <ion-col size="12">
+          <span
+            v-for="(desc, i) in localHandTool.descriptions"
+            :key="i"
+          >
+            {{ desc }}</span
+          >
+        </ion-col>
+      </ion-row>
+    </ion-item>
   </ion-content>
   <ion-footer>
     <ion-toolbar>
@@ -81,17 +94,17 @@
 </template>
 
 <script lang="ts" setup>
-  import { HandTool } from "@/types/dto";
+  import { MergedHandTool } from "@/types/dto";
   import { IonInputCustomEvent } from "@ionic/core";
   import { modalController } from "@ionic/vue";
   import { trashBin } from "ionicons/icons";
   import { ref } from "vue";
 
   const props = defineProps<{
-    handTool: HandTool;
+    handTool: MergedHandTool;
   }>();
 
-  const localHandTool = ref<HandTool>({ ...props.handTool });
+  const localHandTool = ref<MergedHandTool>({ ...props.handTool });
 
   function calcByConsumption(
     event: IonInputCustomEvent<{ value: string | number }>

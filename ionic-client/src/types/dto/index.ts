@@ -17,7 +17,7 @@ export type MaterialListDTO = {
 };
 
 export type ResultMaterialsDTO = {
-  hand_tools: HandTool[];
+  hand_tools: MergedHandTool[];
   materials: MaterialListDTO[];
   power_tools: PowerTool[];
 };
@@ -34,14 +34,19 @@ export type PowerTool = {
 export type MergedPowerTools = Record<string, PowerTool>;
 
 export type HandTool = {
-  uniqKey: string;
   id: number;
   title: string;
   adjusted_consumption: number;
+  description: string;
   params: Param[];
 };
 
-export type MergedHandTools = Record<string, HandTool>;
+export type MergedHandTool = HandTool & {
+  uniqKey: string;
+  descriptions: string[];
+};
+
+export type MergedHandTools = Record<string, MergedHandTool>;
 
 export type Material = {
   consumption: number;
@@ -50,6 +55,7 @@ export type Material = {
   params: Param[];
   title: string;
   volume: number;
+  description: string;
 };
 
 type Param = {

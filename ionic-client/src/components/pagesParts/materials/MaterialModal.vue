@@ -114,6 +114,11 @@
         <ion-text color="danger">* - все поля обязательные</ion-text>
       </ion-col>
     </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-text> {{ material.description }} </ion-text>
+      </ion-col>
+    </ion-row>
   </ion-content>
   <ion-footer>
     <ion-toolbar>

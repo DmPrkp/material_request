@@ -25,7 +25,11 @@
 <script lang="ts" setup>
   import { ref, watch } from "vue";
   import { modalController } from "@ionic/vue";
-  import { CalcResponseDTO, HandTool, MergedHandTools } from "@/types/dto";
+  import {
+    CalcResponseDTO,
+    MergedHandTool,
+    MergedHandTools,
+  } from "@/types/dto";
   import { MaterialListStatus } from "@/types/ui";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import HandToolListItems from "./HandToolListItems.vue";
@@ -39,7 +43,7 @@
 
   const emit = defineEmits(["update"]);
   const mergedHandToolsMap = ref<MergedHandTools>({});
-  const mergedHandTools = ref<HandTool[]>([]);
+  const mergedHandTools = ref<MergedHandTool[]>([]);
 
   watch(
     () => mergedHandTools.value,
@@ -57,12 +61,13 @@
           const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
 
           if (!acc[uniqKey]) {
-            acc[uniqKey] = { ...h, uniqKey };
+            acc[uniqKey] = { ...h, uniqKey, descriptions: [h.description] };
             return acc;
           }
 
           if (acc[uniqKey].adjusted_consumption < h.adjusted_consumption) {
-            acc[uniqKey] = { ...h, uniqKey };
+            const descriptions = [...acc[uniqKey].descriptions, h.description];
+            acc[uniqKey] = { ...h, uniqKey, descriptions };
           }
         });
         return acc;
@@ -72,7 +77,7 @@
     { immediate: true }
   );
 
-  const setOpen = async (handToolKey: HandTool["uniqKey"]) => {
+  const setOpen = async (handToolKey: MergedHandTool["uniqKey"]) => {
     const handTool = mergedHandToolsMap.value[handToolKey] || {};
     const modal = await modalController.create({
       component: HandToolModal,
@@ -82,7 +87,7 @@
     await modal.present();
 
     const { data, role } = await modal.onWillDismiss<{
-      handTool: HandTool;
+      handTool: MergedHandTool;
     }>();
 
     if (!data?.handTool || !role) return;
@@ -91,7 +96,7 @@
     mergedHandTools.value = Object.values(mergedHandToolsMap.value);
   };
 
-  function handleMaterialUpdate(handTool: HandTool, role: string) {
+  function handleMaterialUpdate(handTool: MergedHandTool, role: string) {
     const isNewTool = !handTool.uniqKey;
 
     if (isNewTool && role === "confirm") {

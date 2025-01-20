@@ -81,18 +81,18 @@
 
 <script setup lang="ts">
   import { MATERIAL_LIST_STATUS } from "@/constants";
-  import { HandTool } from "@/types/dto";
+  import { MergedHandTool } from "@/types/dto";
   import { MaterialListStatus } from "@/types/ui";
   import { add, remove } from "ionicons/icons";
 
   const props = defineProps<{
-    modelValue: HandTool[];
+    modelValue: MergedHandTool[];
     status?: MaterialListStatus;
   }>();
 
   const emit = defineEmits(["update:modelValue", "delete"]);
 
-  function action(val: number, tool: HandTool) {
+  function action(val: number, tool: MergedHandTool) {
     if (val < 1) {
       emit("delete", tool.uniqKey);
       val = 0;
