@@ -14,7 +14,7 @@
             class="ion-align-items-start"
           >
             <div>
-              {{ tool.ru_title }}
+              {{ tool.title }}
               <span
                 v-for="param in tool.params"
                 :key="param.param"

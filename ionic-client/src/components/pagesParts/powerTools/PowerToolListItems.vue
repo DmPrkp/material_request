@@ -14,7 +14,7 @@
             class="ion-align-items-start"
           >
             <div>
-              {{ tool.ru_title }}
+              {{ tool.title }}
               {{ $t(`current.${tool.corded ? "ac" : "dc"}`) }}
               <span
                 v-for="param in tool.params"

@@ -14,7 +14,7 @@
           size="6"
           class="ion-align-items-start ion-text-start"
         >
-          {{ material.ru_title }}
+          {{ material.title }}
           <span
             v-for="param in material.params"
             :key="param.param"
