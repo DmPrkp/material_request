@@ -10,13 +10,13 @@
   <ion-content class="ion-padding">
     <ion-item-divider v-if="localHandTool.id">
       <ion-label>
-        {{ localHandTool.ru_title }}
+        {{ localHandTool.title }}
       </ion-label>
     </ion-item-divider>
     <ion-item v-else>
       <ion-input
         :label="$t('pages.materials.table.title') + ':'"
-        v-model="localHandTool.ru_title"
+        v-model="localHandTool.title"
       ></ion-input>
     </ion-item>
 

@@ -10,11 +10,11 @@
   <ion-content class="ion-padding">
     <ion-item-divider v-if="localMaterial.id">
       <ion-label>
-        {{ localMaterial.ru_title }}
+        {{ localMaterial.title }}
       </ion-label>
     </ion-item-divider>
     <ion-item v-else>
-      <ion-input v-model="localMaterial.ru_title">
+      <ion-input v-model="localMaterial.title">
         <div slot="label">Материал <ion-text color="danger">* </ion-text></div>
       </ion-input>
     </ion-item>

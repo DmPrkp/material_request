@@ -10,13 +10,13 @@
   <ion-content class="ion-padding">
     <ion-item-divider v-if="localPowerTool.id">
       <ion-label>
-        {{ localPowerTool.ru_title }}
+        {{ localPowerTool.title }}
       </ion-label>
     </ion-item-divider>
     <ion-item v-else>
       <ion-input
         :label="$t('pages.materials.table.title') + ':'"
-        v-model="localPowerTool.ru_title"
+        v-model="localPowerTool.title"
       ></ion-input>
     </ion-item>
 
