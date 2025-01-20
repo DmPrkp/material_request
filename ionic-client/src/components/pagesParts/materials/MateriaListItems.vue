@@ -19,7 +19,8 @@
             v-for="param in material.params"
             :key="param.param"
           >
-            {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
+            {{ $t(`ui.paramsTitles.${param.title}`) }} {{ param.param }}
+            {{ $t(`measure.${param.measure}`) }} {{ " " }}
           </span>
         </ion-col>
         <ion-col size="2">

@@ -5,5 +5,9 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.eol": "\n",
   "eslint.run": "onSave",
-  "cSpell.words": ["EIFS", "Zayavki"]
+  "cSpell.words": ["EIFS", "Zayavki"],
+  "Prettier-SQL.expressionWidth": 200,
+  "[sql]": {
+    "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode"
+  }
 }

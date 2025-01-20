@@ -17,6 +17,19 @@
       "measure": "ед.изм",
       "corded": "питание",
       "disable": "в разработке"
+    },
+    "paramsTitles": {
+      "pieces": "шт.",
+      "length": "дл.",
+      "weight": "вес",
+      "width": "шир.",
+      "height": "выс.",
+      "depth": "гл.",
+      "Ø": "Ø",
+      "volume": "объем",
+      "area": "площ.",
+      "density": "плотн.",
+      "thickness": "тлщ."
     }
   },
   "measure": {

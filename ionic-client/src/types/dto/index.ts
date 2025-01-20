@@ -59,6 +59,7 @@ type Param = {
   id: number;
   param: string;
   measure: string;
+  title?: string;
 };
 
 export type MaterialRequestDTO = {

@@ -17,6 +17,19 @@
       "measure": "measure",
       "corded": "power supply",
       "disable": "in progress"
+    },
+    "paramsTitles": {
+      "pieces": "pcs",
+      "length": "L",
+      "weight": "wt",
+      "width": "W",
+      "height": "H",
+      "depth": "D",
+      "Ø": "Ø",
+      "volume": "Vol",
+      "area": "A",
+      "density": "Dens",
+      "thickness": "Thk"
     }
   },
   "measure": {
@@ -82,5 +95,8 @@
       "from": "from"
     }
   },
-  "current": { "ac": "mains", "dc": "battery" }
+  "current": {
+    "ac": "mains",
+    "dc": "battery"
+  }
 }
