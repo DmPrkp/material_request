@@ -61,13 +61,26 @@
           const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
 
           if (!acc[uniqKey]) {
-            acc[uniqKey] = { ...h, uniqKey, descriptions: [h.description] };
-            return acc;
+            acc[uniqKey] = {
+              id: h.id,
+              uniqKey,
+              params: h.params,
+              adjusted_consumption: h.adjusted_consumption,
+              title: h.title,
+            };
           }
 
           if (acc[uniqKey].adjusted_consumption < h.adjusted_consumption) {
-            const descriptions = [...acc[uniqKey].descriptions, h.description];
-            acc[uniqKey] = { ...h, uniqKey, descriptions };
+            acc[uniqKey] = {
+              ...acc[uniqKey],
+              adjusted_consumption: h.adjusted_consumption,
+            };
+          }
+
+          if (h.description) {
+            const oldDescriptions = acc[uniqKey].descriptions || [];
+            const descriptions = [...oldDescriptions, h.description];
+            acc[uniqKey] = { ...acc[uniqKey], descriptions };
           }
         });
         return acc;

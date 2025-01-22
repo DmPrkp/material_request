@@ -37,13 +37,13 @@ export type HandTool = {
   id: number;
   title: string;
   adjusted_consumption: number;
-  description: string;
+  description?: string;
   params: Param[];
 };
 
 export type MergedHandTool = HandTool & {
   uniqKey: string;
-  descriptions: string[];
+  descriptions?: string[];
 };
 
 export type MergedHandTools = Record<string, MergedHandTool>;

@@ -44,13 +44,13 @@
       </ion-row>
     </ion-item>
 
-    <ion-item>
+    <ion-item
+      v-for="(desc, i) in localHandTool.descriptions"
+      :key="i"
+    >
       <ion-row>
         <ion-col size="12">
-          <span
-            v-for="(desc, i) in localHandTool.descriptions"
-            :key="i"
-          >
+          <span>
             {{ desc }}
           </span>
         </ion-col>
