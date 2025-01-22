@@ -15,7 +15,6 @@ export type PowerTool = {
   uniqKey: string;
   id: number;
   title: string;
-  ru_title: string;
   adjusted_consumption: number;
   corded: boolean;
   params: Param[];
@@ -25,7 +24,6 @@ export type HandTool = {
   uniqKey: string;
   id: number;
   title: string;
-  ru_title: string;
   adjusted_consumption: number;
   params: Param[];
 };
@@ -35,7 +33,6 @@ export type Material = {
   id: number;
   measure: string;
   params: Param[];
-  ru_title: string;
   title: string;
   volume: number;
 };

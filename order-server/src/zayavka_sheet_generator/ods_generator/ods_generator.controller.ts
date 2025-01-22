@@ -47,7 +47,7 @@ export class XlsxGeneratorController {
 
 function addToolsToRows<
   T extends {
-    ru_title: string;
+    title: string;
     adjusted_consumption: number;
     corded?: boolean;
     params: Param[];
@@ -65,7 +65,7 @@ function addToolsToRows<
 
     rows.push([
       index + 1,
-      `${tool.ru_title} ${params} ${corded}`,
+      `${tool.title} ${params} ${corded}`,
       tool.adjusted_consumption,
       'шт',
     ]);
@@ -82,12 +82,7 @@ async function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
   data.materials.forEach((materialDTO) => {
     rows.push([materialDTO.title]);
     materialDTO.materials.forEach((material, index) => {
-      rows.push([
-        index + 1,
-        material.ru_title,
-        material.volume,
-        material.measure,
-      ]);
+      rows.push([index + 1, material.title, material.volume, material.measure]);
     });
     rows.push([]);
   });
