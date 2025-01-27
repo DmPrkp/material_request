@@ -42,7 +42,7 @@ services:
 
   nginx:
     volumes:
-      - certs:/etc/letsencrypt
+      - ./nginx/certs:/etc/letsencrypt
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.prod
