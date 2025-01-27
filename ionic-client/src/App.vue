@@ -7,7 +7,7 @@
             color="primary"
             class="main_title"
           >
-            zayávka.ru
+            zayávka.xyz
           </ion-title>
         </router-link>
 

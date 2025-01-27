@@ -41,9 +41,15 @@ services:
       - 5173:5173
 
   nginx:
-    build: ./nginx
+    volumes:
+      - certs:/etc/letsencrypt
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile.prod
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - ionic-client
       - calc-server
+      - order-server

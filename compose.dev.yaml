@@ -83,7 +83,9 @@ services:
       - db
 
   nginx:
-    build: ./nginx
+    build:
+      context: ./nginx
+      dockerfile: ./Dockerfile.dev
     ports:
       - "80:80"
     depends_on:
