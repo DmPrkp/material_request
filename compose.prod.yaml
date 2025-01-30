@@ -43,7 +43,7 @@ services:
   nginx:
     volumes:
       - ./nginx/certs:/etc/letsencrypt
-      - ~/.secrets/certbot:/root/.secrets/certbot
+      - ~/.secrets/certbot/cloudflare.ini:/etc/letsencrypt/cloudflare.ini
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.prod
