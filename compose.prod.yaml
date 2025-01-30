@@ -43,6 +43,7 @@ services:
   nginx:
     volumes:
       - ./nginx/certs:/etc/letsencrypt
+      - ~/.secrets/certbot:/root/.secrets/certbot
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.prod
