@@ -1,6 +1,5 @@
 FROM nginx:1.25.3
 
-# Install Certbot
 # Установка Certbot и плагинов
 RUN apt-get update && \
     apt-get install -y certbot python3-certbot-nginx python3-certbot-dns-cloudflare && \
