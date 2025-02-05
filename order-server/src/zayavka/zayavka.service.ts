@@ -33,6 +33,9 @@ export class ZayavkaService {
   async getAll(user?: number) {
     return this.prisma.zayavka.findMany({
       where: { user: user || 1 },
+      orderBy: {
+        id: 'desc',
+      },
     });
   }
 
