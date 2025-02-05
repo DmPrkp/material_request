@@ -22,10 +22,6 @@
     document.body.classList.toggle(MODE.dark, isDarkMode.value);
     Cookies.set("theme_mode", value ? MODE.dark : MODE.light, {
       expires: 3,
-      domain: location.hostname,
-      path: "/",
-      secure: true,
-      sameSite: "None",
     });
   };
 
