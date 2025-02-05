@@ -24,6 +24,8 @@
       expires: 365,
       domain: location.hostname,
       path: "/",
+      secure: true,
+      sameSite: "None",
     });
   };
 
