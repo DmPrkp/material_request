@@ -3,11 +3,11 @@
 # docker build -t ionic-client -f Dockerfile.prod .
 # docker run -p 5173:5173 --name ionic-client ionic-client
 
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 
 FROM node:${NODE_VERSION}-alpine
 
-ENV NODE_ENV production
+ENV NODE_ENV development
 
 RUN npm i -g vue-tsc vite @types/node
 
