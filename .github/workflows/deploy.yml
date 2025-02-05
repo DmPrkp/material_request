@@ -33,8 +33,7 @@ jobs:
           ssh -p 5022 ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
             cd /home/${{ secrets.REMOTE_USER }}/App/matli
             docker compose -f compose.prod.yaml down
-            docker rmi matli-nginx
-            docker rmi dmprkp/calc-server
-            docker compose -f compose.prod.yaml up --build -d
             docker system prune -f
+            docker compose -f compose.prod.yaml build --no-cache  # Force rebuild
+            docker compose -f compose.prod.yaml up -d
           EOF
