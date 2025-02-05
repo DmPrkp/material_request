@@ -41,7 +41,7 @@
 
   function checkMode() {
     const mode = Cookies.get("theme_mode");
-    console.log("mode", mode);
+    alert("mode: " + mode);
 
     if (mode) {
       toggleTheme(mode === MODE.dark);
