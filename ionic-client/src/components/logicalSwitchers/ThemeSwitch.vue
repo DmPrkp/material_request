@@ -29,6 +29,7 @@
     });
     document.cookie = "my_cookie=cookie_value; path=/; max-age=604800";
     console.log(document.cookie);
+    alert("mode: " + document.cookie);
   };
 
   onBeforeMount(() => {
@@ -41,7 +42,6 @@
 
   function checkMode() {
     const mode = Cookies.get("theme_mode");
-    alert("mode: " + mode);
 
     if (mode) {
       toggleTheme(mode === MODE.dark);
