@@ -20,7 +20,11 @@
     if (typeof value !== "boolean") value = !isDarkMode.value;
     isDarkMode.value = value;
     document.body.classList.toggle(MODE.dark, isDarkMode.value);
-    Cookies.set("theme_mode", value ? MODE.dark : MODE.light, { expires: 365 });
+    Cookies.set("theme_mode", value ? MODE.dark : MODE.light, {
+      expires: 365,
+      domain: location.hostname,
+      path: "/",
+    });
   };
 
   onBeforeMount(() => {
@@ -29,6 +33,7 @@
 
   function checkMode() {
     const mode = Cookies.get("theme_mode");
+    console.log("mode", mode);
 
     if (mode) {
       toggleTheme(mode === MODE.dark);

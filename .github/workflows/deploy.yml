@@ -34,6 +34,6 @@ jobs:
             cd /home/${{ secrets.REMOTE_USER }}/App/matli
             docker compose -f compose.prod.yaml down
             docker system prune -f
-            docker compose -f compose.prod.yaml build --no-cache  # Force rebuild
+            docker compose -f compose.prod.yaml build --no-cache
             docker compose -f compose.prod.yaml up -d
           EOF
