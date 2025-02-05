@@ -27,16 +27,9 @@
       secure: true,
       sameSite: "None",
     });
-    document.cookie = "my_cookie=cookie_value; path=/; max-age=604800";
-    console.log(document.cookie);
-    alert("mode: " + document.cookie);
   };
 
   onBeforeMount(() => {
-    checkMode();
-  });
-
-  onMounted(() => {
     checkMode();
   });
 
