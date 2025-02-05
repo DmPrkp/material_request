@@ -25,7 +25,7 @@
         />
       </ion-toolbar>
     </ion-header>
-    <ion-content>
+    <ion-content class="main_content">
       <router-view></router-view>
     </ion-content>
     <FooterBar />
@@ -79,5 +79,11 @@
   .main_title {
     /* color: var(--main-red); */
     font-weight: 1000;
+  }
+
+  .main_content {
+    max-width: 1000px;
+    display: flex;
+    align-self: center;
   }
 </style>

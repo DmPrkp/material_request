@@ -18,4 +18,5 @@ model Zayavka {
   data  Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @default(now())
+  user  Int @default(1)
 }

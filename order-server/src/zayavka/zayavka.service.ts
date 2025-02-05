@@ -7,14 +7,19 @@ export class ZayavkaService {
   constructor(private prisma: PrismaService) {}
 
   async create(createZayavkaDto: CreateZayavkaDto) {
+    const user = Number(createZayavkaDto.user);
+    delete createZayavkaDto.user;
     return this.prisma.zayavka.create({
       data: {
+        user,
         data: JSON.stringify(createZayavkaDto), // Serialize the nested data
       },
     });
   }
 
   async put(id: number, createZayavkaDto: CreateZayavkaDto) {
+    delete createZayavkaDto.user;
+    delete createZayavkaDto.system;
     return this.prisma.zayavka.update({
       where: {
         id: id, // Assuming `id` is the primary key or unique identifier
@@ -25,8 +30,10 @@ export class ZayavkaService {
     });
   }
 
-  async getAll() {
-    return this.prisma.zayavka.findMany();
+  async getAll(user?: number) {
+    return this.prisma.zayavka.findMany({
+      where: { user: user || 1 },
+    });
   }
 
   get(id: number) {

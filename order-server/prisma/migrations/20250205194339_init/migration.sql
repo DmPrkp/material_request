@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Zayavka" ADD COLUMN     "user" INTEGER NOT NULL DEFAULT 1;
