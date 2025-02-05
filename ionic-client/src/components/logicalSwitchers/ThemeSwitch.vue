@@ -7,7 +7,7 @@
 <script setup lang="ts">
   import { IonIcon } from "@ionic/vue";
   import { sunnyOutline, moonOutline } from "ionicons/icons";
-  import { onBeforeMount, ref } from "vue";
+  import { onBeforeMount, onMounted, ref } from "vue";
   import Cookies from "js-cookie";
 
   const isDarkMode = ref(false);
@@ -28,6 +28,10 @@
   };
 
   onBeforeMount(() => {
+    checkMode();
+  });
+
+  onMounted(() => {
     checkMode();
   });
 
