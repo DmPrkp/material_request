@@ -1,4 +1,5 @@
 import { createApp } from "vue";
+import { createHead } from "@vueuse/head";
 import { createPinia } from "pinia";
 import {
   IonicVue,
@@ -44,11 +45,13 @@ import "./theme/variables.css";
 
 import BaseModel from "./models/BaseModel";
 
+const head = createHead();
 const pinia = createPinia();
 BaseModel.setBaseUrl();
 
 const app = createApp(App)
   .use(IonicVue)
+  .use(head)
   .use(pinia)
   .use(i18n)
   .use(router)
