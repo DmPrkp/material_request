@@ -21,9 +21,9 @@ export const useZayavkaStore = defineStore("materialRequests", {
     },
 
     getAll(): StoredMaterialRequestDTO[] {
-      const resultMatReq = Object.keys(this.$state).map((key) =>
-        this.getMaterialRequest(Number(key))
-      );
+      const resultMatReq = Object.keys(this.$state)
+        .map((key) => this.getMaterialRequest(Number(key)))
+        .reverse();
       return resultMatReq.filter((mr) => mr !== undefined);
     },
 

@@ -7,7 +7,7 @@ export class ZayavkaService {
   constructor(private prisma: PrismaService) {}
 
   async create(createZayavkaDto: CreateZayavkaDto) {
-    const user = Number(createZayavkaDto.user);
+    const user = Number(createZayavkaDto.user) || 1;
     delete createZayavkaDto.user;
     return this.prisma.zayavka.create({
       data: {

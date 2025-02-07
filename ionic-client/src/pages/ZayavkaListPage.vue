@@ -16,7 +16,7 @@
       </div>
       <ion-list>
         <ion-item
-          v-for="(zayavka, num) in materialRequests"
+          v-for="zayavka in materialRequests"
           :key="zayavka.id"
         >
           <ion-grid>
@@ -26,13 +26,7 @@
               style="cursor: pointer"
             >
               <ion-col
-                size="1"
-                class="ion-align-items-start"
-              >
-                {{ num + 1 }}
-              </ion-col>
-              <ion-col
-                size="4"
+                size="5"
                 class="ion-align-items-start"
               >
                 {{ $t("pages.zayavka_list.item_title") }}

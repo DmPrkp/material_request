@@ -3,7 +3,7 @@ export type CreateZayavkaDto = {
   materials: MaterialDTO[];
   power_tools: PowerTool[];
   system: string;
-  user: number;
+  user?: number;
 };
 
 type MaterialDTO = {
