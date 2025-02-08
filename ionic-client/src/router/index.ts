@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { RouteRecordRaw } from "vue-router";
 import { useHead } from "@vueuse/head";
-import { Keys, Locale } from "@/types";
+import { Locale } from "@/types";
+import { defaultKeys, routeMeta } from "./constants";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -39,6 +40,12 @@ const routes: Array<RouteRecordRaw> = [
                     path: "materialList",
                     name: "material-list",
                     component: () => import("@/pages/MaterialListPage.vue"),
+                    // children: [
+                    //   {
+                    //     path: "materialListModal",
+                    //     name: "material-list-modal",
+                    //   },
+                    // ],
                   },
                 ],
               },
@@ -71,32 +78,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes,
 });
-
-const defaultKeys = {
-  en: "Request. Construction Calculator. Calculation of Building Materials",
-  ru: "Заявка. Строительный калькулятор. Расчет строительных материалов",
-};
-
-const routeMeta: Keys = {
-  about: {
-    key: {
-      en: "About the Project",
-      ru: "О проекте",
-    },
-  },
-  "main/facade": {
-    key: {
-      en: "Facade Material Calculation",
-      ru: "Расчет материалов для фасада",
-    },
-  },
-  "main/facade/EIFS": {
-    key: {
-      en: "EIFS Material Calculation",
-      ru: "Расчет материалов для мокрого фасада",
-    },
-  },
-};
 
 router.afterEach((to) => {
   const locale =
