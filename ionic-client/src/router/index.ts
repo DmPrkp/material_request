@@ -40,12 +40,6 @@ const routes: Array<RouteRecordRaw> = [
                     path: "materialList",
                     name: "material-list",
                     component: () => import("@/pages/MaterialListPage.vue"),
-                    // children: [
-                    //   {
-                    //     path: "materialListModal",
-                    //     name: "material-list-modal",
-                    //   },
-                    // ],
                   },
                 ],
               },
