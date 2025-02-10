@@ -3,3 +3,5 @@ export const MATERIAL_LIST_STATUS = {
   EDITED: "EDITED",
   DISABLED: "DISABLED",
 } as const;
+
+export * from "./menu";

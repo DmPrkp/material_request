@@ -26,7 +26,7 @@
   const route = useRoute();
   const router = useRouter();
   const currentItems: ComputedRef<MainMenuItem[]> = computed(() =>
-    mainMenuStore.mainMenu.filter(
+    mainMenuStore.$state.filter(
       (item: MainMenuItem) => item.title === route.params.workType
     )
   );
