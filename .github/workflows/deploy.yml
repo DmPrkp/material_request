@@ -35,7 +35,10 @@ jobs:
             docker compose -f compose.prod.yaml down
             docker rmi matli-nginx
             docker rmi dmprkp/calc-server
-            docker compose -f compose.prod.yaml build --no-cache
+            docker compose -f compose.prod.yaml build
             docker compose -f compose.prod.yaml up -d
             docker system prune -f
+            docker ps -a | grep -q "matli-nginx" && echo "Nginx контейнер запущен" || echo "Nginx контейнер не запущен"
+            docker ps -a | grep -q "dmprkp/calc-server" && echo "Calc сервер контейнер запущен" || echo "Calc сервер контейнер не запущен"
+            curl -s -f https://zayavka.xyz/ && echo "Приложение доступно" || echo "Приложение не доступно"
           EOF
