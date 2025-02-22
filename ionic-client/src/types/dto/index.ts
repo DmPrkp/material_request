@@ -34,6 +34,7 @@ export type PowerTool = {
 export type MergedPowerTools = Record<string, PowerTool>;
 
 export type HandTool = {
+  uniqKey: string;
   id: number;
   title: string;
   adjusted_consumption: number;
@@ -42,13 +43,13 @@ export type HandTool = {
 };
 
 export type MergedHandTool = HandTool & {
-  uniqKey: string;
   descriptions?: string[];
 };
 
 export type MergedHandTools = Record<string, MergedHandTool>;
 
 export type Material = {
+  uniqKey: string;
   consumption: number;
   id: number;
   measure: string;

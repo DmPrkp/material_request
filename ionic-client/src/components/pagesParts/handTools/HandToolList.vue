@@ -58,7 +58,8 @@
     (components) => {
       mergedHandToolsMap.value = components.reduce((acc, m) => {
         m.hand_tools.forEach((h) => {
-          const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
+          // const uniqKey = `${h.id}:${h.params.map((p) => p.id).join()}`;
+          const uniqKey = h.uniqKey;
 
           if (!acc[uniqKey]) {
             acc[uniqKey] = {
