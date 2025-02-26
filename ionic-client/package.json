@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "generate-sitemap": "node generate-sitemap.cjs",
     "dev": "vite",
-    "build": "vue-tsc && vite build",
+    "build": "generate-sitemap && vue-tsc && vite build",
     "preview": "vite preview --port 5173",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
