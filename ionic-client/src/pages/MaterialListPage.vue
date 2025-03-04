@@ -66,17 +66,17 @@
     return { components: JSON.parse(components), crew };
   }
 
-  // fetch func
   async function calculateValues() {
     const { system } = route.params;
     const { components, crew } = parseData(route.query);
     if (!components || !crew) return [];
     const dataToSend = { components, crew };
-    const data = await BaseModel.post<CalcResponseDTO[]>({
-      params: `/calc/${system}`,
-      body: dataToSend,
-    });
-    return data || [];
+    const data =
+      (await BaseModel.post<CalcResponseDTO[]>({
+        params: `/calc/${system}`,
+        body: dataToSend,
+      })) || [];
+    return data.sort((a, b) => a.id - b.id);
   }
 
   // ionic functions

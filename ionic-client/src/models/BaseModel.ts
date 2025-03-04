@@ -59,7 +59,7 @@ export default class BaseModel {
       throw new Error(response.statusText);
     }
 
-    return await response.json();
+    return response.json();
   }
 
   static async put<R>({
