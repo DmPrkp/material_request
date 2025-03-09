@@ -65,7 +65,9 @@
         "fiberglass mesh": "Армирующий клеевой слой",
         "finish coat": "Финишный слой",
         "paint layer": "Окрасочный слой",
-        "surface preparation": "Подготовка поверхности"
+        "surface preparation": "Подготовка поверхности",
+        "scaffolding installation": "Монтаж лесов",
+        "fastening scaffolding": "Крепление лесов к фасаду"
       },
       "crew-num": "Количество звеньев рабочих"
     },

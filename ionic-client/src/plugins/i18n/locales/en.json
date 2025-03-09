@@ -65,7 +65,9 @@
         "fiberglass mesh": "Fiberglass mesh",
         "finish coat": "Finish coat",
         "paint layer": "Paint layer",
-        "surface preparation": "Surface preparation"
+        "surface preparation": "Surface preparation",
+        "scaffolding installation": "Scaffolding installation",
+        "fastening scaffolding": "Fastening scaffolding to the facade"
       },
       "crew-num": "numbers of crew"
     },
