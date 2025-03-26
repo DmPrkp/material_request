@@ -20,17 +20,29 @@
   import { useRoute, useRouter } from "vue-router";
   import MainMenuItems from "@/components/pagesParts/MainMenuItems.vue";
   import type { MainMenuItem } from "../types/controller/main-menu";
-  import { useMainMenuStore } from "@/store/mainMenu";
+  import { useMainMenuStore, usePreloader } from "@/store";
 
+  const mainMenuStore = useMainMenuStore();
+  const preloader = usePreloader();
   const router = useRouter();
   const route = useRoute();
 
-  const mainMenuStore = useMainMenuStore();
-
   const isMainPage = ref(route.name === "main");
+  preloader.setPreloader(true);
+
   watch(
     () => route.name,
     () => (isMainPage.value = route.name === "main")
+  );
+
+  watch(
+    () => mainMenuStore.$state.length,
+    (newLength) => {
+      if (newLength > 0) {
+        preloader.setPreloader(false);
+      }
+    },
+    { immediate: true }
   );
 
   const mainMenu = computed(() => mainMenuStore.$state);

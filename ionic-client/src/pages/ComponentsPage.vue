@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, reactive, ref, toRaw } from "vue";
+  import { onMounted, reactive, ref } from "vue";
   import { useRoute, useRouter } from "vue-router";
 
   import {
@@ -79,9 +79,12 @@
   import BaseModel from "@/models/calc/BaseCalcModel";
   import { ComponentsType } from "@/types";
   import { ComponentsList } from "./types";
+  import { usePreloader } from "@/store";
 
   const route = useRoute();
   const router = useRouter();
+  const preloader = usePreloader();
+  preloader.setPreloader(true);
 
   const pageComponents = ref<ComponentsType[]>([]);
   const componentList: ComponentsList = reactive({});
@@ -119,14 +122,13 @@
   });
 
   async function sendComponentsVal() {
-    let components = toRaw(componentList);
-    components = Object.keys(components).reduce<Record<string, number>>(
-      (acc, comp) => {
-        acc[String(componentsTitleIdMap[comp])] = components[comp];
-        return acc;
-      },
-      {}
+    const components = Object.fromEntries(
+      Object.keys(componentList).map((comp) => [
+        String(componentsTitleIdMap[comp]),
+        componentList[comp],
+      ])
     );
+
     router.push({
       name: "material-list",
       query: { components: JSON.stringify(components), crew: crew.value },
@@ -134,15 +136,23 @@
   }
 
   async function getComponents() {
-    const { workType, system } = route.params;
-    const responseComponents = await BaseModel.get<ComponentsType[]>(
-      `/${workType}/${system}`
-    );
-    if (responseComponents) {
+    try {
+      const { workType, system } = route.params;
+      const responseComponents = await BaseModel.get<ComponentsType[]>(
+        `/${workType}/${system}`
+      );
+
+      if (!responseComponents?.length) {
+        console.warn("No components available for this system.");
+        return;
+      }
+
       pageComponents.value = responseComponents;
       setAllValues(responseComponents, allValue.value);
-    } else {
-      throw new Error("No components to this system");
+    } catch (error) {
+      console.error("Error fetching components:", error);
+    } finally {
+      preloader.setPreloader(false);
     }
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <ion-page v-if="route.name === 'material-list'">
+  <ion-page v-if="showPage">
     <ion-content>
       <ion-refresher
         slot="fixed"
@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, ref } from "vue";
+  import { computed, onMounted, ref } from "vue";
   import { LocationQuery, useRoute } from "vue-router";
   import type { CalcResponseDTO, ResultMaterialsDTO } from "@/types/dto/index";
   import { RefresherCustomEvent } from "@ionic/vue";
@@ -45,6 +45,7 @@
   import HandToolList from "@/components/pagesParts/handTools/HandToolList.vue";
   import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
   import { MATERIAL_LIST_STATUS } from "@/constants";
+  import { usePreloader } from "@/store";
 
   const MATERIALS_KEYS = {
     MATERIALS: "materials",
@@ -53,12 +54,19 @@
   } as const;
 
   const route = useRoute();
+  const preloader = usePreloader();
   const components = ref<CalcResponseDTO[]>([]);
   const resultMatList = ref<ResultMaterialsDTO>({
     hand_tools: [],
     power_tools: [],
     materials: [],
   });
+
+  const showPage = computed(
+    () => route.name === "material-list" && !preloader.state
+  );
+
+  preloader.setPreloader(true);
 
   function parseData(query: LocationQuery) {
     const { components, crew } = query;
@@ -98,5 +106,6 @@
   onMounted(async () => {
     const values = await calculateValues();
     components.value = values;
+    preloader.setPreloader(false);
   });
 </script>

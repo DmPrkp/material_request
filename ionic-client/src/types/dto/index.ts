@@ -17,9 +17,9 @@ export type MaterialListDTO = {
 };
 
 export type ResultMaterialsDTO = {
-  hand_tools: MergedHandTool[];
-  materials: MaterialListDTO[];
-  power_tools: PowerTool[];
+  hand_tools?: MergedHandTool[];
+  materials?: MaterialListDTO[];
+  power_tools?: PowerTool[];
 };
 
 export type PowerTool = {
