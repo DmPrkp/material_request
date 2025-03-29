@@ -11,17 +11,10 @@
         @click="!item.disable && $emit('item', item)"
       >
         <ion-card>
-          <div
-            v-if="item.disable"
-            class="inscription"
-          >
-            {{ $t("ui.labels.disable") }}
-          </div>
-          <img
-            :src="item.img.src"
-            :alt="item.img.alt"
-            :class="item.disable ? 'grayscale-image' : ''"
-          />
+          <ImageText
+            :image="item.img"
+            :text="item.disable ? 'disable' : undefined"
+          ></ImageText>
           <ion-card-header>
             <ion-card-title color="dark">{{
               $t(`pages.main.types.${item.title}`)
@@ -43,25 +36,8 @@
     IonCardTitle,
   } from "@ionic/vue";
 
-  const props = defineProps(["items"]);
+  import ImageText from "@/components/ui/ImageText.vue";
+  import { MainMenuItem } from "@/types/controller/main-menu";
+
+  const props = defineProps<{ items: MainMenuItem[] }>();
 </script>
-
-<style scoped>
-  .inscription {
-    position: absolute;
-    top: 40%;
-    left: 49%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 5px;
-    font-size: 1.25rem;
-    z-index: 1;
-    pointer-events: none;
-  }
-
-  .grayscale-image {
-    filter: grayscale(100%);
-  }
-</style>

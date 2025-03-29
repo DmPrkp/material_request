@@ -5,4 +5,5 @@ export type MainMenuItem = {
   title: string;
   description: string;
   items?: MainMenuItem[];
+  disable?: boolean;
 };
