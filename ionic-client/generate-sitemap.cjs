@@ -4,43 +4,32 @@ const fs = require("fs");
 const path = require("path");
 const routes = [
   {
-    path: "locale/about",
+    path: "ru/about",
     name: "about",
   },
   {
-    path: "locale/main",
+    path: "ru/main",
     name: "main",
     children: [
       {
-        path: ":workType",
-        name: "work-type",
+        path: "facade",
         children: [
           {
-            path: ":system",
-            name: "system",
-            children: [
-              {
-                path: "materialList",
-                name: "material-list",
-              },
-            ],
+            path: "EIFS",
+          },
+          {
+            path: "frame_scaffold",
           },
         ],
       },
     ],
   },
   {
-    path: "locale/zayavka",
+    path: "ru/zayavka",
     name: "zayavka-list",
-    children: [
-      {
-        path: ":zayavka",
-        name: "zayavka",
-      },
-    ],
   },
   {
-    path: "locale/settings",
+    path: "ru/settings",
     name: "settings",
   },
 ];
@@ -68,7 +57,7 @@ const pages = getPaths(routes).map((path) => ({
   url: path.replace(/\/$/, ""), // Remove trailing slashes
   lastmod: new Date().toISOString().split("T")[0], // Format YYYY-MM-DD
   changefreq: "weekly",
-  priority: path === "/locale/main" ? 1.0 : 0.8,
+  priority: path === "/ru/main" ? 1.0 : 0.8,
 }));
 
 // Generate XML content

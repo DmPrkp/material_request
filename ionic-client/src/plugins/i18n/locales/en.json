@@ -51,7 +51,7 @@
         "roof": "Roof",
         "EIFS": "EIFS",
         "flat": "Flat roof",
-        "frame scaffold": "Frame scaffold set 2х3m"
+        "frame_scaffold": "Frame scaffold set 2х3m"
       }
     },
     "system": {

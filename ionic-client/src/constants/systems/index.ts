@@ -20,7 +20,7 @@ export const EIFS_FACADE_SYSTEM = {
 
 export const FRAME_SCAFFOLD_SYSTEM = {
   id: 2,
-  title: "frame scaffold",
+  title: "frame_scaffold",
   description: "frame scaffold",
   img: {
     src: "/system/scaffold.jpg",

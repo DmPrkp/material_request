@@ -24,6 +24,12 @@ const routeMeta: Keys = {
       ru: "Расчет материалов для мокрого фасада",
     },
   },
+  "main/facade/frame_scaffold": {
+    key: {
+      en: "frame scaffold Calculation",
+      ru: "Расчет рамных лесов",
+    },
+  },
 };
 
 export { routeMeta, defaultKeys };
