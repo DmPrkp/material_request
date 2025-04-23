@@ -25,4 +25,17 @@ const ROOF_MENU = {
   items: [FLAT_ROOF_SYSTEM],
 };
 
-export const MAIN_MENU = [FACADE_MENU, ROOF_MENU];
+const INTERIOR_MENU = {
+  id: 3,
+  title: 'interior',
+  description: 'interior items',
+  img: {
+    src: '/main-menu/interior-main-narrow.jpg',
+    alt: 'interior-main',
+    width: 150,
+  },
+  disable: true,
+  items: [],
+};
+
+export const MAIN_MENU = [FACADE_MENU, ROOF_MENU, INTERIOR_MENU];

@@ -49,6 +49,7 @@
       "types": {
         "facade": "Facade",
         "roof": "Roof",
+        "interior": "Interior works",
         "EIFS": "EIFS",
         "flat": "Flat roof",
         "frame_scaffold": "Frame scaffold set 2х3m"
