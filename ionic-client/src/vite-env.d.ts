@@ -11,7 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_PROTOCOL: string;
   readonly VITE_BASE_HOST: string;
   readonly VITE_PORT: string;
-  // more env variables...
 }
 
 interface ImportMeta {

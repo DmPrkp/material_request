@@ -11,8 +11,8 @@ services:
     image: dmprkp/calc-server:latest
     ports:
       - 4000:4000
-    env_file:
-      - ./secrets/calc-db/.db.env
+    # env_file:
+    #   - ./secrets/calc-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
@@ -24,8 +24,8 @@ services:
       dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4100:4100
-    env_file:
-      - ./secrets/order-db/.db.env
+    # env_file:
+    #   - ./secrets/order-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
