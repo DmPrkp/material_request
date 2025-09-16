@@ -9,6 +9,7 @@ networks:
 services:
   calc-server:
     image: dmprkp/calc-server:latest
+    registry: docker.io
     ports:
       - 4000:4000
     # env_file:
