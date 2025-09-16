@@ -5,8 +5,7 @@
         <ion-title> {{ $t(`pages.system.title`) }} </ion-title>
       </ion-item-divider>
       <main-menu-items
-        v-if="currentItems[0]"
-        :items="currentItems[0].items"
+        :items="currentItems[0]?.items || []"
         @item="chooseItem"
       />
     </ion-content>
@@ -15,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ComputedRef } from "vue";
+  import { computed } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import MainMenuItems from "@/components/pagesParts/MainMenuItems.vue";
   import { type MainMenuItem } from "../types/controller/main-menu";
@@ -25,10 +24,11 @@
 
   const route = useRoute();
   const router = useRouter();
-  const currentItems: ComputedRef<MainMenuItem[]> = computed(() =>
-    mainMenuStore.$state.filter(
-      (item: MainMenuItem) => item.title === route.params.workType
-    )
+  const currentItems = computed(
+    () =>
+      mainMenuStore.$state.filter(
+        (item: MainMenuItem) => item.title === route.params.workType
+      ) || []
   );
 
   function chooseItem(item: MainMenuItem) {
