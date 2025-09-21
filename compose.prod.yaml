@@ -9,6 +9,7 @@ networks:
 services:
   calc-server:
     image: dmprkp/calc-server:latest
+    platform: linux/amd64
     ports:
       - 4000:4000
     # env_file:
