@@ -16,6 +16,7 @@ services:
     #   - ./secrets/calc-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
+      - DB_PORT=5532
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -29,6 +30,7 @@ services:
     #   - ./secrets/order-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
+      - DB_PORT=5532
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
