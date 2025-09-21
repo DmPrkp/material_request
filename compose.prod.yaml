@@ -12,8 +12,6 @@ services:
     platform: linux/amd64
     ports:
       - 4000:4000
-    # env_file:
-    #   - ./secrets/calc-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
@@ -22,6 +20,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    # env_file:
+    #   - ./secrets/calc-db/.db.env
 
   order-server:
     build:
@@ -29,8 +29,6 @@ services:
       dockerfile: ./docker/Dockerfile.prod
     ports:
       - 4100:4100
-    # env_file:
-    #   - ./secrets/order-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
@@ -41,6 +39,8 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./order-server/static:/usr/order-server/static
+    # env_file:
+    #   - ./secrets/order-db/.db.env
 
   ionic-client:
     build:
