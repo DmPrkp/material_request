@@ -17,6 +17,9 @@ services:
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -31,6 +34,9 @@ services:
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
