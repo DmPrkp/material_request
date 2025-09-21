@@ -14,11 +14,12 @@ services:
       - 4000:4000
     # env_file:
     #   - ./secrets/calc-db/.db.env
-    env_file:
-      - ./stack.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -30,11 +31,12 @@ services:
       - 4100:4100
     # env_file:
     #   - ./secrets/order-db/.db.env
-    env_file:
-      - ./stack.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
