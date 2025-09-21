@@ -14,6 +14,8 @@ services:
       - 4000:4000
     # env_file:
     #   - ./secrets/calc-db/.db.env
+    env_file:
+      - stack.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
@@ -31,6 +33,8 @@ services:
       - 4100:4100
     # env_file:
     #   - ./secrets/order-db/.db.env
+    env_file:
+      - stack.env
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
