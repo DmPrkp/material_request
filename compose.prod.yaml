@@ -14,8 +14,8 @@ services:
       - 4000:4000
     # env_file:
     #   - ./secrets/calc-db/.db.env
-    environment:
-      - DB_HOST=host.docker.internal
+    # environment:
+    #   - DB_HOST=host.docker.internal
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
