@@ -15,12 +15,10 @@ services:
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
-      - DB_USER=/run/secrets/db_user
-      - DB_PASSWORD=/run/secrets/db_password
-      - POSTGRES_DB=/run/secrets/db_name
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # env_file:
+    env_file:
+      - ./.db.env
     #   - ./secrets/calc-db/.db.env
 
   order-server:
@@ -32,15 +30,13 @@ services:
     environment:
       - DB_HOST=host.docker.internal
       - DB_PORT=5532
-      - DB_USER=/run/secrets/db_user
-      - DB_PASSWORD=/run/secrets/db_password
-      - POSTGRES_DB=/run/secrets/db_name
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ./order-server/static:/usr/order-server/static
-    # env_file:
-    #   - ./secrets/order-db/.db.env
+    env_file:
+      - ./.db.env
+      # - ./secrets/order-db/.db.env
 
   ionic-client:
     build:
