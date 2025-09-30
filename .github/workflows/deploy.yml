@@ -10,44 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy stack to Portainer
-        uses: carlrygart/portainer-stack-deploy@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          portainer-host: ${{ secrets.PORTAINER_HOST }}
-          username: ${{ secrets.PORTAINER_USERNAME }}
-          password: ${{ secrets.PORTAINER_PASSWORD }}
-          stack-name: "matli"
-          stack-definition: "compose.prod.yaml"
-          template-variables: '{"DB_PASSWORD": "${{ secrets.DB_PASSWORD}}", "DB_USER": "${{ secrets.DB_USER}}", "POSTGRES_DB": "${{ secrets.POSTGRES_DB }}"}'
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # - name: Setup SSH agent
-      #   uses: webfactory/ssh-agent@v0.5.3
-      #   with:
-      #     ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Add remote server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 5022 ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-      # - name: Add remote server to known_hosts
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     ssh-keyscan -p 5022 ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
-      #     chmod 644 ~/.ssh/known_hosts
+      - name: Copy files to remote server
+        run: |
+          rsync -avz --exclude='.git' -e "ssh -p 5022" ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/mnt/tank/matli/material_request
 
-      # - name: Copy files to remote server
-      #   run: |
-      #     rsync -avz --exclude='.git' -e "ssh -p 5022" ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/home/${{ secrets.REMOTE_USER }}/App/matli
-
-      # - name: Deploy services with Docker Compose
-      #   run: |
-      #     ssh -p 5022 ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
-      #       cd /home/${{ secrets.REMOTE_USER }}/App/matli
-      #       docker compose -f compose.prod.yaml down
-      #       docker rmi matli-nginx
-      #       docker rmi dmprkp/calc-server
-      #       docker compose -f compose.prod.yaml build --no-cache
-      #       docker compose -f compose.prod.yaml up -d
-      #       docker system prune -f
-      #       docker ps -a | grep -q "matli-nginx" && echo "Nginx контейнер запущен" || echo "Nginx контейнер не запущен"
-      #       docker ps -a | grep -q "dmprkp/calc-server" && echo "Calc сервер контейнер запущен" || echo "Calc сервер контейнер не запущен"
-      #       curl -s -f https://zayavka.xyz/ && echo "Приложение доступно" || echo "Приложение не доступно"
-      #     EOF
+      - name: Deploy services with Docker Compose
+        run: |
+          ssh -p 5022 ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
+            cd /mnt/tank/matli/material_request 
+            sudo docker compose -f compose.prod.yaml down
+            sudo docker rmi matli-nginx
+            sudo docker rmi dmprkp/calc-server
+            sudo docker compose -f compose.prod.yaml build --no-cache
+            sudo docker compose -f compose.prod.yaml up -d
+            sudo docker system prune -f
+            sudo docker ps -a | grep -q "matli-nginx" && echo "Nginx контейнер запущен" || echo "Nginx контейнер не запущен"
+            sudo docker ps -a | grep -q "dmprkp/calc-server" && echo "Calc сервер контейнер запущен" || echo "Calc сервер контейнер не запущен"
+            curl -s -f https://zayavka.xyz/ && echo "Приложение доступно" || echo "Приложение не доступно"
+          EOF
