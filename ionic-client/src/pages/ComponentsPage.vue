@@ -56,11 +56,17 @@
         />
       </ion-item>
       <div class="ion-padding">
-        <ion-button
+        <!-- <ion-button
           expand="full"
           @click="sendComponentsVal"
           >{{ $t("pages.components.send") }}</ion-button
+        > -->
+        <CutCornerBtn
+          fullWidth
+          @click="sendComponentsVal"
         >
+          {{ $t("pages.components.send") }}
+        </CutCornerBtn>
       </div>
     </ion-content>
   </ion-page>
@@ -80,6 +86,7 @@
   import { ComponentsType } from "@/types";
   import { ComponentsList } from "./types";
   import { usePreloader } from "@/store";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
 
   const route = useRoute();
   const router = useRouter();

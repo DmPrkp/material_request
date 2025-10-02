@@ -11,12 +11,13 @@
   >
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
-        <ion-button
+        <!-- <ion-button
           size="small"
           @click="setOpen"
         >
           {{ $t("ui.buttons.add") }}
-        </ion-button>
+        </ion-button> -->
+        <CutCornerBtn @click="setOpen">{{ $t("ui.buttons.add") }}</CutCornerBtn>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -35,6 +36,7 @@
   import HandToolListItems from "./HandToolListItems.vue";
   import HandToolModal from "./HandToolModal.vue";
   import HandToolListHeader from "./HandToolListHeader.vue";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
@@ -91,8 +93,13 @@
     { immediate: true }
   );
 
-  const setOpen = async (handToolKey: MergedHandTool["uniqKey"]) => {
-    const handTool = mergedHandToolsMap.value[handToolKey] || {};
+  const setOpen = async (
+    handToolKey: MergedHandTool["uniqKey"] | MouseEvent
+  ) => {
+    const handTool =
+      typeof handToolKey === "string"
+        ? mergedHandToolsMap.value[handToolKey]
+        : {};
     const modal = await modalController.create({
       component: HandToolModal,
       componentProps: { handTool },

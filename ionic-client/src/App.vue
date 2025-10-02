@@ -1,13 +1,21 @@
 <template>
   <ion-app>
-    <ion-header :translucent="true">
+    <ion-header
+      :translucent="true"
+      color="medium"
+    >
       <ion-toolbar>
         <router-link :to="getLocalizedRoute('main')">
           <ion-title
-            color="primary"
             class="main_title"
+            style="
+              font-family: 'Impact';
+              /* font-style: italic; */
+              font-weight: 300;
+              font-size: 1.5em;
+            "
           >
-            zayávka.xyz
+            {{ "zayávka".toLocaleUpperCase() + ".xyz" }}
           </ion-title>
         </router-link>
 

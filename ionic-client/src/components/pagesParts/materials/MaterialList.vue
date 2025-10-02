@@ -5,8 +5,8 @@
     :key="component.id"
   >
     <ion-item-divider v-if="component.materials.length">
-      <ion-label>
-        {{ component.title }}
+      <ion-label color="secondary">
+        <h2>{{ component.title }}</h2>
       </ion-label>
     </ion-item-divider>
     <MaterialListItems
@@ -19,7 +19,7 @@
         v-if="status !== MATERIAL_LIST_STATUS.DISABLED"
       >
         <ion-col size="auto">
-          <ion-button
+          <!-- <ion-button
             size="small"
             @click="
               () =>
@@ -27,7 +27,14 @@
             "
           >
             {{ $t("ui.buttons.add") }}
-          </ion-button>
+          </ion-button> -->
+          <CutCornerBtn
+            @click="
+              () =>
+                setOpen(component.id, { volume: component.materials[0].volume })
+            "
+            >{{ $t("ui.buttons.add") }}</CutCornerBtn
+          >
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -43,6 +50,7 @@
   import MaterialListItems from "./MateriaListItems.vue";
   import MaterialModal from "./MaterialModal.vue";
   import MaterialHeader from "./MaterialHeader.vue";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import { useI18n } from "vue-i18n";
 
   type ClearedComponent = { id: number; materials: Material[]; title: string };

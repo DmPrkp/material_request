@@ -8,12 +8,13 @@
   <ion-grid v-if="status !== MATERIAL_LIST_STATUS.DISABLED">
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
-        <ion-button
+        <!-- <ion-button
           size="small"
           @click="setOpen"
         >
           {{ $t("ui.buttons.add") }}
-        </ion-button>
+        </ion-button> -->
+        <CutCornerBtn @click="setOpen">{{ $t("ui.buttons.add") }}</CutCornerBtn>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -28,6 +29,7 @@
   import PowerToolListItems from "./PowerToolListItems.vue";
   import PowerToolModal from "./PowerToolModal.vue";
   import PowerToolListHeader from "./PowerToolListHeader.vue";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
 
   const props = defineProps<{
     components: CalcResponseDTO[];
@@ -69,8 +71,11 @@
     { immediate: true }
   );
 
-  const setOpen = async (powerToolKey: PowerTool["uniqKey"]) => {
-    const powerTool = mergedPowerToolsMap.value[powerToolKey] || {};
+  const setOpen = async (powerToolKey: PowerTool["uniqKey"] | MouseEvent) => {
+    const powerTool =
+      typeof powerToolKey === "string"
+        ? mergedPowerToolsMap.value[powerToolKey]
+        : {};
     const modal = await modalController.create({
       component: PowerToolModal,
       componentProps: { powerTool },

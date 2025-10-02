@@ -1,9 +1,16 @@
 html {
-  --main-red: #aa2527;
-  --main-secondary: #9c9b31;
-  --main-secondary-tint: #a1a735;
-  --main-dark-bg: #24170b;
-  --main-gray: #7d7d7d;
+  /* mobile suit */
+  --red: #d01f10;
+  --blue: #2c52b3;
+  --grey: #b6bac7;
+  --yellow: #fff867;
+
+  /* eva 01 */
+  --dark-green: #3f6d4e;
+  --light-green: #41bb42;
+  --light-purple: #b797db;
+  --dark-purple: #503b68;
+  --orange-01: #e8790c;
 
   /* ionic */
   --ion-margin: 8px;

@@ -1,9 +1,5 @@
 <template>
-  <ion-item-divider color="secondary">
-    <ion-title>
-      {{ $t("pages.materials.subTitles.materials") }}
-    </ion-title>
-  </ion-item-divider>
+  <TitledDivider :title="$t('pages.materials.subTitles.materials')" />
 
   <ion-row>
     <ion-col size="1"> № </ion-col>
@@ -51,4 +47,6 @@
   </ion-row>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import TitledDivider from "@/components/ui/TitledDivider.vue";
+</script>
