@@ -10,6 +10,7 @@
     "preview": "vite preview --port 5173",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
+    "test": "npm run test:unit && npm run test:e2e",
     "lint": "eslint . --fix"
   },
   "dependencies": {
@@ -36,7 +37,10 @@
   "devDependencies": {
     "@capacitor/cli": "^6.0.0",
     "@eslint/js": "^9.12.0",
+    "@types/cypress": "^0.1.6",
+    "@types/jest": "^30.0.0",
     "@types/js-cookie": "^3.0.6",
+    "@types/mocha": "^10.0.10",
     "@vue/test-utils": "^2.3.0",
     "cypress": "^13.5.0",
     "eslint": "^9.12.0",

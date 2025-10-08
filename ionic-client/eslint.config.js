@@ -17,4 +17,7 @@ export default [
       "vue/no-deprecated-slot-scope-attribute": "off",
     },
   },
+  {
+    ignores: ["dist/**", "node_modules/**", "coverage/**"],
+  },
 ];

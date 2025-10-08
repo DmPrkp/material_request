@@ -4,7 +4,7 @@ import { CreateZayavkaDto } from '../types';
 
 @Injectable()
 export class ZayavkaService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createZayavkaDto: CreateZayavkaDto) {
     const user = Number(createZayavkaDto.user) || 1;

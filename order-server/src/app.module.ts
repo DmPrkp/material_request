@@ -9,4 +9,4 @@ import { ZayavkaSheetGeneratorModule } from './zayavka_sheet_generator/zayavka_s
   controllers: [ZayavkaController],
   providers: [ZayavkaService, PrismaService],
 })
-export class AppModule {}
+export class AppModule { }
