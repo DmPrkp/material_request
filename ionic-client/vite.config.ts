@@ -1,7 +1,7 @@
 // import legacy from "@vitejs/plugin-legacy";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, UserConfig } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +15,9 @@ export default defineConfig({
       vue: "vue/dist/vue.esm-bundler.js",
     },
   },
+  preview: {
+    allowedHosts: ['ionic-client'] // ← добавить эту строку
+  },
   server: {
     host: "0.0.0.0",
   },
@@ -22,4 +25,4 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
   }
-});
+} as UserConfig);
