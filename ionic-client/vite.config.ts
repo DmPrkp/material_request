@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   preview: {
-    allowedHosts: ['ionic-client'] // ← добавить эту строку
+    allowedHosts: ['ionic-client']
   },
   server: {
     host: "0.0.0.0",
