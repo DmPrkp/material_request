@@ -4,7 +4,7 @@
       <ion-item-divider>
         <ion-title> {{ $t(`pages.system.title`) }} </ion-title>
       </ion-item-divider>
-      <main-menu-items
+      <MainMenuItems
         :items="currentItems[0]?.items || []"
         @item="chooseItem"
       />

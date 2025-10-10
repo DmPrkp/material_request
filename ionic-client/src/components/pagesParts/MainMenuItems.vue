@@ -15,10 +15,17 @@
             :image="item.img"
             :text="item.disable ? 'disable' : undefined"
           ></ImageText>
-          <ion-card-header>
-            <ion-card-title color="dark">{{
-              $t(`pages.main.types.${item.title}`)
-            }}</ion-card-title>
+          <ion-card-header color="medium">
+            <ion-card-title
+              style="
+                font-family: 'Impact';
+                font-weight: 900;
+                font-style: oblique 10deg;
+                color: var(--ion-color-secondary);
+              "
+            >
+              {{ $t(`pages.main.types.${item.title}`) }}
+            </ion-card-title>
           </ion-card-header>
         </ion-card>
       </ion-col>

@@ -20,6 +20,7 @@ export default defineConfig({
   },
   server: {
     host: "0.0.0.0",
+    allowedHosts: ['ionic-client']
   },
   test: {
     globals: true,

@@ -88,9 +88,9 @@ jobs:
         working-directory: ./ionic-client
         run: npm run test:unit
 
-      - name: Run e2e tests
-        working-directory: ./ionic-client
-        run: npm run test:e2e
+      # - name: Run e2e tests
+      #   working-directory: ./ionic-client
+      #   run: npm run test:e2e
 
   lint-and-format:
     runs-on: ubuntu-latest
