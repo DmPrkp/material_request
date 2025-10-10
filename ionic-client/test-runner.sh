@@ -22,6 +22,8 @@ fi
 
 # Install dependencies if node_modules doesn't exist
 if [ ! -d "node_modules" ]; then
+    echo "Remove package-lock.json"
+    rm package-lock.json
     echo "📦 Installing dependencies..."
     npm ci
 fi

@@ -32,7 +32,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: order-server/package-lock.json
 
@@ -72,9 +72,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
-          cache-dependency-path: ionic-client/package-lock.json
+          cache-dependency-path: ionic-client/package.json
+
+      - name: Remove package-lock.json
+        working-directory: ./ionic-client
+        run: rm package-lock.json
 
       - name: Install dependencies
         working-directory: ./ionic-client
@@ -98,7 +102,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: |
             order-server/package-lock.json
@@ -131,7 +135,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: |
             order-server/package-lock.json
