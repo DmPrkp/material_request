@@ -33,6 +33,19 @@ services:
     volumes:
       - ./order-server/static:/usr/order-server/static
 
+  user-server:
+    build:
+      context: ./user-server
+      dockerfile: ./docker/Dockerfile.prod
+    ports:
+      - 4200:4200
+    env_file:
+      - ./secrets/order-db/.db.env
+    environment:
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   ionic-client:
     build:
       context: ./ionic-client
@@ -54,3 +67,4 @@ services:
       - ionic-client
       - calc-server
       - order-server
+      - user-server
