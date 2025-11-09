@@ -99,7 +99,7 @@ router.beforeEach(async (to) => {
   if (!authStore.user) {
     try {
       await authStore.fetchProfile();
-    } catch (error) {
+    } catch {
       return {
         name: "auth",
         params: { locale: localeParam },
