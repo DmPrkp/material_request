@@ -38,32 +38,64 @@
     settingsOutline,
     informationCircleOutline,
     documentsOutline,
+    logInOutline,
   } from "ionicons/icons";
+  import { computed } from "vue";
   import { useRoute } from "vue-router";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
+  import { useAuthStore } from "@/store/auth";
 
-  const menuItems = [
-    {
-      link: "about",
-      name: "about",
-      icon: informationCircleOutline,
-    },
-    {
-      link: "main",
-      name: "main",
-      icon: calculatorOutline,
-    },
-    {
-      link: "zayavka",
-      name: "zayavka",
-      icon: documentsOutline,
-    },
-    {
-      link: "settings",
-      name: "settings",
-      icon: settingsOutline,
-    },
-  ];
+  const authStore = useAuthStore();
+
+  const menuItems = computed(() => {
+    if (authStore.isAuthenticated) {
+      return [
+        {
+          link: "about",
+          name: "about",
+          icon: informationCircleOutline,
+        },
+        {
+          link: "main",
+          name: "main",
+          icon: calculatorOutline,
+        },
+        {
+          link: "zayavka",
+          name: "zayavka",
+          icon: documentsOutline,
+        },
+        {
+          link: "settings",
+          name: "settings",
+          icon: settingsOutline,
+        },
+      ];
+    }
+
+    return [
+      {
+        link: "about",
+        name: "about",
+        icon: informationCircleOutline,
+      },
+      {
+        link: "auth",
+        name: "auth",
+        icon: logInOutline,
+      },
+      {
+        link: "main",
+        name: "main",
+        icon: calculatorOutline,
+      },
+      {
+        link: "settings",
+        name: "settings",
+        icon: settingsOutline,
+      },
+    ];
+  });
 
   const getLocalizedRoute = (routeName: string) => {
     const route = useRoute();

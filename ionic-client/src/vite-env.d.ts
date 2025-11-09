@@ -11,6 +11,15 @@ interface ImportMetaEnv {
   readonly VITE_PROTOCOL: string;
   readonly VITE_BASE_HOST: string;
   readonly VITE_PORT: string;
+  readonly VITE_USER_API_ORIGIN?: string;
+  readonly VITE_AUTH_API_ORIGIN?: string;
+  readonly VITE_USER_API_PREFIX?: string;
+  readonly VITE_AUTH_API_PREFIX?: string;
+  readonly VITE_USER_API_LOGIN_PATHS?: string;
+  readonly VITE_USER_API_REGISTER_PATHS?: string;
+  readonly VITE_USER_API_PROFILE_PATHS?: string;
+  readonly VITE_USER_API_CREDENTIALS?: string;
+  readonly VITE_USER_API_AUTH_SCHEME?: string;
 }
 
 interface ImportMeta {

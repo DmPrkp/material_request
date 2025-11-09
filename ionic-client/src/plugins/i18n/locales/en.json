@@ -4,7 +4,8 @@
     "settings": "Settings",
     "main": "Main",
     "about": "About",
-    "zayavka": "Material Requests"
+    "zayavka": "Material Requests",
+    "auth": "Sign in"
   },
   "ui": {
     "buttons": {
@@ -97,6 +98,25 @@
       "title": "Materials requests",
       "item_title": "Materials request #",
       "from": "from"
+    },
+    "auth": {
+      "title_login": "Sign in to your workspace",
+      "title_register": "Create a new account",
+      "subtitle": "Manage material requests after authorisation",
+      "login": "Sign in",
+      "register": "Sign up",
+      "email": "Email",
+      "password": "Password",
+      "confirm": "Confirm password",
+      "login_action": "Sign in",
+      "register_action": "Create account",
+      "password_mismatch": "Passwords do not match"
+    },
+    "settings": {
+      "title": "Profile",
+      "email": "Email",
+      "joined": "Joined",
+      "logout": "Sign out"
     }
   },
   "current": {
