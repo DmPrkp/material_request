@@ -17,6 +17,14 @@ import {
   IonPage,
   IonButton,
   IonItemDivider,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+  IonCardSubtitle,
+  IonSegment,
+  IonSegmentButton,
+  IonSpinner,
 } from "@ionic/vue";
 import App from "./App.vue";
 import router from "./router";
@@ -44,10 +52,64 @@ import "@ionic/vue/css/display.css";
 import "./theme/variables.css";
 
 import BaseModel from "./models/BaseModel";
+import AuthModel from "./models/AuthModel";
+import { useAuthStore } from "./store/auth";
 
 const head = createHead();
 const pinia = createPinia();
 BaseModel.setBaseUrl();
+const defaultBaseUrl = BaseModel.baseURL;
+AuthModel.setBaseUrl(
+  import.meta.env.VITE_USER_API_ORIGIN ||
+    import.meta.env.VITE_AUTH_API_ORIGIN ||
+    defaultBaseUrl
+);
+const authStore = useAuthStore(pinia);
+authStore.initialize();
+if (authStore.isAuthenticated) {
+  authStore.fetchProfile().catch(() => undefined);
+}
+
+router.beforeEach(async (to) => {
+  const requiresAuth = to.meta?.requiresAuth !== false;
+  const localeParam =
+    typeof to.params.locale === "string"
+      ? to.params.locale
+      : import.meta.env.VITE_DEFAULT_LOCALE;
+
+  if (!requiresAuth) {
+    if (to.name === "auth" && authStore.isAuthenticated) {
+      const redirectTarget =
+        typeof to.query.redirect === "string"
+          ? (to.query.redirect as string)
+          : `/${localeParam}/main`;
+      return redirectTarget;
+    }
+    return true;
+  }
+
+  if (!authStore.isAuthenticated) {
+    return {
+      name: "auth",
+      params: { locale: localeParam },
+      query: { redirect: to.fullPath },
+    };
+  }
+
+  if (!authStore.user) {
+    try {
+      await authStore.fetchProfile();
+    } catch (error) {
+      return {
+        name: "auth",
+        params: { locale: localeParam },
+        query: { redirect: to.fullPath },
+      };
+    }
+  }
+
+  return true;
+});
 
 const app = createApp(App)
   .use(IonicVue)
@@ -69,6 +131,14 @@ const app = createApp(App)
   .component("IonText", IonText)
   .component("IonPage", IonPage)
   .component("IonButton", IonButton)
+  .component("IonCard", IonCard)
+  .component("IonCardHeader", IonCardHeader)
+  .component("IonCardTitle", IonCardTitle)
+  .component("IonCardContent", IonCardContent)
+  .component("IonCardSubtitle", IonCardSubtitle)
+  .component("IonSegment", IonSegment)
+  .component("IonSegmentButton", IonSegmentButton)
+  .component("IonSpinner", IonSpinner)
   .component("MaterialList", MaterialList);
 
 router.isReady().then(() => {

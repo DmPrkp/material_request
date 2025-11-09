@@ -71,6 +71,7 @@ export type MaterialRequestDTO = {
   createdAt: string;
   updatedAt: string;
   id: number;
+  userId?: number | null;
 };
 
 export type StoredMaterialRequestDTO = {
@@ -79,3 +80,5 @@ export type StoredMaterialRequestDTO = {
   updatedAt: string;
   id: number;
 };
+
+export type { AuthResponse, UserProfile } from './auth';

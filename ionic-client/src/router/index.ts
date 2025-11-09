@@ -20,26 +20,37 @@ const routes: Array<RouteRecordRaw> = [
         path: "about",
         name: "about",
         component: () => import("@/pages/AboutPage.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "auth",
+        name: "auth",
+        component: () => import("@/pages/AuthPage.vue"),
+        meta: { requiresAuth: false },
       },
       {
         path: "main",
         name: "main",
         component: () => import("@/pages/MainPage.vue"),
+        meta: { requiresAuth: true },
         children: [
           {
             path: ":workType",
             name: "work-type",
             component: () => import("@/pages/SystemsPage.vue"),
+            meta: { requiresAuth: true },
             children: [
               {
                 path: ":system",
                 name: "system",
                 component: () => import("@/pages/ComponentsPage.vue"),
+                meta: { requiresAuth: true },
                 children: [
                   {
                     path: "materialList",
                     name: "material-list",
                     component: () => import("@/pages/MaterialListPage.vue"),
+                    meta: { requiresAuth: true },
                   },
                 ],
               },
@@ -51,11 +62,13 @@ const routes: Array<RouteRecordRaw> = [
         path: "zayavka",
         name: "zayavka-list",
         component: () => import("@/pages/ZayavkaListPage.vue"),
+        meta: { requiresAuth: true },
         children: [
           {
             path: ":zayavka",
             name: "zayavka",
             component: () => import("@/pages/ZayavkaPage.vue"),
+            meta: { requiresAuth: true },
           },
         ],
       },
@@ -63,6 +76,7 @@ const routes: Array<RouteRecordRaw> = [
         path: "settings",
         name: "settings",
         component: () => import("@/pages/SettingsPage.vue"),
+        meta: { requiresAuth: true },
       },
     ],
   },

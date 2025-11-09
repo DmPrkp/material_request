@@ -9,6 +9,21 @@ export default class BaseModel {
     },
   };
 
+  static setAuthToken(token?: string, scheme = "Bearer") {
+    const headers = (this.baseOpts.headers || {}) as Record<string, string>;
+
+    if (token) {
+      const trimmedScheme = scheme?.trim();
+      headers["Authorization"] = trimmedScheme
+        ? `${trimmedScheme} ${token}`.trim()
+        : token;
+    } else {
+      delete headers["Authorization"];
+    }
+
+    this.baseOpts.headers = headers;
+  }
+
   static setBaseUrl(url?: string | undefined) {
     const port = import.meta.env.VITE_PORT
       ? `:${import.meta.env.VITE_PORT}`
@@ -17,9 +32,28 @@ export default class BaseModel {
       url || `${import.meta.env.VITE_PROTOCOL}://${location.hostname + port}`;
   }
 
+  private static buildUrl(params: string, queries: string[] = []) {
+    const isAbsolute = /^https?:\/\//i.test(params);
+    const hasQuery = params.includes("?");
+    const querySuffix = queries.length
+      ? `${hasQuery ? "&" : "?"}${queries.join("&")}`
+      : "";
+
+    if (isAbsolute) {
+      return `${params}${querySuffix}`;
+    }
+
+    const base = `${this.baseURL}${this.apiVersion}${params}`;
+    if (!queries.length) {
+      return base;
+    }
+
+    return `${base}${hasQuery ? "&" : "?"}${queries.join("&")}`;
+  }
+
   static async get<R>(params: string): Promise<R | undefined> {
     try {
-      const url = this.baseURL + this.apiVersion + params;
+      const url = this.buildUrl(params);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(response.statusText);
@@ -41,8 +75,7 @@ export default class BaseModel {
     queries?: string[];
     opts?: RequestInit;
   }): Promise<R> {
-    const queryString = queries.length ? `?${queries.join("&")}` : "";
-    const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
+    const query = this.buildUrl(params, queries);
 
     const options = Object.assign(
       {
@@ -73,8 +106,7 @@ export default class BaseModel {
     queries?: string[];
     opts?: RequestInit;
   }): Promise<R> {
-    const queryString = queries.length ? `?${queries.join("&")}` : "";
-    const query = `${this.baseURL}${this.apiVersion}${params}${queryString}`;
+    const query = this.buildUrl(params, queries);
 
     const options = Object.assign(
       {
