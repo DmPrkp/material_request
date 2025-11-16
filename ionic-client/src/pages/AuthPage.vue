@@ -4,10 +4,12 @@
       <ion-card>
         <ion-card-header>
           <ion-card-title>{{ title }}</ion-card-title>
-          <ion-card-subtitle>{{ subtitle }}</ion-card-subtitle>
         </ion-card-header>
         <ion-card-content>
-          <ion-segment v-model="mode" @ionChange="handleModeChange">
+          <ion-segment
+            v-model="mode"
+            @ionChange="handleModeChange"
+          >
             <ion-segment-button value="login">
               {{ $t("pages.auth.login") }}
             </ion-segment-button>
@@ -58,22 +60,31 @@
               </ion-item>
             </ion-list>
 
-            <ion-text v-if="errorMessage" color="danger">
+            <ion-text
+              v-if="errorMessage"
+              color="danger"
+            >
               <p class="error-text">{{ errorMessage }}</p>
             </ion-text>
 
-            <ion-button
+            <CutCornerBtn
               expand="block"
               type="submit"
               :disabled="isSubmitting"
+              fullWidth
             >
-              <ion-spinner v-if="isSubmitting" name="dots" />
+              <ion-spinner
+                v-if="isSubmitting"
+                name="dots"
+              />
               <span v-else>
-                {{ mode === "login"
-                  ? $t("pages.auth.login_action")
-                  : $t("pages.auth.register_action") }}
+                {{
+                  mode === "login"
+                    ? $t("pages.auth.login_action")
+                    : $t("pages.auth.register_action")
+                }}
               </span>
-            </ion-button>
+            </CutCornerBtn>
           </form>
         </ion-card-content>
       </ion-card>
@@ -88,7 +99,6 @@
     IonCard,
     IonCardHeader,
     IonCardTitle,
-    IonCardSubtitle,
     IonCardContent,
     IonSegment,
     IonSegmentButton,
@@ -97,13 +107,13 @@
     IonLabel,
     IonInput,
     IonText,
-    IonButton,
     IonSpinner,
   } from "@ionic/vue";
   import { computed, ref, watch } from "vue";
   import { useAuthStore } from "@/store/auth";
   import { useRoute, useRouter } from "vue-router";
   import { useI18n } from "vue-i18n";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
 
   type AuthMode = "login" | "register";
 
@@ -124,7 +134,6 @@
       ? t("pages.auth.title_login")
       : t("pages.auth.title_register")
   );
-  const subtitle = computed(() => t("pages.auth.subtitle"));
 
   watch(
     () => route.query.mode,
@@ -158,7 +167,9 @@
       const redirect =
         typeof route.query.redirect === "string"
           ? route.query.redirect
-          : `/${route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE}/main`;
+          : `/${
+              route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE
+            }/main`;
 
       router.replace(redirect);
       email.value = "";

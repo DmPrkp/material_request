@@ -100,9 +100,8 @@
       "from": "from"
     },
     "auth": {
-      "title_login": "Sign in to your workspace",
+      "title_login": "Sign in",
       "title_register": "Create a new account",
-      "subtitle": "Manage material requests after authorisation",
       "login": "Sign in",
       "register": "Sign up",
       "email": "Email",

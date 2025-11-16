@@ -100,9 +100,8 @@
       "from": "от"
     },
     "auth": {
-      "title_login": "Вход в личный кабинет",
+      "title_login": "Вход",
       "title_register": "Регистрация",
-      "subtitle": "Используйте один аккаунт для работы с заявками",
       "login": "Вход",
       "register": "Регистрация",
       "email": "Email",
