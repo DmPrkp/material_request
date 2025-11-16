@@ -4,7 +4,8 @@
     "settings": "Настройки",
     "main": "Калькулятор",
     "about": "О проекте",
-    "zayavka": "Заявки"
+    "zayavka": "Заявки",
+    "auth": "Войти"
   },
   "ui": {
     "buttons": {
@@ -97,6 +98,25 @@
       "title": "Заявки на материалы",
       "item_title": "Заявка №",
       "from": "от"
+    },
+    "auth": {
+      "title_login": "Вход в личный кабинет",
+      "title_register": "Регистрация",
+      "subtitle": "Используйте один аккаунт для работы с заявками",
+      "login": "Вход",
+      "register": "Регистрация",
+      "email": "Email",
+      "password": "Пароль",
+      "confirm": "Повторите пароль",
+      "login_action": "Войти",
+      "register_action": "Создать аккаунт",
+      "password_mismatch": "Пароли не совпадают"
+    },
+    "settings": {
+      "title": "Профиль",
+      "email": "Электронная почта",
+      "joined": "Дата регистрации",
+      "logout": "Выйти"
     }
   },
   "current": { "ac": "сетевой", "dc": "аккум" }

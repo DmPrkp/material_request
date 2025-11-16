@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+ENV NODE_ENV production
+
+WORKDIR /usr/user-server
+
+RUN npm i -g typescript
+RUN npm i -g @nestjs/cli
+
+COPY ./package*.json ./
+RUN npm install
+
+COPY ./ ./
+RUN npm run prisma:gen
+RUN npm run build
+
+EXPOSE 4200
+
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]

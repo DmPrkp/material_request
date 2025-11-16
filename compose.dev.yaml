@@ -66,6 +66,35 @@ services:
     depends_on:
       - db
 
+  user-server:
+    build:
+      context: ./user-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4200:4200
+    env_file:
+      - ./secrets/order-db/.db.env
+    develop:
+      watch:
+        - action: sync
+          path: ./user-server/src
+          target: /usr/user-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./user-server/package.json
+        - action: rebuild
+          path: ./user-server/tsconfig.json
+        - action: rebuild
+          path: ./user-server/nest-cli.json
+        - action: rebuild
+          path: ./user-server/docker
+        - action: rebuild
+          path: ./user-server/prisma/schema.prisma
+    depends_on:
+      - db
+
   ionic-client:
     build:
       context: ./ionic-client
@@ -92,6 +121,7 @@ services:
       - ionic-client
       - calc-server
       - order-server
+      - user-server
       - db
 
   db:
