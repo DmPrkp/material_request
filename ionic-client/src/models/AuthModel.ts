@@ -26,12 +26,10 @@ const userApiPrefix =
 
 const loginPaths = parsePaths(import.meta.env.VITE_USER_API_LOGIN_PATHS, [
   '/auth/log-in',
-  '/log-in',
 ]);
 
 const registerPaths = parsePaths(import.meta.env.VITE_USER_API_REGISTER_PATHS, [
   '/auth/sign-in',
-  '/sign-in',
 ]);
 
 const profilePaths = parsePaths(import.meta.env.VITE_USER_API_PROFILE_PATHS, [
