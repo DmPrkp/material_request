@@ -25,16 +25,13 @@ const userApiPrefix =
   DEFAULT_AUTH_PREFIX;
 
 const loginPaths = parsePaths(import.meta.env.VITE_USER_API_LOGIN_PATHS, [
-  '/auth/login',
-  '/login',
-  '/users/login',
+  '/auth/log-in',
+  '/log-in',
 ]);
 
 const registerPaths = parsePaths(import.meta.env.VITE_USER_API_REGISTER_PATHS, [
-  '/auth/register',
-  '/register',
-  '/users/register',
-  '/signup',
+  '/auth/sign-in',
+  '/sign-in',
 ]);
 
 const profilePaths = parsePaths(import.meta.env.VITE_USER_API_PROFILE_PATHS, [
@@ -95,27 +92,17 @@ export default class AuthModel extends BaseModel {
   }
 
   static login(email: string, password: string) {
-    const payload = {
+    return this.postWithFallback(loginPaths, {
       email,
-      login: email,
-      username: email,
       password,
-      password_confirmation: password,
-    };
-
-    return this.postWithFallback(loginPaths, payload);
+    });
   }
 
   static register(email: string, password: string) {
-    const payload = {
+    return this.postWithFallback(registerPaths, {
       email,
-      login: email,
-      username: email,
       password,
-      password_confirmation: password,
-    };
-
-    return this.postWithFallback(registerPaths, payload);
+    });
   }
 
   static profile() {
