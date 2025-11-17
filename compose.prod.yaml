@@ -40,7 +40,7 @@ services:
     ports:
       - 4200:4200
     env_file:
-      - ./secrets/order-db/.db.env
+      - ./secrets/user-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
