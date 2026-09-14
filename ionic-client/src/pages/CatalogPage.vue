@@ -24,6 +24,12 @@
   const router = useRouter();
 
   function chooseSection(item: MainMenuItem) {
+    // По имени, а не по пути: путь /catalog/systems и так разобрался бы в свой роут,
+    // но переход по имени catalog-section увёл бы его в гвард вкладок и обратно в меню.
+    if (item.title === "systems") {
+      router.push({ name: "catalog-systems" });
+      return;
+    }
     router.push({ name: "catalog-section", params: { tab: item.title } });
   }
 </script>

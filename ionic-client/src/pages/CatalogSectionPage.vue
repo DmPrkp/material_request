@@ -59,6 +59,7 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
+  import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router";
   import {
     IonAccordionGroup,
@@ -195,8 +196,11 @@
     variantsById.value = { ...variantsById.value, [id]: variants ?? [] };
   }
 
-  /** Первая загрузка и переход между разделами — один и тот же путь. */
-  watch(tab, () => void reload(), { immediate: true });
+  // Имена приходят с сервера уже на языке интерфейса — сменили язык, перечитываем.
+  const { locale } = useI18n({ useScope: "global" });
+
+  /** Первая загрузка, переход между разделами и смена языка — один и тот же путь. */
+  watch([tab, locale], () => void reload(), { immediate: true });
 </script>
 
 <style scoped>

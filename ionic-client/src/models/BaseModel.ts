@@ -1,3 +1,18 @@
+/**
+ * Ответ не 2xx. message по-прежнему statusText — старые вызовы его и показывают, —
+ * а status нужен тем, кто различает «войдите заново» (401) и «уже есть» (409):
+ * по HTTP/2 statusText вообще пустой.
+ */
+export class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    statusText: string,
+  ) {
+    super(statusText);
+    this.name = "HttpError";
+  }
+}
+
 export default class BaseModel {
   static baseURL: string;
 
@@ -21,6 +36,16 @@ export default class BaseModel {
       delete headers["Authorization"];
     }
 
+    this.baseOpts.headers = headers;
+  }
+
+  /**
+   * Язык ответов: словарь отдаёт одно name/description на этом языке (или русское,
+   * если перевода нет). Ставит setI18nLocale — единая точка смены языка.
+   */
+  static setLocale(locale: string) {
+    const headers = (this.baseOpts.headers || {}) as Record<string, string>;
+    headers["Accept-Language"] = locale;
     this.baseOpts.headers = headers;
   }
 
@@ -90,7 +115,34 @@ export default class BaseModel {
     const response = await fetch(query, options);
 
     if (!response.ok) {
-      throw new Error(response.statusText);
+      throw new HttpError(response.status, response.statusText);
+    }
+
+    return response.json();
+  }
+
+  static async patch<R>({
+    params,
+    body,
+    opts,
+  }: {
+    params: string;
+    body?: Record<string, unknown>;
+    opts?: RequestInit;
+  }): Promise<R> {
+    const options = Object.assign(
+      {
+        method: "PATCH",
+        body: body ? JSON.stringify(body) : undefined,
+      },
+      this.baseOpts,
+      opts
+    );
+
+    const response = await fetch(this.buildUrl(params), options);
+
+    if (!response.ok) {
+      throw new HttpError(response.status, response.statusText);
     }
 
     return response.json();

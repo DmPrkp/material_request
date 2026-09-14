@@ -1,5 +1,6 @@
 import { createI18n } from "vue-i18n";
 import { Locale } from "@/types";
+import BaseModel from "@/models/BaseModel";
 
 type LocaleModule = { default: Record<string, unknown> };
 
@@ -92,6 +93,10 @@ export async function loadLocaleMessages(locale: Locale) {
 /** Единая точка смены языка: словарь + i18n + <html lang> + localStorage */
 export async function setI18nLocale(value: Locale) {
   await loadLocaleMessages(value);
+
+  // Язык ответов словаря (одно name вместо nameRu/nameEn). До смены локали:
+  // страницы перечитывают данные в watch(locale), и запрос должен уйти уже с ним.
+  BaseModel.setLocale(value);
 
   if (i18n.global.locale.value !== value) {
     i18n.global.locale.value = value;

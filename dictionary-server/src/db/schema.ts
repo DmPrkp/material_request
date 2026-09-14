@@ -1,6 +1,8 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
+  check,
   index,
   integer,
   numeric,
@@ -95,28 +97,93 @@ export const paramValues = pgTable(
 
 /* ---------------------------------------------------------------- структура */
 
-export const systems = pgTable('systems', {
+/**
+ * Кто завёл запись — id пользователя из user-server (sub в JWT).
+ *
+ * Без FK: пользователи живут в другой базе. NULL — запись из сидов, её никто
+ * не добавлял руками. Проставляет только API, из тела запроса не принимается.
+ */
+const authorship = {
+  createdBy: integer('created_by'),
+};
+
+/**
+ * Вид работ: фасад, кровля, внутренняя отделка — верхний уровень над технологиями
+ * (systems). Отдельная таблица, а не строка у технологии: виды будут добавляться,
+ * и у каждого своё название на двух языках.
+ */
+export const workTypes = pgTable('work_types', {
   id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
-  title: varchar('title', { length: 50 }).notNull().unique(),
-  description: varchar('description', { length: 200 }),
+  /** Сегмент адреса на клиенте (/catalog/systems/facade) и ключ картинки плитки. */
+  code: varchar('code', { length: 32 }).notNull().unique(),
+  nameRu: varchar('name_ru', { length: 100 }).notNull(),
+  nameEn: varchar('name_en', { length: 100 }).notNull(),
+  ...authorship,
   ...lifecycle,
 });
 
-/** Бывш. components — этап/слой работ внутри системы. `layer` стал `position`. */
+/**
+ * Название этапа или технологии на двух языках. Пишется только на языке, на котором
+ * человек работал в интерфейсе, остальные остаются пустыми; наружу уходит одно
+ * name — на языке запроса или ближайшее заполненное (common/localize.ts).
+ */
+const names = {
+  nameRu: varchar('name_ru', { length: 100 }),
+  nameEn: varchar('name_en', { length: 100 }),
+};
+
+/**
+ * Пустыми все языки быть не могут: такую запись не показать ни под одним адресом.
+ * Держит база, а не только схема API: правкой можно стереть последнее название.
+ */
+const namePresent = (table: string, t: { nameRu: AnyPgColumn; nameEn: AnyPgColumn }) =>
+  check(`${table}_name_present`, sql`coalesce(${t.nameRu}, '') <> '' or coalesce(${t.nameEn}, '') <> ''`);
+
+/**
+ * Технология работ (в интерфейсе — «технология», в API и базе — systems).
+ *
+ * title — технический код, людям его не показывают: по нему ходят calc-server
+ * (/:workType/:system) и ключи i18n калькулятора. У заведённых с клиента его
+ * генерирует сервис (common/code.ts).
+ */
+export const systems = pgTable(
+  'systems',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    title: varchar('title', { length: 50 }).notNull().unique(),
+    ...names,
+    descriptionRu: varchar('description_ru', { length: 200 }),
+    descriptionEn: varchar('description_en', { length: 200 }),
+    workTypeId: integer('work_type_id')
+      .notNull()
+      .references(() => workTypes.id, { onDelete: 'restrict' }),
+    ...authorship,
+    ...lifecycle,
+  },
+  (t) => [index('systems_work_type_idx').on(t.workTypeId), namePresent('systems', t)],
+);
+
+/**
+ * Бывш. components — этап/слой работ внутри системы. `layer` стал `position`.
+ * title — технический код, как у технологии; людям — name.
+ */
 export const workStages = pgTable(
   'work_stages',
   {
     id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
     title: varchar('title', { length: 50 }).notNull().unique(),
+    ...names,
     position: smallint('position').notNull(),
     systemId: integer('system_id')
       .notNull()
       .references(() => systems.id, { onDelete: 'restrict' }),
+    ...authorship,
     ...lifecycle,
   },
   (t) => [
     index('work_stages_system_idx').on(t.systemId),
     uniqueIndex('work_stages_system_position_uq').on(t.systemId, t.position),
+    namePresent('work_stages', t),
   ],
 );
 
@@ -253,7 +320,12 @@ export const paramValuesRelations = relations(paramValues, ({ one, many }) => ({
   materialVariantParams: many(materialVariantParams),
 }));
 
-export const systemsRelations = relations(systems, ({ many }) => ({
+export const workTypesRelations = relations(workTypes, ({ many }) => ({
+  systems: many(systems),
+}));
+
+export const systemsRelations = relations(systems, ({ one, many }) => ({
+  workType: one(workTypes, { fields: [systems.workTypeId], references: [workTypes.id] }),
   workStages: many(workStages),
 }));
 

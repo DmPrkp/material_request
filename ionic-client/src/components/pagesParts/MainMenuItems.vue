@@ -41,7 +41,7 @@
                 color: var(--ion-color-secondary);
               "
             >
-              {{ $t(`${props.i18nPrefix}.${item.title}`) }}
+              {{ item.label ?? $t(`${props.i18nPrefix}.${item.title}`) }}
             </ion-card-title>
           </ion-card-header>
         </ion-card>

@@ -85,20 +85,14 @@
     expandable: boolean;
   }>();
 
-  const { t, te, locale } = useI18n({ useScope: "global" });
+  const { t, te } = useI18n({ useScope: "global" });
 
-  const isEn = computed(() => locale.value === "en");
+  // Имя и описание словарь отдаёт уже на языке интерфейса (Accept-Language).
+  const title = computed(() => props.item.name);
 
-  const title = computed(() =>
-    isEn.value ? props.item.nameEn : props.item.nameRu,
+  const description = computed(() =>
+    "description" in props.item ? props.item.description || "" : "",
   );
-
-  const description = computed(() => {
-    if (!("descriptionRu" in props.item)) return "";
-    return (
-      (isEn.value ? props.item.descriptionEn : props.item.descriptionRu) || ""
-    );
-  });
 
   /** У материала в подзаголовке — единица измерения. */
   const subtitle = computed(() => {
@@ -114,7 +108,7 @@
   /** Тип есть только у материалов, и он необязательный. */
   const materialType = computed(() => {
     if (!("type" in props.item) || !props.item.type) return "";
-    return isEn.value ? props.item.type.nameEn : props.item.type.nameRu;
+    return props.item.type.name;
   });
 
   /** Если ключа в словаре нет — показываем сам код, а не «measure.xyz». */

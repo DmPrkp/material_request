@@ -1,8 +1,30 @@
-import { Body, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, type Type } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import {
+  applyDecorators,
+  Body,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  type Type,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { ZodValidationPipe } from 'nestjs-zod';
 import type { ZodTypeAny } from 'zod';
 
+import { JwtAuthGuard } from '~/auth/auth.guard';
+import { CurrentUser } from '~/auth/current-user.decorator';
+import type { AuthUser } from '~/auth/jwt-payload';
 import type { CrudService } from './crud.service';
 import { hardDeleteQuery } from './delete-query';
 import { ListQueryDto } from './list-query.dto';
@@ -15,6 +37,12 @@ export type DictionaryControllerOptions = {
   updateSchema: ZodTypeAny;
   createDto: Type<unknown>;
   updateDto: Type<unknown>;
+  /**
+   * Запись (создание, правка, удаление, восстановление) — только с токеном user-server,
+   * а создание проставляет created_by = id пользователя. Чтение остаётся открытым.
+   * У таблицы обязана быть колонка createdBy (см. authorship в schema.ts).
+   */
+  authored?: boolean;
 };
 
 /**
@@ -29,6 +57,16 @@ export type DictionaryControllerOptions = {
  * и Nest не может заинжектить сервис в конструктор наследника.
  */
 export function createDictionaryController(options: DictionaryControllerOptions) {
+  // Закрываем именно запись, а не контроллер целиком: справочник читают и анонимы
+  // (сборники на клиенте открыты без входа).
+  const Writes = options.authored
+    ? applyDecorators(
+        UseGuards(JwtAuthGuard),
+        ApiBearerAuth(),
+        ApiUnauthorizedResponse({ description: 'Нет токена user-server или он недействителен' }),
+      )
+    : applyDecorators();
+
   abstract class DictionaryController {
     protected abstract readonly service: CrudService<{ id: number }>;
 
@@ -47,13 +85,19 @@ export function createDictionaryController(options: DictionaryControllerOptions)
     }
 
     @Post()
+    @Writes
     @ApiOperation({ summary: 'Создать позицию' })
     @ApiBody({ type: options.createDto })
-    create(@Body(new ZodValidationPipe(options.createSchema)) dto: Record<string, unknown>) {
-      return this.service.create(dto);
+    create(
+      @Body(new ZodValidationPipe(options.createSchema)) dto: Record<string, unknown>,
+      @CurrentUser() user: AuthUser | undefined,
+    ) {
+      // user здесь есть всегда: при authored до метода без токена не дойти (JwtAuthGuard).
+      return this.service.create(options.authored ? { ...dto, createdBy: user!.id } : dto);
     }
 
     @Patch(':id')
+    @Writes
     @ApiOperation({ summary: 'Изменить позицию' })
     @ApiBody({ type: options.updateDto })
     update(
@@ -64,6 +108,7 @@ export function createDictionaryController(options: DictionaryControllerOptions)
     }
 
     @Delete(':id')
+    @Writes
     @ApiOperation({
       summary: 'Удалить позицию',
       description:
@@ -82,6 +127,7 @@ export function createDictionaryController(options: DictionaryControllerOptions)
     }
 
     @Post(':id/restore')
+    @Writes
     @ApiOperation({ summary: 'Вернуть архивную позицию в строй' })
     restore(@Param('id', ParseIntPipe) id: number) {
       return this.service.restore(id);

@@ -30,6 +30,30 @@ const routeMeta: Keys = {
       ru: "Сборники: электроинструмент",
     },
   },
+  "catalog/systems": {
+    key: {
+      en: "Catalogs: work technologies and stages",
+      ru: "Сборники: технологии и этапы работ",
+    },
+  },
+  "catalog/systems/facade": {
+    key: {
+      en: "Catalogs: facade work technologies",
+      ru: "Сборники: технологии фасадных работ",
+    },
+  },
+  "catalog/systems/roof": {
+    key: {
+      en: "Catalogs: roofing technologies",
+      ru: "Сборники: технологии кровельных работ",
+    },
+  },
+  "catalog/systems/interior": {
+    key: {
+      en: "Catalogs: interior finishing technologies",
+      ru: "Сборники: технологии внутренней отделки",
+    },
+  },
   about: {
     key: {
       en: "About the Project",

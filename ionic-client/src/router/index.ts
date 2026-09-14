@@ -31,6 +31,25 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true },
         children: [
           {
+            // Статический сегмент выигрывает у :tab при разборе адреса. Отдельная
+            // страница, а не ещё одна вкладка CATALOG_TABS: тут не плоский список
+            // позиций, а системы с этапами и формы добавления.
+            path: "systems",
+            name: "catalog-systems",
+            component: () => import("@/pages/CatalogSystemsPage.vue"),
+            meta: { requiresAuth: true },
+            children: [
+              {
+                // code вида работ из словаря (facade, roof, interior…), а не
+                // фиксированный список: новые виды заводятся без правки роутера.
+                path: ":workType",
+                name: "catalog-work-type",
+                component: () => import("@/pages/CatalogTechnologiesPage.vue"),
+                meta: { requiresAuth: true },
+              },
+            ],
+          },
+          {
             path: ":tab",
             name: "catalog-section",
             component: () => import("@/pages/CatalogSectionPage.vue"),

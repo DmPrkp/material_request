@@ -1,10 +1,12 @@
 import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 import { AppModule } from './app.module';
+import { LocalizeInterceptor } from './common/localize.interceptor';
+import { PgConstraintFilter } from './common/pg-errors.filter';
 
 const PREFIX = 'dict/api/v1';
 const PORT = Number(process.env.PORT ?? 4300);
@@ -16,6 +18,9 @@ async function bootstrap(): Promise<void> {
   app.enableShutdownHooks();
   // Валидацию целиком делает Zod — ValidationPipe с class-validator тут не нужен.
   app.useGlobalPipes(new ZodValidationPipe());
+  app.useGlobalFilters(new PgConstraintFilter(app.get(HttpAdapterHost).httpAdapter));
+  // nameRu/nameEn -> одно name на языке запроса (Accept-Language, по умолчанию ru).
+  app.useGlobalInterceptors(new LocalizeInterceptor());
 
   const document = SwaggerModule.createDocument(
     app,
@@ -27,6 +32,24 @@ async function bootstrap(): Promise<void> {
       )
       .setVersion('1.0.0')
       .addServer(`/${PREFIX}`)
+      // Токен выдаёт user-server: POST /user/api/v1/auth/login -> accessToken.
+      .addBearerAuth()
+      .addGlobalParameters(
+        {
+          in: 'header',
+          name: 'Accept-Language',
+          required: false,
+          description: 'Язык name/description в ответе. Нет перевода или язык неизвестен — ru.',
+          schema: { type: 'string', enum: ['ru', 'en'], default: 'ru' },
+        },
+        {
+          in: 'query',
+          name: 'translations',
+          required: false,
+          description: 'all — отдать поля на всех языках (nameRu/nameEn…) без сворачивания: для форм правки.',
+          schema: { type: 'string', enum: ['all'] },
+        },
+      )
       .build(),
   );
 

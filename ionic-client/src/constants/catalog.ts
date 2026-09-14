@@ -1,4 +1,9 @@
-import { cubeOutline, flashOutline, hammerOutline } from "ionicons/icons";
+import {
+  cubeOutline,
+  flashOutline,
+  hammerOutline,
+  layersOutline,
+} from "ionicons/icons";
 import type { MainMenuItem } from "@/types/controller/main-menu";
 
 /** Разделы сборников — они же сегмент роута /:locale/catalog/:tab. */
@@ -40,6 +45,12 @@ export const CATALOG_MENU: MainMenuItem[] = [
       alt: "materials",
       width: 150,
     },
+  },
+  {
+    // Не вкладка CATALOG_TABS, а свой роут catalog-systems: см. src/router/index.ts.
+    title: "systems",
+    description: "work technologies and stages",
+    icon: layersOutline,
   },
 ];
 

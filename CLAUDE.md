@@ -39,8 +39,10 @@ docker compose -f compose.dev.yaml -p matli-dev up -d db dictionary-server
 (order/user дополнительно `DATABASE_URL` для Prisma; dictionary-server соберёт строку
 подключения сам — см. `dictionary-server/src/db/config.ts`).
 
-user-server дополнительно читает `JWT_SECRET` (без него секрет случайный на каждый
-запуск: токены не переживают рестарт, другие сервисы проверить их не смогут),
+`JWT_SECRET` лежит отдельно — `secrets/jwt/.jwt.env`, compose подключает его и user-server
+(подписывает токены), и dictionary-server (проверяет их). Файл обязателен, в том числе на
+проде. Без секрета user-server берёт случайный на каждый запуск (токены не переживают
+рестарт), а справочник отвечает 503 на любую запись. user-server дополнительно читает
 `JWT_EXPIRES_IN` (по умолчанию `1h`) и `DEFAULT_ADMIN_LOGIN` / `DEFAULT_ADMIN_PASSWORD` /
 `DEFAULT_ADMIN_FIRST_NAME`. Админа с id 1 сервис заводит сам при старте, если его нет;
 без `DEFAULT_ADMIN_PASSWORD` пароль генерируется и печатается в лог контейнера один раз.
@@ -134,6 +136,31 @@ e2e клиента там закомментированы. Деплой — `./
 и Nest не сможет заинжектить сервис**.
 
 Общее поведение, которое не надо переизобретать в каждом ресурсе:
+
+- Иерархия структуры: `work_types` (вид работ: фасад, кровля, внутренняя отделка) →
+  `systems` (в интерфейсе — «технологии работ», `work_type_id` NOT NULL) → `work_stages`.
+  На клиенте — `/:locale/catalog/systems` (плитка видов из словаря) и
+  `/:locale/catalog/systems/:workType` (технологии вида по его `code`).
+  У технологий и этапов `title` — технический код (по нему ходит calc-server), людям
+  показывается `name_ru`/`name_en`. Форма пишет только язык страницы, остальные
+  остаются пустыми; хоть одно название обязательно (`CHECK *_name_present`). С клиента `title`
+  не шлют — сервис генерирует его сам (`src/common/code.ts`).
+- `authored: true` в опциях фабрики (сейчас у `work-types`, `systems` и `work-stages`) закрывает
+  запись (`POST`/`PATCH`/`DELETE`/`restore`) гвардом `JwtAuthGuard` (`src/auth/`), а
+  создание проставляет `created_by` = `sub` из токена. Токен проверяется по общему
+  `JWT_SECRET` прямо в справочнике, а не заголовком от nginx: порт 4300 открыт мимо
+  nginx, заголовок подделал бы кто угодно. `created_by` без FK, из тела не принимается.
+  Остальные справочники пока пишутся без входа.
+- нарушение `UNIQUE`/FK в базе — `409` (`PgConstraintFilter`), а не `500`.
+- язык ответа: любая пара `xRu`/`xEn` (в том числе во вложенных `unit`, `type`) уходит
+  наружу одним полем `x` — `name`, `description` — на языке из `Accept-Language`
+  (`LocalizeInterceptor`, `src/common/localize.ts`). Неизвестный язык — `ru`; на
+  запрошенном пусто — ближайшее заполненное: сначала `ru`, потом остальные.
+  Писать по-прежнему оба поля. Клиент шлёт язык из URL (`BaseModel.setLocale`, его
+  зовёт `setI18nLocale`), поэтому страницы со справочником перечитывают данные при
+  смене языка — сами `nameRu`/`nameEn` на клиенте не выбирают и ничего из данных
+  словаря через i18n не переводят. Исключение одно — форма правки: ей нужны оба
+  языка, и она просит их `?translations=all` (сворачивание отключается).
 
 - `DELETE /:id` — мягкое (`is_active = false`), `?hard=true` — физическое с `409`
   и списком мешающих ссылок. Ссылки из норм расхода в calc-server отсюда не видны.
@@ -235,5 +262,14 @@ e2e клиента там закомментированы. Деплой — `./
   ссылок в коде. `.github/copilot-instructions.md` устарел — обещает каталог
   `shared/`, которого нет, интеграцию с MQTT, которой нет, и не знает про
   user-server и dictionary-server.
+- `drizzle-kit push --force` при старте dev-контейнера словаря **падает каждый раз**:
+  он заново предлагает добавить уже существующий `param_values_kind_value_unit_uq`
+  (`NULLS NOT DISTINCT`), спрашивает про truncate и без TTY валится, а `&&` дальше
+  почему-то проходит — сиды и сервер стартуют на старой схеме. Новые колонки до базы
+  сами не доезжают: `created_by` и `work_types` (+ `systems.work_type_id`) в dev
+  накатаны руками SQL, отметка `work-types` в `seed_history` поставлена там же;
+  так же — `name_ru`/`name_en`/`description_*` у `systems` и `name_*` у `work_stages`
+  (старая колонка `systems.description` удалена), потом `name_ru` там же сделан
+  необязательным и добавлены `CHECK systems_name_present` / `work_stages_name_present`.
 - Версия Postgres в compose закреплена (`postgres:18-alpine`) намеренно: незакреплённый
   тег однажды принёс новый мажор, не читающий старый каталог данных.

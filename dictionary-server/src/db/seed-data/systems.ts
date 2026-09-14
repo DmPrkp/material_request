@@ -1,8 +1,45 @@
-/** Системы работ. */
-type System = { id: number; title: string; description: string | null };
+/**
+ * Технологии работ; workTypeId — вид работ из work-types.ts (все нынешние — фасад).
+ *
+ * title — технический код: по нему ходят calc-server (/:workType/:system) и ключи
+ * i18n калькулятора, поэтому менять его нельзя. Людям показывается name.
+ */
+type System = {
+  id: number;
+  title: string;
+  nameRu: string;
+  nameEn: string | null;
+  descriptionRu: string | null;
+  descriptionEn: string | null;
+  workTypeId: number;
+};
 
 export const systems: System[] = [
-  {"id": 1, "title": "EIFS", "description": "Exterior insulation finishing systems"},
-  {"id": 2, "title": "frame_scaffold", "description": "frame scaffold system"},
-  {"id": 999, "title": "TEST", "description": "test system"},
+  {
+    "id": 1,
+    "title": "EIFS",
+    "nameRu": "Мокрый фасад",
+    "nameEn": "EIFS",
+    "descriptionRu": "Системы фасадные теплоизоляционные с тонким штукатурным слоем",
+    "descriptionEn": "Exterior insulation finishing systems",
+    "workTypeId": 1,
+  },
+  {
+    "id": 2,
+    "title": "frame_scaffold",
+    "nameRu": "Рамные строительные леса ячейка 2х3м",
+    "nameEn": "Frame scaffold set 2x3m",
+    "descriptionRu": "Рамные строительные леса",
+    "descriptionEn": "frame scaffold system",
+    "workTypeId": 1,
+  },
+  {
+    "id": 999,
+    "title": "TEST",
+    "nameRu": "Тестовая технология",
+    "nameEn": "Test system",
+    "descriptionRu": "Для проверки",
+    "descriptionEn": "test system",
+    "workTypeId": 1,
+  },
 ];

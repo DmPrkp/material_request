@@ -91,4 +91,9 @@ export type {
   DictionaryPowerTool,
   DictionaryVariant,
   DictionaryVariantParam,
+  DictionarySystem,
+  DictionarySystemTranslations,
+  DictionaryWorkStage,
+  DictionaryWorkStageTranslations,
+  DictionaryWorkType,
 } from "./dictionary";

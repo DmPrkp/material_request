@@ -39,6 +39,7 @@ const SEQUENCE_TABLES = [
   'units',
   'param_kinds',
   'param_values',
+  'work_types',
   'systems',
   'work_stages',
   'hand_tools',
@@ -95,6 +96,8 @@ const STEPS: Step[] = [
         tx.insert(schema.paramValues).values(data.paramValues.map((p) => ({ ...p, value: String(p.value) }))),
       ),
   },
+  // Виды работ идут до технологий: у технологии на них FK.
+  { name: 'work-types', run: (tx) => insert(tx.insert(schema.workTypes).values(data.workTypes)) },
   { name: 'systems', run: (tx) => insert(tx.insert(schema.systems).values(data.systems)) },
   { name: 'work-stages', run: (tx) => insert(tx.insert(schema.workStages).values(data.workStages)) },
   { name: 'hand-tools', run: (tx) => insert(tx.insert(schema.handTools).values(data.handTools)) },

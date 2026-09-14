@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const routes = [
   // Сборники: меню разделов и сами разделы — каждый по своему адресу.
-  // Список детей должен совпадать с CATALOG_TABS из src/constants/catalog.ts.
+  // Список детей должен совпадать с CATALOG_MENU из src/constants/catalog.ts.
   {
     path: "ru/catalog",
     name: "catalog",
@@ -12,6 +12,15 @@ const routes = [
       { path: "materials" },
       { path: "hand_tools" },
       { path: "power_tools" },
+      // Виды работ приходят из словаря — здесь только те, что заведены сидами.
+      {
+        path: "systems",
+        children: [
+          { path: "facade" },
+          { path: "roof" },
+          { path: "interior" },
+        ],
+      },
     ],
   },
   {

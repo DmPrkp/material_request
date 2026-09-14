@@ -1,6 +1,7 @@
 export { units } from './units';
 export { paramKinds } from './param-kinds';
 export { paramValues } from './param-values';
+export { workTypes } from './work-types';
 export { systems } from './systems';
 export { workStages } from './work-stages';
 export { handTools } from './hand-tools';
