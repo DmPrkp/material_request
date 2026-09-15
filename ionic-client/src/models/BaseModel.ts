@@ -24,6 +24,21 @@ export default class BaseModel {
     },
   };
 
+  /**
+   * Сервер не принял наш токен: протух или подписан другим секретом. Ставит стор
+   * авторизации — он выходит из аккаунта, и интерфейс перестаёт показывать кнопки
+   * записи, на которые сервер всё равно ответит 401.
+   */
+  static onUnauthorized?: () => void;
+
+  /** Только если токен вообще отправляли: 401 на вход с неверным паролем — не про это. */
+  private static notifyUnauthorized(status: number) {
+    const headers = this.baseOpts.headers as Record<string, string> | undefined;
+    if (status === 401 && headers?.["Authorization"]) {
+      BaseModel.onUnauthorized?.();
+    }
+  }
+
   static setAuthToken(token?: string, scheme = "Bearer") {
     const headers = (this.baseOpts.headers || {}) as Record<string, string>;
 
@@ -82,6 +97,7 @@ export default class BaseModel {
       // Заголовки нужны и GET-у: без Authorization закрытые эндпоинты (профиль) отвечали 401.
       const response = await fetch(url, { headers: this.baseOpts.headers });
       if (!response.ok) {
+        this.notifyUnauthorized(response.status);
         throw new Error(response.statusText);
       }
       return await response.json();
@@ -115,6 +131,7 @@ export default class BaseModel {
     const response = await fetch(query, options);
 
     if (!response.ok) {
+      this.notifyUnauthorized(response.status);
       throw new HttpError(response.status, response.statusText);
     }
 
@@ -142,6 +159,7 @@ export default class BaseModel {
     const response = await fetch(this.buildUrl(params), options);
 
     if (!response.ok) {
+      this.notifyUnauthorized(response.status);
       throw new HttpError(response.status, response.statusText);
     }
 
@@ -173,7 +191,9 @@ export default class BaseModel {
     const response = await fetch(query, options);
 
     if (!response.ok) {
-      throw new Error(response.statusText);
+      this.notifyUnauthorized(response.status);
+      // HttpError — наследник Error с тем же message: старым вызовам всё равно.
+      throw new HttpError(response.status, response.statusText);
     }
 
     return await response.json();

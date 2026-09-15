@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '~/auth/auth.guard';
 import { ListQueryDto } from '~/common/list-query.dto';
 import { createDictionaryController } from '~/common/dictionary.controller';
 import {
@@ -10,6 +11,7 @@ import {
   CreatePowerToolDto,
   CreateVariantDto,
   MaterialQueryDto,
+  ReplaceVariantParamsDto,
   UpdateHandToolDto,
   UpdateMaterialDto,
   UpdateMaterialTypeDto,
@@ -39,6 +41,7 @@ export class HandToolsController extends createDictionaryController({
   updateSchema: updateHandToolSchema,
   createDto: CreateHandToolDto,
   updateDto: UpdateHandToolDto,
+  authored: true,
 }) {
   constructor(
     protected readonly service: HandToolsService,
@@ -50,7 +53,7 @@ export class HandToolsController extends createDictionaryController({
   @Get()
   @ApiOperation({
     summary: 'Ручной инструмент вместе с числом типоразмеров',
-    description: 'variantsCount — сколько типоразмеров у позиции; 0 значит разворачивать нечего.',
+    description: 'variantsCount — сколько типоразмеров с параметрами; служебный вариант без параметров не в счёт.',
   })
   override list(@Query() query: ListQueryDto) {
     return this.service.listWithVariantCount(query);
@@ -62,10 +65,36 @@ export class HandToolsController extends createDictionaryController({
     return this.variants.listByOwner('hand-tool', id);
   }
 
+  // Типоразмеры — часть инструмента, запись закрыта так же, как у него самого (authored).
+
   @Post(':id/variants')
-  @ApiOperation({ summary: 'Добавить типоразмер. code собирается автоматически' })
-  createVariant(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateVariantDto) {
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Добавить типоразмер. code собирается автоматически',
+    description: 'params — тройки «вид, единица, число»: значения, которых ещё нет, заводятся сами.',
+  })
+  createVariant(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CreateVariantDto,
+  ) {
     return this.variants.create('hand-tool', id, dto);
+  }
+
+  @Put(':id/variants/:variantId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Заменить параметры типоразмера',
+    description:
+      'Набор заменяется целиком, code пересчитывается. id варианта прежний — на него ссылаются нормы расхода.',
+  })
+  replaceVariantParams(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('variantId', ParseIntPipe) variantId: number,
+    @Body() dto: ReplaceVariantParamsDto,
+  ) {
+    return this.variants.replaceParams('hand-tool', id, variantId, dto.params);
   }
 }
 
@@ -105,6 +134,7 @@ export class MaterialsController extends createDictionaryController({
   updateSchema: updateMaterialSchema,
   createDto: CreateMaterialDto,
   updateDto: UpdateMaterialDto,
+  authored: true,
 }) {
   constructor(
     protected readonly service: MaterialsService,
@@ -118,7 +148,7 @@ export class MaterialsController extends createDictionaryController({
     summary: 'Материалы вместе с единицей измерения, типом и числом типоразмеров',
     description:
       'Фильтры: ?typeId= — материалы одного типа, ?untyped=true — те, у кого тип ещё не проставлен. ' +
-      'variantsCount — сколько типоразмеров у позиции; 0 значит разворачивать нечего.',
+      'variantsCount — сколько типоразмеров с параметрами; служебный вариант без параметров не в счёт.',
   })
   override list(@Query() query: MaterialQueryDto) {
     return this.service.listWithUnit(query);
@@ -130,9 +160,32 @@ export class MaterialsController extends createDictionaryController({
     return this.variants.listByOwner('material', id);
   }
 
+  // Сборки — часть материала, запись закрыта так же, как у него самого (authored).
+
   @Post(':id/variants')
-  @ApiOperation({ summary: 'Добавить типоразмер. code собирается автоматически' })
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Добавить типоразмер. code собирается автоматически',
+    description: 'params — тройки «вид, единица, число»: значения, которых ещё нет, заводятся сами.',
+  })
   createVariant(@Param('id', ParseIntPipe) id: number, @Body() dto: CreateVariantDto) {
     return this.variants.create('material', id, dto);
+  }
+
+  @Put(':id/variants/:variantId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Заменить параметры типоразмера',
+    description:
+      'Набор заменяется целиком, code пересчитывается. id варианта прежний — на него ссылаются нормы расхода.',
+  })
+  replaceVariantParams(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('variantId', ParseIntPipe) variantId: number,
+    @Body() dto: ReplaceVariantParamsDto,
+  ) {
+    return this.variants.replaceParams('material', id, variantId, dto.params);
   }
 }

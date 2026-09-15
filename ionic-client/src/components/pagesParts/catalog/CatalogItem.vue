@@ -9,6 +9,18 @@
         {{ corded ? $t("pages.catalog.corded") : $t("pages.catalog.cordless") }}
       </p>
     </ion-label>
+    <ion-button
+      v-if="editable"
+      slot="end"
+      fill="clear"
+      :aria-label="$t('pages.catalog.edit')"
+      @click="emit('edit')"
+    >
+      <ion-icon
+        slot="icon-only"
+        :icon="createOutline"
+      />
+    </ion-button>
   </ion-item>
 
   <ion-accordion
@@ -20,6 +32,19 @@
         <h3>{{ title }}</h3>
         <p v-if="subtitle">{{ subtitle }}</p>
       </ion-label>
+      <!-- .stop: клик по карандашу иначе заодно раскрыл бы аккордеон. -->
+      <ion-button
+        v-if="editable"
+        slot="end"
+        fill="clear"
+        :aria-label="$t('pages.catalog.edit')"
+        @click.stop="emit('edit')"
+      >
+        <ion-icon
+          slot="icon-only"
+          :icon="createOutline"
+        />
+      </ion-button>
     </ion-item>
 
     <div
@@ -28,34 +53,61 @@
     >
       <p v-if="description">{{ description }}</p>
 
-      <ion-spinner
-        v-if="variants === undefined"
-        name="dots"
-      />
-      <ion-note v-else-if="!variants.length">
-        {{ $t("pages.catalog.no_variants") }}
-      </ion-note>
-      <ion-list v-else>
-        <ion-item
-          v-for="variant in variants"
-          :key="variant.id"
-          lines="none"
-        >
-          <ion-label>
-            <span v-if="!variant.params.length">
-              {{ $t("pages.catalog.single_variant") }}
-            </span>
-            <span
-              v-for="param in variant.params"
-              :key="param.paramValueId"
-              class="param"
+      <!-- Раскрыли ради описания — блока типоразмеров нет вовсе. -->
+      <template v-if="hasSizes">
+        <ion-spinner
+          v-if="variants === undefined"
+          name="dots"
+        />
+        <ion-note v-else-if="!variants.length">
+          {{ $t("pages.catalog.no_variants") }}
+        </ion-note>
+        <ion-list v-else>
+          <ion-item
+            v-for="variant in variants"
+            :key="variant.id"
+            lines="none"
+          >
+            <ion-label>
+              <span v-if="!variant.params.length">
+                {{ $t("pages.catalog.single_variant") }}
+              </span>
+              <span
+                v-for="param in variant.params"
+                :key="param.paramValueId"
+                class="param"
+              >
+                {{ paramLabel(param) }}
+              </span>
+            </ion-label>
+            <ion-note slot="end">{{ variant.code }}</ion-note>
+            <ion-button
+              v-if="variantsEditable"
+              slot="end"
+              fill="clear"
+              :aria-label="$t('pages.catalog.params.edit_variant_aria')"
+              @click="emit('editVariant', variant)"
             >
-              {{ paramLabel(param) }}
-            </span>
-          </ion-label>
-          <ion-note slot="end">{{ variant.code }}</ion-note>
-        </ion-item>
-      </ion-list>
+              <ion-icon
+                slot="icon-only"
+                :icon="createOutline"
+              />
+            </ion-button>
+          </ion-item>
+        </ion-list>
+        <ion-button
+          v-if="variantsEditable && variants !== undefined"
+          fill="clear"
+          size="small"
+          @click="emit('addVariant')"
+        >
+          <ion-icon
+            slot="start"
+            :icon="addOutline"
+          />
+          {{ $t("pages.catalog.params.add_variant") }}
+        </ion-button>
+      </template>
     </div>
   </ion-accordion>
 </template>
@@ -63,7 +115,8 @@
 <script setup lang="ts">
   import { computed } from "vue";
   import { useI18n } from "vue-i18n";
-  import { IonAccordion, IonNote } from "@ionic/vue";
+  import { IonAccordion, IonIcon, IonNote } from "@ionic/vue";
+  import { addOutline, createOutline } from "ionicons/icons";
   import type {
     DictionaryHandTool,
     DictionaryMaterial,
@@ -81,8 +134,19 @@
     item: CatalogEntry;
     /** Типоразмеры: undefined — ещё грузятся, [] — их нет. */
     variants?: DictionaryVariant[];
-    /** Есть ли у этой позиции типоразмеры — считается по variantsCount из списка. */
+    /** Раскрывать ли: есть типоразмеры или описание — решает страница. */
     expandable: boolean;
+    /** Есть ли настоящие типоразмеры (variantsCount > 0) — иначе раскрыли ради описания. */
+    hasSizes: boolean;
+    /** Показать карандаш «изменить»: страница решает, кому и в каком разделе. */
+    editable?: boolean;
+    /** Карандаш у каждой сборки и «добавить сборку» — страница решает, кому и где. */
+    variantsEditable?: boolean;
+  }>();
+  const emit = defineEmits<{
+    edit: [];
+    editVariant: [variant: DictionaryVariant];
+    addVariant: [];
   }>();
 
   const { t, te } = useI18n({ useScope: "global" });

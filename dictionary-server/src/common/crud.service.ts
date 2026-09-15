@@ -32,8 +32,8 @@ export class CrudService<TRow extends { id: number }> {
     protected readonly table: DictTable,
     /** Колонки, по которым работает ?q= */
     protected readonly searchable: PgColumn<any>[] = [],
-    /** Колонка для сортировки по умолчанию. */
-    protected readonly orderBy: PgColumn<any> = table.id,
+    /** Колонка (или выражение — coalesce двух языков) для сортировки по умолчанию. */
+    protected readonly orderBy: PgColumn<any> | SQL = table.id,
     /** Что проверять перед физическим удалением. */
     protected readonly references: ReferenceCheck[] = [],
   ) {}

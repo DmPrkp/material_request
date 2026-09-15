@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, count, eq, inArray, isNull } from 'drizzle-orm';
+import { and, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 import { CrudService } from '~/common/crud.service';
@@ -7,56 +7,102 @@ import type { ListQuery } from '~/common/pagination';
 import { toPage, type Page } from '~/common/pagination';
 import { DB, type Database } from '~/db/db.module';
 import {
+  handToolVariantParams,
   handToolVariants,
   handTools,
   materialTypes,
+  materialVariantParams,
   materialVariants,
   materials,
   powerTools,
   units,
 } from '~/db/schema';
-import type { MaterialQueryDto } from './catalog.dto';
+import type { MaterialQueryDto, VariantParamInput } from './catalog.dto';
+import { VariantsService } from './variants.service';
 
 /**
- * Сколько типоразмеров у каждой позиции страницы.
+ * Сколько настоящих типоразмеров — с параметрами — у каждой позиции страницы.
  *
  * Одним запросом на страницу, а не N подзапросами: клиенту счётчик нужен, чтобы
  * не рисовать раскрывающую стрелку у позиций, у которых разворачивать нечего.
- * Считаем все варианты, а не только активные, — ровно те, что вернёт
- * VariantsService.listByOwner(), иначе стрелка и содержимое разошлись бы.
+ *
+ * Служебный вариант без параметров не в счёт: он есть у каждой позиции без размеров
+ * (его code — просто id позиции), и пока его считали, «Деревянные щиты настила»
+ * раскрывались ради одной строки «Без типоразмеров». Архивные считаем — их тоже
+ * вернёт VariantsService.listByOwner(), иначе стрелка и содержимое разошлись бы.
  */
-async function countVariants(
+async function countSizedVariants(
   db: Database,
   variants: PgTableWithColumns<any>,
   ownerColumn: PgColumn<any>,
+  params: PgTableWithColumns<any>,
   ids: number[],
 ): Promise<Record<number, number>> {
   if (ids.length === 0) return {};
 
   const rows = await db
-    .select({ ownerId: ownerColumn, value: count() })
+    .select({ ownerId: ownerColumn, value: countDistinct(variants.id) })
     .from(variants)
+    .innerJoin(params, eq(params.variantId, variants.id))
     .where(inArray(ownerColumn, ids))
     .groupBy(ownerColumn);
 
   return Object.fromEntries(rows.map((row) => [Number(row.ownerId), Number(row.value)]));
 }
 
+/**
+ * Позиция заводится сразу со сборками, одной транзакцией: упади вторая сборка —
+ * и не останется позиции с половиной размеров. Без параметров — одна служебная
+ * сборка (code = id): она есть у каждой позиции без размеров, и нормам расхода
+ * есть на что сослаться. Сама позиция (7) в расчёт не идёт — идут сборки (7:227).
+ */
+function createWithVariants(
+  db: Database,
+  variants: VariantsService,
+  kind: 'hand-tool' | 'material',
+  table: PgTableWithColumns<any>,
+  data: Record<string, unknown>,
+) {
+  const { variants: sets = [], ...row } = data as { variants?: VariantParamInput[][] } & Record<
+    string,
+    unknown
+  >;
+
+  return db.transaction(async (tx) => {
+    const [created] = await tx.insert(table).values(row).returning();
+    for (const params of sets.length > 0 ? sets : [[]]) {
+      await variants.create(kind, created.id, { params }, tx);
+    }
+    return created;
+  });
+}
+
 @Injectable()
 export class HandToolsService extends CrudService<typeof handTools.$inferSelect> {
-  constructor(@Inject(DB) db: Database) {
-    super(db, handTools, [handTools.nameRu, handTools.nameEn], handTools.nameRu, [
+  constructor(
+    @Inject(DB) db: Database,
+    private readonly variants: VariantsService,
+  ) {
+    // Заведённые под /en без русского названия иначе уезжали бы в конец (NULL последним).
+    super(db, handTools, [handTools.nameRu, handTools.nameEn], sql`coalesce(${handTools.nameRu}, ${handTools.nameEn})`, [
       { label: 'variants', table: handToolVariants, column: handToolVariants.handToolId },
     ]);
+  }
+
+  override create(data: Record<string, unknown>) {
+    return createWithVariants(this.db, this.variants, 'hand-tool', handTools, data) as Promise<
+      typeof handTools.$inferSelect
+    >;
   }
 
   /** Тот же список, что и у базового CRUD, плюс число типоразмеров у позиции. */
   async listWithVariantCount(query: ListQuery): Promise<Page<Record<string, unknown>>> {
     const page = await this.list(query);
-    const counts = await countVariants(
+    const counts = await countSizedVariants(
       this.db,
       handToolVariants,
       handToolVariants.handToolId,
+      handToolVariantParams,
       page.items.map((item) => item.id),
     );
 
@@ -85,10 +131,19 @@ export class MaterialTypesService extends CrudService<typeof materialTypes.$infe
 
 @Injectable()
 export class MaterialsService extends CrudService<typeof materials.$inferSelect> {
-  constructor(@Inject(DB) db: Database) {
+  constructor(
+    @Inject(DB) db: Database,
+    private readonly variants: VariantsService,
+  ) {
     super(db, materials, [materials.nameRu, materials.nameEn], materials.nameRu, [
       { label: 'variants', table: materialVariants, column: materialVariants.materialId },
     ]);
+  }
+
+  override create(data: Record<string, unknown>) {
+    return createWithVariants(this.db, this.variants, 'material', materials, data) as Promise<
+      typeof materials.$inferSelect
+    >;
   }
 
   /** Материал без единицы измерения нечитаем — подмешиваем её и тип в список. */
@@ -110,6 +165,7 @@ export class MaterialsService extends CrudService<typeof materials.$inferSelect>
           descriptionRu: materials.descriptionRu,
           descriptionEn: materials.descriptionEn,
           isActive: materials.isActive,
+          createdBy: materials.createdBy,
           unit: { id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn },
           // Тип необязателен — оставляем LEFT JOIN, иначе материалы без типа выпадут
           type: {
@@ -123,16 +179,18 @@ export class MaterialsService extends CrudService<typeof materials.$inferSelect>
         .innerJoin(units, eq(materials.unitId, units.id))
         .leftJoin(materialTypes, eq(materials.typeId, materialTypes.id))
         .where(where)
-        .orderBy(asc(materials.nameRu))
+        // Заведённые под /en без русского названия иначе уезжали бы в конец (NULL последним).
+        .orderBy(sql`coalesce(${materials.nameRu}, ${materials.nameEn})`)
         .limit(query.limit)
         .offset((query.page - 1) * query.limit),
       this.db.select({ value: count() }).from(materials).where(where),
     ]);
 
-    const counts = await countVariants(
+    const counts = await countSizedVariants(
       this.db,
       materialVariants,
       materialVariants.materialId,
+      materialVariantParams,
       items.map((item) => item.id),
     );
 

@@ -92,14 +92,36 @@ export type DictionaryMaterial = {
   unit: DictionaryUnit;
   type: DictionaryMaterialType | null;
   variantsCount: number;
+  /** id пользователя, который его добавил; null — пришёл из сидов. */
+  createdBy: number | null;
+};
+
+/** Материал как в базе, на всех языках, — только для формы правки (?translations=all). */
+export type DictionaryMaterialTranslations = {
+  id: number;
+  nameRu: string | null;
+  nameEn: string | null;
+  descriptionRu: string | null;
+  descriptionEn: string | null;
+  unitId: number;
+  typeId: number | null;
 };
 
 export type DictionaryHandTool = {
   id: number;
   name: string;
   isActive: boolean;
-  /** Сколько типоразмеров у позиции. 0 — разворачивать нечего. */
+  /** Сколько типоразмеров с параметрами; служебный вариант без параметров не в счёт. */
   variantsCount: number;
+  /** id пользователя, который его добавил; null — пришёл из сидов. */
+  createdBy: number | null;
+};
+
+/** Ручной инструмент на всех языках — только для формы правки (?translations=all). */
+export type DictionaryHandToolTranslations = {
+  id: number;
+  nameRu: string | null;
+  nameEn: string | null;
 };
 
 /**
@@ -118,7 +140,26 @@ export type DictionaryVariantParam = {
   paramValueId: number;
   value: string;
   unit: string;
+  unitId: number;
   kind: string | null;
+  kindId: number | null;
+};
+
+/** Вид параметра: длина, диаметр, напряжение. */
+export type DictionaryParamKind = {
+  id: number;
+  code: string;
+  name: string;
+};
+
+/** Значение параметра («6 мм диаметра») — подсказки в форме типоразмеров. */
+export type DictionaryParamValue = {
+  id: number;
+  /** numeric из базы строкой: '6.0000'. */
+  value: string;
+  isActive: boolean;
+  unit: DictionaryUnit;
+  kind: DictionaryParamKind | null;
 };
 
 /** Типоразмер позиции: дюбель Ø8 × 226 мм, рулетка 5 м. */

@@ -189,12 +189,19 @@ export const workStages = pgTable(
 
 /* ----------------------------------------------------------------- позиции */
 
-export const handTools = pgTable('hand_tools', {
-  id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
-  nameRu: varchar('name_ru', { length: 100 }).notNull().unique(),
-  nameEn: varchar('name_en', { length: 100 }).notNull().unique(),
-  ...lifecycle,
-});
+export const handTools = pgTable(
+  'hand_tools',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    // Как у материалов: с клиента пишется язык страницы, остальные пустые (namePresent).
+    // UNIQUE остаётся — NULL-ы в нём различны, так что пустые переводы друг другу не мешают.
+    nameRu: varchar('name_ru', { length: 100 }).unique(),
+    nameEn: varchar('name_en', { length: 100 }).unique(),
+    ...authorship,
+    ...lifecycle,
+  },
+  (t) => [namePresent('hand_tools', t)],
+);
 
 export const powerTools = pgTable('power_tools', {
   id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
@@ -220,8 +227,9 @@ export const materials = pgTable(
   'materials',
   {
     id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
-    nameRu: varchar('name_ru', { length: 150 }).notNull(),
-    nameEn: varchar('name_en', { length: 150 }).notNull(),
+    // Как у технологий: с клиента пишется язык страницы, остальные пустые (namePresent).
+    nameRu: varchar('name_ru', { length: 150 }),
+    nameEn: varchar('name_en', { length: 150 }),
     descriptionRu: text('description_ru'),
     descriptionEn: text('description_en'),
     unitId: integer('unit_id')
@@ -229,9 +237,14 @@ export const materials = pgTable(
       .references(() => units.id, { onDelete: 'restrict' }),
     /** Необязательный: часть материалов пока не разнесена по типам. */
     typeId: integer('type_id').references(() => materialTypes.id, { onDelete: 'set null' }),
+    ...authorship,
     ...lifecycle,
   },
-  (t) => [index('materials_unit_idx').on(t.unitId), index('materials_type_idx').on(t.typeId)],
+  (t) => [
+    index('materials_unit_idx').on(t.unitId),
+    index('materials_type_idx').on(t.typeId),
+    namePresent('materials', t),
+  ],
 );
 
 /* ---------------------------------------------------------------- варианты */

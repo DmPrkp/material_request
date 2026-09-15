@@ -2,6 +2,7 @@ import { createZodDto } from 'nestjs-zod';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
+import { hasName, nameRequired, optionalText } from '~/common/names';
 import { listQuerySchema } from '~/common/pagination';
 import { systems, workStages, workTypes } from '~/db/schema';
 
@@ -9,16 +10,9 @@ import { systems, workStages, workTypes } from '~/db/schema';
 // из тела значило бы дать записать запись от чужого имени.
 const managed = { id: true, isActive: true, createdAt: true, updatedAt: true, createdBy: true } as const;
 
-/**
- * Название пишется на языке интерфейса, остальные языки остаются пустыми — наружу
- * уйдёт ближайшее заполненное (common/localize.ts). Хоть одно обязательно.
- */
-const name = z.string().trim().max(100).nullish();
-const description = z.string().trim().max(200).nullish();
-
-const hasName = (data: { nameRu?: string | null; nameEn?: string | null }) =>
-  Boolean(data.nameRu || data.nameEn);
-const nameRequired = { message: 'Нужно название хотя бы на одном языке', path: ['nameRu'] };
+// Название — на языке интерфейса, хоть одно обязательно (common/names.ts).
+const name = optionalText(100);
+const description = optionalText(200);
 /** Технический код; с клиента его не шлют — без него сервис сгенерирует (common/code.ts). */
 const code = z.string().trim().min(1).max(50).optional();
 

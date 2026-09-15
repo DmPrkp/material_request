@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, count, eq, max } from 'drizzle-orm';
+import { and, asc, count, eq, max, sql } from 'drizzle-orm';
 
 import { generateCode } from '~/common/code';
 import { CrudService } from '~/common/crud.service';
@@ -46,7 +46,8 @@ export class SystemsService extends CrudService<typeof systems.$inferSelect> {
         .select()
         .from(systems)
         .where(where)
-        .orderBy(asc(systems.nameRu))
+        // Заведённые под /en без русского названия иначе уезжали бы в конец (NULL последним).
+        .orderBy(sql`coalesce(${systems.nameRu}, ${systems.nameEn})`)
         .limit(query.limit)
         .offset((query.page - 1) * query.limit),
       this.db.select({ value: count() }).from(systems).where(where),

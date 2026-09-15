@@ -1,6 +1,7 @@
-import { Controller, Delete, Param, ParseIntPipe, Query } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Controller, Delete, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+import { JwtAuthGuard } from '~/auth/auth.guard';
 import { hardDeleteQuery } from '~/common/delete-query';
 import { VariantsService } from './variants.service';
 
@@ -17,7 +18,10 @@ const DELETE_DOC = {
 export class HandToolVariantsController {
   constructor(private readonly variants: VariantsService) {}
 
+  // Ручной инструмент пишется только со входом (authored) — его типоразмеры тоже.
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation(DELETE_DOC)
   @ApiQuery({ name: 'hard', required: false, type: Boolean })
   async remove(@Param('id', ParseIntPipe) id: number, @Query() query: { hard?: string }) {
@@ -35,7 +39,10 @@ export class HandToolVariantsController {
 export class MaterialVariantsController {
   constructor(private readonly variants: VariantsService) {}
 
+  // Материалы пишутся только со входом (authored) — их сборки тоже.
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation(DELETE_DOC)
   @ApiQuery({ name: 'hard', required: false, type: Boolean })
   async remove(@Param('id', ParseIntPipe) id: number, @Query() query: { hard?: string }) {

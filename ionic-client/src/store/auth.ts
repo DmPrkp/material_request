@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import AuthModel from '@/models/AuthModel';
 import BaseModel from '@/models/BaseModel';
 import type { AuthResponse, RegisterPayload, UserProfile } from '@/types/dto';
+import { isTokenExpired, tokenExpiresAt } from './authToken';
 
 const TOKEN_STORAGE_KEY = 'mr-auth-token';
 
@@ -184,6 +185,11 @@ const extractToken = (payload: unknown): string | undefined => {
   return findStringByKeys(payload, TOKEN_KEYS);
 };
 
+/** Таймер выхода в момент, когда токен протухнет: кнопки записи пропадают вовремя. */
+let expiryTimer: ReturnType<typeof setTimeout> | undefined;
+/** setTimeout не держит задержки длиннее ~24.8 суток — дальше перезапустится при входе. */
+const MAX_TIMER_DELAY = 2 ** 31 - 1;
+
 class MissingTokenError extends Error {
   constructor() {
     super('Пустой ответ от сервера');
@@ -210,13 +216,24 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     setToken(token: string | null) {
-      this.token = token;
-      if (token) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      // Протухший не храним: иначе интерфейс считает человека вошедшим,
+      // а словарь на каждое сохранение отвечает 401.
+      const valid = token && !isTokenExpired(token) ? token : null;
+
+      this.token = valid;
+      if (valid) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, valid);
       } else {
         localStorage.removeItem(TOKEN_STORAGE_KEY);
       }
-      BaseModel.setAuthToken(token ?? undefined, AUTH_HEADER_SCHEME);
+      BaseModel.setAuthToken(valid ?? undefined, AUTH_HEADER_SCHEME);
+
+      clearTimeout(expiryTimer);
+      const expiresAt = valid ? tokenExpiresAt(valid) : undefined;
+      if (expiresAt !== undefined) {
+        const delay = Math.min(expiresAt - Date.now(), MAX_TIMER_DELAY);
+        expiryTimer = setTimeout(() => this.logout(), delay);
+      }
     },
     setUser(user: UserProfile | null) {
       this.user = user;
@@ -286,6 +303,11 @@ export const useAuthStore = defineStore('auth', {
       }
     },
     initialize() {
+      // Сервер отверг токен (протух раньше exp или подписан старым секретом) — выходим.
+      BaseModel.onUnauthorized = () => {
+        if (this.token) this.logout();
+      };
+
       const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
       if (storedToken) {
         this.setToken(storedToken);

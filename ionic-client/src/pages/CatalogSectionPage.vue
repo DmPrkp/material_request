@@ -21,6 +21,46 @@
         @ionInput="onSearch"
       />
 
+      <div
+        v-if="isMaterials || (canEdit && isHandTools)"
+        class="catalog_tools ion-padding-horizontal"
+      >
+        <ion-select
+          v-if="isMaterials"
+          class="type_filter"
+          :value="typeFilter"
+          :label="$t('pages.catalog.type')"
+          interface="popover"
+          @ionChange="onTypeFilter"
+        >
+          <ion-select-option value="all">
+            {{ $t("pages.catalog.all_types") }}
+          </ion-select-option>
+          <ion-select-option value="none">
+            {{ $t("pages.catalog.untyped") }}
+          </ion-select-option>
+          <ion-select-option
+            v-for="type in materialTypes"
+            :key="type.id"
+            :value="String(type.id)"
+          >
+            {{ type.name }}
+          </ion-select-option>
+        </ion-select>
+        <CutCornerBtn
+          v-if="canEdit && isMaterials"
+          @click="openMaterialModal(null)"
+        >
+          {{ $t("pages.catalog.add_material") }}
+        </CutCornerBtn>
+        <CutCornerBtn
+          v-if="canEdit && isHandTools"
+          @click="openHandToolModal(null)"
+        >
+          {{ $t("pages.catalog.add_hand_tool") }}
+        </CutCornerBtn>
+      </div>
+
       <ion-note
         v-if="!loading && !items.length"
         class="ion-padding empty"
@@ -35,7 +75,13 @@
             :key="`${tab}-${item.id}`"
             :item="item"
             :expandable="isExpandable(item)"
+            :has-sizes="hasSizes(item) || variantsEditable"
             :variants="variantsById[item.id]"
+            :editable="canEdit && (isMaterials || isHandTools)"
+            :variants-editable="variantsEditable"
+            @edit="onEdit(item)"
+            @edit-variant="(variant) => openVariantModal(item, variant)"
+            @add-variant="openVariantModal(item, null)"
           />
         </ion-accordion-group>
       </ion-list>
@@ -53,6 +99,27 @@
       >
         <ion-infinite-scroll-content />
       </ion-infinite-scroll>
+
+      <MaterialModal
+        :is-open="modalOpen"
+        :material="editing"
+        :units="units"
+        :types="materialTypes"
+        @close="closeMaterialModal"
+      />
+      <HandToolModal
+        :is-open="handToolModalOpen"
+        :tool="editingTool"
+        @close="closeHandToolModal"
+      />
+      <VariantModal
+        :is-open="variantModalOpen"
+        :owner="variantOwner?.kind ?? 'hand-tools'"
+        :owner-id="variantOwner?.id ?? null"
+        :owner-name="variantOwner?.name ?? ''"
+        :variant="editingVariant"
+        @close="closeVariantModal"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -67,18 +134,30 @@
     IonInfiniteScrollContent,
     IonNote,
     IonSearchbar,
+    IonSelect,
+    IonSelectOption,
     type InfiniteScrollCustomEvent,
     type RefresherCustomEvent,
   } from "@ionic/vue";
   import CatalogItem from "@/components/pagesParts/catalog/CatalogItem.vue";
-  import DictionaryModel, { type CatalogQuery } from "@/models/DictionaryModel";
+  import MaterialModal from "@/components/pagesParts/catalog/MaterialModal.vue";
+  import HandToolModal from "@/components/pagesParts/catalog/HandToolModal.vue";
+  import VariantModal from "@/components/pagesParts/catalog/VariantModal.vue";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import DictionaryModel, {
+    type CatalogQuery,
+    type VariantOwner,
+  } from "@/models/DictionaryModel";
   import type {
     DictionaryHandTool,
     DictionaryMaterial,
+    DictionaryMaterialType,
     DictionaryPage,
     DictionaryPowerTool,
+    DictionaryUnit,
     DictionaryVariant,
   } from "@/types/dto";
+  import { useAuthStore } from "@/store/auth";
   import { usePreloader } from "@/store/preloader";
   import {
     DEFAULT_CATALOG_TAB,
@@ -110,12 +189,136 @@
 
   const hasMore = computed(() => page.value < pages.value);
 
+  const authStore = useAuthStore();
+  // Кнопки видит только вошедший, но решает словарь: без токена запись не примет.
+  const canEdit = computed(() => authStore.isAuthenticated);
+  const isMaterials = computed(() => tab.value === "materials");
+  // Электроинструмент пока пишется без входа и без формы — карандаша там нет.
+  const isHandTools = computed(() => tab.value === "hand_tools");
   /**
-   * Стрелку показываем только там, где есть что разворачивать: у электроинструмента
-   * типоразмеров не бывает вовсе, а среди материалов их нет у части позиций.
+   * В расчёт идут сборки (7:227, 13:205:226), а не базовая позиция, — у вошедшего
+   * каждая позиция ручного инструмента и материалов раскрывается, даже без
+   * параметров: там её сборка с code = id и «добавить сборку».
+   */
+  const variantsEditable = computed(
+    () => canEdit.value && (isHandTools.value || isMaterials.value),
+  );
+
+  /**
+   * Фильтр по типу материала: 'all' — все, 'none' — без типа, иначе id типа
+   * строкой — ion-select надёжнее сравнивает строки, чем числа вперемешку со строками.
+   */
+  const typeFilter = ref("all");
+  /** Типы и единицы — для фильтра и формы; названия уже на языке страницы. */
+  const materialTypes = ref<DictionaryMaterialType[]>([]);
+  const units = ref<DictionaryUnit[]>([]);
+
+  const modalOpen = ref(false);
+  /** null — модалка на добавление. */
+  const editing = ref<DictionaryMaterial | null>(null);
+
+  function filterQuery(): Pick<CatalogQuery, "typeId" | "untyped"> {
+    if (!isMaterials.value || typeFilter.value === "all") return {};
+    if (typeFilter.value === "none") return { untyped: true };
+    return { typeId: Number(typeFilter.value) };
+  }
+
+  function onTypeFilter(event: CustomEvent) {
+    const value = String((event.detail as { value?: unknown }).value ?? "all");
+    if (value === typeFilter.value) return;
+    typeFilter.value = value;
+    void reload();
+  }
+
+  async function loadMaterialRefs() {
+    const [typesPage, unitsPage] = await Promise.all([
+      DictionaryModel.materialTypes(),
+      DictionaryModel.units(),
+    ]);
+    // get() глотает сетевую ошибку — тогда оставляем, что было.
+    if (typesPage) materialTypes.value = typesPage.items;
+    if (unitsPage) units.value = unitsPage.items;
+  }
+
+  function openMaterialModal(material: DictionaryMaterial | null) {
+    editing.value = material;
+    modalOpen.value = true;
+  }
+
+  /** Перечитываем после закрытия: имя, тип или единица могли поменяться. */
+  function closeMaterialModal() {
+    // didDismiss приходит и после закрытия кнопкой — второй раз не грузим.
+    if (!modalOpen.value) return;
+    modalOpen.value = false;
+    void reload();
+  }
+
+  const handToolModalOpen = ref(false);
+  /** null — модалка на добавление. */
+  const editingTool = ref<DictionaryHandTool | null>(null);
+
+  function openHandToolModal(tool: DictionaryHandTool | null) {
+    editingTool.value = tool;
+    handToolModalOpen.value = true;
+  }
+
+  function closeHandToolModal() {
+    // Как у материалов: didDismiss приходит и после закрытия кнопкой.
+    if (!handToolModalOpen.value) return;
+    handToolModalOpen.value = false;
+    void reload();
+  }
+
+  const variantModalOpen = ref(false);
+  /** Чья сборка: id для запроса, название — в шапку формы. */
+  const variantOwner = ref<{ kind: VariantOwner; id: number; name: string } | null>(
+    null,
+  );
+  /** null — новая сборка. */
+  const editingVariant = ref<DictionaryVariant | null>(null);
+
+  function openVariantModal(item: CatalogEntry, variant: DictionaryVariant | null) {
+    variantOwner.value = {
+      kind: isHandTools.value ? "hand-tools" : "materials",
+      id: item.id,
+      name: item.name,
+    };
+    editingVariant.value = variant;
+    variantModalOpen.value = true;
+  }
+
+  /** Перечитываем только сборки этой позиции: полная перезагрузка свернула бы список. */
+  async function closeVariantModal() {
+    if (!variantModalOpen.value) return;
+    variantModalOpen.value = false;
+    const owner = variantOwner.value;
+    if (!owner) return;
+    const variants = await DictionaryModel.variants(owner.kind, owner.id);
+    if (variants) variantsById.value = { ...variantsById.value, [owner.id]: variants };
+  }
+
+  /** Карандаш виден только в разделах с формой — тип позиции решает раздел. */
+  function onEdit(item: CatalogEntry) {
+    if (isMaterials.value) openMaterialModal(item as DictionaryMaterial);
+    else if (isHandTools.value) openHandToolModal(item as DictionaryHandTool);
+  }
+
+  /** Настоящие типоразмеры — с параметрами; служебный вариант без них сервер не считает. */
+  function hasSizes(item: CatalogEntry): boolean {
+    return "variantsCount" in item && item.variantsCount > 0;
+  }
+
+  /**
+   * Стрелку показываем только там, где есть что разворачивать: типоразмеры или
+   * описание. У электроинструмента нет ни того ни другого, у части материалов —
+   * только описание.
    */
   function isExpandable(item: CatalogEntry): boolean {
-    return "variantsCount" in item && item.variantsCount > 0;
+    return (
+      variantsEditable.value ||
+      hasSizes(item) ||
+      ("description" in item && Boolean(item.description))
+    );
   }
 
   function fetchPage(query: CatalogQuery) {
@@ -138,6 +341,7 @@
         page: nextPage,
         limit: PAGE_SIZE,
         q: search.value,
+        ...filterQuery(),
       })) as DictionaryPage<CatalogEntry> | undefined;
 
       if (!response) {
@@ -188,6 +392,10 @@
 
     if (!Number.isFinite(id) || variantsById.value[id]) return;
 
+    // Раскрыли ради описания — типоразмеров нет, запрашивать нечего.
+    const item = items.value.find((entry) => entry.id === id);
+    if (!item || !(hasSizes(item) || variantsEditable.value)) return;
+
     const variants =
       tab.value === "hand_tools"
         ? await DictionaryModel.handToolVariants(id)
@@ -200,10 +408,29 @@
   const { locale } = useI18n({ useScope: "global" });
 
   /** Первая загрузка, переход между разделами и смена языка — один и тот же путь. */
-  watch([tab, locale], () => void reload(), { immediate: true });
+  watch(
+    [tab, locale],
+    () => {
+      if (isMaterials.value) void loadMaterialRefs();
+      void reload();
+    },
+    { immediate: true },
+  );
 </script>
 
 <style scoped>
+  .catalog_tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .type_filter {
+    flex: 1;
+    min-width: 200px;
+  }
+
   .empty {
     display: block;
     text-align: center;

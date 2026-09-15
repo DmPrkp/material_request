@@ -1,8 +1,14 @@
 import BaseModel from "./BaseModel";
 import type {
   DictionaryHandTool,
+  DictionaryHandToolTranslations,
   DictionaryMaterial,
+  DictionaryMaterialTranslations,
+  DictionaryMaterialType,
   DictionaryPage,
+  DictionaryParamKind,
+  DictionaryParamValue,
+  DictionaryUnit,
   DictionaryPowerTool,
   DictionarySystem,
   DictionaryVariant,
@@ -36,11 +42,48 @@ export type NewWorkStage = {
   position?: number;
 };
 export type WorkStageChanges = { nameRu?: string | null; nameEn?: string | null };
+/** Материал: названия — как у технологий; единица обязательна, тип — нет (null — снять). */
+export type NewMaterial = {
+  nameRu?: string | null;
+  nameEn?: string | null;
+  descriptionRu?: string | null;
+  descriptionEn?: string | null;
+  unitId: number;
+  typeId?: number | null;
+  /** Сборки нового материала, как у ручного инструмента; пусто — одна без параметров. */
+  variants?: VariantParamInput[][];
+};
+export type MaterialChanges = Partial<Omit<NewMaterial, "variants">>;
+/** Чьи сборки: сегмент адреса позиции в словаре. */
+export type VariantOwner = "hand-tools" | "materials";
+/**
+ * Параметр типоразмера, как его вводят в форме. id значения словарь подберёт сам
+ * или заведёт новое. kindId null — значение без вида.
+ */
+export type VariantParamInput = {
+  kindId: number | null;
+  unitId: number;
+  value: number;
+};
+/**
+ * Ручной инструмент: название — как у технологий; variants — типоразмеры, каждый —
+ * набор параметров. Пустой список — словарь заведёт один служебный без параметров.
+ */
+export type NewHandTool = {
+  nameRu?: string | null;
+  nameEn?: string | null;
+  variants?: VariantParamInput[][];
+};
+export type HandToolChanges = { nameRu?: string | null; nameEn?: string | null };
 
 export type CatalogQuery = {
   page?: number;
   limit?: number;
   q?: string;
+  /** Только материалы этого типа. */
+  typeId?: number;
+  /** Только материалы, у которых тип не проставлен. */
+  untyped?: boolean;
 };
 
 function toQueryString(query: CatalogQuery): string {
@@ -48,6 +91,8 @@ function toQueryString(query: CatalogQuery): string {
   if (query.page) params.set("page", String(query.page));
   if (query.limit) params.set("limit", String(query.limit));
   if (query.q?.trim()) params.set("q", query.q.trim());
+  if (query.typeId) params.set("typeId", String(query.typeId));
+  if (query.untyped) params.set("untyped", "true");
   const qs = params.toString();
   return qs ? `?${qs}` : "";
 }
@@ -76,8 +121,89 @@ export default class DictionaryModel extends BaseModel {
     );
   }
 
+  static materialTypes() {
+    return this.get<DictionaryPage<DictionaryMaterialType>>(
+      `/material-types?limit=${STRUCTURE_LIMIT}`
+    );
+  }
+
+  static units() {
+    return this.get<DictionaryPage<DictionaryUnit>>(
+      `/units?limit=${STRUCTURE_LIMIT}`
+    );
+  }
+
+  /** Только для формы правки — оба языка сразу, см. systemTranslations. */
+  static materialTranslations(id: number) {
+    return this.get<DictionaryMaterialTranslations>(
+      `/materials/${id}?translations=all`
+    );
+  }
+
+  static createMaterial(body: NewMaterial) {
+    return this.post<DictionaryMaterial>({ params: "/materials", body });
+  }
+
+  static updateMaterial(id: number, body: MaterialChanges) {
+    return this.patch<DictionaryMaterial>({ params: `/materials/${id}`, body });
+  }
+
   static materialVariants(id: number) {
     return this.get<DictionaryVariant[]>(`/materials/${id}/variants`);
+  }
+
+  static handToolTranslations(id: number) {
+    return this.get<DictionaryHandToolTranslations>(
+      `/hand-tools/${id}?translations=all`
+    );
+  }
+
+  static createHandTool(body: NewHandTool) {
+    return this.post<DictionaryHandTool>({ params: "/hand-tools", body });
+  }
+
+  static updateHandTool(id: number, body: HandToolChanges) {
+    return this.patch<DictionaryHandTool>({ params: `/hand-tools/${id}`, body });
+  }
+
+  static variants(owner: VariantOwner, id: number) {
+    return this.get<DictionaryVariant[]>(`/${owner}/${id}/variants`);
+  }
+
+  static createVariant(
+    owner: VariantOwner,
+    id: number,
+    params: VariantParamInput[]
+  ) {
+    return this.post<DictionaryVariant>({
+      params: `/${owner}/${id}/variants`,
+      body: { params },
+    });
+  }
+
+  /** Набор параметров заменяется целиком; id сборки остаётся, code пересчитывается. */
+  static updateVariant(
+    owner: VariantOwner,
+    id: number,
+    variantId: number,
+    params: VariantParamInput[]
+  ) {
+    return this.put<DictionaryVariant>({
+      params: `/${owner}/${id}/variants/${variantId}`,
+      body: { params },
+    });
+  }
+
+  static paramKinds() {
+    return this.get<DictionaryPage<DictionaryParamKind>>(
+      `/param-kinds?limit=${STRUCTURE_LIMIT}`
+    );
+  }
+
+  static paramValues(unitId: number) {
+    return this.get<DictionaryPage<DictionaryParamValue>>(
+      `/param-values?unitId=${unitId}&limit=${STRUCTURE_LIMIT}`
+    );
   }
 
   static handToolVariants(id: number) {

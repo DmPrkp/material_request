@@ -7,7 +7,7 @@
 type WorkType = { id: number; code: string; nameRu: string; nameEn: string };
 
 export const workTypes: WorkType[] = [
-  { "id": 1, "code": "facade", "nameRu": "Фасад", "nameEn": "Facade" },
-  { "id": 2, "code": "roof", "nameRu": "Кровля", "nameEn": "Roof" },
-  { "id": 3, "code": "interior", "nameRu": "Внутренняя отделка", "nameEn": "Interior finishing" },
+  { id: 1, code: 'facade', nameRu: 'Фасад', nameEn: 'Facade' },
+  { id: 2, code: 'roof', nameRu: 'Кровля', nameEn: 'Roof' },
+  { id: 3, code: 'interior', nameRu: 'Внутренняя отделка', nameEn: 'Interior finishing' },
 ];

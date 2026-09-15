@@ -129,12 +129,9 @@
    * system === null — новая технология, иначе — правка существующей.
    *
    * Название и описание вводятся на языке страницы и пишутся только в его колонки
-   * (nameRu под /ru, nameEn под /en); остальные языки не трогаем — пустые так и
-   * остаются. Показывает словарь потом ближайшее заполненное, поэтому в пустом поле
-   * подсказкой стоит то, что сейчас видят на этом языке.
-   *
-   * Чтобы править свой язык, нужны исходные поля, а список отдаёт одно name —
-   * их форма берёт отдельным запросом (?translations=all).
+   * (см. localeFields.ts); в пустом поле подсказкой стоит то, что сейчас видят на
+   * этом языке. Чтобы править свой язык, нужны исходные поля, а список отдаёт одно
+   * name, — их форма берёт отдельным запросом (?translations=all).
    *
    * Технология и этапы — отдельные записи словаря, одной транзакции на них нет.
    * Поэтому сохранение запоминает, что уже доехало: упал третий этап — повторное
@@ -153,13 +150,16 @@
   } from "@ionic/vue";
   import { addOutline, closeOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
-  import { HttpError } from "@/models/BaseModel";
   import DictionaryModel from "@/models/DictionaryModel";
   import type { DictionarySystem, DictionaryWorkStage } from "@/types/dto";
-
-  /** Суффикс колонок языка; порядок — как у словаря: сначала русский. */
-  type LocaleSuffix = "Ru" | "En";
-  const SUFFIXES: LocaleSuffix[] = ["Ru", "En"];
+  import {
+    field,
+    inLocale,
+    otherFilled,
+    saveErrorText,
+    suffixFor,
+    type LocaleSuffix,
+  } from "./localeFields";
 
   type Texts = { name: string; description: string };
 
@@ -214,39 +214,6 @@
     () => !saving.value && Boolean(form.value.name.trim() || fallback.value.name),
   );
 
-  /** 'en' -> 'En'; язык без своих колонок — пишем в русские. */
-  function suffixFor(lang: string): LocaleSuffix {
-    const candidate = lang.charAt(0).toUpperCase() + lang.slice(1);
-    return (SUFFIXES as string[]).includes(candidate)
-      ? (candidate as LocaleSuffix)
-      : "Ru";
-  }
-
-  function field(record: object, base: string, lang: LocaleSuffix): string {
-    const value = (record as Record<string, unknown>)[`${base}${lang}`];
-    return typeof value === "string" ? value : "";
-  }
-
-  /** Ближайшее заполненное на других языках — то, что покажет словарь вместо пустоты. */
-  function otherFilled(record: object, base: string): string {
-    for (const lang of SUFFIXES) {
-      if (lang === suffix.value) continue;
-      const value = field(record, base, lang);
-      if (value) return value;
-    }
-    return "";
-  }
-
-  /** { nameEn: value } под /en — тело запроса только с колонкой языка формы. */
-  function inLocale<B extends "name" | "description">(
-    base: B,
-    value: string | null,
-  ) {
-    return { [`${base}${suffix.value}`]: value } as Partial<
-      Record<`${B}${LocaleSuffix}`, string | null>
-    >;
-  }
-
   function newRow(): StageRow {
     return { key: `new-${++rowSeq}`, name: "", saved: "", fallback: "" };
   }
@@ -273,6 +240,7 @@
     if (!props.canEdit) return;
 
     const openedFor = props.system.id;
+    const lang = suffix.value;
     loading.value = true;
     try {
       const [system, stagesPage] = await Promise.all([
@@ -288,24 +256,24 @@
       }
 
       form.value = {
-        name: field(system, "name", suffix.value),
-        description: field(system, "description", suffix.value),
+        name: field(system, "name", lang),
+        description: field(system, "description", lang),
       };
       savedForm.value = { ...form.value };
       fallback.value = {
-        name: otherFilled(system, "name"),
-        description: otherFilled(system, "description"),
+        name: otherFilled(system, "name", lang),
+        description: otherFilled(system, "description", lang),
       };
       rows.value = [...stagesPage.items]
         .sort((a, b) => a.position - b.position)
         .map((stage) => {
-          const own = field(stage, "name", suffix.value);
+          const own = field(stage, "name", lang);
           return {
             key: `stage-${stage.id}`,
             id: stage.id,
             name: own,
             saved: own,
-            fallback: otherFilled(stage, "name"),
+            fallback: otherFilled(stage, "name", lang),
           };
         });
     } finally {
@@ -320,20 +288,12 @@
     },
   );
 
-  function errorText(cause: unknown): string {
-    const status = cause instanceof HttpError ? cause.status : undefined;
-    if (status === 401) return t("pages.catalog.structure.errors.unauthorized");
-    if (status === 409) return t("pages.catalog.structure.errors.exists");
-    if (status === 503) return t("pages.catalog.structure.errors.unavailable");
-    return t("pages.catalog.structure.errors.generic");
-  }
-
   async function saveSystem(): Promise<number> {
     const name = form.value.name.trim();
     const description = form.value.description.trim();
     const values = {
-      ...inLocale("name", name || null),
-      ...inLocale("description", description || null),
+      ...inLocale("name", name || null, suffix.value),
+      ...inLocale("description", description || null, suffix.value),
     };
 
     if (currentId.value === null) {
@@ -381,7 +341,7 @@
 
         if (row.id === undefined) {
           const created = await DictionaryModel.createWorkStage({
-            ...inLocale("name", name),
+            ...inLocale("name", name, suffix.value),
             systemId,
           });
           row.id = created.id;
@@ -389,7 +349,7 @@
           // Пусто — стираем только этот язык; остальные остаются, их и покажут.
           await DictionaryModel.updateWorkStage(
             row.id,
-            inLocale("name", name || null),
+            inLocale("name", name || null, suffix.value),
           );
         }
         row.saved = name;
@@ -397,7 +357,7 @@
 
       emit("close");
     } catch (cause) {
-      error.value = errorText(cause);
+      error.value = saveErrorText(t, cause);
     } finally {
       saving.value = false;
     }

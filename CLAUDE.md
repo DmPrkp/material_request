@@ -145,7 +145,7 @@ e2e клиента там закомментированы. Деплой — `./
   показывается `name_ru`/`name_en`. Форма пишет только язык страницы, остальные
   остаются пустыми; хоть одно название обязательно (`CHECK *_name_present`). С клиента `title`
   не шлют — сервис генерирует его сам (`src/common/code.ts`).
-- `authored: true` в опциях фабрики (сейчас у `work-types`, `systems` и `work-stages`) закрывает
+- `authored: true` в опциях фабрики (сейчас у `work-types`, `systems`, `work-stages`, `materials` и `hand-tools`) закрывает
   запись (`POST`/`PATCH`/`DELETE`/`restore`) гвардом `JwtAuthGuard` (`src/auth/`), а
   создание проставляет `created_by` = `sub` из токена. Токен проверяется по общему
   `JWT_SECRET` прямо в справочнике, а не заголовком от nginx: порт 4300 открыт мимо
@@ -172,6 +172,15 @@ e2e клиента там закомментированы. Деплой — `./
 Валидация целиком на Zod (`nestjs-zod`), `ValidationPipe` с class-validator тут
 намеренно не используется. Документация: `/dict/api/v1/docs` (Scalar),
 спека `/dict/api/v1/openapi.json`.
+
+Ручной инструмент и материалы заводятся сразу со сборками (`POST /hand-tools`, `POST /materials`
+с `variants` — список наборов параметров, одна транзакция; пустой — служебная сборка без
+параметров). В расчёт идёт сборка (`7:227`), а не сама позиция (`7`). Запись сборок закрыта
+тем же `JwtAuthGuard`, что и у позиций.
+Параметры с клиента идут тройками `{ kindId, unitId, value }`: id значения клиент не знает,
+`VariantsService.resolveParams` находит его в `param_values` или заводит. Правка типоразмера —
+`PUT /{hand-tools|materials}/:id/variants/:variantId`: набор заменяется целиком, `id` прежний (на него
+ссылаются нормы расхода), `code` пересчитывается.
 
 `code` типоразмера **нигде не хранится в данных** — он вычисляется
 `buildVariantCode()` из `src/modules/catalog/variant-code.ts`, одной и той же функцией
@@ -270,6 +279,10 @@ e2e клиента там закомментированы. Деплой — `./
   накатаны руками SQL, отметка `work-types` в `seed_history` поставлена там же;
   так же — `name_ru`/`name_en`/`description_*` у `systems` и `name_*` у `work_stages`
   (старая колонка `systems.description` удалена), потом `name_ru` там же сделан
-  необязательным и добавлены `CHECK systems_name_present` / `work_stages_name_present`.
+  необязательным и добавлены `CHECK systems_name_present` / `work_stages_name_present`;
+  у `materials` — `created_by`, необязательные `name_ru`/`name_en` и `CHECK materials_name_present`;
+  у `hand_tools` — то же самое (`CHECK hand_tools_name_present`, `UNIQUE` на названиях оставлен);
+  виды у значений параметров (вид `size`, блок «ширина, мм» 501–514, перенос сборок кисти
+  и шпателя на него с пересчётом `code`) — тоже руками, зеркально правке сидов.
 - Версия Postgres в compose закреплена (`postgres:18-alpine`) намеренно: незакреплённый
   тег однажды принёс новый мажор, не читающий старый каталог данных.
