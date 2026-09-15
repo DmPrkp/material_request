@@ -1,3 +1,36 @@
+/* Шрифт всего приложения. Ionic берёт его из --ion-font-family и в теневом DOM своих
+   компонентов; :root перебивает html.ios / html.md из core.css по специфичности. */
+:root {
+  --ion-font-family: "Russo One", sans-serif;
+}
+
+/* У Russo One одно начертание — 400. Всё, что просит жирный (заголовки Ionic,
+   font-weight: 900 в шаблонах), браузер иначе утолщал бы синтетически — выходит грязно.
+   Наклон (oblique) синтезировать по-прежнему можно. */
+html {
+  font-synthesis-weight: none;
+}
+
+/* Нативные контролы шрифт не наследуют, а normalize Ionic этого не исправляет. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Кнопки «Добавить …» на ion-button — под вид CutCornerBtn: тот же кегль (size="small"
+   ужал бы до 13px, текст выглядел тоньше) и наклон 15°. Наклон — skew-ом на обёртке
+   текста, а не font-style: oblique у Russo One браузер не рисует; иконка остаётся прямой. */
+ion-button.add_btn {
+  font-size: 1rem;
+}
+
+.slanted {
+  display: inline-block;
+  transform: skewX(-15deg);
+}
+
 :root {
   /* Primary */
   /* --ion-color-primary: #333333; Dark Gray */
@@ -130,12 +163,13 @@ body.dark {
   --ion-color-danger-shade: #e04055;
   --ion-color-danger-tint: #ff5b71;
 
-  --ion-color-dark: #f4f5f8;
-  --ion-color-dark-rgb: 244, 245, 248;
+  /* В тёмной теме «dark» — светлый; тот же приглушённый, что и текст (иконки футера). */
+  --ion-color-dark: #d8d6e2;
+  --ion-color-dark-rgb: 216, 214, 226;
   --ion-color-dark-contrast: #000000;
   --ion-color-dark-contrast-rgb: 0, 0, 0;
-  --ion-color-dark-shade: #d7d8da;
-  --ion-color-dark-tint: #f5f6f9;
+  --ion-color-dark-shade: #bebcc7;
+  --ion-color-dark-tint: #dcdae5;
 
   --ion-color-medium: var(--mid-purple);
   --ion-color-medium-rgb: 152, 154, 162;
@@ -153,8 +187,13 @@ body.dark {
 
   /* Background & Text Colors */
   --ion-background-color: var(--dark-purple);
-  --ion-text-color: #ffffff;
-  --ion-text-color-rgb: 255, 255, 255;
+  /*
+   * Не чистый белый: #fff на тёмно-фиолетовом резал глаза. Светло-серый с лёгкой
+   * фиолетовой ноткой — в тон фону. От него же красятся иконки и шапка (currentColor,
+   * --ion-toolbar-color), поэтому менять — только здесь, а не в компонентах.
+   */
+  --ion-text-color: #d8d6e2;
+  --ion-text-color-rgb: 216, 214, 226;
 }
 
 /*
@@ -165,7 +204,7 @@ body.dark {
  */
 body.dark ion-searchbar {
   --background: var(--mid-purple);
-  --color: #ffffff;
+  --color: var(--ion-text-color);
   --placeholder-color: var(--light-green);
   --placeholder-opacity: 1;
   --icon-color: var(--light-green);
@@ -195,8 +234,8 @@ body.dark ion-note {
 .ios body.dark {
   --ion-background-color: #000000;
   --ion-background-color-rgb: 0, 0, 0;
-  --ion-text-color: #ffffff;
-  --ion-text-color-rgb: 255, 255, 255;
+  --ion-text-color: #d8d6e2;
+  --ion-text-color-rgb: 216, 214, 226;
 
   --ion-color-step-50: #0d0d0d;
   --ion-color-step-100: #1a1a1a;
@@ -223,8 +262,8 @@ body.dark ion-note {
 .material body.dark {
   --ion-background-color: #303030;
   --ion-background-color-rgb: 48, 48, 48;
-  --ion-text-color: #ffffff;
-  --ion-text-color-rgb: 255, 255, 255;
+  --ion-text-color: #d8d6e2;
+  --ion-text-color-rgb: 216, 214, 226;
 
   --ion-color-step-50: #0d0d0d;
   --ion-color-step-100: #1a1a1a;

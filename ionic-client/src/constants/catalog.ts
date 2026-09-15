@@ -1,9 +1,3 @@
-import {
-  cubeOutline,
-  flashOutline,
-  hammerOutline,
-  layersOutline,
-} from "ionicons/icons";
 import type { MainMenuItem } from "@/types/controller/main-menu";
 
 /** Разделы сборников — они же сегмент роута /:locale/catalog/:tab. */
@@ -12,6 +6,25 @@ export const CATALOG_TABS = ["materials", "hand_tools", "power_tools"] as const;
 export type CatalogTab = (typeof CATALOG_TABS)[number];
 
 export const DEFAULT_CATALOG_TAB: CatalogTab = "materials";
+
+/**
+ * Табы электроинструмента по питанию — тоже сегмент адреса:
+ * /:locale/catalog/power_tools/corded | cordless.
+ */
+export const POWER_TOOL_CURRENTS = ["corded", "cordless"] as const;
+
+export type PowerToolCurrent = (typeof POWER_TOOL_CURRENTS)[number];
+
+export const DEFAULT_POWER_TOOL_CURRENT: PowerToolCurrent = "corded";
+
+export function normalizePowerToolCurrent(
+  value?: string | string[] | null,
+): PowerToolCurrent | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw && (POWER_TOOL_CURRENTS as readonly string[]).includes(raw)
+    ? (raw as PowerToolCurrent)
+    : null;
+}
 
 /**
  * Меню сборников — та же плитка, что и на главной, поэтому и тип общий.
@@ -47,10 +60,13 @@ export const CATALOG_MENU: MainMenuItem[] = [
     },
   },
   {
-    // Не вкладка CATALOG_TABS, а свой роут catalog-systems: см. src/router/index.ts.
     title: "systems",
     description: "work technologies and stages",
-    icon: layersOutline,
+    img: {
+      src: "/catalog/tech-stages.jpg",
+      alt: "tech-stages",
+      width: 150,
+    },
   },
 ];
 

@@ -88,6 +88,7 @@
     </div>
 
     <ion-button
+      class="add_btn"
       fill="clear"
       size="small"
       @click="addRow"
@@ -96,7 +97,7 @@
         slot="start"
         :icon="addOutline"
       />
-      {{ $t("pages.catalog.params.add") }}
+      <span class="slanted">{{ $t("pages.catalog.params.add") }}</span>
     </ion-button>
   </div>
 </template>

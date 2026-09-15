@@ -29,6 +29,13 @@
       </div>
 
       <template v-else>
+        <!-- Чужая общая позиция: сохранение заведёт копию, оригинал не тронется. -->
+        <ion-note
+          v-if="!ownItem"
+          class="copy_hint"
+        >
+          {{ $t("pages.catalog.copy_hint") }}
+        </ion-note>
         <ion-list>
           <ion-item>
             <ion-input
@@ -111,6 +118,22 @@
         >
           {{ $t("ui.buttons.save") }}
         </CutCornerBtn>
+        <!-- Удаление — только тут, в форме, а не в общем списке: своё — автору, любое — админу. -->
+        <ion-button
+          v-if="currentId !== null && ownItem"
+          class="delete_btn"
+          expand="block"
+          fill="clear"
+          color="danger"
+          :disabled="saving"
+          @click="remove"
+        >
+          <ion-icon
+            slot="start"
+            :icon="trashOutline"
+          />
+          {{ $t("pages.catalog.delete") }}
+        </ion-button>
       </template>
     </ion-content>
   </ion-modal>
@@ -127,6 +150,9 @@
    * Открывается только вошедшим: без токена словарь запись всё равно не примет.
    * Новый материал уходит сразу с параметрами первой сборки (13:205:226), одним
    * запросом; у существующего сборки правятся карандашом у каждой (VariantModal).
+   *
+   * Чужой общий материал правится тем же запросом, а словарь сам заводит копию
+   * (ownership.ts): страница после закрытия перечитывает список и покажет оба.
    */
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
@@ -135,12 +161,13 @@
     IonHeader,
     IonIcon,
     IonModal,
+    IonNote,
     IonSelect,
     IonSelectOption,
     IonTextarea,
     IonToolbar,
   } from "@ionic/vue";
-  import { closeOutline } from "ionicons/icons";
+  import { closeOutline, trashOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel from "@/models/DictionaryModel";
   import type {
@@ -157,6 +184,7 @@
     suffixFor,
     type LocaleSuffix,
   } from "./localeFields";
+  import { confirmDelete, useOwnership } from "./ownership";
   import { toInput, type ParamRow } from "./variantParams";
 
   /**
@@ -181,6 +209,7 @@
   const emit = defineEmits<{ close: [] }>();
 
   const { t, locale } = useI18n({ useScope: "global" });
+  const { canModify } = useOwnership();
 
   const emptyForm = (): Form => ({
     name: "",
@@ -200,6 +229,11 @@
   const loading = ref(false);
   const saving = ref(false);
   const error = ref("");
+
+  /** Своё (или любое у админа): правится на месте и удаляется. Новое — тоже своё. */
+  const ownItem = computed(
+    () => props.material === null || canModify(props.material),
+  );
 
   const heading = computed(() =>
     currentId.value === null
@@ -299,9 +333,31 @@
       saving.value = false;
     }
   }
+
+  async function remove() {
+    const id = currentId.value;
+    if (id === null || saving.value) return;
+    if (!(await confirmDelete(t, props.material?.name ?? ""))) return;
+
+    saving.value = true;
+    error.value = "";
+    try {
+      await DictionaryModel.removeMaterial(id);
+      emit("close");
+    } catch (cause) {
+      error.value = saveErrorText(t, cause);
+    } finally {
+      saving.value = false;
+    }
+  }
 </script>
 
 <style scoped>
+  .copy_hint {
+    display: block;
+    margin-bottom: 8px;
+  }
+
   .params {
     margin-top: 20px;
   }
@@ -313,5 +369,9 @@
 
   .save_btn {
     margin-top: 16px;
+  }
+
+  .delete_btn {
+    margin-top: 8px;
   }
 </style>

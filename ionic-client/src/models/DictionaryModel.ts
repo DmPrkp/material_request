@@ -84,6 +84,8 @@ export type CatalogQuery = {
   typeId?: number;
   /** Только материалы, у которых тип не проставлен. */
   untyped?: boolean;
+  /** Электроинструмент по питанию: true — сетевой, false — аккумуляторный. */
+  corded?: boolean;
 };
 
 function toQueryString(query: CatalogQuery): string {
@@ -93,6 +95,7 @@ function toQueryString(query: CatalogQuery): string {
   if (query.q?.trim()) params.set("q", query.q.trim());
   if (query.typeId) params.set("typeId", String(query.typeId));
   if (query.untyped) params.set("untyped", "true");
+  if (query.corded !== undefined) params.set("corded", String(query.corded));
   const qs = params.toString();
   return qs ? `?${qs}` : "";
 }
@@ -265,5 +268,26 @@ export default class DictionaryModel extends BaseModel {
       params: `/work-stages/${id}`,
       body,
     });
+  }
+
+  // Удаление мягкое (is_active = false): позиция пропадает из выдачи, а расчёты,
+  // где она уже участвует, не ломаются. Своё — автору, любое — админу; иначе 403.
+
+  static removeMaterial(id: number) {
+    return this.delete({ params: `/materials/${id}` });
+  }
+
+  static removeHandTool(id: number) {
+    return this.delete({ params: `/hand-tools/${id}` });
+  }
+
+  /** Этапы уходят вместе с технологией: без неё их не показать. */
+  static removeSystem(id: number) {
+    return this.delete({ params: `/systems/${id}` });
+  }
+
+  static removeVariant(owner: VariantOwner, variantId: number) {
+    const path = owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
+    return this.delete({ params: `/${path}/${variantId}` });
   }
 }

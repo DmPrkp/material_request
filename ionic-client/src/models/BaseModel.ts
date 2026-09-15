@@ -199,6 +199,17 @@ export default class BaseModel {
     return await response.json();
   }
 
+  /** DELETE: словарь по умолчанию архивирует, ответ всё равно разбирать незачем. */
+  static async delete({ params }: { params: string }): Promise<void> {
+    const options = Object.assign({ method: "DELETE" }, this.baseOpts);
+    const response = await fetch(this.buildUrl(params), options);
+
+    if (!response.ok) {
+      this.notifyUnauthorized(response.status);
+      throw new HttpError(response.status, response.statusText);
+    }
+  }
+
   static async downloadFile({
     params,
     queries = [],

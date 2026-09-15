@@ -14,6 +14,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiForbiddenResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -74,14 +75,15 @@ export function createDictionaryController(options: DictionaryControllerOptions)
     @ApiOperation({ summary: options.summary })
     // Page<unknown>: наследники отдают строки с подмешанными связями
     // (материал с единицей, значение параметра с единицей).
-    list(@Query() query: ListQueryDto): Promise<Page<unknown>> {
-      return this.service.list(query);
+    // user на чтении — от глобального IdentifyGuard: вошедшему видны и его личные позиции.
+    list(@Query() query: ListQueryDto, @CurrentUser() user: AuthUser | undefined): Promise<Page<unknown>> {
+      return this.service.list(query, user);
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Одна позиция по id' })
-    byId(@Param('id', ParseIntPipe) id: number) {
-      return this.service.byId(id);
+    byId(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser | undefined) {
+      return this.service.byId(id, user);
     }
 
     @Post()
@@ -92,19 +94,26 @@ export function createDictionaryController(options: DictionaryControllerOptions)
       @Body(new ZodValidationPipe(options.createSchema)) dto: Record<string, unknown>,
       @CurrentUser() user: AuthUser | undefined,
     ) {
-      // user здесь есть всегда: при authored до метода без токена не дойти (JwtAuthGuard).
-      return this.service.create(options.authored ? { ...dto, createdBy: user!.id } : dto);
+      // При authored user есть всегда: без токена до метода не дойти (JwtAuthGuard).
+      // Без authored автора не пишем, даже если токен прислали: колонки createdBy у таблицы нет.
+      return this.service.create(dto, options.authored ? user : undefined);
     }
 
     @Patch(':id')
     @Writes
-    @ApiOperation({ summary: 'Изменить позицию' })
+    @ApiOperation({
+      summary: 'Изменить позицию',
+      description:
+        'Своё (у админа — любое) правится на месте. Чужая общая позиция у пользователя не меняется: ' +
+        'ему заводится копия с правкой, и в ответе — она, с новым id.',
+    })
     @ApiBody({ type: options.updateDto })
     update(
       @Param('id', ParseIntPipe) id: number,
       @Body(new ZodValidationPipe(options.updateSchema)) dto: Record<string, unknown>,
+      @CurrentUser() user: AuthUser | undefined,
     ) {
-      return this.service.update(id, dto);
+      return this.service.update(id, dto, user);
     }
 
     @Delete(':id')
@@ -114,23 +123,29 @@ export function createDictionaryController(options: DictionaryControllerOptions)
       description:
         'По умолчанию мягко: is_active = false, позиция пропадает из выдачи, но старые расчёты не ломаются. ' +
         '?hard=true удаляет физически — вернёт 409 со списком ссылок, если позиция используется. ' +
-        'Ссылки из норм расхода в calc-server отсюда НЕ видны: это другая база.',
+        'Ссылки из норм расхода в calc-server отсюда НЕ видны: это другая база. ' +
+        'Удалить можно только своё; админ — любое, остальным на чужое 403.',
     })
     @ApiQuery({ name: 'hard', required: false, type: Boolean })
     @ApiOkResponse({ description: 'Позиция удалена или архивирована' })
-    async remove(@Param('id', ParseIntPipe) id: number, @Query() query: { hard?: string }) {
+    @ApiForbiddenResponse({ description: 'Позиция чужая, а спрашивает не админ' })
+    async remove(
+      @Param('id', ParseIntPipe) id: number,
+      @Query() query: { hard?: string },
+      @CurrentUser() user: AuthUser | undefined,
+    ) {
       if (hardDeleteQuery(query)) {
-        await this.service.remove(id);
+        await this.service.remove(id, user);
         return { deleted: true, mode: 'hard' as const };
       }
-      return { deleted: true, mode: 'soft' as const, item: await this.service.archive(id) };
+      return { deleted: true, mode: 'soft' as const, item: await this.service.archive(id, user) };
     }
 
     @Post(':id/restore')
     @Writes
     @ApiOperation({ summary: 'Вернуть архивную позицию в строй' })
-    restore(@Param('id', ParseIntPipe) id: number) {
-      return this.service.restore(id);
+    restore(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser | undefined) {
+      return this.service.restore(id, user);
     }
   }
 

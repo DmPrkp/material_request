@@ -38,6 +38,20 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  /**
+   * Свежий токен взамен ещё живого — клиент меняет его раз в сутки. Пользователя
+   * перечитываем: удалённому новый не выдаём, а сменённая роль попадёт в токен сразу,
+   * а не через JWT_EXPIRES_IN.
+   */
+  async refresh(userId: number) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    return this.buildAuthResponse(user);
+  }
+
   async changePassword(userId: number, dto: ChangePasswordDto): Promise<void> {
     const user = await this.usersService.findById(userId);
     // 403, а не 401: сессия-то валидна, и клиент не должен принять это за протухший токен.

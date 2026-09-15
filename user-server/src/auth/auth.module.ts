@@ -15,7 +15,9 @@ import { AuthService } from './auth.service';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: resolveJwtSecret(config.get<string>('JWT_SECRET')),
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '1h' },
+        // Три дня, а клиент раз в сутки меняет токен на свежий (POST /auth/refresh):
+        // кто заходит хоть раз в три дня, из аккаунта не вылетает, а брошенный токен умирает сам.
+        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '3d' },
       }),
     }),
   ],

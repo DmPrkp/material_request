@@ -108,6 +108,19 @@ const authorship = {
 };
 
 /**
+ * Автор плюс флаг «видят все» — у позиций со своими правами. У этапов его нет: их
+ * видимость и права целиком от технологии, и свой флаг только разошёлся бы с ней.
+ *
+ * isShared — видят все (сиды и заведённое админом); false — только автор и админ
+ * (common/ownership.ts). Роль автора запоминается здесь, потому что кто админ, знает
+ * только user-server. По умолчанию true — сиды общие.
+ */
+const ownership = {
+  ...authorship,
+  isShared: boolean('is_shared').notNull().default(true),
+};
+
+/**
  * Вид работ: фасад, кровля, внутренняя отделка — верхний уровень над технологиями
  * (systems). Отдельная таблица, а не строка у технологии: виды будут добавляться,
  * и у каждого своё название на двух языках.
@@ -118,7 +131,7 @@ export const workTypes = pgTable('work_types', {
   code: varchar('code', { length: 32 }).notNull().unique(),
   nameRu: varchar('name_ru', { length: 100 }).notNull(),
   nameEn: varchar('name_en', { length: 100 }).notNull(),
-  ...authorship,
+  ...ownership,
   ...lifecycle,
 });
 
@@ -157,7 +170,7 @@ export const systems = pgTable(
     workTypeId: integer('work_type_id')
       .notNull()
       .references(() => workTypes.id, { onDelete: 'restrict' }),
-    ...authorship,
+    ...ownership,
     ...lifecycle,
   },
   (t) => [index('systems_work_type_idx').on(t.workTypeId), namePresent('systems', t)],
@@ -194,13 +207,24 @@ export const handTools = pgTable(
   {
     id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
     // Как у материалов: с клиента пишется язык страницы, остальные пустые (namePresent).
-    // UNIQUE остаётся — NULL-ы в нём различны, так что пустые переводы друг другу не мешают.
-    nameRu: varchar('name_ru', { length: 100 }).unique(),
-    nameEn: varchar('name_en', { length: 100 }).unique(),
-    ...authorship,
+    nameRu: varchar('name_ru', { length: 100 }),
+    nameEn: varchar('name_en', { length: 100 }),
+    ...ownership,
     ...lifecycle,
   },
-  (t) => [namePresent('hand_tools', t)],
+  (t) => [
+    namePresent('hand_tools', t),
+    // Уникально у одного автора, а не во всей таблице: копия чужого «шпателя» при правке
+    // его сборки (CrudService.fork) законно носит то же имя. coalesce — сиды (NULL) между
+    // собой тоже не должны совпадать; пустые переводы (NULL в имени) друг другу не мешают.
+    // Только среди живых: удалённый «молоток» не мешает завести «молоток» заново.
+    uniqueIndex('hand_tools_name_ru_author_uq')
+      .on(t.nameRu, sql`coalesce(${t.createdBy}, 0)`)
+      .where(sql`${t.isActive}`),
+    uniqueIndex('hand_tools_name_en_author_uq')
+      .on(t.nameEn, sql`coalesce(${t.createdBy}, 0)`)
+      .where(sql`${t.isActive}`),
+  ],
 );
 
 export const powerTools = pgTable('power_tools', {
@@ -208,6 +232,7 @@ export const powerTools = pgTable('power_tools', {
   nameRu: varchar('name_ru', { length: 100 }).notNull(),
   nameEn: varchar('name_en', { length: 100 }).notNull(),
   isCorded: boolean('is_corded').notNull(),
+  ...ownership,
   ...lifecycle,
 });
 
@@ -237,7 +262,7 @@ export const materials = pgTable(
       .references(() => units.id, { onDelete: 'restrict' }),
     /** Необязательный: часть материалов пока не разнесена по типам. */
     typeId: integer('type_id').references(() => materialTypes.id, { onDelete: 'set null' }),
-    ...authorship,
+    ...ownership,
     ...lifecycle,
   },
   (t) => [

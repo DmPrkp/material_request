@@ -29,6 +29,13 @@
       </div>
 
       <template v-else>
+        <!-- Чужая общая позиция: сохранение заведёт копию, оригинал не тронется. -->
+        <ion-note
+          v-if="!ownItem"
+          class="copy_hint"
+        >
+          {{ $t("pages.catalog.copy_hint") }}
+        </ion-note>
         <ion-list>
           <ion-item>
             <ion-input
@@ -67,6 +74,22 @@
         >
           {{ $t("ui.buttons.save") }}
         </CutCornerBtn>
+        <!-- Удаление — только тут, в форме, а не в общем списке: своё — автору, любое — админу. -->
+        <ion-button
+          v-if="currentId !== null && ownItem"
+          class="delete_btn"
+          expand="block"
+          fill="clear"
+          color="danger"
+          :disabled="saving"
+          @click="remove"
+        >
+          <ion-icon
+            slot="start"
+            :icon="trashOutline"
+          />
+          {{ $t("pages.catalog.delete") }}
+        </ion-button>
       </template>
     </ion-content>
   </ion-modal>
@@ -83,11 +106,14 @@
    *
    * Название — на языке страницы (localeFields.ts); исходные поля форма берёт
    * отдельным запросом (?translations=all): список отдаёт одно name, уже свёрнутое.
+   *
+   * Чужой общий инструмент правится тем же запросом, а словарь сам заводит копию
+   * со всеми сборками (ownership.ts): после закрытия в списке будут оба.
    */
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { IonButtons, IonHeader, IonIcon, IonModal, IonToolbar } from "@ionic/vue";
-  import { closeOutline } from "ionicons/icons";
+  import { IonButtons, IonHeader, IonIcon, IonModal, IonNote, IonToolbar } from "@ionic/vue";
+  import { closeOutline, trashOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel from "@/models/DictionaryModel";
   import type { DictionaryHandTool } from "@/types/dto";
@@ -100,6 +126,7 @@
     suffixFor,
     type LocaleSuffix,
   } from "./localeFields";
+  import { confirmDelete, useOwnership } from "./ownership";
   import { toInput, type ParamRow } from "./variantParams";
 
   const props = defineProps<{
@@ -109,6 +136,7 @@
   const emit = defineEmits<{ close: [] }>();
 
   const { t, locale } = useI18n({ useScope: "global" });
+  const { canModify } = useOwnership();
 
   const editor = ref<InstanceType<typeof VariantParamsEditor> | null>(null);
   /** Язык, на котором открыли форму: в его колонку и пишем. */
@@ -120,6 +148,9 @@
   const loading = ref(false);
   const saving = ref(false);
   const error = ref("");
+
+  /** Своё (или любое у админа): правится на месте и удаляется. Новое — тоже своё. */
+  const ownItem = computed(() => props.tool === null || canModify(props.tool));
 
   const heading = computed(() =>
     currentId.value === null
@@ -200,9 +231,31 @@
       saving.value = false;
     }
   }
+
+  async function remove() {
+    const id = currentId.value;
+    if (id === null || saving.value) return;
+    if (!(await confirmDelete(t, props.tool?.name ?? ""))) return;
+
+    saving.value = true;
+    error.value = "";
+    try {
+      await DictionaryModel.removeHandTool(id);
+      emit("close");
+    } catch (cause) {
+      error.value = saveErrorText(t, cause);
+    } finally {
+      saving.value = false;
+    }
+  }
 </script>
 
 <style scoped>
+  .copy_hint {
+    display: block;
+    margin-bottom: 8px;
+  }
+
   .params {
     margin-top: 20px;
   }
@@ -214,5 +267,9 @@
 
   .save_btn {
     margin-top: 16px;
+  }
+
+  .delete_btn {
+    margin-top: 8px;
   }
 </style>

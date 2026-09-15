@@ -4,7 +4,7 @@
     :class="{ 'full-width': fullWidth }"
     :disabled="disabled"
   >
-    <slot></slot>
+    <span class="label"><slot></slot></span>
   </button>
 </template>
 
@@ -32,7 +32,8 @@
 
     font-size: 1rem;
     padding: 0.4em 1.2em !important;
-    font-weight: 900;
+    /* У Russo One одно начертание — 400. С 900 браузер дорисовал бы синтетический жирный. */
+    font-weight: 400;
     border: none;
     color: var(--color);
     background: linear-gradient(to bottom left, var(--color) 50%, #0000 50.1%)
@@ -52,6 +53,14 @@
       var(--slant) 100%,
       0 calc(100% - var(--slant))
     );
+  }
+
+  /* Наклон через skew, а не font-style: oblique 15deg — у шрифта нет оси slnt,
+     и браузер рисует синтетический наклон под своим углом, игнорируя градусы.
+     Скошен только текст: рамка и срезанные углы остаются прямыми. */
+  .label {
+    display: inline-block;
+    transform: skewX(-15deg);
   }
 
   button.full-width {

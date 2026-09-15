@@ -9,6 +9,9 @@ import { systems, workStages, workTypes } from '~/db/schema';
 // createdBy — тоже служебное: его проставляет контроллер из токена, а принять его
 // из тела значило бы дать записать запись от чужого имени.
 const managed = { id: true, isActive: true, createdAt: true, updatedAt: true, createdBy: true } as const;
+// isShared — туда же: общей позицию делает только роль автора (common/ownership.ts).
+// У этапов своего флага нет — их видимость и права целиком от технологии.
+const sharedManaged = { ...managed, isShared: true } as const;
 
 // Название — на языке интерфейса, хоть одно обязательно (common/names.ts).
 const name = optionalText(100);
@@ -21,13 +24,13 @@ export const createWorkTypeSchema = createInsertSchema(workTypes, {
   code: (s) => s.regex(/^[a-z][a-z0-9_]*$/).max(32),
   nameRu: (s) => s.trim().min(1).max(100),
   nameEn: (s) => s.trim().min(1).max(100),
-}).omit(managed);
+}).omit(sharedManaged);
 export const updateWorkTypeSchema = createWorkTypeSchema.partial();
 
 export class CreateWorkTypeDto extends createZodDto(createWorkTypeSchema) {}
 export class UpdateWorkTypeDto extends createZodDto(updateWorkTypeSchema) {}
 
-const systemFields = createInsertSchema(systems).omit(managed).extend({
+const systemFields = createInsertSchema(systems).omit(sharedManaged).extend({
   title: code,
   nameRu: name,
   nameEn: name,

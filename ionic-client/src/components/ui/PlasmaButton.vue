@@ -19,8 +19,7 @@
     color: #fff;
     border-radius: 5px;
     padding: 10px 25px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
+    font-family: inherit;
     background: transparent;
     cursor: pointer;
     transition: all 0.3s ease;

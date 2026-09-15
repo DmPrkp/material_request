@@ -2,7 +2,7 @@
   <ion-item-divider color="medium">
     <ion-title
       color="secondary"
-      style="font-family: 'Impact'; font-weight: 900; font-style: oblique 10deg"
+      style="transform: skewX(-10deg)"
     >
       {{ title }}
     </ion-title>

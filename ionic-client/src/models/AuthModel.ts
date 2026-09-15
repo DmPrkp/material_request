@@ -36,6 +36,10 @@ const profilePaths = parsePaths(import.meta.env.VITE_USER_API_PROFILE_PATHS, [
   '/auth/me',
 ]);
 
+const refreshPaths = parsePaths(import.meta.env.VITE_USER_API_REFRESH_PATHS, [
+  '/auth/refresh',
+]);
+
 const credentialsEnv = import.meta.env.VITE_USER_API_CREDENTIALS;
 const allowedCredentials: RequestCredentials[] = ['omit', 'same-origin', 'include'];
 const requestCredentials = allowedCredentials.includes(
@@ -96,6 +100,11 @@ export default class AuthModel extends BaseModel {
 
   static register(payload: RegisterPayload) {
     return this.postWithFallback(registerPaths, { ...payload });
+  }
+
+  /** Свежий токен взамен живого; Authorization с текущим кладёт BaseModel.setAuthToken. */
+  static refresh() {
+    return this.postWithFallback(refreshPaths, {});
   }
 
   static profile() {

@@ -80,4 +80,15 @@ describe('AuthService', () => {
     expect(id).toBe(2);
     expect(newHash).not.toBe('another1');
   });
+
+  it('refresh re-reads the user and issues a fresh token; a deleted user gets none', async () => {
+    users.findById.mockResolvedValueOnce({ ...ivan, role: Role.ADMIN }).mockResolvedValueOnce(null);
+
+    const result = await service.refresh(2);
+
+    // Роль из базы, а не из старого токена: повышение видно сразу после продления.
+    expect(jwtService.verify(result.accessToken)).toMatchObject({ sub: 2, login: 'ivan', role: Role.ADMIN });
+    expect(result.user).not.toHaveProperty('password');
+    await expect(service.refresh(99)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
 });

@@ -11,7 +11,11 @@ const routes = [
     children: [
       { path: "materials" },
       { path: "hand_tools" },
-      { path: "power_tools" },
+      // Табы по питанию — POWER_TOOL_CURRENTS из src/constants/catalog.ts.
+      {
+        path: "power_tools",
+        children: [{ path: "corded" }, { path: "cordless" }],
+      },
       // Виды работ приходят из словаря — здесь только те, что заведены сидами.
       {
         path: "systems",

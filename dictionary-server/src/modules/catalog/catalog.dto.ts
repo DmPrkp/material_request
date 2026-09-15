@@ -7,8 +7,9 @@ import { listQuerySchema } from '~/common/pagination';
 import { handTools, materialTypes, materials, powerTools } from '~/db/schema';
 
 const managed = { id: true, isActive: true, createdAt: true, updatedAt: true } as const;
-// У материалов и ручного инструмента есть автор: createdBy ставит контроллер из токена, из тела не берём.
-const authoredManaged = { ...managed, createdBy: true } as const;
+// У позиций каталога есть автор: createdBy и isShared ставит сервис из токена, из тела не берём —
+// иначе пользователь сам сделал бы свою позицию общей (common/ownership.ts).
+const authoredManaged = { ...managed, createdBy: true, isShared: true } as const;
 
 /* ----------------------------------------------------------- variant params */
 
@@ -54,11 +55,21 @@ export class UpdateHandToolDto extends createZodDto(updateHandToolSchema) {}
 export const createPowerToolSchema = createInsertSchema(powerTools, {
   nameRu: (s) => s.min(1).max(100),
   nameEn: (s) => s.min(1).max(100),
-}).omit(managed);
+}).omit(authoredManaged);
 export const updatePowerToolSchema = createPowerToolSchema.partial();
 
 export class CreatePowerToolDto extends createZodDto(createPowerToolSchema) {}
 export class UpdatePowerToolDto extends createZodDto(updatePowerToolSchema) {}
+
+export const powerToolQuerySchema = listQuerySchema.extend({
+  // Не z.coerce.boolean(): тот делает из строки 'false' true, и таб «аккумуляторный»
+  // показывал бы сетевой.
+  corded: z
+    .enum(['true', 'false'])
+    .transform((value) => value === 'true')
+    .optional(),
+});
+export class PowerToolQueryDto extends createZodDto(powerToolQuerySchema) {}
 
 /* --------------------------------------------------------- material types */
 

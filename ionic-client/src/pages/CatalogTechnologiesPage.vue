@@ -68,6 +68,13 @@
           >
             {{ $t("pages.catalog.structure.added_by_you") }}
           </ion-note>
+          <!-- Чужую личную видит только админ: пусть знает, что это не общая. -->
+          <ion-note
+            v-else-if="isOthersPrivate(system)"
+            slot="end"
+          >
+            {{ $t("pages.catalog.added_by_user") }}
+          </ion-note>
         </ion-item>
       </ion-list>
 
@@ -107,6 +114,7 @@
   import { useRoute, useRouter } from "vue-router";
   import { IonNote, type RefresherCustomEvent } from "@ionic/vue";
   import TechnologyModal from "@/components/pagesParts/catalog/TechnologyModal.vue";
+  import { useOwnership } from "@/components/pagesParts/catalog/ownership";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel from "@/models/DictionaryModel";
   import { useAuthStore } from "@/store/auth";
@@ -156,12 +164,8 @@
     return stagesBySystem.value[systemId] ?? [];
   }
 
-  function isMine(row: { createdBy: number | null }): boolean {
-    const userId = authStore.user?.id;
-    return row.createdBy !== null && userId !== undefined
-      ? String(row.createdBy) === String(userId)
-      : false;
-  }
+  // Кто вошёл — из токена, а не из профиля: профиль после перезагрузки приезжает не сразу.
+  const { isMine, isOthersPrivate } = useOwnership();
 
   /** force — «потянуть, чтобы обновить»: тогда и виды работ перечитываем. */
   async function load(force = false) {

@@ -35,9 +35,7 @@
           <ion-card-header color="medium">
             <ion-card-title
               style="
-                font-family: 'Impact';
-                font-weight: 900;
-                font-style: oblique 10deg;
+                transform: skewX(-10deg);
                 color: var(--ion-color-secondary);
               "
             >

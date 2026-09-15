@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
+import type { AuthUser } from '~/auth/jwt-payload';
 import { CrudService } from '~/common/crud.service';
 import type { ListQuery } from '~/common/pagination';
 import { toPage, type Page } from '~/common/pagination';
@@ -17,7 +18,7 @@ import {
   powerTools,
   units,
 } from '~/db/schema';
-import type { MaterialQueryDto, VariantParamInput } from './catalog.dto';
+import type { MaterialQueryDto, PowerToolQueryDto, VariantParamInput } from './catalog.dto';
 import { VariantsService } from './variants.service';
 
 /**
@@ -28,8 +29,8 @@ import { VariantsService } from './variants.service';
  *
  * Служебный вариант без параметров не в счёт: он есть у каждой позиции без размеров
  * (его code — просто id позиции), и пока его считали, «Деревянные щиты настила»
- * раскрывались ради одной строки «Без типоразмеров». Архивные считаем — их тоже
- * вернёт VariantsService.listByOwner(), иначе стрелка и содержимое разошлись бы.
+ * раскрывались ради одной строки «Без типоразмеров». Архивные (удалённые из формы
+ * сборки) не в счёт тоже — клиент их не показывает, иначе стрелка и содержимое разошлись бы.
  */
 async function countSizedVariants(
   db: Database,
@@ -44,7 +45,7 @@ async function countSizedVariants(
     .select({ ownerId: ownerColumn, value: countDistinct(variants.id) })
     .from(variants)
     .innerJoin(params, eq(params.variantId, variants.id))
-    .where(inArray(ownerColumn, ids))
+    .where(and(inArray(ownerColumn, ids), eq(variants.isActive, true)))
     .groupBy(ownerColumn);
 
   return Object.fromEntries(rows.map((row) => [Number(row.ownerId), Number(row.value)]));
@@ -89,15 +90,25 @@ export class HandToolsService extends CrudService<typeof handTools.$inferSelect>
     ]);
   }
 
-  override create(data: Record<string, unknown>) {
-    return createWithVariants(this.db, this.variants, 'hand-tool', handTools, data) as Promise<
+  override create(data: Record<string, unknown>, user?: AuthUser) {
+    return createWithVariants(this.db, this.variants, 'hand-tool', handTools, this.withAuthor(data, user)) as Promise<
       typeof handTools.$inferSelect
     >;
   }
 
+  /** Копия чужого инструмента — вместе со сборками: без них в расчёт ей идти нечем. */
+  protected override fork(source: typeof handTools.$inferSelect, changes: Record<string, unknown>, user: AuthUser) {
+    return this.db.transaction(
+      async (tx) => (await this.variants.forkOwner('hand-tool', source, changes, user, tx)).owner,
+    ) as Promise<typeof handTools.$inferSelect>;
+  }
+
   /** Тот же список, что и у базового CRUD, плюс число типоразмеров у позиции. */
-  async listWithVariantCount(query: ListQuery): Promise<Page<Record<string, unknown>>> {
-    const page = await this.list(query);
+  async listWithVariantCount(
+    query: ListQuery,
+    user: AuthUser | undefined,
+  ): Promise<Page<Record<string, unknown>>> {
+    const page = await this.list(query, user);
     const counts = await countSizedVariants(
       this.db,
       handToolVariants,
@@ -117,6 +128,11 @@ export class HandToolsService extends CrudService<typeof handTools.$inferSelect>
 export class PowerToolsService extends CrudService<typeof powerTools.$inferSelect> {
   constructor(@Inject(DB) db: Database) {
     super(db, powerTools, [powerTools.nameRu, powerTools.nameEn], powerTools.nameRu, []);
+  }
+
+  /** Табы на клиенте — сетевой и аккумуляторный; без corded — весь электроинструмент. */
+  listByCurrent(query: PowerToolQueryDto, user: AuthUser | undefined) {
+    return this.list(query, user, query.corded === undefined ? undefined : eq(powerTools.isCorded, query.corded));
   }
 }
 
@@ -140,17 +156,25 @@ export class MaterialsService extends CrudService<typeof materials.$inferSelect>
     ]);
   }
 
-  override create(data: Record<string, unknown>) {
-    return createWithVariants(this.db, this.variants, 'material', materials, data) as Promise<
+  override create(data: Record<string, unknown>, user?: AuthUser) {
+    return createWithVariants(this.db, this.variants, 'material', materials, this.withAuthor(data, user)) as Promise<
       typeof materials.$inferSelect
     >;
   }
 
+  /** Копия чужого материала — вместе со сборками, как у ручного инструмента. */
+  protected override fork(source: typeof materials.$inferSelect, changes: Record<string, unknown>, user: AuthUser) {
+    return this.db.transaction(
+      async (tx) => (await this.variants.forkOwner('material', source, changes, user, tx)).owner,
+    ) as Promise<typeof materials.$inferSelect>;
+  }
+
   /** Материал без единицы измерения нечитаем — подмешиваем её и тип в список. */
-  async listWithUnit(query: MaterialQueryDto): Promise<Page<Record<string, unknown>>> {
+  async listWithUnit(query: MaterialQueryDto, user: AuthUser | undefined): Promise<Page<Record<string, unknown>>> {
     const where = and(
       this.stateFilter(query.state),
       this.searchFilter(query.q),
+      this.visibility(user),
       query.unitId ? eq(materials.unitId, query.unitId) : undefined,
       query.typeId ? eq(materials.typeId, query.typeId) : undefined,
       query.untyped ? isNull(materials.typeId) : undefined,
@@ -166,6 +190,7 @@ export class MaterialsService extends CrudService<typeof materials.$inferSelect>
           descriptionEn: materials.descriptionEn,
           isActive: materials.isActive,
           createdBy: materials.createdBy,
+          isShared: materials.isShared,
           unit: { id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn },
           // Тип необязателен — оставляем LEFT JOIN, иначе материалы без типа выпадут
           type: {

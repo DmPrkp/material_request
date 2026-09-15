@@ -145,4 +145,17 @@ export const paramValues: ParamValue[] = [
   { id: 512, kindId: 3, value: 250, unitId: 3 },
   { id: 513, kindId: 3, value: 500, unitId: 3 },
   { id: 514, kindId: 3, value: 600, unitId: 3 },
+  // Пиломатериалы: сечение — ширина × толщина, мм (доска 100х25 — шир. 100, тлщ. 25).
+  { id: 515, kindId: 3, value: 140, unitId: 3 },
+  { id: 516, kindId: 3, value: 160, unitId: 3 },
+  { id: 517, kindId: 3, value: 170, unitId: 3 },
+  { id: 521, kindId: 10, value: 25, unitId: 3 },
+  { id: 522, kindId: 10, value: 30, unitId: 3 },
+  { id: 523, kindId: 10, value: 40, unitId: 3 },
+  { id: 524, kindId: 10, value: 50, unitId: 3 },
+  { id: 525, kindId: 10, value: 60, unitId: 3 },
+  { id: 526, kindId: 10, value: 80, unitId: 3 },
+  { id: 527, kindId: 10, value: 100, unitId: 3 },
+  { id: 528, kindId: 10, value: 120, unitId: 3 },
+  { id: 529, kindId: 10, value: 150, unitId: 3 },
 ];

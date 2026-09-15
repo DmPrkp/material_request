@@ -2,6 +2,8 @@ import { BadRequestException, ConflictException, Inject, Injectable, NotFoundExc
 import { and, asc, eq, inArray, isNull, ne } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
+import type { AuthUser } from '~/auth/jwt-payload';
+import { assertCanModify, authorshipFor, canModify, canSee, copyable, type Owned } from '~/common/ownership';
 import { DB, type Database } from '~/db/db.module';
 import {
   handToolVariantParams,
@@ -88,6 +90,21 @@ const MATERIAL: VariantTables = {
 /** Параметры нового варианта: готовые id значений и/или тройки из формы. */
 type VariantParamsSource = { paramValueIds?: readonly number[]; params?: readonly VariantParamInput[] };
 
+/** Позиция, в которой пользователь правит сборки: своя — та же, чужая — его копия. */
+type EditableOwner = {
+  id: number;
+  /** Только у копии: id сборки оригинала -> id её двойника в копии. */
+  variantIds?: Map<number, number>;
+};
+
+/**
+ * Сборки ручного инструмента и материалов.
+ *
+ * Своих прав у сборки нет — они целиком от позиции (common/ownership.ts): видна
+ * позиция — видны сборки, правит позицию — правит и их. Правка сборки чужой общей
+ * позиции заводит пользователю копию позиции со всеми сборками (forkOwner) и уже в
+ * ней меняет двойника той сборки: в ответе у сборки другой ownerId.
+ */
 @Injectable()
 export class VariantsService {
   constructor(@Inject(DB) private readonly db: Database) {}
@@ -96,8 +113,23 @@ export class VariantsService {
     return kind === 'hand-tool' ? HAND_TOOL : MATERIAL;
   }
 
-  async listByOwner(kind: 'hand-tool' | 'material', ownerId: number): Promise<Variant[]> {
+  /** Позиция, которую пользователю видно; чужая личная — 404, как и несуществующая. */
+  private async visibleOwner(
+    db: Database | Tx,
+    t: VariantTables,
+    ownerId: number,
+    user: AuthUser | undefined,
+  ): Promise<Record<string, unknown> & Owned & { id: number }> {
+    const [owner] = await db.select().from(t.owner).where(eq(t.ownerId, ownerId)).limit(1);
+    if (!owner || !canSee(owner as Owned, user)) {
+      throw new NotFoundException(`${t.ownerLabel} ${ownerId} не найден`);
+    }
+    return owner as Record<string, unknown> & Owned & { id: number };
+  }
+
+  async listByOwner(kind: 'hand-tool' | 'material', ownerId: number, user: AuthUser | undefined): Promise<Variant[]> {
     const t = this.tables(kind);
+    await this.visibleOwner(this.db, t, ownerId, user);
 
     const rows = await this.db
       .select({
@@ -145,6 +177,79 @@ export class VariantsService {
     }
 
     return [...byId.values()];
+  }
+
+  /**
+   * Копия позиции для пользователя вместе со всеми сборками, в чужой транзакции.
+   *
+   * Сборки копируются с теми же значениями параметров, архивные — тоже архивными:
+   * иначе копия отличалась бы от оригинала не только правкой. code у двойников новый —
+   * он начинается с id позиции (buildVariantCode), так что с оригиналом не спорит.
+   * Нормы расхода в calc-server ссылаются на сборки оригинала — на копию они не переходят.
+   */
+  async forkOwner(
+    kind: 'hand-tool' | 'material',
+    source: object,
+    changes: Record<string, unknown>,
+    user: AuthUser,
+    tx: Tx,
+  ): Promise<{ owner: Record<string, unknown> & { id: number }; variantIds: Map<number, number> }> {
+    const t = this.tables(kind);
+    const sourceId = (source as { id: number }).id;
+
+    const [owner] = await tx
+      .insert(t.owner)
+      .values({ ...copyable(source), ...changes, ...authorshipFor(user), isActive: true })
+      .returning();
+
+    const rows = await tx
+      .select({ id: t.variantId, isActive: t.variantActive, paramValueId: t.linkParamValueId })
+      .from(t.variants)
+      .leftJoin(t.links, eq(t.linkVariantId, t.variantId))
+      .where(eq(t.variantOwner, sourceId))
+      // Тот же порядок, что в listByOwner: id значений в code идут по возрастанию.
+      .orderBy(asc(t.variantId), asc(t.linkParamValueId));
+
+    const sets = new Map<number, { isActive: boolean; paramValueIds: number[] }>();
+    for (const row of rows) {
+      const set = sets.get(row.id) ?? { isActive: row.isActive as boolean, paramValueIds: [] as number[] };
+      if (row.paramValueId !== null) set.paramValueIds.push(row.paramValueId);
+      sets.set(row.id, set);
+    }
+
+    const variantIds = new Map<number, number>();
+    for (const [sourceVariantId, set] of sets) {
+      const [variant] = await tx
+        .insert(t.variants)
+        .values({
+          code: buildVariantCode(owner.id, set.paramValueIds),
+          [t.ownerKey]: owner.id,
+          isActive: set.isActive,
+        })
+        .returning({ id: t.variantId });
+      if (set.paramValueIds.length > 0) {
+        await tx
+          .insert(t.links)
+          .values(set.paramValueIds.map((paramValueId) => ({ variantId: variant.id, paramValueId })));
+      }
+      variantIds.set(sourceVariantId, variant.id);
+    }
+
+    return { owner: owner as Record<string, unknown> & { id: number }, variantIds };
+  }
+
+  /** Своя позиция (у админа — любая) правится как есть; чужая общая — заводится копия. */
+  private async editableOwner(
+    tx: Tx,
+    kind: 'hand-tool' | 'material',
+    ownerId: number,
+    user: AuthUser,
+  ): Promise<EditableOwner> {
+    const owner = await this.visibleOwner(tx, this.tables(kind), ownerId, user);
+    if (canModify(owner, user)) return { id: ownerId };
+
+    const fork = await this.forkOwner(kind, owner, {}, user, tx);
+    return { id: fork.owner.id, variantIds: fork.variantIds };
   }
 
   /**
@@ -226,7 +331,10 @@ export class VariantsService {
     }
   }
 
-  /** С tx — внутри чужой транзакции (создание инструмента вместе с вариантами). */
+  /**
+   * Без проверки прав: зовётся изнутри — при создании позиции (её автор и так правит)
+   * и из createFor(), который права уже проверил. С tx — внутри чужой транзакции.
+   */
   async create(
     kind: 'hand-tool' | 'material',
     ownerId: number,
@@ -242,6 +350,19 @@ export class VariantsService {
 
       const paramValueIds = await this.collectParamIds(tx, source);
       const code = buildVariantCode(ownerId, paramValueIds);
+
+      // Ту же сборку удаляли (архив держит её code) — возвращаем её, а не 409: заодно
+      // остаётся прежний id, на который могут ссылаться нормы расхода.
+      const [archived] = await tx
+        .select({ id: t.variantId })
+        .from(t.variants)
+        .where(and(eq(t.variantCode, code), eq(t.variantActive, false)))
+        .limit(1);
+      if (archived) {
+        await tx.update(t.variants).set({ isActive: true }).where(eq(t.variantId, archived.id));
+        return { id: archived.id, code, ownerId, isActive: true, params: [] } satisfies Variant;
+      }
+
       await this.assertCodeFree(tx, t, code);
 
       const [variant] = await tx
@@ -261,19 +382,34 @@ export class VariantsService {
     return tx ? run(tx) : this.db.transaction(run);
   }
 
+  /** Новая сборка от пользователя: к чужой общей позиции — в его копию, одной транзакцией. */
+  createFor(
+    kind: 'hand-tool' | 'material',
+    ownerId: number,
+    source: VariantParamsSource,
+    user: AuthUser,
+  ): Promise<Variant> {
+    return this.db.transaction(async (tx) => {
+      const owner = await this.editableOwner(tx, kind, ownerId, user);
+      return this.create(kind, owner.id, source, tx);
+    });
+  }
+
   /**
    * Заменить параметры типоразмера целиком. id варианта остаётся прежним — на него
    * ссылаются нормы расхода в calc-server, — а code пересчитывается по новому набору.
+   * У чужой общей позиции меняется двойник сборки в копии пользователя.
    */
   async replaceParams(
     kind: 'hand-tool' | 'material',
     ownerId: number,
     variantId: number,
     params: readonly VariantParamInput[],
+    user: AuthUser,
   ): Promise<Variant> {
     const t = this.tables(kind);
 
-    await this.db.transaction(async (tx) => {
+    const target = await this.db.transaction(async (tx) => {
       const [variant] = await tx
         .select({ id: t.variantId })
         .from(t.variants)
@@ -281,30 +417,49 @@ export class VariantsService {
         .limit(1);
       if (!variant) throw new NotFoundException(`Вариант ${variantId} у позиции ${ownerId} не найден`);
 
-      const paramValueIds = await this.collectParamIds(tx, { params });
-      const code = buildVariantCode(ownerId, paramValueIds);
-      await this.assertCodeFree(tx, t, code, variantId);
+      const owner = await this.editableOwner(tx, kind, ownerId, user);
+      // Двойник есть всегда: копия берёт все сборки оригинала, и эту — тоже.
+      const targetId = owner.variantIds?.get(variantId) ?? variantId;
 
-      await tx.update(t.variants).set({ code }).where(eq(t.variantId, variantId));
-      await tx.delete(t.links).where(eq(t.linkVariantId, variantId));
+      const paramValueIds = await this.collectParamIds(tx, { params });
+      const code = buildVariantCode(owner.id, paramValueIds);
+      await this.assertCodeFree(tx, t, code, targetId);
+
+      await tx.update(t.variants).set({ code }).where(eq(t.variantId, targetId));
+      await tx.delete(t.links).where(eq(t.linkVariantId, targetId));
       if (paramValueIds.length > 0) {
-        await tx.insert(t.links).values(paramValueIds.map((paramValueId) => ({ variantId, paramValueId })));
+        await tx.insert(t.links).values(paramValueIds.map((paramValueId) => ({ variantId: targetId, paramValueId })));
       }
+
+      return { ownerId: owner.id, variantId: targetId };
     });
 
-    const variants = await this.listByOwner(kind, ownerId);
-    return variants.find((variant) => variant.id === variantId)!;
+    const variants = await this.listByOwner(kind, target.ownerId, user);
+    return variants.find((variant) => variant.id === target.variantId)!;
   }
 
-  async archive(kind: 'hand-tool' | 'material', variantId: number): Promise<void> {
+  /** Удалить сборку можно там же, где позицию: своей — автору, любой — админу. */
+  private async assertVariantModifiable(
+    kind: 'hand-tool' | 'material',
+    variantId: number,
+    user: AuthUser | undefined,
+  ): Promise<void> {
     const t = this.tables(kind);
-    const result = await this.db
-      .update(t.variants)
-      .set({ isActive: false })
+    const [variant] = await this.db
+      .select({ ownerId: t.variantOwner })
+      .from(t.variants)
       .where(eq(t.variantId, variantId))
-      .returning({ id: t.variantId });
+      .limit(1);
+    if (!variant) throw new NotFoundException(`Вариант ${variantId} не найден`);
 
-    if (result.length === 0) throw new NotFoundException(`Вариант ${variantId} не найден`);
+    const owner = await this.visibleOwner(this.db, t, variant.ownerId, user);
+    assertCanModify(owner, user);
+  }
+
+  async archive(kind: 'hand-tool' | 'material', variantId: number, user: AuthUser | undefined): Promise<void> {
+    await this.assertVariantModifiable(kind, variantId, user);
+    const t = this.tables(kind);
+    await this.db.update(t.variants).set({ isActive: false }).where(eq(t.variantId, variantId));
   }
 
   /**
@@ -312,13 +467,9 @@ export class VariantsService {
    * расхода в calc-server ссылаются на variant_id из другой базы — проверить
    * их отсюда невозможно, поэтому по умолчанию используется archive().
    */
-  async remove(kind: 'hand-tool' | 'material', variantId: number): Promise<void> {
+  async remove(kind: 'hand-tool' | 'material', variantId: number, user: AuthUser | undefined): Promise<void> {
+    await this.assertVariantModifiable(kind, variantId, user);
     const t = this.tables(kind);
-    const result = await this.db
-      .delete(t.variants)
-      .where(eq(t.variantId, variantId))
-      .returning({ id: t.variantId });
-
-    if (result.length === 0) throw new NotFoundException(`Вариант ${variantId} не найден`);
+    await this.db.delete(t.variants).where(eq(t.variantId, variantId));
   }
 }

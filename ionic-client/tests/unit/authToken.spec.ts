@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { isTokenExpired, tokenExpiresAt } from "@/store/authToken";
+import {
+  isTokenExpired,
+  refreshDueAt,
+  shouldRefresh,
+  tokenExpiresAt,
+} from "@/store/authToken";
 
 /**
  * Неподписанный JWT с нужным payload: подпись клиент не проверяет.
@@ -36,5 +41,28 @@ describe("authToken", () => {
   test("не JWT или без exp — считаем живым, решит сервер", () => {
     expect(isTokenExpired("not-a-jwt", now)).toBe(false);
     expect(isTokenExpired(jwt({ sub: 1 }), now)).toBe(false);
+  });
+
+  const DAY = 24 * 60 * 60;
+
+  test("трёхдневный токен продлевается через сутки после выдачи", () => {
+    const fresh = jwt({ iat: inSeconds(-60), exp: inSeconds(3 * DAY - 60) });
+    const dayOld = jwt({ iat: inSeconds(-DAY - 1), exp: inSeconds(2 * DAY - 1) });
+
+    expect(shouldRefresh(fresh, now)).toBe(false);
+    expect(shouldRefresh(dayOld, now)).toBe(true);
+    expect(refreshDueAt(fresh)).toBe((inSeconds(-60) + DAY) * 1000);
+  });
+
+  test("короткий токен продлевается на середине срока, а не через сутки", () => {
+    // Часовой: выдан 40 минут назад, жить ещё 20 — середина пройдена.
+    const hourly = jwt({ iat: inSeconds(-40 * 60), exp: inSeconds(20 * 60) });
+    expect(shouldRefresh(hourly, now)).toBe(true);
+  });
+
+  test("протухший и без iat не продлеваем", () => {
+    expect(shouldRefresh(jwt({ iat: inSeconds(-4 * DAY), exp: inSeconds(-DAY) }), now)).toBe(false);
+    expect(shouldRefresh(jwt({ exp: inSeconds(DAY) }), now)).toBe(false);
+    expect(refreshDueAt("not-a-jwt")).toBeUndefined();
   });
 });

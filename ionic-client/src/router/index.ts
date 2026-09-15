@@ -8,7 +8,11 @@ import {
   resolveInitialLocale,
   setI18nLocale,
 } from "@/plugins/i18n";
-import { normalizeCatalogTab } from "@/constants";
+import {
+  DEFAULT_POWER_TOOL_CURRENT,
+  POWER_TOOL_CURRENTS,
+  normalizeCatalogTab,
+} from "@/constants";
 import { defaultKeys, routeMeta } from "./constants";
 
 const routes: Array<RouteRecordRaw> = [
@@ -50,15 +54,38 @@ const routes: Array<RouteRecordRaw> = [
             ],
           },
           {
+            // Электроинструмент делится по питанию, и таб — тоже адрес. Литерал
+            // в :tab(power_tools) оставляет params.tab: по нему страница узнаёт
+            // раздел так же, как на обычном :tab. Чужой таб роут не совпадёт.
+            path: `:tab(power_tools)/:current(${POWER_TOOL_CURRENTS.join("|")})`,
+            name: "catalog-power-tools",
+            component: () => import("@/pages/CatalogSectionPage.vue"),
+            meta: { requiresAuth: true },
+          },
+          {
             path: ":tab",
             name: "catalog-section",
             component: () => import("@/pages/CatalogSectionPage.vue"),
             meta: { requiresAuth: true },
-            // Неизвестный раздел в адресе -> обратно в меню сборников.
-            beforeEnter: (to) =>
-              normalizeCatalogTab(to.params.tab)
-                ? true
-                : { name: "catalog", params: { locale: to.params.locale } },
+            beforeEnter: (to) => {
+              const tab = normalizeCatalogTab(to.params.tab);
+              // Неизвестный раздел в адресе -> обратно в меню сборников.
+              if (!tab) {
+                return { name: "catalog", params: { locale: to.params.locale } };
+              }
+              // Голый /power_tools (он же в sitemap и в плитке меню) — на первый таб.
+              if (tab === "power_tools") {
+                return {
+                  name: "catalog-power-tools",
+                  params: {
+                    locale: to.params.locale,
+                    tab,
+                    current: DEFAULT_POWER_TOOL_CURRENT,
+                  },
+                };
+              }
+              return true;
+            },
           },
         ],
       },

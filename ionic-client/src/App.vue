@@ -9,13 +9,12 @@
           <ion-title
             class="main_title"
             style="
-              font-family: &quot;Impact&quot;;
               /* font-style: italic; */
-              font-weight: 300;
+              /* font-weight: 100; */
               font-size: 1.5em;
             "
           >
-            {{ "zaiávka".toLocaleUpperCase() + ".xyz" }}
+            {{ "zaiávka" }}
           </ion-title>
         </router-link>
 

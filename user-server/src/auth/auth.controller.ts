@@ -28,6 +28,13 @@ export class AuthController {
     return user;
   }
 
+  // Не @Public: продлить можно только ещё живой токен — протухший ведёт на вход заново.
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  refresh(@CurrentUser() user: PublicUser) {
+    return this.authService.refresh(user.id);
+  }
+
   @Post('change-password')
   @HttpCode(HttpStatus.NO_CONTENT)
   changePassword(@CurrentUser() user: PublicUser, @Body() dto: ChangePasswordDto) {

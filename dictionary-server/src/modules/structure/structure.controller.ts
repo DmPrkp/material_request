@@ -1,6 +1,8 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
+import { CurrentUser } from '~/auth/current-user.decorator';
+import type { AuthUser } from '~/auth/jwt-payload';
 import { createDictionaryController } from '~/common/dictionary.controller';
 import {
   CreateSystemDto,
@@ -53,14 +55,15 @@ export class SystemsController extends createDictionaryController({
   @Get()
   @ApiOperation({ summary: 'Технологии работ, с фильтром по виду работ' })
   @ApiQuery({ name: 'workTypeId', required: false, type: Number })
-  override list(@Query() query: SystemQueryDto) {
-    return this.service.listByWorkType(query);
+  override list(@Query() query: SystemQueryDto, @CurrentUser() user: AuthUser | undefined) {
+    return this.service.listByWorkType(query, user);
   }
 
   @Get(':id/work-stages')
   @ApiOperation({ summary: 'Этапы работ технологии, по порядку' })
-  stagesById(@Param('id', ParseIntPipe) id: number) {
-    return this.service.byId(id).then(({ title }) => this.service.stagesBySystemTitle(title));
+  stagesById(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser | undefined) {
+    // Чужая личная технология — 404 ещё на byId: её этапы тоже не видны.
+    return this.service.byId(id, user).then(({ title }) => this.service.stagesBySystemTitle(title));
   }
 }
 
@@ -81,7 +84,7 @@ export class WorkStagesController extends createDictionaryController({
   @Get()
   @ApiOperation({ summary: 'Этапы работ, с фильтром по технологии (systemId)' })
   @ApiParam({ name: 'systemId', required: false })
-  override list(@Query() query: WorkStageQueryDto) {
-    return this.service.listBySystem(query);
+  override list(@Query() query: WorkStageQueryDto, @CurrentUser() user: AuthUser | undefined) {
+    return this.service.listBySystem(query, user);
   }
 }

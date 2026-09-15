@@ -2,8 +2,19 @@ import { NotFoundException } from '@nestjs/common';
 import { and, asc, count, eq, ilike, or, type SQL } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
+import type { AuthUser } from '~/auth/jwt-payload';
 import type { Database } from '~/db/db.module';
 import { ResourceInUseException } from './errors';
+import {
+  assertCanModify,
+  authorshipFor,
+  canModify,
+  canSee,
+  copyable,
+  visibleTo,
+  type Owned,
+  type OwnedColumns,
+} from './ownership';
 import { toPage, type ListQuery, type Page } from './pagination';
 
 /** Таблица справочника: id + is_active + произвольные колонки. */
@@ -25,6 +36,10 @@ export type ReferenceCheck = {
  *
  * Удаление по умолчанию мягкое: is_active = false. Физическое — только если
  * явно попросили и внутри словаря на позицию никто не ссылается.
+ *
+ * У таблиц с автором (createdBy + isShared, authorship в schema.ts) всё завязано на
+ * того, кто спрашивает, — правила в common/ownership.ts. user — из токена; undefined —
+ * аноним или справочник без автора, тогда правила не применяются.
  */
 export class CrudService<TRow extends { id: number }> {
   constructor(
@@ -38,6 +53,11 @@ export class CrudService<TRow extends { id: number }> {
     protected readonly references: ReferenceCheck[] = [],
   ) {}
 
+  /** Колонки автора, если они у таблицы есть: по ним и решается, кому что видно. */
+  protected get owned(): OwnedColumns | undefined {
+    return 'isShared' in this.table ? (this.table as unknown as OwnedColumns) : undefined;
+  }
+
   protected stateFilter(state: ListQuery['state']): SQL | undefined {
     if (state === 'active') return eq(this.table.isActive, true);
     if (state === 'archived') return eq(this.table.isActive, false);
@@ -50,8 +70,14 @@ export class CrudService<TRow extends { id: number }> {
     return or(...this.searchable.map((column) => ilike(column, pattern)));
   }
 
-  async list(query: ListQuery): Promise<Page<TRow>> {
-    const where = and(this.stateFilter(query.state), this.searchFilter(query.q));
+  /** Чужие личные позиции в выдачу не попадают — ни в список, ни в счётчик страниц. */
+  protected visibility(user: AuthUser | undefined): SQL | undefined {
+    return this.owned ? visibleTo(this.owned, user) : undefined;
+  }
+
+  /** extra — фильтр ресурса поверх общих state и ?q= (питание у электроинструмента). */
+  async list(query: ListQuery, user: AuthUser | undefined, extra?: SQL): Promise<Page<TRow>> {
+    const where = and(this.stateFilter(query.state), this.searchFilter(query.q), this.visibility(user), extra);
 
     const [items, [totals]] = await Promise.all([
       this.db
@@ -67,26 +93,63 @@ export class CrudService<TRow extends { id: number }> {
     return toPage(items as TRow[], Number(totals?.value ?? 0), query);
   }
 
-  async byId(id: number): Promise<TRow> {
+  /** Чужое личное — 404, а не 403: незачем подтверждать, что такая позиция есть. */
+  async byId(id: number, user?: AuthUser): Promise<TRow> {
     const [row] = await this.db.select().from(this.table).where(eq(this.table.id, id)).limit(1);
-    if (!row) throw new NotFoundException(`Запись ${id} не найдена`);
+    if (!row || (this.owned && !canSee(row as Owned, user))) {
+      throw new NotFoundException(`Запись ${id} не найдена`);
+    }
+    return row;
+  }
+
+  /** Автор из токена; createdBy и isShared из тела не принимаются (схемы их отрезают). */
+  protected withAuthor(data: Record<string, unknown>, user: AuthUser | undefined): Record<string, unknown> {
+    if (!user) return data;
+    return this.owned ? { ...data, ...authorshipFor(user) } : { ...data, createdBy: user.id };
+  }
+
+  async create(data: Record<string, unknown>, user?: AuthUser): Promise<TRow> {
+    const [row] = await this.db.insert(this.table).values(this.withAuthor(data, user)).returning();
     return row as TRow;
   }
 
-  async create(data: Record<string, unknown>): Promise<TRow> {
-    const [row] = await this.db.insert(this.table).values(data).returning();
-    return row as TRow;
-  }
+  /**
+   * Своё (или что угодно у админа) правится на месте. Чужое общее у пользователя —
+   * копией: оригинал остаётся у всех, а у него появляется своя позиция с правкой.
+   * Вернётся копия с новым id — по нему клиент и понимает, что это была развилка.
+   */
+  async update(id: number, data: Record<string, unknown>, user?: AuthUser): Promise<TRow> {
+    const current = await this.byId(id, user);
+    if (this.owned && user && !canModify(current as unknown as Owned, user)) {
+      return this.fork(current, data, user);
+    }
 
-  async update(id: number, data: Record<string, unknown>): Promise<TRow> {
-    await this.byId(id);
     const [row] = await this.db.update(this.table).set(data).where(eq(this.table.id, id)).returning();
     return row;
   }
 
+  /**
+   * Копия чужой позиции для пользователя, сразу с его правкой. Наследники, у которых
+   * к позиции прилагаются части (сборки, этапы), копируют и их, иначе копия вышла бы
+   * пустой: без размеров материал в расчёт не идёт.
+   */
+  protected async fork(source: TRow, changes: Record<string, unknown>, user: AuthUser): Promise<TRow> {
+    const [row] = await this.db
+      .insert(this.table)
+      .values({ ...copyable(source), ...changes, ...authorshipFor(user), isActive: true })
+      .returning();
+    return row as TRow;
+  }
+
+  /** Удалять и возвращать — только своё (админу — всё): чужую позицию копией не удалишь. */
+  private async modifiable(id: number, user: AuthUser | undefined): Promise<void> {
+    const row = await this.byId(id, user);
+    if (this.owned) assertCanModify(row as unknown as Owned, user);
+  }
+
   /** Мягкое удаление: позиция исчезает из выдачи, но старые расчёты не ломаются. */
-  async archive(id: number): Promise<TRow> {
-    await this.byId(id);
+  async archive(id: number, user?: AuthUser): Promise<TRow> {
+    await this.modifiable(id, user);
     const [row] = await this.db
       .update(this.table)
       .set({ isActive: false })
@@ -95,8 +158,8 @@ export class CrudService<TRow extends { id: number }> {
     return row;
   }
 
-  async restore(id: number): Promise<TRow> {
-    await this.byId(id);
+  async restore(id: number, user?: AuthUser): Promise<TRow> {
+    await this.modifiable(id, user);
     const [row] = await this.db
       .update(this.table)
       .set({ isActive: true })
@@ -106,8 +169,8 @@ export class CrudService<TRow extends { id: number }> {
   }
 
   /** Физическое удаление. Падает с 409, если внутри словаря есть ссылки. */
-  async remove(id: number): Promise<void> {
-    await this.byId(id);
+  async remove(id: number, user?: AuthUser): Promise<void> {
+    await this.modifiable(id, user);
 
     const blockedBy: Record<string, number> = {};
     for (const ref of this.references) {

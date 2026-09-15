@@ -30,6 +30,18 @@ const routeMeta: Keys = {
       ru: "Сборники: электроинструмент",
     },
   },
+  "catalog/power_tools/corded": {
+    key: {
+      en: "Catalogs: corded power tools",
+      ru: "Сборники: сетевой электроинструмент",
+    },
+  },
+  "catalog/power_tools/cordless": {
+    key: {
+      en: "Catalogs: cordless power tools",
+      ru: "Сборники: аккумуляторный электроинструмент",
+    },
+  },
   "catalog/systems": {
     key: {
       en: "Catalogs: work technologies and stages",

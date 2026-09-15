@@ -18,6 +18,7 @@ interface ImportMetaEnv {
   readonly VITE_USER_API_LOGIN_PATHS?: string;
   readonly VITE_USER_API_REGISTER_PATHS?: string;
   readonly VITE_USER_API_PROFILE_PATHS?: string;
+  readonly VITE_USER_API_REFRESH_PATHS?: string;
   readonly VITE_USER_API_CREDENTIALS?: string;
   readonly VITE_USER_API_AUTH_SCHEME?: string;
 }

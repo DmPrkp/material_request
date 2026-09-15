@@ -16,8 +16,8 @@ export const powerTools: PowerTool[] = [
   {"id": 12, "nameEn": "jigsaw", "nameRu": "лобзик", "isCorded": true},
   {"id": 13, "nameEn": "belt sander", "nameRu": "ленточная шлифмашина", "isCorded": false},
   {"id": 14, "nameEn": "belt sander", "nameRu": "ленточная шлифмашина", "isCorded": true},
-  {"id": 15, "nameEn": "rotary hammer", "nameRu": "перфоратор", "isCorded": false},
-  {"id": 16, "nameEn": "rotary hammer", "nameRu": "перфоратор", "isCorded": true},
+  {"id": 15, "nameEn": "rotary hammer SDS+", "nameRu": "перфоратор SDS+", "isCorded": false},
+  {"id": 16, "nameEn": "rotary hammer SDS+", "nameRu": "перфоратор SDS+", "isCorded": true},
   {"id": 17, "nameEn": "table saw", "nameRu": "настольная пила", "isCorded": false},
   {"id": 18, "nameEn": "table saw", "nameRu": "настольная пила", "isCorded": true},
   {"id": 19, "nameEn": "reciprocating saw", "nameRu": "сабельная пила", "isCorded": false},
@@ -27,4 +27,5 @@ export const powerTools: PowerTool[] = [
   {"id": 23, "nameEn": "power planer", "nameRu": "электрический рубанок", "isCorded": false},
   {"id": 24, "nameEn": "power planer", "nameRu": "электрический рубанок", "isCorded": true},
   {"id": 25, "nameEn": "mud mixer", "nameRu": "миксер", "isCorded": true},
+  {"id": 26, "nameEn": "rotary hammer SDS-max", "nameRu": "перфоратор SDS-max", "isCorded": true},
 ];

@@ -13,6 +13,8 @@ export type DictionaryWorkType = {
   code: string;
   name: string;
   createdBy: number | null;
+  /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
+  isShared: boolean;
   isActive: boolean;
 };
 
@@ -28,6 +30,8 @@ export type DictionarySystem = {
   workTypeId: number;
   /** id пользователя, который её добавил; null — пришла из сидов. */
   createdBy: number | null;
+  /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
+  isShared: boolean;
   isActive: boolean;
 };
 
@@ -94,6 +98,8 @@ export type DictionaryMaterial = {
   variantsCount: number;
   /** id пользователя, который его добавил; null — пришёл из сидов. */
   createdBy: number | null;
+  /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
+  isShared: boolean;
 };
 
 /** Материал как в базе, на всех языках, — только для формы правки (?translations=all). */
@@ -115,6 +121,8 @@ export type DictionaryHandTool = {
   variantsCount: number;
   /** id пользователя, который его добавил; null — пришёл из сидов. */
   createdBy: number | null;
+  /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
+  isShared: boolean;
 };
 
 /** Ручной инструмент на всех языках — только для формы правки (?translations=all). */
@@ -133,6 +141,9 @@ export type DictionaryPowerTool = {
   name: string;
   isActive: boolean;
   isCorded: boolean;
+  createdBy: number | null;
+  /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
+  isShared: boolean;
 };
 
 /** Параметр типоразмера: значение с единицей и видом (длина, диаметр…). */

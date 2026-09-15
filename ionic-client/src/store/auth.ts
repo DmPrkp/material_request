@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import AuthModel from '@/models/AuthModel';
 import BaseModel from '@/models/BaseModel';
 import type { AuthResponse, RegisterPayload, UserProfile } from '@/types/dto';
-import { isTokenExpired, tokenExpiresAt } from './authToken';
+import { isTokenExpired, refreshDueAt, shouldRefresh, tokenExpiresAt } from './authToken';
 
 const TOKEN_STORAGE_KEY = 'mr-auth-token';
 
@@ -189,6 +189,12 @@ const extractToken = (payload: unknown): string | undefined => {
 let expiryTimer: ReturnType<typeof setTimeout> | undefined;
 /** setTimeout не держит задержки длиннее ~24.8 суток — дальше перезапустится при входе. */
 const MAX_TIMER_DELAY = 2 ** 31 - 1;
+/** Таймер суточного продления токена (см. authToken.ts). */
+let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+/** Продление в полёте: таймер, возврат на вкладку и старт не должны слать три запроса. */
+let refreshing: Promise<void> | undefined;
+/** Продление не удалось без 401 (нет сети) — пробуем снова через столько. */
+const REFRESH_RETRY_DELAY = 15 * 60 * 1000;
 
 class MissingTokenError extends Error {
   constructor() {
@@ -234,6 +240,39 @@ export const useAuthStore = defineStore('auth', {
         const delay = Math.min(expiresAt - Date.now(), MAX_TIMER_DELAY);
         expiryTimer = setTimeout(() => this.logout(), delay);
       }
+
+      // Срок продления уже прошёл (вернулись через два дня) — задержка 0, продлим сразу.
+      clearTimeout(refreshTimer);
+      const refreshAt = valid ? refreshDueAt(valid) : undefined;
+      if (refreshAt !== undefined) {
+        const delay = Math.min(Math.max(refreshAt - Date.now(), 0), MAX_TIMER_DELAY);
+        refreshTimer = setTimeout(() => void this.refreshToken(), delay);
+      }
+    },
+    /** Меняет токен на свежий, если пора; параллельные вызовы ждут один запрос. */
+    async refreshToken() {
+      const token = this.token;
+      if (!token || !shouldRefresh(token)) return;
+
+      if (!refreshing) {
+        refreshing = (async () => {
+          try {
+            const response = await AuthModel.refresh();
+            // Пока ждали ответа, человек вышел или вошёл заново — чужой ответ не применяем.
+            if (this.token === token) this.applyAuthResponse(response);
+          } catch (error) {
+            // 401 уже вывел из аккаунта BaseModel.onUnauthorized; прочее (нет сети) — повторим.
+            if (this.token === token) {
+              clearTimeout(refreshTimer);
+              refreshTimer = setTimeout(() => void this.refreshToken(), REFRESH_RETRY_DELAY);
+            }
+            console.error('Не удалось продлить вход', error);
+          } finally {
+            refreshing = undefined;
+          }
+        })();
+      }
+      return refreshing;
     },
     setUser(user: UserProfile | null) {
       this.user = user;
@@ -307,6 +346,11 @@ export const useAuthStore = defineStore('auth', {
       BaseModel.onUnauthorized = () => {
         if (this.token) this.logout();
       };
+
+      // Таймеры спят вместе с ноутбуком и в фоновой вкладке: вернулись — проверяем, не пора ли.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') void this.refreshToken();
+      });
 
       const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
       if (storedToken) {

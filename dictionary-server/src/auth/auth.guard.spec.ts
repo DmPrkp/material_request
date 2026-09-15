@@ -3,7 +3,7 @@ import type { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { describe, expect, it } from 'vitest';
 
-import { JwtAuthGuard } from './auth.guard';
+import { IdentifyGuard, JwtAuthGuard } from './auth.guard';
 import type { AuthenticatedRequest } from './jwt-payload';
 
 const SECRET = 'test-secret';
@@ -63,5 +63,40 @@ describe('JwtAuthGuard', () => {
   it('без JWT_SECRET — 503, а не 401: чинить надо конфиг, а не вход', async () => {
     const { context } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
     await expect(guardWith(undefined).canActivate(context)).rejects.toBeInstanceOf(ServiceUnavailableException);
+  });
+
+  it('пользователя, которого уже узнал IdentifyGuard, пускает без повторной проверки', async () => {
+    const { context, request } = contextFor();
+    request.user = { id: 7, login: 'ivan', role: 'USER' };
+    await expect(guardWith(SECRET).canActivate(context)).resolves.toBe(true);
+  });
+});
+
+describe('IdentifyGuard', () => {
+  function identifyWith(secret: string | undefined): IdentifyGuard {
+    return new IdentifyGuard(jwt, { get: () => secret } as unknown as ConfigService);
+  }
+
+  it('без заголовка пускает анонимом — справочник читают и без входа', async () => {
+    const { context, request } = contextFor();
+    await expect(identifyWith(SECRET).canActivate(context)).resolves.toBe(true);
+    expect(request.user).toBeUndefined();
+  });
+
+  it('с токеном кладёт пользователя: на чтении ему видны и его личные позиции', async () => {
+    const { context, request } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
+    await expect(identifyWith(SECRET).canActivate(context)).resolves.toBe(true);
+    expect(request.user).toEqual({ id: 7, login: 'ivan', role: 'USER' });
+  });
+
+  it('битый токен — 401, а не аноним: иначе вошедший молча терял бы своё', async () => {
+    const { context } = contextFor(`Bearer ${jwt.sign(payload, { secret: 'other' })}`);
+    await expect(identifyWith(SECRET).canActivate(context)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('без JWT_SECRET чтение не ломается — аноним', async () => {
+    const { context, request } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
+    await expect(identifyWith(undefined).canActivate(context)).resolves.toBe(true);
+    expect(request.user).toBeUndefined();
   });
 });

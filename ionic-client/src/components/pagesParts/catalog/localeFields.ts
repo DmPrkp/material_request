@@ -58,6 +58,8 @@ export function saveErrorText(
 ): string {
   const status = cause instanceof HttpError ? cause.status : undefined;
   if (status === 401) return t("pages.catalog.structure.errors.unauthorized");
+  // 403 бывает только на удалении чужого: правка чужого у словаря уходит в копию.
+  if (status === 403) return t("pages.catalog.structure.errors.forbidden");
   if (status === 409) return t("pages.catalog.structure.errors.exists");
   if (status === 503) return t("pages.catalog.structure.errors.unavailable");
   return t("pages.catalog.structure.errors.generic");

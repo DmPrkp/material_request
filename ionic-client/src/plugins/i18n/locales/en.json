@@ -19,7 +19,8 @@
     "labels": {
       "measure": "measure",
       "corded": "power supply",
-      "disable": "in progress"
+      "disable": "in progress",
+      "by": "x"
     },
     "paramsTitles": {
       "pieces": "pcs",
@@ -35,7 +36,8 @@
       "thickness": "Thk",
       "diameter": "Ø",
       "voltage": "voltage",
-      "size": "size"
+      "size": "size",
+      "section": "sect."
     },
     "locales": {
       "ru": "Русский",
@@ -142,8 +144,6 @@
       "empty": "Nothing found",
       "no_variants": "No sizes",
       "single_variant": "No size options",
-      "corded": "corded",
-      "cordless": "cordless",
       "type": "Type",
       "all_types": "All types",
       "untyped": "No type",
@@ -178,6 +178,10 @@
         "power_tools": "Power tools",
         "systems": "Work technologies and stages"
       },
+      "power_tabs": {
+        "corded": "Corded",
+        "cordless": "Cordless"
+      },
       "structure": {
         "new_system": "New work technology",
         "name": "Name",
@@ -196,9 +200,19 @@
           "exists": "This title already exists",
           "stage_name_required": "A stage must keep a name in at least one language",
           "unavailable": "The server cannot verify sign-in — saving is temporarily unavailable",
-          "generic": "Could not save, please try again"
+          "generic": "Could not save, please try again",
+          "forbidden": "Only its author or an admin can delete this"
         }
-      }
+      },
+      "delete": "Delete",
+      "delete_confirm": {
+        "header": "Delete “{name}”?",
+        "message": "It will disappear from the catalog. Calculations already made with it won't break.",
+        "ok": "Delete",
+        "cancel": "Cancel"
+      },
+      "copy_hint": "This is a shared item: your changes will be saved to your own copy, the original stays for everyone",
+      "added_by_user": "added by a user"
     },
     "warehouses": {
       "title": "Warehouses"

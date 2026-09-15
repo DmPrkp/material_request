@@ -1,8 +1,9 @@
 import { Global, Logger, Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 
-import { JwtAuthGuard } from './auth.guard';
+import { IdentifyGuard, JwtAuthGuard } from './auth.guard';
 
 /**
  * Глобальный, потому что JwtAuthGuard вешается через @UseGuards в контроллерах
@@ -14,7 +15,8 @@ import { JwtAuthGuard } from './auth.guard';
 @Global()
 @Module({
   imports: [JwtModule.register({})],
-  providers: [JwtAuthGuard],
+  // IdentifyGuard — на всё приложение: кто спрашивает, важно и на чтении (что ему видно).
+  providers: [JwtAuthGuard, { provide: APP_GUARD, useClass: IdentifyGuard }],
   exports: [JwtModule, JwtAuthGuard],
 })
 export class AuthModule {

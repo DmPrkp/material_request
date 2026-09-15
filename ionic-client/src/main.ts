@@ -51,6 +51,10 @@ import "@ionic/vue/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 
+/* Шрифт из npm, а не с Google Fonts: файлы уходят в бандл и раздаются нашим nginx.
+   unicode-range в пакете — браузер качает только нужные подмножества (кириллица, латиница). */
+import "@fontsource/russo-one";
+
 import { applyInitialTheme } from "./plugins/theme";
 import BaseModel from "./models/BaseModel";
 import AuthModel from "./models/AuthModel";

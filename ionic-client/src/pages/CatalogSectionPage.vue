@@ -14,6 +14,22 @@
         </ion-item-divider>
       </div>
 
+      <!-- Таб — сегмент адреса (/power_tools/corded), а не состояние страницы. -->
+      <ion-segment
+        v-if="isPowerTools"
+        class="power_tabs ion-padding-horizontal"
+        :value="powerCurrent"
+        @ionChange="onPowerTab"
+      >
+        <ion-segment-button
+          v-for="current in POWER_TOOL_CURRENTS"
+          :key="current"
+          :value="current"
+        >
+          <ion-label>{{ $t(`pages.catalog.power_tabs.${current}`) }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+
       <ion-searchbar
         :value="search"
         :debounce="300"
@@ -118,6 +134,7 @@
         :owner-id="variantOwner?.id ?? null"
         :owner-name="variantOwner?.name ?? ''"
         :variant="editingVariant"
+        :can-modify="variantOwner?.canModify ?? false"
         @close="closeVariantModal"
       />
     </ion-content>
@@ -127,7 +144,7 @@
 <script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { useRoute } from "vue-router";
+  import { useRoute, useRouter } from "vue-router";
   import {
     IonAccordionGroup,
     IonInfiniteScroll,
@@ -157,12 +174,17 @@
     DictionaryUnit,
     DictionaryVariant,
   } from "@/types/dto";
+  import { useOwnership } from "@/components/pagesParts/catalog/ownership";
   import { useAuthStore } from "@/store/auth";
   import { usePreloader } from "@/store/preloader";
   import {
     DEFAULT_CATALOG_TAB,
+    DEFAULT_POWER_TOOL_CURRENT,
+    POWER_TOOL_CURRENTS,
     normalizeCatalogTab,
+    normalizePowerToolCurrent,
     type CatalogTab,
+    type PowerToolCurrent,
   } from "@/constants";
 
   type CatalogEntry =
@@ -174,6 +196,7 @@
 
   const preloader = usePreloader();
   const route = useRoute();
+  const router = useRouter();
 
   /** Раздел — сегмент адреса, а не локальное состояние страницы. */
   const tab = computed<CatalogTab>(
@@ -190,11 +213,32 @@
   const hasMore = computed(() => page.value < pages.value);
 
   const authStore = useAuthStore();
+  const { canModify } = useOwnership();
   // Кнопки видит только вошедший, но решает словарь: без токена запись не примет.
   const canEdit = computed(() => authStore.isAuthenticated);
   const isMaterials = computed(() => tab.value === "materials");
   // Электроинструмент пока пишется без входа и без формы — карандаша там нет.
   const isHandTools = computed(() => tab.value === "hand_tools");
+  const isPowerTools = computed(() => tab.value === "power_tools");
+
+  /** Питание — сегмент адреса, как и сам раздел; без него роутер уводит на corded. */
+  const powerCurrent = computed<PowerToolCurrent>(
+    () =>
+      normalizePowerToolCurrent(route.params.current) ??
+      DEFAULT_POWER_TOOL_CURRENT,
+  );
+
+  function onPowerTab(event: CustomEvent) {
+    const value = normalizePowerToolCurrent(
+      String((event.detail as { value?: unknown }).value ?? ""),
+    );
+    if (!value || value === powerCurrent.value) return;
+    // replace: переключение табов не копит историю — «назад» ведёт из раздела.
+    void router.replace({
+      name: "catalog-power-tools",
+      params: { ...route.params, current: value },
+    });
+  }
   /**
    * В расчёт идут сборки (7:227, 13:205:226), а не базовая позиция, — у вошедшего
    * каждая позиция ручного инструмента и материалов раскрывается, даже без
@@ -217,7 +261,8 @@
   /** null — модалка на добавление. */
   const editing = ref<DictionaryMaterial | null>(null);
 
-  function filterQuery(): Pick<CatalogQuery, "typeId" | "untyped"> {
+  function filterQuery(): Pick<CatalogQuery, "typeId" | "untyped" | "corded"> {
+    if (isPowerTools.value) return { corded: powerCurrent.value === "corded" };
     if (!isMaterials.value || typeFilter.value === "all") return {};
     if (typeFilter.value === "none") return { untyped: true };
     return { typeId: Number(typeFilter.value) };
@@ -270,10 +315,16 @@
   }
 
   const variantModalOpen = ref(false);
-  /** Чья сборка: id для запроса, название — в шапку формы. */
-  const variantOwner = ref<{ kind: VariantOwner; id: number; name: string } | null>(
-    null,
-  );
+  /**
+   * Чья сборка: id для запроса, название — в шапку формы; canModify — своя ли позиция
+   * (чужая правится в копии, удалять её сборки нельзя).
+   */
+  const variantOwner = ref<{
+    kind: VariantOwner;
+    id: number;
+    name: string;
+    canModify: boolean;
+  } | null>(null);
   /** null — новая сборка. */
   const editingVariant = ref<DictionaryVariant | null>(null);
 
@@ -282,17 +333,26 @@
       kind: isHandTools.value ? "hand-tools" : "materials",
       id: item.id,
       name: item.name,
+      canModify: canModify(item),
     };
     editingVariant.value = variant;
     variantModalOpen.value = true;
   }
 
-  /** Перечитываем только сборки этой позиции: полная перезагрузка свернула бы список. */
-  async function closeVariantModal() {
+  /**
+   * Перечитываем только сборки этой позиции: полная перезагрузка свернула бы список.
+   * Кроме случая, когда сборка ушла в копию чужой позиции (у сохранённой другой
+   * ownerId): тогда в списке появилась новая позиция — перечитываем весь.
+   */
+  async function closeVariantModal(saved?: { ownerId: number }) {
     if (!variantModalOpen.value) return;
     variantModalOpen.value = false;
     const owner = variantOwner.value;
     if (!owner) return;
+    if (saved && saved.ownerId !== owner.id) {
+      await reload();
+      return;
+    }
     const variants = await DictionaryModel.variants(owner.kind, owner.id);
     if (variants) variantsById.value = { ...variantsById.value, [owner.id]: variants };
   }
@@ -409,7 +469,7 @@
 
   /** Первая загрузка, переход между разделами и смена языка — один и тот же путь. */
   watch(
-    [tab, locale],
+    [tab, powerCurrent, locale],
     () => {
       if (isMaterials.value) void loadMaterialRefs();
       void reload();
@@ -419,6 +479,10 @@
 </script>
 
 <style scoped>
+  .power_tabs {
+    margin-bottom: 8px;
+  }
+
   .catalog_tools {
     display: flex;
     flex-wrap: wrap;
