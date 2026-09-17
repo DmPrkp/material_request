@@ -12,6 +12,7 @@ import type {
   DictionaryPowerTool,
   DictionarySystem,
   DictionaryVariant,
+  DictionaryVariantWithOwner,
   DictionarySystemTranslations,
   DictionaryWorkStage,
   DictionaryWorkStageTranslations,
@@ -32,6 +33,8 @@ export type NewSystem = {
   descriptionRu?: string | null;
   descriptionEn?: string | null;
   workTypeId: number;
+  /** Единица объёма работ — обязательна: калькулятор подписывает ею поля. */
+  unitId: number;
 };
 export type SystemChanges = Partial<Omit<NewSystem, "workTypeId">>;
 /** Без position словарь ставит этап последним в системе. */
@@ -209,6 +212,18 @@ export default class DictionaryModel extends BaseModel {
     );
   }
 
+  /**
+   * Сборки по кодам — с названием позиции: этим нормы расхода и ссылаются.
+   * Архивные приходят тоже, чужие личные — тоже: по точной ссылке словарь отдаёт
+   * всем одно и то же. Не придёт только то, чего уже нет: сборку удалили или ей
+   * переписали параметры, и код стал другим. Строка нормы остаётся без названия.
+   */
+  static variantsByCodes(owner: VariantOwner, codes: string[]) {
+    const path = owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
+    const query = encodeURIComponent(codes.join(","));
+    return this.get<DictionaryVariantWithOwner[]>(`/${path}?codes=${query}`);
+  }
+
   static handToolVariants(id: number) {
     return this.get<DictionaryVariant[]>(`/hand-tools/${id}/variants`);
   }
@@ -235,6 +250,26 @@ export default class DictionaryModel extends BaseModel {
 
   // Только для формы правки: там нужны оба языка сразу, а обычные ответы
   // отдают одно name на языке страницы. ?translations=all отключает сворачивание.
+
+  /**
+   * Технология по техническому коду из адреса калькулятора (/main/facade/EIFS) —
+   * вместе с единицей объёма. Не видна или нет такой — undefined, как у всех get().
+   */
+  static systemByTitle(title: string) {
+    return this.get<DictionarySystem>(
+      `/systems/by-title/${encodeURIComponent(title)}`
+    );
+  }
+
+  /** Технология на языке страницы; чужая личная — undefined, как несуществующая. */
+  static system(id: number) {
+    return this.get<DictionarySystem>(`/systems/${id}`);
+  }
+
+  /** Этапы технологии по порядку, на языке страницы. */
+  static systemStages(id: number) {
+    return this.get<DictionaryWorkStage[]>(`/systems/${id}/work-stages`);
+  }
 
   static systemTranslations(id: number) {
     return this.get<DictionarySystemTranslations>(

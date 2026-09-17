@@ -24,7 +24,7 @@
           type="number"
           @ionInput="setAllValue"
         />
-        <ion-text>{{ $t("measure.square") }}</ion-text>
+        <ion-text>{{ unitText }}</ion-text>
       </div>
       <ion-list>
         <ion-item
@@ -40,7 +40,7 @@
             type="number"
             :value="componentList[item.title]"
           />
-          <ion-text justify="end">{{ $t("measure.square") }}</ion-text>
+          <ion-text justify="end">{{ unitText }}</ion-text>
         </ion-item>
       </ion-list>
       <ion-item>
@@ -74,7 +74,8 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, reactive, ref } from "vue";
+  import { computed, onMounted, reactive, ref } from "vue";
+  import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
 
   import {
@@ -87,6 +88,9 @@
   import { ComponentsList } from "./types";
   import { usePreloader } from "@/store";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import DictionaryModel from "@/models/DictionaryModel";
+  import type { DictionaryUnit } from "@/types/dto";
+  import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
 
   const route = useRoute();
   const router = useRouter();
@@ -99,6 +103,22 @@
   const allValue = ref(100);
   const crew = ref(1);
   const componentsTitleIdMap: Record<string, number> = {};
+
+  const { t } = useI18n({ useScope: "global" });
+  const unitLabel = useUnitLabel();
+  /** Единица объёма технологии из словаря (Технологии работ → форма). */
+  const unit = ref<DictionaryUnit | null>(null);
+  // Словарь не ответил — «м²», как было до выбора единицы в технологии.
+  const unitText = computed(() =>
+    unit.value ? unitLabel(unit.value) : t("measure.square"),
+  );
+
+  async function loadUnit() {
+    const { system } = route.params;
+    if (typeof system !== "string") return;
+    const found = await DictionaryModel.systemByTitle(system);
+    unit.value = found?.unit ?? null;
+  }
 
   function setAllValue(value: InputCustomEvent) {
     const val = Number(value.detail.value || 0);
@@ -125,7 +145,7 @@
   }
 
   onMounted(async () => {
-    await getComponents();
+    await Promise.all([getComponents(), loadUnit()]);
   });
 
   async function sendComponentsVal() {
@@ -165,7 +185,7 @@
 
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
-    await getComponents();
+    await Promise.all([getComponents(), loadUnit()]);
     event.target.complete();
   }
 </script>

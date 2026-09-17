@@ -28,6 +28,10 @@ export type DictionarySystem = {
   name: string;
   description: string | null;
   workTypeId: number;
+  /** Единица объёма работ: ею калькулятор подписывает поля (м², шт). */
+  unitId: number;
+  /** Сама единица, на языке страницы; приходит в списке и по title. */
+  unit: DictionaryUnit | null;
   /** id пользователя, который её добавил; null — пришла из сидов. */
   createdBy: number | null;
   /** Видна всем (сиды и заведённое админом); false — только автору и админу. */
@@ -57,6 +61,7 @@ export type DictionarySystemTranslations = {
   nameEn: string | null;
   descriptionRu: string | null;
   descriptionEn: string | null;
+  unitId: number;
 };
 
 /** Этап на обоих языках — для формы правки. */
@@ -180,4 +185,14 @@ export type DictionaryVariant = {
   ownerId: number;
   isActive: boolean;
   params: DictionaryVariantParam[];
+};
+
+/** Сборка вместе с названием позиции — для норм расхода, где известен только её код. */
+export type DictionaryVariantWithOwner = DictionaryVariant & {
+  owner: {
+    id: number;
+    name: string;
+    /** Только у материалов. */
+    unit?: DictionaryUnit | null;
+  };
 };

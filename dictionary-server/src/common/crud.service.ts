@@ -142,7 +142,7 @@ export class CrudService<TRow extends { id: number }> {
   }
 
   /** Удалять и возвращать — только своё (админу — всё): чужую позицию копией не удалишь. */
-  private async modifiable(id: number, user: AuthUser | undefined): Promise<void> {
+  protected async modifiable(id: number, user: AuthUser | undefined): Promise<void> {
     const row = await this.byId(id, user);
     if (this.owned) assertCanModify(row as unknown as Owned, user);
   }

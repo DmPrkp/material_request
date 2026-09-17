@@ -169,6 +169,7 @@
   } from "@ionic/vue";
   import { closeOutline, trashOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import { HttpError } from "@/models/BaseModel";
   import DictionaryModel from "@/models/DictionaryModel";
   import type {
     DictionaryMaterial,
@@ -328,7 +329,11 @@
       }
       emit("close");
     } catch (cause) {
-      error.value = saveErrorText(t, cause);
+      // 409 на сохранении — название занято: среди общих или своих позиций.
+      error.value =
+        cause instanceof HttpError && cause.status === 409
+          ? t("pages.catalog.name_exists.material")
+          : saveErrorText(t, cause);
     } finally {
       saving.value = false;
     }

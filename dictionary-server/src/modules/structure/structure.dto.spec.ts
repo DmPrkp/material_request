@@ -10,7 +10,7 @@ import {
 describe('схемы структуры', () => {
   it('createdBy из тела запроса отбрасывается — его ставит только контроллер из токена', () => {
     expect(
-      createSystemSchema.parse({ nameRu: 'Мокрый фасад', workTypeId: 1, createdBy: 999 }),
+      createSystemSchema.parse({ nameRu: 'Мокрый фасад', workTypeId: 1, unitId: 7, createdBy: 999 }),
     ).not.toHaveProperty('createdBy');
     expect(createWorkStageSchema.parse({ nameRu: 'Грунт', systemId: 1, createdBy: 999 })).not.toHaveProperty(
       'createdBy',
@@ -19,14 +19,14 @@ describe('схемы структуры', () => {
   });
 
   it('название — на любом одном языке; описания и код необязательны', () => {
-    expect(createSystemSchema.safeParse({ nameRu: 'Мокрый фасад', workTypeId: 1 }).success).toBe(true);
-    expect(createSystemSchema.safeParse({ nameEn: 'EIFS', workTypeId: 1 }).success).toBe(true);
+    expect(createSystemSchema.safeParse({ nameRu: 'Мокрый фасад', workTypeId: 1, unitId: 7 }).success).toBe(true);
+    expect(createSystemSchema.safeParse({ nameEn: 'EIFS', workTypeId: 1, unitId: 7 }).success).toBe(true);
     expect(createWorkStageSchema.safeParse({ nameEn: 'Priming', systemId: 1, nameRu: null }).success).toBe(true);
   });
 
   it('без названия ни на одном языке не создаётся', () => {
-    expect(createSystemSchema.safeParse({ workTypeId: 1 }).success).toBe(false);
-    expect(createSystemSchema.safeParse({ nameRu: '  ', nameEn: '', workTypeId: 1 }).success).toBe(false);
+    expect(createSystemSchema.safeParse({ workTypeId: 1, unitId: 7 }).success).toBe(false);
+    expect(createSystemSchema.safeParse({ nameRu: '  ', nameEn: '', workTypeId: 1, unitId: 7 }).success).toBe(false);
     expect(createWorkStageSchema.safeParse({ systemId: 1 }).success).toBe(false);
   });
 
@@ -42,11 +42,13 @@ describe('схемы структуры', () => {
   });
 
   it('пробелы по краям срезаются', () => {
-    expect(createSystemSchema.parse({ nameRu: '  Мокрый фасад  ', workTypeId: 1 }).nameRu).toBe('Мокрый фасад');
+    expect(createSystemSchema.parse({ nameRu: '  Мокрый фасад  ', workTypeId: 1, unitId: 7 }).nameRu).toBe('Мокрый фасад');
   });
 
   it('технология без вида работ не создаётся', () => {
     expect(createSystemSchema.safeParse({ nameRu: 'Мокрый фасад' }).success).toBe(false);
+    // Без единицы калькулятор не подпишет поля объёма — технологию не принимаем.
+    expect(createSystemSchema.safeParse({ nameRu: 'Мокрый фасад', workTypeId: 1 }).success).toBe(false);
   });
 
   it('code вида работ годится в адрес: латиница в нижнем регистре, цифры и _', () => {

@@ -37,6 +37,8 @@ const systemFields = createInsertSchema(systems).omit(sharedManaged).extend({
   descriptionRu: description,
   descriptionEn: description,
   workTypeId: z.number().int().positive(),
+  // Обязательна при создании: калькулятор без неё не подпишет поля объёма.
+  unitId: z.number().int().positive(),
 });
 export const createSystemSchema = systemFields.refine(hasName, nameRequired);
 // Без refine: правка трогает один язык, а стереть последнее название не даст CHECK в базе.

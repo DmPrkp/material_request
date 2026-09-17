@@ -35,11 +35,13 @@ const variantSetsSchema = z.array(z.array(variantParamSchema)).max(50).default([
 
 /* ------------------------------------------------------------- hand tools */
 
-const handToolFields = createInsertSchema(handTools).omit(authoredManaged).extend({
-  // Название — на языке интерфейса, хоть одно обязательно (common/names.ts).
-  nameRu: optionalText(100),
-  nameEn: optionalText(100),
-});
+const handToolFields = createInsertSchema(handTools)
+  .omit(authoredManaged)
+  .extend({
+    // Название — на языке интерфейса, хоть одно обязательно (common/names.ts).
+    nameRu: optionalText(100),
+    nameEn: optionalText(100),
+  });
 // Создание — сразу со сборками: в расчёт идёт сборка (7:227), а не сама позиция (7).
 export const createHandToolSchema = handToolFields
   .extend({ variants: variantSetsSchema })
@@ -71,10 +73,42 @@ export const powerToolQuerySchema = listQuerySchema.extend({
 });
 export class PowerToolQueryDto extends createZodDto(powerToolQuerySchema) {}
 
+/**
+ * Поиск сборок: ?ids=1,2,3 или ?codes=8:208:243,6 — ровно одно из двух.
+ * Нормы расхода ходят кодами, внутренние ссылки словаря — id.
+ * Больше страницы словаря разом не просят.
+ */
+const MAX_LOOKUP = 200;
+
+export const variantLookupQuerySchema = z
+  .object({
+    ids: z
+      .string()
+      .regex(/^\d+(,\d+)*$/, 'ids — id через запятую')
+      .transform((value) => [...new Set(value.split(',').map(Number))])
+      .refine((ids) => ids.length <= MAX_LOOKUP, `Не больше ${MAX_LOOKUP} id за раз`)
+      .optional(),
+    codes: z
+      .string()
+      .regex(/^\d+(:\d+)*(,\d+(:\d+)*)*$/, "codes — коды сборок через запятую, '8:208:243,6'")
+      .transform((value) => [...new Set(value.split(','))])
+      .refine((codes) => codes.length <= MAX_LOOKUP, `Не больше ${MAX_LOOKUP} кодов за раз`)
+      .optional(),
+  })
+  .refine(
+    (query) => (query.ids === undefined) !== (query.codes === undefined),
+    'Нужен ровно один из параметров: ids или codes',
+  );
+export class VariantLookupQueryDto extends createZodDto(variantLookupQuerySchema) {}
+
 /* --------------------------------------------------------- material types */
 
 export const createMaterialTypeSchema = createInsertSchema(materialTypes, {
-  code: (s) => s.min(1).max(32).regex(/^[a-z_]+$/, 'только строчные латинские буквы и подчёркивание'),
+  code: (s) =>
+    s
+      .min(1)
+      .max(32)
+      .regex(/^[a-z_]+$/, 'только строчные латинские буквы и подчёркивание'),
   nameRu: (s) => s.min(1).max(100),
   nameEn: (s) => s.min(1).max(100),
 }).omit(managed);
@@ -85,15 +119,17 @@ export class UpdateMaterialTypeDto extends createZodDto(updateMaterialTypeSchema
 
 /* -------------------------------------------------------------- materials */
 
-const materialFields = createInsertSchema(materials).omit(authoredManaged).extend({
-  // Название и описание — на языке интерфейса, хоть одно название обязательно (common/names.ts).
-  nameRu: optionalText(150),
-  nameEn: optionalText(150),
-  descriptionRu: optionalText(5000),
-  descriptionEn: optionalText(5000),
-  unitId: z.number().int().positive(),
-  typeId: z.number().int().positive().nullish(),
-});
+const materialFields = createInsertSchema(materials)
+  .omit(authoredManaged)
+  .extend({
+    // Название и описание — на языке интерфейса, хоть одно название обязательно (common/names.ts).
+    nameRu: optionalText(150),
+    nameEn: optionalText(150),
+    descriptionRu: optionalText(5000),
+    descriptionEn: optionalText(5000),
+    unitId: z.number().int().positive(),
+    typeId: z.number().int().positive().nullish(),
+  });
 // Как у ручного инструмента: сразу со сборками (13:205:226), правка — только поля материала.
 export const createMaterialSchema = materialFields
   .extend({ variants: variantSetsSchema })

@@ -59,6 +59,16 @@ export class SystemsController extends createDictionaryController({
     return this.service.listByWorkType(query, user);
   }
 
+  // Два сегмента — с фабричным GET /:id (ParseIntPipe) не спорит.
+  @Get('by-title/:title')
+  @ApiOperation({
+    summary: 'Технология по техническому коду (title) вместе с единицей объёма',
+    description: 'Для калькулятора: в его адресе title (/main/facade/EIFS), а не id.',
+  })
+  byTitle(@Param('title') title: string, @CurrentUser() user: AuthUser | undefined) {
+    return this.service.byTitle(title, user);
+  }
+
   @Get(':id/work-stages')
   @ApiOperation({ summary: 'Этапы работ технологии, по порядку' })
   stagesById(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser | undefined) {

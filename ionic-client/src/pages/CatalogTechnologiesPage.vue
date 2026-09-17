@@ -1,5 +1,5 @@
 <template>
-  <ion-page>
+  <ion-page v-if="route.name === 'catalog-work-type'">
     <ion-content>
       <ion-refresher
         slot="fixed"
@@ -20,7 +20,7 @@
       >
         <CutCornerBtn
           full-width
-          @click="openModal(null)"
+          @click="openTechnology(null)"
         >
           {{ $t("pages.catalog.structure.add_system") }}
         </CutCornerBtn>
@@ -49,11 +49,14 @@
           v-for="system in systems"
           :key="system.id"
           button
-          @click="openModal(system)"
+          @click="openTechnology(system)"
         >
           <ion-label>
             <h3>{{ system.name }}</h3>
             <p v-if="system.description">{{ system.description }}</p>
+            <p v-if="system.unit">
+              {{ $t("pages.catalog.unit") }}: {{ unitLabel(system.unit) }}
+            </p>
             <p>
               {{
                 $t("pages.catalog.structure.stages_count", {
@@ -84,17 +87,9 @@
       >
         <ion-spinner />
       </div>
-
-      <TechnologyModal
-        :is-open="modalOpen"
-        :system="editing"
-        :stages="editing ? stagesOf(editing.id) : []"
-        :work-type-id="workType?.id"
-        :can-edit="canEdit"
-        @close="closeModal"
-      />
     </ion-content>
   </ion-page>
+  <router-view v-else />
 </template>
 
 <script setup lang="ts">
@@ -105,16 +100,16 @@
    * Названия и описания словарь отдаёт уже на языке страницы (одно name), сам
    * клиент ничего не переводит — поэтому при смене языка всё перечитывается.
    *
-   * На странице только список и «Добавить»: добавление и правка технологии вместе
-   * с этапами — в TechnologyModal. Кнопку видит только вошедший, но это лишь
+   * На странице только список и «Добавить»: технология вместе с этапами открывается
+   * своей страницей (CatalogTechnologyPage), новая — по адресу …/new. Кнопку видит только вошедший, но это лишь
    * подсказка интерфейса: запись закрывает сам dictionary-server по токену.
    */
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
   import { IonNote, type RefresherCustomEvent } from "@ionic/vue";
-  import TechnologyModal from "@/components/pagesParts/catalog/TechnologyModal.vue";
   import { useOwnership } from "@/components/pagesParts/catalog/ownership";
+  import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel from "@/models/DictionaryModel";
   import { useAuthStore } from "@/store/auth";
@@ -143,10 +138,6 @@
   const stages = ref<DictionaryWorkStage[]>([]);
   const loading = ref(false);
 
-  const modalOpen = ref(false);
-  /** null — модалка на добавление. */
-  const editing = ref<DictionarySystem | null>(null);
-
   const heading = computed(() => workType.value?.name ?? workTypeCode.value);
 
   const stagesBySystem = computed(() => {
@@ -166,6 +157,7 @@
 
   // Кто вошёл — из токена, а не из профиля: профиль после перезагрузки приезжает не сразу.
   const { isMine, isOthersPrivate } = useOwnership();
+  const unitLabel = useUnitLabel();
 
   /** force — «потянуть, чтобы обновить»: тогда и виды работ перечитываем. */
   async function load(force = false) {
@@ -199,20 +191,16 @@
     }
   }
 
-  function openModal(system: DictionarySystem | null) {
-    editing.value = system;
-    modalOpen.value = true;
-  }
-
-  /**
-   * Перечитываем на любом закрытии, а не только после успешного сохранения:
-   * если упал третий этап, первые два уже в словаре, и список должен это показать.
-   */
-  function closeModal() {
-    // didDismiss приходит и после закрытия кнопкой — второй раз не грузим.
-    if (!modalOpen.value) return;
-    modalOpen.value = false;
-    void load();
+  /** null — новая технология. */
+  function openTechnology(system: DictionarySystem | null) {
+    router.push({
+      name: "catalog-technology",
+      params: {
+        locale: route.params.locale,
+        workType: workTypeCode.value,
+        systemId: system ? String(system.id) : "new",
+      },
+    });
   }
 
   function goToAuth() {
@@ -230,6 +218,17 @@
 
   // Язык — тоже повод перечитать: имена приходят с сервера уже переведёнными.
   watch([workTypeCode, locale], () => void load(), { immediate: true });
+
+  /**
+   * Вернулись со страницы технологии: страница эта всё время была смонтирована, а
+   * там могли переименовать, завести копию или удалить — перечитываем список.
+   */
+  watch(
+    () => route.name,
+    (name, previous) => {
+      if (name === "catalog-work-type" && previous !== name) void load();
+    },
+  );
 </script>
 
 <style scoped>

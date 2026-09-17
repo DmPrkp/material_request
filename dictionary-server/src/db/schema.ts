@@ -170,10 +170,21 @@ export const systems = pgTable(
     workTypeId: integer('work_type_id')
       .notNull()
       .references(() => workTypes.id, { onDelete: 'restrict' }),
+    /**
+     * В чём считается объём работ по технологии: м² у фасада, шт у ячеек лесов.
+     * Калькулятор подписывает им поля объёма, поэтому единица обязательна.
+     */
+    unitId: integer('unit_id')
+      .notNull()
+      .references(() => units.id, { onDelete: 'restrict' }),
     ...ownership,
     ...lifecycle,
   },
-  (t) => [index('systems_work_type_idx').on(t.workTypeId), namePresent('systems', t)],
+  (t) => [
+    index('systems_work_type_idx').on(t.workTypeId),
+    index('systems_unit_idx').on(t.unitId),
+    namePresent('systems', t),
+  ],
 );
 
 /**
@@ -214,10 +225,11 @@ export const handTools = pgTable(
   },
   (t) => [
     namePresent('hand_tools', t),
-    // Уникально у одного автора, а не во всей таблице: копия чужого «шпателя» при правке
-    // его сборки (CrudService.fork) законно носит то же имя. coalesce — сиды (NULL) между
-    // собой тоже не должны совпадать; пустые переводы (NULL в имени) друг другу не мешают.
-    // Только среди живых: удалённый «молоток» не мешает завести «молоток» заново.
+    // Названия уникальны среди того, что видит владелец, — это держит сервис
+    // (modules/catalog/unique-names.ts): «видимое» зависит от пользователя, индексом его
+    // не выразить. Здесь — страховка от гонок у одного автора. coalesce — сиды (NULL)
+    // между собой тоже не совпадают; пустые переводы (NULL) друг другу не мешают;
+    // удалённые не в счёт — их сервис восстанавливает при создании с тем же именем.
     uniqueIndex('hand_tools_name_ru_author_uq')
       .on(t.nameRu, sql`coalesce(${t.createdBy}, 0)`)
       .where(sql`${t.isActive}`),
@@ -269,6 +281,14 @@ export const materials = pgTable(
     index('materials_unit_idx').on(t.unitId),
     index('materials_type_idx').on(t.typeId),
     namePresent('materials', t),
+    // Как у ручного инструмента: полная уникальность «среди видимого» — в сервисе
+    // (modules/catalog/unique-names.ts), здесь — страховка от гонок у одного автора.
+    uniqueIndex('materials_name_ru_author_uq')
+      .on(t.nameRu, sql`coalesce(${t.createdBy}, 0)`)
+      .where(sql`${t.isActive}`),
+    uniqueIndex('materials_name_en_author_uq')
+      .on(t.nameEn, sql`coalesce(${t.createdBy}, 0)`)
+      .where(sql`${t.isActive}`),
   ],
 );
 

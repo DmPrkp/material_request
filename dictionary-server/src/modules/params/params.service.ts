@@ -10,6 +10,7 @@ import {
   materials,
   paramKinds,
   paramValues,
+  systems,
   units,
 } from '~/db/schema';
 import type { ParamValueQueryDto } from './params.dto';
@@ -20,6 +21,7 @@ export class UnitsService extends CrudService<typeof units.$inferSelect> {
     super(db, units, [units.code, units.nameRu, units.nameEn], units.code, [
       { label: 'paramValues', table: paramValues, column: paramValues.unitId },
       { label: 'materials', table: materials, column: materials.unitId },
+      { label: 'systems', table: systems, column: systems.unitId },
     ]);
   }
 }
@@ -57,10 +59,6 @@ export class ParamValuesService extends CrudService<typeof paramValues.$inferSel
 
   override create(data: Record<string, unknown>) {
     return super.create(this.normalize(data));
-  }
-
-  override update(id: number, data: Record<string, unknown>) {
-    return super.update(id, this.normalize(data));
   }
 
   /** Значения отдаём вместе с единицей — сами по себе «5.5» бесполезны. */

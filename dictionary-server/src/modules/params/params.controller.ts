@@ -50,6 +50,13 @@ export class ParamKindsController extends createDictionaryController({
 /**
  * У значений параметров свой список: голое «5.5» без единицы бесполезно,
  * поэтому отдаём вместе с единицей и разрешаем фильтр по ней.
+ *
+ * Значение неизменяемо (immutable): его id входит в код сборки
+ * (modules/catalog/variant-code.ts), а код — это ссылка из норм расхода. Правка
+ * «8 мм» на «10 мм» на месте оставила бы и id, и все коды прежними, молча подменив
+ * смысл каждой сборки с этим значением. Нужно другое число — заводится другое
+ * значение; уникальность (вид, число, единица) не даст завести его дважды, а
+ * удалить используемое не даст CrudService.remove.
  * Остальные операции — стандартные, из фабрики.
  */
 @ApiTags('param-values')
@@ -60,6 +67,7 @@ export class ParamValuesController extends createDictionaryController({
   updateSchema: updateParamValueSchema,
   createDto: CreateParamValueDto,
   updateDto: UpdateParamValueDto,
+  immutable: true,
 }) {
   constructor(protected readonly service: ParamValuesService) {
     super();

@@ -3,6 +3,7 @@ import {
   Body,
   Delete,
   Get,
+  MethodNotAllowedException,
   Param,
   ParseIntPipe,
   Patch,
@@ -44,6 +45,11 @@ export type DictionaryControllerOptions = {
    * У таблицы обязана быть колонка createdBy (см. authorship в schema.ts).
    */
   authored?: boolean;
+  /**
+   * Позиция неизменяема: PATCH отвечает 405. Заводится и удаляется, но не правится —
+   * так живут значения параметров, на которые ссылаются коды сборок.
+   */
+  immutable?: boolean;
 };
 
 /**
@@ -102,10 +108,12 @@ export function createDictionaryController(options: DictionaryControllerOptions)
     @Patch(':id')
     @Writes
     @ApiOperation({
-      summary: 'Изменить позицию',
-      description:
-        'Своё (у админа — любое) правится на месте. Чужая общая позиция у пользователя не меняется: ' +
-        'ему заводится копия с правкой, и в ответе — она, с новым id.',
+      summary: options.immutable ? 'Правка запрещена (405)' : 'Изменить позицию',
+      description: options.immutable
+        ? 'Позиция неизменяема: заведите новую и удалите прежнюю. Правка на месте подменила бы ' +
+          'смысл записи, оставив её id и все ссылки на него прежними.'
+        : 'Своё (у админа — любое) правится на месте. Чужая общая позиция у пользователя не меняется: ' +
+          'ему заводится копия с правкой, и в ответе — она, с новым id.',
     })
     @ApiBody({ type: options.updateDto })
     update(
@@ -113,6 +121,9 @@ export function createDictionaryController(options: DictionaryControllerOptions)
       @Body(new ZodValidationPipe(options.updateSchema)) dto: Record<string, unknown>,
       @CurrentUser() user: AuthUser | undefined,
     ) {
+      if (options.immutable) {
+        throw new MethodNotAllowedException('Позиция неизменяема: заведите новую и удалите прежнюю');
+      }
       return this.service.update(id, dto, user);
     }
 

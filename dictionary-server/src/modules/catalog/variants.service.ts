@@ -1,5 +1,11 @@
-import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, eq, inArray, isNull, ne } from 'drizzle-orm';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { and, asc, eq, inArray, isNull, ne, type SQL } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 import type { AuthUser } from '~/auth/jwt-payload';
@@ -17,6 +23,7 @@ import {
   units,
 } from '~/db/schema';
 import type { VariantParamInput } from './catalog.dto';
+import { forkNames } from './unique-names';
 import { buildVariantCode } from './variant-code';
 
 /** Транзакция drizzle: создание инструмента заводит его варианты в своей же транзакции. */
@@ -127,10 +134,87 @@ export class VariantsService {
     return owner as Record<string, unknown> & Owned & { id: number };
   }
 
-  async listByOwner(kind: 'hand-tool' | 'material', ownerId: number, user: AuthUser | undefined): Promise<Variant[]> {
+  async listByOwner(
+    kind: 'hand-tool' | 'material',
+    ownerId: number,
+    user: AuthUser | undefined,
+  ): Promise<Variant[]> {
     const t = this.tables(kind);
     await this.visibleOwner(this.db, t, ownerId, user);
+    return this.selectVariants(t, eq(t.variantOwner, ownerId));
+  }
 
+  /**
+   * Сборки по списку id — вместе с названием позиции (у материала — и с единицей).
+   * Внутренние ссылки словаря (копирование технологии, формы правки) ходят по id.
+   */
+  async byIds(kind: 'hand-tool' | 'material', ids: readonly number[]) {
+    if (ids.length === 0) return [];
+    return this.lookup(kind, inArray(this.tables(kind).variantId, [...ids]));
+  }
+
+  /**
+   * То же самое, но по кодам: нормы расхода в calc-server ссылаются кодом сборки,
+   * а не её id — правка параметров пересчитывает код, и норма от прежнего
+   * типоразмера сюда просто не доедет (её строка выпадет из расчёта).
+   */
+  async byCodes(kind: 'hand-tool' | 'material', codes: readonly string[]) {
+    if (codes.length === 0) return [];
+    return this.lookup(kind, inArray(this.tables(kind).variantCode, [...codes]));
+  }
+
+  /**
+   * Сборки по условию вместе с названием позиции. Архивные тоже отдаём — норма на
+   * них может остаться.
+   *
+   * Видимость (canSee) здесь НЕ проверяется, в отличие от списков и поиска.
+   * Разделение на «своё и общее» существует, чтобы заведённое одним человеком не
+   * засоряло списки другому, — это про перечисление, а не про секретность. Здесь
+   * же перечисления нет: спрашивают конкретные ссылки, которые у спрашивающего
+   * уже есть (в нормах расхода), и ответ на них одинаков для всех. Благодаря
+   * этому расчёт детерминирован и кэшируется одним ключом на всех.
+   *
+   * Правило: фильтруем перечисление, не фильтруем разрешение ссылки. Если в
+   * справочнике однажды заведётся что-то действительно закрытое (скажем, цена
+   * поставщика), это правило придётся пересматривать.
+   */
+  private async lookup(kind: 'hand-tool' | 'material', where: SQL) {
+    const t = this.tables(kind);
+
+    const variants = await this.selectVariants(t, where);
+    const ownerIds = [...new Set(variants.map((variant) => variant.ownerId))];
+    if (ownerIds.length === 0) return [];
+
+    const owners = (await this.db.select().from(t.owner).where(inArray(t.ownerId, ownerIds))) as {
+      id: number;
+      nameRu: string | null;
+      nameEn: string | null;
+      unitId?: number;
+    }[];
+    const ownerById = new Map(owners.map((owner) => [owner.id, owner]));
+
+    const unitIds = [...new Set(owners.flatMap((owner) => (owner.unitId ? [owner.unitId] : [])))];
+    const unitRows = unitIds.length
+      ? await this.db
+          .select({ id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn })
+          .from(units)
+          .where(inArray(units.id, unitIds))
+      : [];
+    const unitById = new Map(unitRows.map((unit) => [unit.id, unit]));
+
+    return variants.flatMap((variant) => {
+      const owner = ownerById.get(variant.ownerId);
+      // Позиции нет разве что в гонке с удалением — сборка без названия бесполезна.
+      if (!owner) return [];
+      // Пару nameRu/nameEn LocalizeInterceptor свернёт в одно name.
+      const base = { id: owner.id, nameRu: owner.nameRu, nameEn: owner.nameEn };
+      const unit = owner.unitId ? (unitById.get(owner.unitId) ?? null) : undefined;
+      return [{ ...variant, owner: unit === undefined ? base : { ...base, unit } }];
+    });
+  }
+
+  /** Сборки с параметрами по условию; параметры внутри сборки — в порядке code. */
+  private async selectVariants(t: VariantTables, where: SQL): Promise<Variant[]> {
     const rows = await this.db
       .select({
         id: t.variantId,
@@ -149,7 +233,7 @@ export class VariantsService {
       .leftJoin(paramValues, eq(paramValues.id, t.linkParamValueId))
       .leftJoin(units, eq(units.id, paramValues.unitId))
       .leftJoin(paramKinds, eq(paramKinds.id, paramValues.kindId))
-      .where(eq(t.variantOwner, ownerId))
+      .where(where)
       // Вторичная сортировка обязательна: без неё параметры внутри варианта
       // приходили в произвольном порядке и «Ø 8 мм × дл. 100 мм» иногда
       // читалось наоборот. По id значения порядок совпадает с тем, что зашит
@@ -197,9 +281,11 @@ export class VariantsService {
     const t = this.tables(kind);
     const sourceId = (source as { id: number }).id;
 
+    // Не переименовывал — у копии имя оригинала с пометкой «(копия)»: названия уникальны.
+    const names = await forkNames(tx, t.owner as never, t.ownerLabel, source, changes, authorshipFor(user));
     const [owner] = await tx
       .insert(t.owner)
-      .values({ ...copyable(source), ...changes, ...authorshipFor(user), isActive: true })
+      .values({ ...copyable(source), ...changes, ...names, ...authorshipFor(user), isActive: true })
       .returning();
 
     const rows = await tx
@@ -282,7 +368,8 @@ export class VariantsService {
         .values({ kindId: param.kindId, value, unitId: param.unitId })
         .onConflictDoNothing()
         .returning({ id: paramValues.id });
-      const row = created ?? (await tx.select({ id: paramValues.id }).from(paramValues).where(match).limit(1))[0];
+      const row =
+        created ?? (await tx.select({ id: paramValues.id }).from(paramValues).where(match).limit(1))[0];
       ids.push(row.id);
     }
 
@@ -323,7 +410,11 @@ export class VariantsService {
     const [existing] = await tx
       .select({ id: t.variantId })
       .from(t.variants)
-      .where(exceptId === undefined ? eq(t.variantCode, code) : and(eq(t.variantCode, code), ne(t.variantId, exceptId)))
+      .where(
+        exceptId === undefined
+          ? eq(t.variantCode, code)
+          : and(eq(t.variantCode, code), ne(t.variantId, exceptId)),
+      )
       .limit(1);
 
     if (existing) {
@@ -428,7 +519,9 @@ export class VariantsService {
       await tx.update(t.variants).set({ code }).where(eq(t.variantId, targetId));
       await tx.delete(t.links).where(eq(t.linkVariantId, targetId));
       if (paramValueIds.length > 0) {
-        await tx.insert(t.links).values(paramValueIds.map((paramValueId) => ({ variantId: targetId, paramValueId })));
+        await tx
+          .insert(t.links)
+          .values(paramValueIds.map((paramValueId) => ({ variantId: targetId, paramValueId })));
       }
 
       return { ownerId: owner.id, variantId: targetId };
@@ -456,7 +549,11 @@ export class VariantsService {
     assertCanModify(owner, user);
   }
 
-  async archive(kind: 'hand-tool' | 'material', variantId: number, user: AuthUser | undefined): Promise<void> {
+  async archive(
+    kind: 'hand-tool' | 'material',
+    variantId: number,
+    user: AuthUser | undefined,
+  ): Promise<void> {
     await this.assertVariantModifiable(kind, variantId, user);
     const t = this.tables(kind);
     await this.db.update(t.variants).set({ isActive: false }).where(eq(t.variantId, variantId));

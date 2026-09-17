@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { and, asc, count, eq, inArray, max, sql, type SQL } from 'drizzle-orm';
+import { and, asc, count, eq, getTableColumns, inArray, max, sql, type SQL } from 'drizzle-orm';
 
 import type { AuthUser } from '~/auth/jwt-payload';
 import { generateCode } from '~/common/code';
@@ -7,7 +7,7 @@ import { CrudService } from '~/common/crud.service';
 import { authorshipFor, canModify, canSee, copyable, isAdmin, visibleTo } from '~/common/ownership';
 import { toPage, type Page } from '~/common/pagination';
 import { DB, type Database } from '~/db/db.module';
-import { systems, workStages, workTypes } from '~/db/schema';
+import { systems, units, workStages, workTypes } from '~/db/schema';
 import type { SystemQueryDto, WorkStageQueryDto } from './structure.dto';
 
 @Injectable()
@@ -82,10 +82,21 @@ export class SystemsService extends CrudService<typeof systems.$inferSelect> {
     });
   }
 
-  async listByWorkType(
-    query: SystemQueryDto,
-    user: AuthUser | undefined,
-  ): Promise<Page<typeof systems.$inferSelect>> {
+  /**
+   * Технология вместе с единицей объёма — ею калькулятор подписывает поля (м², шт).
+   * Пару nameRu/nameEn у unit LocalizeInterceptor свернёт в одно name.
+   */
+  private selectWithUnit() {
+    return this.db
+      .select({
+        ...getTableColumns(systems),
+        unit: { id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn },
+      })
+      .from(systems)
+      .leftJoin(units, eq(units.id, systems.unitId));
+  }
+
+  async listByWorkType(query: SystemQueryDto, user: AuthUser | undefined): Promise<Page<Record<string, unknown>>> {
     const where = and(
       this.stateFilter(query.state),
       this.searchFilter(query.q),
@@ -94,9 +105,7 @@ export class SystemsService extends CrudService<typeof systems.$inferSelect> {
     );
 
     const [items, [totals]] = await Promise.all([
-      this.db
-        .select()
-        .from(systems)
+      this.selectWithUnit()
         .where(where)
         // Заведённые под /en без русского названия иначе уезжали бы в конец (NULL последним).
         .orderBy(sql`coalesce(${systems.nameRu}, ${systems.nameEn})`)
@@ -106,6 +115,18 @@ export class SystemsService extends CrudService<typeof systems.$inferSelect> {
     ]);
 
     return toPage(items, Number(totals?.value ?? 0), query);
+  }
+
+  /**
+   * Технология по техническому коду из адреса калькулятора (/main/facade/EIFS), с единицей.
+   * Чужая личная — как несуществующая: 404, а не 403, чтобы не выдавать, что она есть.
+   */
+  async byTitle(title: string, user: AuthUser | undefined): Promise<Record<string, unknown>> {
+    const [system] = await this.selectWithUnit()
+      .where(and(eq(systems.title, title), eq(systems.isActive, true), this.visibility(user)))
+      .limit(1);
+    if (!system) throw new NotFoundException(`Технология «${title}» не найдена`);
+    return system;
   }
 
   /** Раньше это жило в calc-server: GET /:workType/:system по названию системы. */

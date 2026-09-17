@@ -19,9 +19,15 @@
         </router-link>
 
         <ion-buttons slot="end">
+          <!--
+            text="": без него в режиме ios (iPhone, Safari) Ionic подписывает стрелку
+            своим английским «Back». aria-label по той же причине свой — у Ionic «back».
+          -->
           <ion-back-button
             v-if="route.matched.length > 2"
             default-href=""
+            text=""
+            :aria-label="$t('ui.buttons.back')"
             @click="router.back"
           />
           <ion-button

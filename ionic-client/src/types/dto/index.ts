@@ -92,6 +92,7 @@ export type {
   DictionaryHandToolTranslations,
   DictionaryPowerTool,
   DictionaryVariant,
+  DictionaryVariantWithOwner,
   DictionaryVariantParam,
   DictionaryParamKind,
   DictionaryParamValue,
@@ -101,3 +102,9 @@ export type {
   DictionaryWorkStageTranslations,
   DictionaryWorkType,
 } from "./dictionary";
+export type {
+  NormKind,
+  StageNorm,
+  StageNorms,
+  StageNormsInput,
+} from "./norms";

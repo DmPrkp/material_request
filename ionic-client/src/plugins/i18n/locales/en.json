@@ -12,6 +12,7 @@
     "buttons": {
       "save": "save",
       "cancel": "cancel",
+      "back": "back",
       "add": "add",
       "remove": "remove",
       "close": "close"
@@ -202,7 +203,8 @@
           "unavailable": "The server cannot verify sign-in — saving is temporarily unavailable",
           "generic": "Could not save, please try again",
           "forbidden": "Only its author or an admin can delete this"
-        }
+        },
+        "not_found": "Technology not found"
       },
       "delete": "Delete",
       "delete_confirm": {
@@ -212,7 +214,32 @@
         "cancel": "Cancel"
       },
       "copy_hint": "This is a shared item: your changes will be saved to your own copy, the original stays for everyone",
-      "added_by_user": "added by a user"
+      "added_by_user": "added by a user",
+      "name_exists": {
+        "hand_tool": "A tool with this name already exists",
+        "material": "A material with this name already exists"
+      },
+      "norms": {
+        "open": "Consumption rates",
+        "title": "Stage rates",
+        "empty": "Nothing yet",
+        "add_power_tool": "Add power tool",
+        "choose_variant": "{name}: choose a variant",
+        "note": "Note",
+        "rate": "Rate",
+        "remove": "Remove",
+        "cancel": "Cancel",
+        "unknown": "Item #{id} is unavailable",
+        "copy_hint": "This is a shared technology: rates will be saved to your copy of it, the original stays for everyone",
+        "errors": {
+          "invalid_rate": "Rate must be a number of zero or more",
+          "forbidden": "Rates of someone else’s technology can only be edited in its copy",
+          "load": "Could not load rates"
+        },
+        "not_found": "Stage not found",
+        "hint_materials": "Materials — consumption per 1 {unit} of work.",
+        "hint_tools": "Tools — pieces per crew."
+      }
     },
     "warehouses": {
       "title": "Warehouses"

@@ -50,6 +50,24 @@ const routes: Array<RouteRecordRaw> = [
                 name: "catalog-work-type",
                 component: () => import("@/pages/CatalogTechnologiesPage.vue"),
                 meta: { requiresAuth: true },
+                children: [
+                  {
+                    // id технологии или new — добавление. В sitemap не идут:
+                    // адреса — записи словаря, у каждого пользователя свои.
+                    path: ":systemId(\\d+|new)",
+                    name: "catalog-technology",
+                    component: () => import("@/pages/CatalogTechnologyPage.vue"),
+                    meta: { requiresAuth: true },
+                    children: [
+                      {
+                        path: "stages/:stageId(\\d+)",
+                        name: "catalog-stage",
+                        component: () => import("@/pages/CatalogStagePage.vue"),
+                        meta: { requiresAuth: true },
+                      },
+                    ],
+                  },
+                ],
               },
             ],
           },

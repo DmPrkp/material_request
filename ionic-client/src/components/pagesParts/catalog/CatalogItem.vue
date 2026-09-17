@@ -132,9 +132,9 @@
     DictionaryMaterial,
     DictionaryPowerTool,
     DictionaryVariant,
-    DictionaryVariantParam,
   } from "@/types/dto";
   import { useOwnership } from "./ownership";
+  import { useParamLabel } from "./paramLabel";
 
   type CatalogEntry =
     | DictionaryMaterial
@@ -163,7 +163,8 @@
     addVariant: [];
   }>();
 
-  const { t, te } = useI18n({ useScope: "global" });
+  const { t } = useI18n({ useScope: "global" });
+  const { translate, formatNumber, paramLabel } = useParamLabel();
   const { isMine, isOthersPrivate } = useOwnership();
 
   // Имя и описание словарь отдаёт уже на языке интерфейса (Accept-Language).
@@ -203,27 +204,6 @@
     if (!("type" in props.item) || !props.item.type) return "";
     return props.item.type.name;
   });
-
-  /** Если ключа в словаре нет — показываем сам код, а не «measure.xyz». */
-  function translate(key: string, fallback: string): string {
-    return te(key) ? t(key) : fallback;
-  }
-
-  /** '100.0000' из базы -> '100'. */
-  function formatNumber(raw: string): string {
-    const value = Number(raw);
-    return Number.isFinite(value) ? String(value) : raw;
-  }
-
-  function paramLabel(param: DictionaryVariantParam): string {
-    const number = formatNumber(param.value);
-    const unit = translate(`measure.${param.unit}`, param.unit);
-    const kind = param.kind
-      ? translate(`ui.paramsTitles.${param.kind}`, param.kind)
-      : "";
-
-    return kind ? `${kind} ${number} ${unit}` : `${number} ${unit}`;
-  }
 
   /**
    * Пиломатериалы читают сечением, как пишут в прайсах: «дл. 6 м сеч. 100х25 мм».

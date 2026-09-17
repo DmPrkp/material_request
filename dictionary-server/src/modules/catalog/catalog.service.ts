@@ -1,9 +1,10 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 import type { AuthUser } from '~/auth/jwt-payload';
 import { CrudService } from '~/common/crud.service';
+import { authorshipFor, canModify, type Owned } from '~/common/ownership';
 import type { ListQuery } from '~/common/pagination';
 import { toPage, type Page } from '~/common/pagination';
 import { DB, type Database } from '~/db/db.module';
@@ -19,6 +20,7 @@ import {
   units,
 } from '~/db/schema';
 import type { MaterialQueryDto, PowerToolQueryDto, VariantParamInput } from './catalog.dto';
+import { assertNamesFree, findNamesake, pickNames } from './unique-names';
 import { VariantsService } from './variants.service';
 
 /**
@@ -56,20 +58,52 @@ async function countSizedVariants(
  * и не останется позиции с половиной размеров. Без параметров — одна служебная
  * сборка (code = id): она есть у каждой позиции без размеров, и нормам расхода
  * есть на что сослаться. Сама позиция (7) в расчёт не идёт — идут сборки (7:227).
+ *
+ * Название уникально среди того, что видит владелец (unique-names.ts): занято живой
+ * позицией — 409. Совпало с его же удалённой — она и возвращается, с новыми полями
+ * и сборками из запроса, а не заводится вторая с тем же именем.
  */
 function createWithVariants(
   db: Database,
   variants: VariantsService,
   kind: 'hand-tool' | 'material',
   table: PgTableWithColumns<any>,
+  label: string,
   data: Record<string, unknown>,
+  user: AuthUser | undefined,
 ) {
   const { variants: sets = [], ...row } = data as { variants?: VariantParamInput[][] } & Record<
     string,
     unknown
   >;
+  // Без пользователя (сиды, внутренние вызовы) позиция общая — как у сидов.
+  const owner: Owned = user ? authorshipFor(user) : { createdBy: null, isShared: true };
+  const names = pickNames(row);
 
   return db.transaction(async (tx) => {
+    await assertNamesFree(tx, table as never, label, owner, names);
+
+    const archived = await findNamesake(tx, table as never, owner, names, { active: false });
+    if (archived) {
+      const [restored] = await tx
+        .update(table)
+        .set({ ...row, isActive: true })
+        .where(eq(table.id, archived.id))
+        .returning();
+      // У удалённой могло остаться второе название, которое с тех пор кто-то занял.
+      await assertNamesFree(tx, table as never, label, owner, pickNames(restored), restored.id);
+      // Пустой список — ничего не добавляем: сборки удалённой позиции живы и так.
+      for (const params of sets) {
+        try {
+          await variants.create(kind, restored.id, { params }, tx);
+        } catch (error) {
+          // Такая сборка у неё уже есть — это не ошибка восстановления.
+          if (!(error instanceof ConflictException)) throw error;
+        }
+      }
+      return restored;
+    }
+
     const [created] = await tx.insert(table).values(row).returning();
     for (const params of sets.length > 0 ? sets : [[]]) {
       await variants.create(kind, created.id, { params }, tx);
@@ -91,9 +125,32 @@ export class HandToolsService extends CrudService<typeof handTools.$inferSelect>
   }
 
   override create(data: Record<string, unknown>, user?: AuthUser) {
-    return createWithVariants(this.db, this.variants, 'hand-tool', handTools, this.withAuthor(data, user)) as Promise<
-      typeof handTools.$inferSelect
-    >;
+    return createWithVariants(
+      this.db,
+      this.variants,
+      'hand-tool',
+      handTools,
+      'Инструмент',
+      this.withAuthor(data, user),
+      user,
+    ) as Promise<typeof handTools.$inferSelect>;
+  }
+
+  /** Переименование на месте — в свободное имя; чужое уходит в копию (fork), там своя проверка. */
+  override async update(id: number, data: Record<string, unknown>, user?: AuthUser) {
+    const current = await this.byId(id, user);
+    if (!user || canModify(current, user)) {
+      await assertNamesFree(this.db, handTools, 'Инструмент', current, pickNames(data), id);
+    }
+    return super.update(id, data, user);
+  }
+
+  /** Пока позиция лежала в удалённых, её имя могли занять. */
+  override async restore(id: number, user?: AuthUser) {
+    await this.modifiable(id, user);
+    const row = await this.byId(id, user);
+    await assertNamesFree(this.db, handTools, 'Инструмент', row, pickNames(row), id);
+    return super.restore(id, user);
   }
 
   /** Копия чужого инструмента — вместе со сборками: без них в расчёт ей идти нечем. */
@@ -157,9 +214,31 @@ export class MaterialsService extends CrudService<typeof materials.$inferSelect>
   }
 
   override create(data: Record<string, unknown>, user?: AuthUser) {
-    return createWithVariants(this.db, this.variants, 'material', materials, this.withAuthor(data, user)) as Promise<
-      typeof materials.$inferSelect
-    >;
+    return createWithVariants(
+      this.db,
+      this.variants,
+      'material',
+      materials,
+      'Материал',
+      this.withAuthor(data, user),
+      user,
+    ) as Promise<typeof materials.$inferSelect>;
+  }
+
+  /** Как у ручного инструмента: названия уникальны среди видимого владельцу. */
+  override async update(id: number, data: Record<string, unknown>, user?: AuthUser) {
+    const current = await this.byId(id, user);
+    if (!user || canModify(current, user)) {
+      await assertNamesFree(this.db, materials, 'Материал', current, pickNames(data), id);
+    }
+    return super.update(id, data, user);
+  }
+
+  override async restore(id: number, user?: AuthUser) {
+    await this.modifiable(id, user);
+    const row = await this.byId(id, user);
+    await assertNamesFree(this.db, materials, 'Материал', row, pickNames(row), id);
+    return super.restore(id, user);
   }
 
   /** Копия чужого материала — вместе со сборками, как у ручного инструмента. */

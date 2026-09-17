@@ -12,6 +12,8 @@ type System = {
   descriptionRu: string | null;
   descriptionEn: string | null;
   workTypeId: number;
+  /** Единица объёма работ (units.ts): калькулятор подписывает ею поля. */
+  unitId: number;
 };
 
 export const systems: System[] = [
@@ -23,6 +25,7 @@ export const systems: System[] = [
     descriptionRu: 'Системы фасадные теплоизоляционные с тонким штукатурным слоем',
     descriptionEn: 'Exterior insulation finishing systems',
     workTypeId: 1,
+    unitId: 7,
   },
   {
     id: 2,
@@ -32,6 +35,7 @@ export const systems: System[] = [
     descriptionRu: 'Рамные строительные леса',
     descriptionEn: 'frame scaffold system',
     workTypeId: 1,
+    unitId: 7,
   },
   {
     id: 999,
@@ -41,5 +45,6 @@ export const systems: System[] = [
     descriptionRu: 'Для проверки',
     descriptionEn: 'test system',
     workTypeId: 1,
+    unitId: 7,
   },
 ];
