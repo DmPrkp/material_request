@@ -11,6 +11,22 @@ export default class Zaiavka {
     return materialRequests || [];
   }
 
+  /** Ничьи заявки этого браузера — по id из anonymousKeys, без входа. */
+  static async findByIds(ids: number[]) {
+    if (!ids.length) return [];
+    const materialRequests = await BaseOrderModel.get<MaterialRequestDTO[]>(
+      `/zaiavka?ids=${ids.join(",")}`,
+    );
+    return materialRequests || [];
+  }
+
+  static claim(items: { id: number; key: string }[]) {
+    return BaseOrderModel.post<{ claimed: number[] }>({
+      params: "/zaiavka/claim",
+      body: { items },
+    });
+  }
+
   static async find(id: number) {
     const materialRequest = await BaseOrderModel.get<MaterialRequestDTO>(
       `/zaiavka/${id}`,
@@ -27,10 +43,13 @@ export default class Zaiavka {
     };
   }
 
-  create() {
-    return BaseOrderModel.post<MaterialRequestDTO>({
+  /** opts — для keepalive: запись при закрытии вкладки должна пережить страницу. */
+  create(opts?: RequestInit) {
+    // key — только у заведённой без входа: ключ правки, сервер показывает его один раз.
+    return BaseOrderModel.post<MaterialRequestDTO & { key?: string }>({
       params: "/zaiavka",
       body: this.data,
+      opts,
     });
   }
 
@@ -41,10 +60,19 @@ export default class Zaiavka {
     });
   }
 
-  update(id: number, data: ZaiavkaType) {
+  /**
+   * key — для ничьей заявки. Заголовки собираем целиком: opts поверх baseOpts
+   * заменяет headers, а не сливает, и без этого пропали бы Content-Type и токен.
+   */
+  update(id: number, { key, ...opts }: RequestInit & { key?: string } = {}) {
+    const headers = {
+      ...(BaseOrderModel.baseOpts.headers as Record<string, string>),
+      ...(key ? { "X-Zaiavka-Key": key } : {}),
+    };
     return BaseOrderModel.put<MaterialRequestDTO>({
       params: `/zaiavka/${id}`,
-      body: data,
+      body: this.data,
+      opts: { ...opts, headers },
     });
   }
 }

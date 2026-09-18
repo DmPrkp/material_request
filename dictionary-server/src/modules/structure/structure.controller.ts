@@ -4,6 +4,7 @@ import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '~/auth/current-user.decorator';
 import type { AuthUser } from '~/auth/jwt-payload';
 import { createDictionaryController } from '~/common/dictionary.controller';
+import { IdLookupQueryDto } from '~/common/lookup';
 import {
   CreateSystemDto,
   CreateWorkStageDto,
@@ -96,5 +97,19 @@ export class WorkStagesController extends createDictionaryController({
   @ApiParam({ name: 'systemId', required: false })
   override list(@Query() query: WorkStageQueryDto, @CurrentUser() user: AuthUser | undefined) {
     return this.service.listBySystem(query, user);
+  }
+
+  // Методы наследника Nest регистрирует раньше фабричных — 'lookup' не уходит в GET /:id.
+  @Get('lookup')
+  @ApiOperation({
+    summary: 'Этапы по списку id',
+    description:
+      'Для расчёта в calc-server: нормы расхода ссылаются на этап его id. Как ' +
+      'GET /{material,hand-tool}-variants и /power-tools/lookup: видимость технологии не ' +
+      'проверяется, архивные отдаются тоже, чего нет — просто нет в ответе. Не больше 200 id.',
+  })
+  @ApiQuery({ name: 'ids', required: true, example: '1,2,3' })
+  lookup(@Query() query: IdLookupQueryDto) {
+    return this.service.lookup(query.ids);
   }
 }

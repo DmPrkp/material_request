@@ -1,19 +1,6 @@
 <template>
   <div>
     <ion-row class="ion-justify-content-end">
-      <!-- save -->
-      <ion-col
-        v-if="!id"
-        size="auto"
-      >
-        <ion-button @click="save"
-          ><ion-icon
-            :icon="saveOutline"
-            slot="icon-only"
-          ></ion-icon
-        ></ion-button>
-      </ion-col>
-
       <!-- WhatsApp Custom Button -->
       <ion-col size="auto">
         <ion-button
@@ -57,45 +44,30 @@
 
 <script setup lang="ts">
   import Zaiavka from "@/models/zaiavka";
-  import { useZaiavkaStore } from "@/store/zaiavka";
-  import { MaterialRequestDTO, ResultMaterialsDTO } from "@/types/dto";
+  import { ResultMaterialsDTO } from "@/types/dto";
   import {
     logoWhatsapp,
     paperPlaneOutline,
     downloadOutline,
-    saveOutline,
   } from "ionicons/icons";
   import { useRoute, useRouter } from "vue-router";
 
+  /**
+   * Сохранять вручную больше нечего: страница расчёта пишет заявку сама
+   * (useZaiavkaAutosave). Ссылке для мессенджера нужен id — его отдаёт ensureSaved,
+   * а на странице готовой заявки он уже есть в props.id.
+   */
   const props = defineProps<{
     materials: ResultMaterialsDTO;
     id?: number;
     system?: string;
+    ensureSaved?: () => Promise<number | undefined>;
   }>();
   const route = useRoute();
   const router = useRouter();
-  const store = useZaiavkaStore();
-  let orderId: number;
 
-  async function save() {
-    let res: MaterialRequestDTO;
-    const data = {
-      ...props.materials,
-      system: route.params.system.toString(),
-    };
-    const zaiavka = new Zaiavka(data);
-    if (orderId) {
-      res = await zaiavka.update(orderId, data);
-    } else {
-      res = await zaiavka.create();
-      orderId = res.id;
-    }
-
-    if (!res?.id) {
-      return;
-    }
-
-    store.setMaterialRequest(res);
+  async function shareableId(): Promise<number | undefined> {
+    return props.id ?? (await props.ensureSaved?.());
   }
 
   function createFullPath(orderId: number): string {
@@ -117,12 +89,7 @@
   }
 
   async function shareOnWhatsApp() {
-    if (props.id) {
-      orderId = props.id;
-    } else {
-      await save();
-    }
-
+    const orderId = await shareableId();
     if (!orderId) return;
 
     const pageUrl = createFullPath(orderId);
@@ -134,12 +101,7 @@
   }
 
   async function shareOnTelegram() {
-    if (props.id) {
-      orderId = props.id;
-    } else {
-      await save();
-    }
-
+    const orderId = await shareableId();
     if (!orderId) return;
 
     const pageUrl = createFullPath(orderId);

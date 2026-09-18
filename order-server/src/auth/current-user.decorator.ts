@@ -1,0 +1,9 @@
+import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
+
+import type { AuthenticatedRequest, AuthUser } from './jwt-payload';
+
+/** Пользователь, которого положил JwtAuthGuard. */
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): AuthUser | undefined =>
+    context.switchToHttp().getRequest<AuthenticatedRequest>().user,
+);

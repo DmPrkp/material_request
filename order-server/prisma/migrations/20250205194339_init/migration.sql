@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "Zaiavka" ADD COLUMN     "user" INTEGER NOT NULL DEFAULT 1;

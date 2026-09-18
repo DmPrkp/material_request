@@ -56,7 +56,7 @@ function addToolsToRows<
   rows.push([sectionTitle]);
 
   tools.forEach((tool, index) => {
-    const params = tool.params.map((p) => p.param + p.measure).join(', ');
+    const params = tool.params.map((p) => formatParamValue(p.param) + p.measure).join(', ');
     let corded = '';
 
     if (typeof tool.corded === 'boolean') {
@@ -117,4 +117,10 @@ async function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
 
   // Write the workbook to the desired output path with the ODS format
   XLSX.writeFile(workbook, outputPath, { bookType: 'ods' });
+}
+
+/** Значения параметров приходят из базы строкой NUMERIC: '10.0000' -> '10'. */
+function formatParamValue(raw: string): string {
+  const value = Number(raw);
+  return Number.isFinite(value) ? String(value) : raw;
 }

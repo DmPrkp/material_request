@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { idLookupQuerySchema } from '~/common/lookup';
 import { variantLookupQuerySchema } from './catalog.dto';
 
 describe('поиск сборок: ids или codes', () => {
@@ -31,5 +32,20 @@ describe('поиск сборок: ids или codes', () => {
     ['больше 200 кодов', { codes: Array.from({ length: 201 }, (_, i) => `${i + 1}:1`).join(',') }],
   ])('400: %s', (_name, query) => {
     expect(() => variantLookupQuerySchema.parse(query)).toThrow();
+  });
+});
+
+describe('позиции и этапы по id', () => {
+  it('id разбираются в числа, повторы схлопываются', () => {
+    expect(idLookupQuerySchema.parse({ ids: '26,15,26' })).toEqual({ ids: [26, 15] });
+  });
+
+  it.each([
+    ['без ids', {}],
+    ['пустая строка', { ids: '' }],
+    ['код сборки вместо id', { ids: '8:208' }],
+    ['больше 200 id', { ids: Array.from({ length: 201 }, (_, i) => i + 1).join(',') }],
+  ])('400: %s', (_name, query) => {
+    expect(() => idLookupQuerySchema.parse(query)).toThrow();
   });
 });

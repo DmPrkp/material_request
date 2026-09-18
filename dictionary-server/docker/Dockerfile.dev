@@ -9,6 +9,6 @@ COPY ./ ./
 
 EXPOSE 4300
 
-# push синхронизирует схему из src/db/schema.ts прямо в БД — режим прототипа.
-# Когда справочник устаканится: npm run db:generate + drizzle-kit migrate.
-CMD ["sh", "-c", "npx drizzle-kit push --force && npm run db:seed && npm run start:dev"]
+# Схема — миграциями из drizzle/ (npm run db:generate по src/db/schema.ts), не push:
+# тот сносил всё, чего нет в схеме, и падал на NULLS NOT DISTINCT при каждом старте.
+CMD ["sh", "-c", "npm run db:migrate && npm run db:seed && npm run start:dev"]

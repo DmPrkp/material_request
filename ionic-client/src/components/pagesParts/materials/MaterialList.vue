@@ -12,6 +12,7 @@
     <MaterialListItems
       @modal="(e) => setOpen(component.id, e)"
       :materials="component.materials"
+      :unfilled="unfilled.get(component.id)"
     />
     <ion-grid v-if="component.materials.length">
       <ion-row
@@ -48,6 +49,7 @@
   import { MaterialListStatus } from "@/types/ui";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import MaterialListItems from "./MateriaListItems.vue";
+  import { materialKey } from "./materialKey";
   import MaterialModal from "./MaterialModal.vue";
   import MaterialHeader from "./MaterialHeader.vue";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
@@ -66,6 +68,13 @@
 
   const clearedComponents = ref<ClearedComponent[]>([]);
 
+  /**
+   * Нули из расчёта (норма есть, а расход не посчитался) — materialKey строк по этапам.
+   * Держим отдельно от самих строк: они уходят в заявку, служебный флаг там не нужен.
+   * Строку, которую пользователь сохранил из модалки, считаем заполненной им самим.
+   */
+  const unfilled = ref(new Map<number, Set<string>>());
+
   watch(
     () => clearedComponents.value,
     (newVal) => {
@@ -81,10 +90,8 @@
         .filter((m) => m.materials?.length)
         .map((m) => ({
           id: m.id,
-          title:
-            props.status === MATERIAL_LIST_STATUS.DISABLED
-              ? m.title
-              : t(`pages.components.items.${m.title}`),
+          // Название этапа уже на языке запроса — его отдаёт расчёт из словаря.
+          title: m.title,
           materials: m.materials.map((m) => ({
             ...m,
             measure:
@@ -93,6 +100,19 @@
                 : t(`measure.${m.measure}`),
           })),
         }));
+      unfilled.value =
+        props.status === MATERIAL_LIST_STATUS.DISABLED
+          ? new Map()
+          : new Map(
+              components.map((c) => [
+                c.id,
+                new Set(
+                  (c.materials ?? [])
+                    .filter((m) => !m.consumption)
+                    .map(materialKey)
+                ),
+              ])
+            );
     },
     { immediate: true }
   );
@@ -127,7 +147,11 @@
     component: MaterialListDTO,
     role: string
   ) {
-    const i = component.materials.findIndex((mat) => mat.id === material.id);
+    const key = materialKey(material);
+    const i = component.materials.findIndex((mat) => materialKey(mat) === key);
+    if (role === "edit" || role === "remove") {
+      unfilled.value.get(component.id)?.delete(key);
+    }
 
     switch (role) {
       case "add":

@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { hasName, nameRequired, optionalText } from '~/common/names';
 import { listQuerySchema } from '~/common/pagination';
+import { MAX_LOOKUP, idListSchema } from '~/common/lookup';
 import { handTools, materialTypes, materials, powerTools } from '~/db/schema';
 
 const managed = { id: true, isActive: true, createdAt: true, updatedAt: true } as const;
@@ -76,18 +77,10 @@ export class PowerToolQueryDto extends createZodDto(powerToolQuerySchema) {}
 /**
  * Поиск сборок: ?ids=1,2,3 или ?codes=8:208:243,6 — ровно одно из двух.
  * Нормы расхода ходят кодами, внутренние ссылки словаря — id.
- * Больше страницы словаря разом не просят.
  */
-const MAX_LOOKUP = 200;
-
 export const variantLookupQuerySchema = z
   .object({
-    ids: z
-      .string()
-      .regex(/^\d+(,\d+)*$/, 'ids — id через запятую')
-      .transform((value) => [...new Set(value.split(',').map(Number))])
-      .refine((ids) => ids.length <= MAX_LOOKUP, `Не больше ${MAX_LOOKUP} id за раз`)
-      .optional(),
+    ids: idListSchema.optional(),
     codes: z
       .string()
       .regex(/^\d+(:\d+)*(,\d+(:\d+)*)*$/, "codes — коды сборок через запятую, '8:208:243,6'")

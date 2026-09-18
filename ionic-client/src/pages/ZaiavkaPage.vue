@@ -70,7 +70,9 @@
   }
 
   onMounted(async () => {
-    let mr = store.getMaterialRequest(Number(route.params.zaiavka));
+    const id = Number(route.params.zaiavka);
+
+    let mr = store.getMaterialRequest(id);
 
     if (mr) {
       setMaterials(mr.data);

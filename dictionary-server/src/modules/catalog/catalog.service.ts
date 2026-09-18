@@ -1,5 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { and, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
 import type { AuthUser } from '~/auth/jwt-payload';
@@ -190,6 +190,22 @@ export class PowerToolsService extends CrudService<typeof powerTools.$inferSelec
   /** Табы на клиенте — сетевой и аккумуляторный; без corded — весь электроинструмент. */
   listByCurrent(query: PowerToolQueryDto, user: AuthUser | undefined) {
     return this.list(query, user, query.corded === undefined ? undefined : eq(powerTools.isCorded, query.corded));
+  }
+
+  /**
+   * Электроинструмент по точным id — для норм расхода в calc-server, как
+   * VariantsService.lookup для сборок. И по той же причине видимость не проверяется,
+   * а архивные отдаются: спрашивают ссылки, которые у спрашивающего уже есть, и ответ
+   * одинаков для всех — иначе расчёт зависел бы от того, кто считает. Чего нет — того в ответе нет, 404 не бросаем: норма на удалённую
+   * позицию просто выпадает из расчёта.
+   */
+  lookup(ids: readonly number[]) {
+    if (ids.length === 0) return Promise.resolve([]);
+    return this.db
+      .select()
+      .from(powerTools)
+      .where(inArray(powerTools.id, [...ids]))
+      .orderBy(asc(powerTools.id));
   }
 }
 

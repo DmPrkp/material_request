@@ -172,6 +172,20 @@ export class WorkStagesService extends CrudService<typeof workStages.$inferSelec
     return system;
   }
 
+  /**
+   * Этапы по точным id — для расчёта в calc-server (common/lookup.ts). Видимость
+   * технологии не проверяется, как у сборок: расчёт одинаков для всех и без токена.
+   * Структура живёт здесь, а нормы и формула — в calc-server.
+   */
+  lookup(ids: readonly number[]) {
+    if (ids.length === 0) return Promise.resolve([]);
+    return this.db
+      .select()
+      .from(workStages)
+      .where(inArray(workStages.id, [...ids]))
+      .orderBy(asc(workStages.systemId), asc(workStages.position));
+  }
+
   override async byId(id: number, user?: AuthUser): Promise<typeof workStages.$inferSelect> {
     const stage = await super.byId(id, user);
     try {

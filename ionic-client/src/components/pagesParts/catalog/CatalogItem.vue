@@ -199,12 +199,6 @@
     return `${t("ui.labels.measure")}: ${translate(`measure.${code}`, code)}`;
   });
 
-  /** Тип есть только у материалов, и он необязательный. */
-  const materialType = computed(() => {
-    if (!("type" in props.item) || !props.item.type) return "";
-    return props.item.type.name;
-  });
-
   /**
    * Пиломатериалы читают сечением, как пишут в прайсах: «дл. 6 м сеч. 100х25 мм».
    * Только подпись: в словаре это по-прежнему ширина и толщина отдельными

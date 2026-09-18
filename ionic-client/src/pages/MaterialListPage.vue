@@ -29,7 +29,10 @@
         :status="MATERIAL_LIST_STATUS.NEW"
         @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
       />
-      <MaterialActionPanel :materials="resultMatList" />
+      <MaterialActionPanel
+        :materials="resultMatList"
+        :ensure-saved="ensureSaved"
+      />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -37,15 +40,17 @@
 
 <script setup lang="ts">
   import { computed, onMounted, ref } from "vue";
-  import { LocationQuery, useRoute } from "vue-router";
+  import { LocationQuery, useRoute, useRouter } from "vue-router";
   import type { CalcResponseDTO, ResultMaterialsDTO } from "@/types/dto/index";
-  import { RefresherCustomEvent } from "@ionic/vue";
+  import { alertController, RefresherCustomEvent } from "@ionic/vue";
+  import { useI18n } from "vue-i18n";
   import BaseModel from "@/models/calc/BaseCalcModel";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
   import HandToolList from "@/components/pagesParts/handTools/HandToolList.vue";
   import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import { usePreloader } from "@/store";
+  import { useZaiavkaAutosave } from "@/components/pagesParts/materials/useZaiavkaAutosave";
 
   const MATERIALS_KEYS = {
     MATERIALS: "materials",
@@ -53,7 +58,9 @@
     POWER_TOOLS: "power_tools",
   } as const;
 
+  const { t } = useI18n();
   const route = useRoute();
+  const router = useRouter();
   const preloader = usePreloader();
   const components = ref<CalcResponseDTO[]>([]);
   const resultMatList = ref<ResultMaterialsDTO>({
@@ -61,6 +68,24 @@
     power_tools: [],
     materials: [],
   });
+
+  // Технологию фиксируем сразу: запись при уходе идёт, когда route уже другой.
+  const system = String(route.params.system);
+
+  /**
+   * id заявки — в адресе: перезагрузка страницы продолжает ту же заявку, а не заводит
+   * вторую. replace, а не push, — кнопка «назад» не должна ходить по черновикам.
+   */
+  const { ensureSaved } = useZaiavkaAutosave(
+    () => ({ ...resultMatList.value, system }),
+    {
+      initialId: Number(route.query.zaiavka) || undefined,
+      onCreated: (id) => {
+        if (route.name !== "material-list") return;
+        router.replace({ query: { ...route.query, zaiavka: id } });
+      },
+    }
+  );
 
   const showPage = computed(
     () => route.name === "material-list" && !preloader.state
@@ -78,18 +103,39 @@
     const { system } = route.params;
     const { components, crew } = parseData(route.query);
     if (!components || !crew) return [];
-    const dataToSend = { components, crew };
-    const data =
+    // crew из адреса — строка, а расчёт ждёт целое число звеньев.
+    const dataToSend = { components, crew: Number(crew) };
+    // Этапы приходят в порядке слоёв технологии — не пересортировываем по id.
+    return (
       (await BaseModel.post<CalcResponseDTO[]>({
         params: `/calc/${system}`,
         body: dataToSend,
-      })) || [];
-    return data.sort((a, b) => a.id - b.id);
+      })) || []
+    );
+  }
+
+  /**
+   * Упавший расчёт не должен вешать страницу: без этого прелоадер так и оставался
+   * включённым. Показываем ошибку и пустые списки — пользователь может потянуть
+   * refresher или вернуться к форме.
+   */
+  async function safeCalculate(): Promise<CalcResponseDTO[]> {
+    try {
+      return await calculateValues();
+    } catch (error) {
+      console.error(error);
+      const alert = await alertController.create({
+        header: t("pages.materials.calc_error"),
+        buttons: [t("ui.buttons.close")],
+      });
+      await alert.present();
+      return [];
+    }
   }
 
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
-    const values = await calculateValues();
+    const values = await safeCalculate();
     components.value = [...values];
     event.target.complete();
   }
@@ -104,7 +150,7 @@
   }
 
   onMounted(async () => {
-    const values = await calculateValues();
+    const values = await safeCalculate();
     components.value = values;
     preloader.setPreloader(false);
   });

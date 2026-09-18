@@ -1,10 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/auth/auth.guard';
 import { CurrentUser } from '~/auth/current-user.decorator';
 import type { AuthUser } from '~/auth/jwt-payload';
 import { ListQueryDto } from '~/common/list-query.dto';
+import { IdLookupQueryDto } from '~/common/lookup';
 import { createDictionaryController } from '~/common/dictionary.controller';
 import {
   CreateHandToolDto,
@@ -132,6 +133,21 @@ export class PowerToolsController extends createDictionaryController({
   })
   override list(@Query() query: PowerToolQueryDto, @CurrentUser() user: AuthUser | undefined) {
     return this.service.listByCurrent(query, user);
+  }
+
+  // Методы наследника Nest регистрирует раньше фабричных, так что 'lookup' не уходит
+  // в GET /:id с ParseIntPipe (там был бы 400).
+  @Get('lookup')
+  @ApiOperation({
+    summary: 'Электроинструмент по списку id',
+    description:
+      'Для норм расхода calc-server — они ссылаются на электроинструмент id позиции. ' +
+      'Как GET /{material,hand-tool}-variants: архивные отдаются тоже, чужое личное не ' +
+      'скрывается, чего нет — просто нет в ответе. Не больше 200 id за раз.',
+  })
+  @ApiQuery({ name: 'ids', required: true, example: '15,26' })
+  lookup(@Query() query: IdLookupQueryDto) {
+    return this.service.lookup(query.ids);
   }
 }
 

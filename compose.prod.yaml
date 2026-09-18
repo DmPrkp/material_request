@@ -28,6 +28,8 @@ services:
       - 4100:4100
     env_file:
       - ./secrets/order-db/.db.env
+      # Заявки — по автору: токен проверяет сам order-server.
+      - ./secrets/jwt/.jwt.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:

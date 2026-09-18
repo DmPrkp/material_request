@@ -44,6 +44,8 @@ services:
       - 4100:4100
     env_file:
       - ./secrets/order-db/.db.env
+      # Заявки — по автору: токен проверяет сам order-server.
+      - ./secrets/jwt/.jwt.env
     volumes:
       - ./order-server/prisma/migrations:/usr/order-server/prisma/migrations
       - ./order-server/static:/usr/order-server/static
@@ -123,10 +125,13 @@ services:
           path: ./dictionary-server/nest-cli.json
         - action: rebuild
           path: ./dictionary-server/docker
+        # Новая миграция из db:generate — в образ и на старт контейнера.
+        - action: rebuild
+          path: ./dictionary-server/drizzle
     depends_on:
       db:
-        # именно готовности: drizzle-kit push стучится в базу первым делом
-        # и без этого падает на ещё не поднявшемся Postgres
+        # именно готовности: миграции стучатся в базу первым делом
+        # и без этого падают на ещё не поднявшемся Postgres
         condition: service_healthy
 
   ionic-client:

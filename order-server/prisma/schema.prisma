@@ -17,6 +17,12 @@ model Zaiavka {
   id    Int      @id @default(autoincrement())
   data  Json
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now())
-  user  Int @default(1)
+  updatedAt  DateTime @default(now()) @updatedAt
+  /// Автор (sub из токена). NULL — заведена без входа: править её может тот,
+  /// у кого ключ, а после входа он забирает её себе (POST /zaiavka/claim).
+  user  Int?
+  /// sha256 ключа правки анонимной заявки; сам ключ — только в браузере автора.
+  editKeyHash String?
+
+  @@index([user])
 }

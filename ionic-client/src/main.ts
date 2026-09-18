@@ -1,4 +1,4 @@
-import { createApp } from "vue";
+import { createApp, watch } from "vue";
 import { createHead } from "@vueuse/head";
 import { createPinia } from "pinia";
 import {
@@ -60,6 +60,7 @@ import BaseModel from "./models/BaseModel";
 import AuthModel from "./models/AuthModel";
 import { useAuthStore } from "./store/auth";
 import { AUTH_ENABLED } from "./constants/auth";
+import { claimAnonymous } from "./models/zaiavka/claimAnonymous";
 
 const head = createHead();
 const pinia = createPinia();
@@ -79,6 +80,15 @@ authStore.initialize();
 if (authStore.isAuthenticated) {
   authStore.fetchProfile().catch(() => undefined);
 }
+// Заявки, заведённые без входа, на сервере ничьи — после входа забираем их себе
+// по ключам из браузера. immediate: ключи могли остаться и у того, кто уже вошёл.
+watch(
+  () => authStore.token,
+  (token) => {
+    if (token) void claimAnonymous();
+  },
+  { immediate: true }
+);
 
 router.beforeEach(async (to) => {
   // Авторизация выключена флагом — пускаем везде, проверку не трогаем.

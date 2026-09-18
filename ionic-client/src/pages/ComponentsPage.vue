@@ -28,17 +28,18 @@
       </div>
       <ion-list>
         <ion-item
-          v-for="(item, index) in pageComponents"
-          :key="item.title + index"
+          v-for="stage in stages"
+          :key="stage.id"
           class="custom-item"
         >
+          <!-- name уже на языке страницы: этапы — данные словаря, i18n их не переводит. -->
           <ion-label>
-            {{ $t(`pages.components.items.${item.title}`) }}
+            {{ stage.name }}
           </ion-label>
           <ion-input
-            @ionInput="setVal($event, item.title)"
+            @ionInput="setVal($event, stage.id)"
             type="number"
-            :value="componentList[item.title]"
+            :value="volumes[stage.id]"
           />
           <ion-text justify="end">{{ unitText }}</ion-text>
         </ion-item>
@@ -74,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onMounted, reactive, ref } from "vue";
+  import { computed, reactive, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
 
@@ -83,13 +84,10 @@
     RefresherCustomEvent,
     // ToggleCustomEvent,
   } from "@ionic/vue";
-  import BaseModel from "@/models/calc/BaseCalcModel";
-  import { ComponentsType } from "@/types";
-  import { ComponentsList } from "./types";
   import { usePreloader } from "@/store";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel from "@/models/DictionaryModel";
-  import type { DictionaryUnit } from "@/types/dto";
+  import type { DictionaryUnit, DictionaryWorkStage } from "@/types/dto";
   import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
 
   const route = useRoute();
@@ -97,14 +95,15 @@
   const preloader = usePreloader();
   preloader.setPreloader(true);
 
-  const pageComponents = ref<ComponentsType[]>([]);
-  const componentList: ComponentsList = reactive({});
+  /** Этапы технологии по порядку слоёв — из словаря, как и сама технология. */
+  const stages = ref<DictionaryWorkStage[]>([]);
+  /** Объём по id этапа: title у пользовательских этапов — сгенерированный код, ключом он не годится. */
+  const volumes: Record<number, number> = reactive({});
   const isValueToAll = ref(true);
   const allValue = ref(100);
   const crew = ref(1);
-  const componentsTitleIdMap: Record<string, number> = {};
 
-  const { t } = useI18n({ useScope: "global" });
+  const { t, locale } = useI18n({ useScope: "global" });
   const unitLabel = useUnitLabel();
   /** Единица объёма технологии из словаря (Технологии работ → форма). */
   const unit = ref<DictionaryUnit | null>(null);
@@ -113,47 +112,53 @@
     unit.value ? unitLabel(unit.value) : t("measure.square"),
   );
 
-  async function loadUnit() {
+  /**
+   * Технология по коду из адреса, потом её этапы. Раньше этапы отдавал calc-server
+   * (GET /:workType/:system), но структура переехала в словарь, а calc-server хранит
+   * только нормы и формулу. Не видна технология или словарь молчит — этапов нет.
+   */
+  async function load() {
     const { system } = route.params;
     if (typeof system !== "string") return;
-    const found = await DictionaryModel.systemByTitle(system);
-    unit.value = found?.unit ?? null;
+    try {
+      const found = await DictionaryModel.systemByTitle(system);
+      unit.value = found?.unit ?? null;
+      stages.value = found
+        ? ((await DictionaryModel.systemStages(found.id)) ?? [])
+        : [];
+      // При смене языка этапы те же — введённые объёмы не сбрасываем.
+      stages.value.forEach((stage) => {
+        volumes[stage.id] ??= allValue.value;
+      });
+      if (!stages.value.length) {
+        console.warn("No components available for this system.");
+      }
+    } finally {
+      preloader.setPreloader(false);
+    }
   }
 
   function setAllValue(value: InputCustomEvent) {
     const val = Number(value.detail.value || 0);
     allValue.value = val > 9999 ? 9999 : val;
-    pageComponents.value.forEach(
-      (component) => (componentList[component.title] = allValue.value)
-    );
+    stages.value.forEach((stage) => (volumes[stage.id] = allValue.value));
   }
 
   function setWorkerCrew(value: InputCustomEvent) {
     crew.value = Number(value.detail.value || 1);
   }
 
-  function setVal(value: InputCustomEvent, item: string) {
-    const val = Number(value.detail.value || 0);
-    componentList[item] = val;
+  function setVal(value: InputCustomEvent, stageId: number) {
+    volumes[stageId] = Number(value.detail.value || 0);
   }
 
-  function setAllValues(components: ComponentsType[], val: number) {
-    components.forEach((component: ComponentsType) => {
-      componentsTitleIdMap[component.title] = component.id;
-      componentList[component.title] = val;
-    });
-  }
-
-  onMounted(async () => {
-    await Promise.all([getComponents(), loadUnit()]);
+  watch([() => route.params.system, locale], () => void load(), {
+    immediate: true,
   });
 
-  async function sendComponentsVal() {
+  function sendComponentsVal() {
     const components = Object.fromEntries(
-      Object.keys(componentList).map((comp) => [
-        String(componentsTitleIdMap[comp]),
-        componentList[comp],
-      ])
+      stages.value.map((stage) => [String(stage.id), volumes[stage.id] ?? 0]),
     );
 
     router.push({
@@ -162,30 +167,9 @@
     });
   }
 
-  async function getComponents() {
-    try {
-      const { workType, system } = route.params;
-      const responseComponents = await BaseModel.get<ComponentsType[]>(
-        `/${workType}/${system}`
-      );
-
-      if (!responseComponents?.length) {
-        console.warn("No components available for this system.");
-        return;
-      }
-
-      pageComponents.value = responseComponents;
-      setAllValues(responseComponents, allValue.value);
-    } catch (error) {
-      console.error("Error fetching components:", error);
-    } finally {
-      preloader.setPreloader(false);
-    }
-  }
-
   // ionic functions
   async function handleRefresh(event: RefresherCustomEvent) {
-    await Promise.all([getComponents(), loadUnit()]);
+    await load();
     event.target.complete();
   }
 </script>

@@ -76,18 +76,11 @@
     "components": {
       "title": "Specify the scope of works",
       "send": "Calculate",
-      "items": {
-        "insulation coat": "Insulation coat",
-        "fiberglass mesh": "Fiberglass mesh",
-        "finish coat": "Finish coat",
-        "paint layer": "Paint layer",
-        "surface preparation": "Surface preparation",
-        "scaffolding installation": "Scaffolding installation",
-        "fastening scaffolding": "Fastening scaffolding to the facade"
-      },
-      "crew-num": "numbers of crew"
+      "crew-num": "Number of crews"
     },
     "materials": {
+      "unfilled_hint": "Fill it in yourself or remove it from the list",
+      "calc_error": "Request calculation error",
       "title": "Materials request",
       "subTitles": {
         "materials": "Materials and consumables",
@@ -109,6 +102,7 @@
       }
     },
     "zaiavka_list": {
+      "auth_warning": "Requests are tied to this browser only. Sign in to keep your data safe",
       "title": "Materials requests",
       "item_title": "Materials request #",
       "from": "from"
@@ -116,7 +110,6 @@
     "auth": {
       "title_login": "Sign in",
       "title_register": "Create a new account",
-      "login": "Sign in",
       "register": "Sign up",
       "username": "Login",
       "first_name": "First name",

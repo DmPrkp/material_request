@@ -3,11 +3,13 @@
     <ion-item
       v-for="(tool, num) in modelValue"
       :key="tool.uniqKey"
+      :class="{ unfilled: isUnfilled(tool) }"
     >
       <ion-grid>
         <ion-row color="secondary">
           <ion-col size="1">
-            {{ num + 1 }}
+            <UnfilledMark v-if="isUnfilled(tool)" />
+            <template v-else>{{ num + 1 }}</template>
           </ion-col>
           <ion-col
             :size="checkIsDisableToChange() ? 7 : 9"
@@ -17,9 +19,9 @@
               {{ tool.title }}
               <span
                 v-for="param in tool.params"
-                :key="param.param"
+                :key="param.id"
               >
-                {{ param.param }} {{ $t(`measure.${param.measure}`) }} {{ " " }}
+                {{ calcParamLabel(param) }} {{ " " }}
               </span>
             </div>
           </ion-col>
@@ -80,6 +82,9 @@
 </template>
 
 <script setup lang="ts">
+  import { ref } from "vue";
+  import UnfilledMark from "@/components/ui/UnfilledMark.vue";
+  import { useParamLabel } from "@/components/pagesParts/catalog/paramLabel";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import { MergedHandTool } from "@/types/dto";
   import { MaterialListStatus } from "@/types/ui";
@@ -92,7 +97,24 @@
 
   const emit = defineEmits(["update:modelValue", "delete"]);
 
+  const { calcParamLabel } = useParamLabel();
+
+  /**
+   * Ноль из расчёта подсвечиваем, пока пользователь не нажал +/−: после этого
+   * количество — его решение, даже если он вернул его к нулю и отменил удаление.
+   */
+  const touched = ref(new Set<string>());
+
+  function isUnfilled(tool: MergedHandTool) {
+    return (
+      checkIsDisableToChange() &&
+      !tool.adjusted_consumption &&
+      !touched.value.has(tool.uniqKey)
+    );
+  }
+
   function action(val: number, tool: MergedHandTool) {
+    touched.value.add(tool.uniqKey);
     if (val < 1) {
       emit("delete", tool.uniqKey);
       val = 0;
@@ -106,3 +128,9 @@
     return props.status !== MATERIAL_LIST_STATUS.DISABLED;
   }
 </script>
+
+<style scoped>
+  ion-item.unfilled {
+    --color: var(--orange-01);
+  }
+</style>

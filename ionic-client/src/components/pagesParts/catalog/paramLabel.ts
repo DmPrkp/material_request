@@ -18,7 +18,9 @@ export function useParamLabel() {
     return Number.isFinite(value) ? String(value) : raw;
   }
 
-  function paramLabel(param: DictionaryVariantParam): string {
+  function paramLabel(
+    param: Pick<DictionaryVariantParam, "value" | "unit" | "kind">
+  ): string {
     const number = formatNumber(param.value);
     const unit = translate(`measure.${param.unit}`, param.unit);
     const kind = param.kind
@@ -28,5 +30,22 @@ export function useParamLabel() {
     return kind ? `${kind} ${number} ${unit}` : `${number} ${unit}`;
   }
 
-  return { translate, formatNumber, paramLabel };
+  /**
+   * То же для параметров из расчёта (calc-server отдаёт их в своей форме:
+   * param — значение, measure — единица, title — вид). Без этого в заявке
+   * было «Ø 10.0000 мм».
+   */
+  function calcParamLabel(param: {
+    param: string;
+    measure: string;
+    title?: string;
+  }): string {
+    return paramLabel({
+      value: param.param,
+      unit: param.measure,
+      kind: param.title ?? null,
+    });
+  }
+
+  return { translate, formatNumber, paramLabel, calcParamLabel };
 }
