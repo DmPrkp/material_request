@@ -21,6 +21,9 @@
     </ion-header>
 
     <ion-content class="ion-padding">
+      <!-- Компании — первыми: это работа, а внешний вид и профиль трогают редко. -->
+      <SettingsCompanies v-if="authStore.isAuthenticated" />
+
       <ion-card>
         <ion-card-header>
           <ion-card-title>
@@ -85,6 +88,7 @@
   import LocaleSwitch from "@/components/logicalSwitchers/LocaleSwitch.vue";
   import ThemeSwitch from "@/components/logicalSwitchers/ThemeSwitch.vue";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import SettingsCompanies from "@/components/nav/SettingsCompanies.vue";
   import { useAuthStore } from "@/store/auth";
 
   defineProps<{ isOpen: boolean }>();

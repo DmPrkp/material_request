@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 выбирает систему работ (мокрый фасад, рамные леса), получает расчёт материалов,
 ручного и электроинструмента, и выгружает заявку в таблицу.
 
-Монорепозиторий: четыре NestJS-сервиса + Ionic/Vue-клиент за nginx, всё поднимается
+Монорепозиторий: шесть NestJS-сервисов + Ionic/Vue-клиент за nginx, всё поднимается
 одним `docker compose`.
 
 ## Запуск
@@ -33,16 +33,16 @@ docker compose -f compose.dev.yaml -p matli-dev up -d db dictionary-server
 
 Всё приложение доступно на `http://localhost` (nginx). Adminer — `:8080`.
 
-**Перед первым запуском** нужны env-файлы `secrets/{calc,order,user,dict}-db/.db.env` —
+**Перед первым запуском** нужны env-файлы `secrets/{calc,order,user,dict,warehouse,company}-db/.db.env` —
 каталог `secrets/` в `.gitignore`, в репозитории лежат только пустые папки. Сервисы
 ждут `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 (order/user дополнительно `DATABASE_URL` для Prisma; dictionary-server соберёт строку
 подключения сам — см. `dictionary-server/src/db/config.ts`).
 
-`JWT_SECRET` лежит отдельно — `secrets/jwt/.jwt.env`, compose подключает его и user-server
-(подписывает токены), и dictionary-server, calc-server и order-server (проверяют их). Файл обязателен, в том числе на
-проде. Без секрета user-server берёт случайный на каждый запуск (токены не переживают
-рестарт), а справочник отвечает 503 на любую запись. user-server дополнительно читает
+`JWT_SECRET` лежит отдельно — `secrets/jwt/.jwt.env`, compose подключает его только двоим:
+user-server (подписывает токены) и nginx (проверяет их — см. «Авторизация на nginx»). Файл
+обязателен, в том числе на проде. Без секрета user-server берёт случайный на каждый запуск
+(токены не переживают рестарт), а nginx отвечает 503 на любой запрос с токеном. user-server дополнительно читает
 `JWT_EXPIRES_IN` (по умолчанию `3d`; клиент раз в сутки от `iat` меняет токен на свежий
 через `POST /auth/refresh` — `refreshDueAt()` в `ionic-client/src/store/authToken.ts`, — так что
 вход живёт, пока человек заходит хоть раз в три дня) и `DEFAULT_ADMIN_LOGIN` / `DEFAULT_ADMIN_PASSWORD` /
@@ -79,7 +79,7 @@ e2e клиента там закомментированы. Деплой — `./
 ### Границы сервисов
 
 Каждый сервис вешает свой глобальный префикс и живёт на своём порту; nginx
-раскладывает их по одному хосту:
+раскладывает их по одному хосту (на проде наружу опубликован только он):
 
 | Сервис            | Порт | Префикс         | Хранилище                 | Что делает                                          |
 | ----------------- | ---- | --------------- | ------------------------- | --------------------------------------------------- |
@@ -87,6 +87,8 @@ e2e клиента там закомментированы. Деплой — `./
 | order-server      | 4100 | `/order/api/v1` | Prisma                    | заявки (`Zaiavka.data` — JSON), выгрузка в xlsx/ods |
 | user-server       | 4200 | `/user/api/v1`  | Prisma                    | регистрация, вход, JWT                              |
 | dictionary-server | 4300 | `/dict/api/v1`  | Drizzle                   | справочник позиций, типоразмеров, параметров        |
+| warehouse-server  | 4400 | `/warehouse/api/v1` | Drizzle               | склады пользователей (только REST, клиента пока нет) |
+| company-server    | 4500 | `/company/api/v1` | Drizzle                 | компании пользователей (только REST, клиента пока нет) |
 | ionic-client      | 5173 | `/`             | —                         | Ionic + Vue 3                                       |
 
 **calc-server не в этом репозитории.** `.gitignore` содержит `/calc-server/*`: код
@@ -105,10 +107,10 @@ e2e клиента там закомментированы. Деплой — `./
 (`CatalogTechnologyPage`, `new` — добавление) и вложенная `…/stages/:stageId` с нормами
 (`CatalogStagePage`). В sitemap не идут — это записи словаря.
 
-### Одна СУБД, четыре базы
+### Одна СУБД, шесть баз
 
-Один контейнер Postgres держит базы `calc` (из `POSTGRES_DB`), `order`, `user` и
-`dictionary`. Последние три заводит `db/init/01-create-databases.sh` при первой
+Один контейнер Postgres держит базы `calc` (из `POSTGRES_DB`), `order`, `user`,
+`dictionary`, `warehouse` и `company`. Остальные пять заводит `db/init/01-create-databases.sh` при первой
 инициализации тома.
 
 Отсюда главное ограничение: **межбазовых JOIN-ов и внешних ключей нет**. Справочник
@@ -134,7 +136,7 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
 **Пока проект не развёрнут, у каждого сервиса ровно одна миграция** — начальная.
 Схема меняется правкой этой миграции (у словаря и Prisma — перегенерацией из схемы),
 а базы пересоздаются: `docker compose -f compose.dev.yaml -p matli-dev down -v`
-(том с данными уходит, `db/init` заводит четыре базы заново). Досылающих миграций
+(том с данными уходит, `db/init` заводит базы заново). Досылающих миграций
 не пишем и данные SQL-ом руками не чиним — всё, что должно быть в базе, лежит в
 миграции или сидах.
 
@@ -175,7 +177,7 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
   На клиенте — `/:locale/catalog/systems` (плитка видов из словаря) и
   `/:locale/catalog/systems/:workType` (технологии вида по его `code`). У технологии обязательная
   единица объёма (`unit_id`): список отдаёт её вложенной `unit`, а калькулятор
-  (`/:locale/main/:workType/:system`) берёт её по `GET /systems/by-title/:title` и подписывает
+  (`/:locale/zaiavka/calculator/:workType/:system`) берёт её по `GET /systems/by-title/:title` и подписывает
   ею поля объёма (короткая форма — `measure.<code>` в i18n, `useUnitLabel()`).
   У технологий и этапов `title` — технический код (по нему ходит calc-server), людям
   показывается `name_ru`/`name_en`. Форма пишет только язык страницы, остальные
@@ -183,10 +185,9 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
   не шлют — сервис генерирует его сам (`src/common/code.ts`).
 - `authored: true` в опциях фабрики (сейчас у `work-types`, `systems`, `work-stages`, `materials`,
   `hand-tools` и `power-tools`) закрывает
-  запись (`POST`/`PATCH`/`DELETE`/`restore`) гвардом `JwtAuthGuard` (`src/auth/`), а
-  создание проставляет `created_by` = `sub` из токена. Токен проверяется по общему
-  `JWT_SECRET` прямо в справочнике, а не заголовком от nginx: порт 4300 открыт мимо
-  nginx, заголовок подделал бы кто угодно. `created_by` без FK, из тела не принимается.
+  запись (`POST`/`PATCH`/`DELETE`/`restore`) гвардом `AuthGuard` (`src/auth/`), а
+  создание проставляет `created_by` = `sub` из токена (его проверил nginx и передал
+  `X-User-Id`). `created_by` без FK, из тела не принимается.
   Остальные справочники пока пишутся без входа.
 - **Своё и общее** (`src/common/ownership.ts`, таблица — в README): у authored-справочников
   есть `is_shared`. Сиды и заведённое админом — общее, видят все; заведённое пользователем —
@@ -198,8 +199,8 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
   занято — `409`, создание с именем своей удалённой позиции её восстанавливает, копия без
   переименования получает «(копия)». У этапов и сборок своего флага нет, права —
   от технологии/позиции. Поэтому и на чтении словарю важно, кто спрашивает: глобальный
-  `IdentifyGuard` кладёт пользователя из токена в `request.user` (без токена — аноним,
-  битый — `401`), а `CrudService.list/byId` принимают его и фильтруют выдачу.
+  `IdentifyGuard` кладёт пользователя из `X-User-*` в `request.user` (без них — аноним;
+  на битый токен `401` отвечает ещё nginx), а `CrudService.list/byId` принимают его и фильтруют выдачу.
 - **Фильтруем перечисление, не фильтруем разрешение ссылки.** Списки, поиск и подбор
   видимость учитывают; `GET /{material,hand-tool}-variants?ids=|codes=` и
   `GET /power-tools/lookup?ids=` — нет (`VariantsService.lookup`, `PowerToolsService.lookup`;
@@ -237,7 +238,7 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
 Ручной инструмент и материалы заводятся сразу со сборками (`POST /hand-tools`, `POST /materials`
 с `variants` — список наборов параметров, одна транзакция; пустой — служебная сборка без
 параметров). В расчёт идёт сборка (`7:227`), а не сама позиция (`7`). Запись сборок закрыта
-тем же `JwtAuthGuard`, что и у позиций.
+тем же `AuthGuard`, что и у позиций.
 Параметры с клиента идут тройками `{ kindId, unitId, value }`: id значения клиент не знает,
 `VariantsService.resolveParams` находит его в `param_values` или заводит. Правка типоразмера —
 `PUT /{hand-tools|materials}/:id/variants/:variantId`: набор заменяется целиком, `id` прежний,
@@ -271,10 +272,54 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
 применённого шага до базы не доедет — данные чинятся правкой сидов и пересозданием
 базы (`down -v`), а не досылкой.
 
+### warehouse-server: склады
+
+Каркас — от dictionary-server (Drizzle, Zod, `PgConstraintFilter`, пагинация), но без
+Scalar/OpenAPI и локализации. `AuthGuard` висит глобально: анонимного чтения нет.
+Склад — владельца (`owner_id` = `sub`), список — только свои (у админа тоже), по id админ
+видит любой, чужой остальным — `404`. `db:migrate` сам заводит базу `warehouse`, если её нет:
+`db/init` на живом томе не срабатывает. Подробности — `warehouse-server/README.md`.
+
+### company-server: компании
+
+Копия каркаса warehouse-server (тот же глобальный `AuthGuard`): у компании `name`,
+`created_at`/`updated_at`, владельца на самой компании нет. Участники — `company_members`
+(`user_id` без FK, `roles[]` из `own | manage | review | store`) в той же базе, поэтому
+создание компании с владельцем и правка ролей — одна транзакция, без саги. Создатель
+получает `own`; `own`/`manage` раздаёт только владелец, `review`/`store` — и управляющий;
+последнего владельца не снять (`409`). Не участник компании не видит (`404`), админ — как
+владелец. Правила — `src/modules/companies/roles.ts`, подробности — `company-server/README.md`.
+
+### Авторизация на nginx
+
+Токен user-server проверяет nginx, а не сервисы: `nginx/njs/auth.js` (njs, модуль есть в
+официальном образе; `auth_jwt` — только в платном NGINX Plus) сверяет подпись HS256 с
+`JWT_SECRET`, `exp`/`nbf` и форму payload и передаёт итог заголовками `X-User-Id` /
+`X-User-Role`. Подключается сниппетом `nginx/snippets/gateway-auth.conf` в location каждого
+сервиса; модуль и `env JWT_SECRET` — в `nginx/main.conf` (main-контекст, в conf.d нельзя).
+Без токена — аноним (заголовков нет, присланные клиентом затираются), битый — `401` от
+nginx, токен без секрета у nginx — `503`. **user-server в это не входит**: он выпускает
+токены, проверяет их сам (и роль берёт из базы), а вход с протухшим токеном в заголовке
+не должен падать `401`.
+
+Сервисы секрета не знают и заголовкам верят: `userFromHeaders()` в `src/auth/auth-user.ts`
+(у calc-server — `module.auth/`), общего пакета нет — файл продублирован. Логина в заголовках
+нет, `AuthUser` — только `{ id, role }`. Вызов сервис → сервис идёт мимо nginx и передаёт
+`X-User-*` сам (calc-server → словарь, `dictionary.client.ts`). Всё это держится на том, что
+**на проде порты сервисов наружу закрыты** (`expose` вместо `ports` в `compose.prod.yaml`):
+открыть порт «для отладки» — значит дать подделать любого пользователя. В dev порты открыты
+намеренно, и заголовок там подделывается.
+
+Тесты скрипта — `nginx/njs/auth.test.js`, тем же njs, что в образе (в njs 0.8 нет ни
+деструктуризации, ни `for…of`):
+
+```bash
+docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test.js
+```
+
 ### order-server: заявки
 
-Заявка принадлежит автору — `user` = `sub` из токена (`src/auth/`, гвард как в calc-server;
-из тела не принимается). Без входа `POST /zaiavka` заводит **ничью** (`user = NULL`) и один раз
+Заявка принадлежит автору — `user` = `X-User-Id` от nginx (`src/auth/`; из тела не принимается). Без входа `POST /zaiavka` заводит **ничью** (`user = NULL`) и один раз
 отдаёт ключ правки `key`; в базе — только его sha256 (`editKeyHash`, наружу не уходит). `PUT /zaiavka/:id`:
 своя — автору, любая — админу, ничья — по заголовку `X-Zaiavka-Key`, иначе `403`.
 `GET /zaiavka` — свои, со входом (и у админа тоже); `GET /zaiavka?ids=` и `GET /zaiavka/:id` открыты —
@@ -305,12 +350,17 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
 
 - **Роутинг**: локаль — часть URL (`/:locale/...`). Глобальный `beforeEach` в
   `src/router/index.ts` догружает словарь и подменяет неизвестный сегмент;
-  `afterEach` собирает ключ вида `catalog/materials` или `main/facade/EIFS` из пути
+  `afterEach` собирает ключ вида `catalog/materials` или `zaiavka/calculator/facade/EIFS` из пути
   и достаёт по нему SEO-описание из `src/router/constants.ts`. Добавили роут,
   который должен индексироваться, — добавьте ключ туда и путь в `generate-sitemap.cjs`
   (он мирроро́к роутера, синхронизируется вручную). Электроинструмент — табы по питанию,
   и они тоже адрес: `/:locale/catalog/power_tools/{corded|cordless}` (роут
   `catalog-power-tools`, список — `POWER_TOOL_CURRENTS`); голый `power_tools` уводит на `corded`.
+- **Калькулятор — внутри «Заявок»**: `/:locale/zaiavka` — список и кнопка «Новая заявка»,
+  она ведёт в `/:locale/zaiavka/calculator/:workType/:system/materialList` (`CalculatorPage` →
+  `SystemsPage` → `ComponentsPage` → `MaterialListPage`); `:zaiavka` — только цифры. Отдельной
+  вкладки калькулятора в нижнем меню нет. `/:locale/main` — пустая `MainPage`, туда ведёт только
+  логотип; старые `/main/...` редиректят в калькулятор с сохранением query. Стартовая — `zaiavka`.
 - **Второй гвард** — в `src/main.ts`, авторизационный. Сейчас отключён флагом
   `AUTH_ENABLED = false` (`src/constants/auth.ts`): стор, страница входа, модель и
   роут целы, проверка просто пропускается. Флаг в `true` — авторизация возвращается.

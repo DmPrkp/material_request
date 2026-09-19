@@ -8,6 +8,12 @@ RUN apt-get update && \
 
 RUN mkdir -p /etc/letsencrypt/live/zaiavka.xyz
 
+# Главный конфиг — ради модуля njs и env JWT_SECRET (см. шапку main.conf).
+COPY main.conf /etc/nginx/nginx.conf
+# Проверка токена: сам скрипт (без тестов) и сниппет, который его подключает в location-ах.
+COPY njs/auth.js /etc/nginx/njs/auth.js
+COPY snippets /etc/nginx/snippets
+
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

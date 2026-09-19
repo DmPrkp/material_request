@@ -2,7 +2,7 @@ import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '~/auth/current-user.decorator';
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { createDictionaryController } from '~/common/dictionary.controller';
 import { IdLookupQueryDto } from '~/common/lookup';
 import {

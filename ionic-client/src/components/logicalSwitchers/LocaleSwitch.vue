@@ -45,6 +45,6 @@
 
     const segments = route.fullPath.split("/");
     segments[1] = value;
-    router.replace(segments.join("/") || `/${value}/main`);
+    router.replace(segments.join("/") || `/${value}/zaiavka`);
   }
 </script>

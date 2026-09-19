@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiForbiddenResponse, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '~/auth/auth.guard';
+import { AuthGuard } from '~/auth/auth.guard';
 import { CurrentUser } from '~/auth/current-user.decorator';
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { hardDeleteQuery } from '~/common/delete-query';
 import { VariantLookupQueryDto } from './catalog.dto';
 import { VariantsService } from './variants.service';
@@ -44,7 +44,7 @@ export class HandToolVariantsController {
 
   // Ручной инструмент пишется только со входом (authored) — его типоразмеры тоже.
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation(DELETE_DOC)
   @ApiForbiddenResponse(FORBIDDEN_DOC)
@@ -78,7 +78,7 @@ export class MaterialVariantsController {
 
   // Материалы пишутся только со входом (authored) — их сборки тоже.
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation(DELETE_DOC)
   @ApiForbiddenResponse(FORBIDDEN_DOC)

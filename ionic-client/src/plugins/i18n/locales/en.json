@@ -1,7 +1,6 @@
 {
   "title": "Zaiavka.ru",
   "footer": {
-    "main": "Calc",
     "about": "About",
     "zaiavka": "Requests",
     "auth": "Sign in",
@@ -102,10 +101,10 @@
       }
     },
     "zaiavka_list": {
+      "new": "new request",
       "auth_warning": "Requests are tied to this browser only. Sign in to keep your data safe",
       "title": "Materials requests",
-      "item_title": "Materials request #",
-      "from": "from"
+      "item_title": "Materials request #"
     },
     "auth": {
       "title_login": "Sign in",
@@ -130,7 +129,21 @@
       "language": "Language",
       "theme": "Dark theme",
       "heading": "Settings",
-      "open": "Open settings"
+      "open": "Open settings",
+      "companies": {
+        "title": "Companies",
+        "create": "add company",
+        "name": "Company name",
+        "empty": "You are not a member of any company yet",
+        "load_error": "Failed to load companies",
+        "create_error": "Failed to add company",
+        "roles": {
+          "own": "owner",
+          "manage": "manager",
+          "review": "reviewer",
+          "store": "storekeeper"
+        }
+      }
     },
     "catalog": {
       "title": "Catalogs",

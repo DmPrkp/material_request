@@ -31,26 +31,30 @@ const routes = [
     path: "ru/about",
     name: "about",
   },
+  // /ru/main пуст (туда ведёт только логотип) — в sitemap его нет. Калькулятор
+  // живёт в «Заявках»: /ru/zaiavka/calculator/...
   {
-    path: "ru/main",
-    name: "main",
+    path: "ru/zaiavka",
+    name: "zaiavka-list",
     children: [
       {
-        path: "facade",
+        path: "calculator",
+        name: "calculator",
         children: [
           {
-            path: "EIFS",
-          },
-          {
-            path: "frame_scaffold",
+            path: "facade",
+            children: [
+              {
+                path: "EIFS",
+              },
+              {
+                path: "frame_scaffold",
+              },
+            ],
           },
         ],
       },
     ],
-  },
-  {
-    path: "ru/zaiavka",
-    name: "zaiavka-list",
   },
 ];
 
@@ -77,7 +81,7 @@ const pages = getPaths(routes).map((path) => ({
   url: path.replace(/\/$/, ""), // Remove trailing slashes
   lastmod: new Date().toISOString().split("T")[0], // Format YYYY-MM-DD
   changefreq: "weekly",
-  priority: path === "/ru/main" ? 1.0 : 0.8,
+  priority: path === "/ru/zaiavka" ? 1.0 : 0.8,
 }));
 
 // Generate XML content

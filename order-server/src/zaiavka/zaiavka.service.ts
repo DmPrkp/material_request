@@ -11,7 +11,7 @@ import type { Zaiavka } from '@prisma/client';
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateZaiavkaDto } from '../types';
-import type { AuthUser } from '../auth/jwt-payload';
+import type { AuthUser } from '../auth/auth-user';
 
 /**
  * Ничьи заявки заводит каждое открытие расчёта без входа — большинство так никто и не

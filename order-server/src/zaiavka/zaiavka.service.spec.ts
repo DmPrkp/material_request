@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { ZaiavkaService } from './zaiavka.service';
 
 describe('ZaiavkaService', () => {
-  const author = { id: 7, login: 'ivan', role: 'USER' as const };
+  const author = { id: 7, role: 'USER' as const };
   const data = { hand_tools: [], materials: [], power_tools: [], system: 'EIFS' };
   const hash = (key: string) => createHash('sha256').update(key).digest('hex');
 

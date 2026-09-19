@@ -1,12 +1,12 @@
 import { ForbiddenException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { assertCanModify, authorshipFor, canModify, canSee, copyable, type Owned } from './ownership';
 
-const admin: AuthUser = { id: 1, login: 'admin', role: 'ADMIN' };
-const ivan: AuthUser = { id: 7, login: 'ivan', role: 'USER' };
-const petr: AuthUser = { id: 8, login: 'petr', role: 'USER' };
+const admin: AuthUser = { id: 1, role: 'ADMIN' };
+const ivan: AuthUser = { id: 7, role: 'USER' };
+const petr: AuthUser = { id: 8, role: 'USER' };
 
 const seed: Owned = { createdBy: null, isShared: true };
 const byAdmin: Owned = { createdBy: 1, isShared: true };

@@ -24,9 +24,9 @@ import {
 import { ZodValidationPipe } from 'nestjs-zod';
 import type { ZodTypeAny } from 'zod';
 
-import { JwtAuthGuard } from '~/auth/auth.guard';
+import { AuthGuard } from '~/auth/auth.guard';
 import { CurrentUser } from '~/auth/current-user.decorator';
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import type { CrudService } from './crud.service';
 import { hardDeleteQuery } from './delete-query';
 import { ListQueryDto } from './list-query.dto';
@@ -68,7 +68,7 @@ export function createDictionaryController(options: DictionaryControllerOptions)
   // (сборники на клиенте открыты без входа).
   const Writes = options.authored
     ? applyDecorators(
-        UseGuards(JwtAuthGuard),
+        UseGuards(AuthGuard),
         ApiBearerAuth(),
         ApiUnauthorizedResponse({ description: 'Нет токена user-server или он недействителен' }),
       )
@@ -100,7 +100,7 @@ export function createDictionaryController(options: DictionaryControllerOptions)
       @Body(new ZodValidationPipe(options.createSchema)) dto: Record<string, unknown>,
       @CurrentUser() user: AuthUser | undefined,
     ) {
-      // При authored user есть всегда: без токена до метода не дойти (JwtAuthGuard).
+      // При authored user есть всегда: без токена до метода не дойти (AuthGuard).
       // Без authored автора не пишем, даже если токен прислали: колонки createdBy у таблицы нет.
       return this.service.create(dto, options.authored ? user : undefined);
     }

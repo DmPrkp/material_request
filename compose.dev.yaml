@@ -15,8 +15,6 @@ services:
       - 4000:4000
     env_file:
       - ./secrets/calc-db/.db.env
-      # Запись норм расхода — со входом: токен проверяет сам calc-server, права берёт у словаря.
-      - ./secrets/jwt/.jwt.env
     develop:
       watch:
         - action: sync
@@ -44,8 +42,6 @@ services:
       - 4100:4100
     env_file:
       - ./secrets/order-db/.db.env
-      # Заявки — по автору: токен проверяет сам order-server.
-      - ./secrets/jwt/.jwt.env
     volumes:
       - ./order-server/prisma/migrations:/usr/order-server/prisma/migrations
       - ./order-server/static:/usr/order-server/static
@@ -108,7 +104,6 @@ services:
       - 4300:4300
     env_file:
       - ./secrets/dict-db/.db.env
-      - ./secrets/jwt/.jwt.env
     develop:
       watch:
         - action: sync
@@ -134,6 +129,68 @@ services:
         # и без этого падают на ещё не поднявшемся Postgres
         condition: service_healthy
 
+  warehouse-server:
+    build:
+      context: ./warehouse-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4400:4400
+    env_file:
+      - ./secrets/warehouse-db/.db.env
+    develop:
+      watch:
+        - action: sync
+          path: ./warehouse-server/src
+          target: /usr/warehouse-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./warehouse-server/package.json
+        - action: rebuild
+          path: ./warehouse-server/tsconfig.json
+        - action: rebuild
+          path: ./warehouse-server/nest-cli.json
+        - action: rebuild
+          path: ./warehouse-server/docker
+        - action: rebuild
+          path: ./warehouse-server/drizzle
+    depends_on:
+      db:
+        # миграция первым делом стучится в базу (и заводит её, если нет)
+        condition: service_healthy
+
+  company-server:
+    build:
+      context: ./company-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4500:4500
+    env_file:
+      - ./secrets/company-db/.db.env
+    develop:
+      watch:
+        - action: sync
+          path: ./company-server/src
+          target: /usr/company-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./company-server/package.json
+        - action: rebuild
+          path: ./company-server/tsconfig.json
+        - action: rebuild
+          path: ./company-server/nest-cli.json
+        - action: rebuild
+          path: ./company-server/docker
+        - action: rebuild
+          path: ./company-server/drizzle
+    depends_on:
+      db:
+        # миграция первым делом стучится в базу (и заводит её, если нет)
+        condition: service_healthy
+
   ionic-client:
     build:
       context: ./ionic-client
@@ -151,6 +208,10 @@ services:
       - db
 
   nginx:
+    # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
+    # Секрет, кроме него, знает только user-server — он токены выпускает.
+    env_file:
+      - ./secrets/jwt/.jwt.env
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.dev
@@ -162,6 +223,8 @@ services:
       - order-server
       - user-server
       - dictionary-server
+      - warehouse-server
+      - company-server
       - db
 
   db:

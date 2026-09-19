@@ -8,7 +8,7 @@ import {
 import { and, asc, eq, inArray, isNull, ne, type SQL } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { assertCanModify, authorshipFor, canModify, canSee, copyable, type Owned } from '~/common/ownership';
 import { DB, type Database } from '~/db/db.module';
 import {

@@ -34,7 +34,6 @@
     IonRow,
   } from "@ionic/vue";
   import {
-    calculatorOutline,
     libraryOutline,
     documentsOutline,
     archiveOutline,
@@ -53,11 +52,6 @@
     name: "catalog",
     icon: libraryOutline,
   };
-  const MAIN = {
-    link: "main",
-    name: "main",
-    icon: calculatorOutline,
-  };
   const ZAIAVKA = {
     link: "zaiavka",
     name: "zaiavka",
@@ -74,15 +68,16 @@
     icon: logInOutline,
   };
 
-  // Настроек здесь нет: они открываются аватаром справа в шапке.
+  // Настроек здесь нет: они открываются аватаром справа в шапке. Калькулятора тоже:
+  // он внутри «Заявок» (кнопка «Новая заявка»), а /main — пустой, по логотипу.
   const menuItems = computed(() => {
     // Пока авторизация выключена флагом, вкладку входа не показываем
     // и работаем так, будто пользователь уже вошёл.
     if (!AUTH_ENABLED || authStore.isAuthenticated) {
-      return [CATALOG, MAIN, ZAIAVKA, WAREHOUSES];
+      return [CATALOG, ZAIAVKA, WAREHOUSES];
     }
 
-    return [CATALOG, AUTH, MAIN];
+    return [CATALOG, AUTH, ZAIAVKA];
   });
 
   const getLocalizedRoute = (routeName: string) => {

@@ -15,9 +15,9 @@ import {
 } from '@nestjs/common';
 import { ZaiavkaService } from './zaiavka.service';
 import { CreateZaiavkaDto } from '../types/index';
-import { IdentifyGuard, JwtAuthGuard } from '../auth/auth.guard';
+import { IdentifyGuard, AuthGuard } from '../auth/auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
-import type { AuthUser } from '../auth/jwt-payload';
+import type { AuthUser } from '../auth/auth-user';
 
 /** Ключ правки ничьей заявки — отдельным заголовком: Authorization занят токеном. */
 export const ZAIAVKA_KEY_HEADER = 'x-zaiavka-key';
@@ -35,7 +35,7 @@ export class ZaiavkaController {
 
   @Post('claim')
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   claim(@Body() body: { items?: unknown }, @CurrentUser() user: AuthUser) {
     return this.zaiavkaService.claim(user, parseClaimItems(body?.items));
   }

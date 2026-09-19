@@ -1,102 +1,60 @@
-import { type ExecutionContext, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import { type ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { describe, expect, it } from 'vitest';
 
-import { IdentifyGuard, JwtAuthGuard } from './auth.guard';
-import type { AuthenticatedRequest } from './jwt-payload';
+import { AuthGuard, IdentifyGuard } from './auth.guard';
+import type { AuthenticatedRequest } from './auth-user';
 
-const SECRET = 'test-secret';
-const jwt = new JwtService();
-
-function guardWith(secret: string | undefined): JwtAuthGuard {
-  return new JwtAuthGuard(jwt, { get: () => secret } as unknown as ConfigService);
-}
-
-function contextFor(authorization?: string): { context: ExecutionContext; request: AuthenticatedRequest } {
-  const request = { headers: authorization ? { authorization } : {} } as AuthenticatedRequest;
+function contextFor(headers: Record<string, string> = {}): {
+  context: ExecutionContext;
+  request: AuthenticatedRequest;
+} {
+  const request = { headers } as unknown as AuthenticatedRequest;
   const context = { switchToHttp: () => ({ getRequest: () => request }) } as unknown as ExecutionContext;
   return { context, request };
 }
 
-const payload = { sub: 7, login: 'ivan', role: 'USER' as const };
+const fromNginx = { 'x-user-id': '7', 'x-user-role': 'USER' };
 
-describe('JwtAuthGuard', () => {
-  it('пускает с токеном user-server и кладёт пользователя в request', async () => {
-    const { context, request } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
-
-    await expect(guardWith(SECRET).canActivate(context)).resolves.toBe(true);
-    expect(request.user).toEqual({ id: 7, login: 'ivan', role: 'USER' });
-  });
-
-  it('без заголовка — 401', async () => {
-    await expect(guardWith(SECRET).canActivate(contextFor().context)).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
-  });
-
-  it('токен, подписанный чужим секретом, — 401', async () => {
-    const { context } = contextFor(`Bearer ${jwt.sign(payload, { secret: 'other' })}`);
-    await expect(guardWith(SECRET).canActivate(context)).rejects.toBeInstanceOf(UnauthorizedException);
-  });
-
-  it('протухший токен — 401', async () => {
-    const expired = jwt.sign({ ...payload, exp: Math.floor(Date.now() / 1000) - 60 }, { secret: SECRET });
-    await expect(guardWith(SECRET).canActivate(contextFor(`Bearer ${expired}`).context)).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
-  });
-
-  it('неподписанный токен (alg: none) — 401', async () => {
-    const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
-    const unsigned = `${encode({ alg: 'none', typ: 'JWT' })}.${encode(payload)}.`;
-    await expect(guardWith(SECRET).canActivate(contextFor(`Bearer ${unsigned}`).context)).rejects.toBeInstanceOf(
-      UnauthorizedException,
-    );
-  });
-
-  it('токен без числового sub — 401', async () => {
-    const { context } = contextFor(`Bearer ${jwt.sign({ login: 'ivan', role: 'USER' }, { secret: SECRET })}`);
-    await expect(guardWith(SECRET).canActivate(context)).rejects.toBeInstanceOf(UnauthorizedException);
-  });
-
-  it('без JWT_SECRET — 503, а не 401: чинить надо конфиг, а не вход', async () => {
-    const { context } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
-    await expect(guardWith(undefined).canActivate(context)).rejects.toBeInstanceOf(ServiceUnavailableException);
-  });
-
-  it('пользователя, которого уже узнал IdentifyGuard, пускает без повторной проверки', async () => {
+describe('IdentifyGuard', () => {
+  it('без заголовков пускает анонимом — справочник читают и без входа', () => {
     const { context, request } = contextFor();
-    request.user = { id: 7, login: 'ivan', role: 'USER' };
-    await expect(guardWith(SECRET).canActivate(context)).resolves.toBe(true);
+    expect(new IdentifyGuard().canActivate(context)).toBe(true);
+    expect(request.user).toBeUndefined();
+  });
+
+  it('с заголовками nginx кладёт пользователя: на чтении ему видны и его личные позиции', () => {
+    const { context, request } = contextFor(fromNginx);
+    expect(new IdentifyGuard().canActivate(context)).toBe(true);
+    expect(request.user).toEqual({ id: 7, role: 'USER' });
+  });
+
+  it.each([
+    ['id не число', { 'x-user-id': 'abc', 'x-user-role': 'USER' }],
+    ['id ноль', { 'x-user-id': '0', 'x-user-role': 'USER' }],
+    ['id дробный', { 'x-user-id': '7.5', 'x-user-role': 'USER' }],
+    ['незнакомая роль', { 'x-user-id': '7', 'x-user-role': 'ROOT' }],
+    ['без роли', { 'x-user-id': '7' }],
+  ])('кривые заголовки (%s) — аноним, а не пользователь', (_name, headers) => {
+    const { context, request } = contextFor(headers);
+    expect(new IdentifyGuard().canActivate(context)).toBe(true);
+    expect(request.user).toBeUndefined();
   });
 });
 
-describe('IdentifyGuard', () => {
-  function identifyWith(secret: string | undefined): IdentifyGuard {
-    return new IdentifyGuard(jwt, { get: () => secret } as unknown as ConfigService);
-  }
+describe('AuthGuard', () => {
+  it('пускает вошедшего и кладёт его в request', () => {
+    const { context, request } = contextFor({ 'x-user-id': '1', 'x-user-role': 'ADMIN' });
+    expect(new AuthGuard().canActivate(context)).toBe(true);
+    expect(request.user).toEqual({ id: 1, role: 'ADMIN' });
+  });
 
-  it('без заголовка пускает анонимом — справочник читают и без входа', async () => {
+  it('аноним — 401', () => {
+    expect(() => new AuthGuard().canActivate(contextFor().context)).toThrow(UnauthorizedException);
+  });
+
+  it('пользователя, которого уже узнал IdentifyGuard, пускает как есть', () => {
     const { context, request } = contextFor();
-    await expect(identifyWith(SECRET).canActivate(context)).resolves.toBe(true);
-    expect(request.user).toBeUndefined();
-  });
-
-  it('с токеном кладёт пользователя: на чтении ему видны и его личные позиции', async () => {
-    const { context, request } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
-    await expect(identifyWith(SECRET).canActivate(context)).resolves.toBe(true);
-    expect(request.user).toEqual({ id: 7, login: 'ivan', role: 'USER' });
-  });
-
-  it('битый токен — 401, а не аноним: иначе вошедший молча терял бы своё', async () => {
-    const { context } = contextFor(`Bearer ${jwt.sign(payload, { secret: 'other' })}`);
-    await expect(identifyWith(SECRET).canActivate(context)).rejects.toBeInstanceOf(UnauthorizedException);
-  });
-
-  it('без JWT_SECRET чтение не ломается — аноним', async () => {
-    const { context, request } = contextFor(`Bearer ${jwt.sign(payload, { secret: SECRET })}`);
-    await expect(identifyWith(undefined).canActivate(context)).resolves.toBe(true);
-    expect(request.user).toBeUndefined();
+    request.user = { id: 7, role: 'USER' };
+    expect(new AuthGuard().canActivate(context)).toBe(true);
   });
 });

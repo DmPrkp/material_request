@@ -72,19 +72,25 @@ const routeMeta: Keys = {
       ru: "О проекте",
     },
   },
-  "main/facade": {
+  "zaiavka/calculator": {
+    key: {
+      en: "Construction materials calculator: types of work",
+      ru: "Калькулятор строительных материалов: виды работ",
+    },
+  },
+  "zaiavka/calculator/facade": {
     key: {
       en: "Facade Material Calculation",
       ru: "Расчет материалов для фасада",
     },
   },
-  "main/facade/EIFS": {
+  "zaiavka/calculator/facade/EIFS": {
     key: {
       en: "EIFS Material Calculation",
       ru: "Расчет материалов для мокрого фасада",
     },
   },
-  "main/facade/frame_scaffold": {
+  "zaiavka/calculator/facade/frame_scaffold": {
     key: {
       en: "frame scaffold Calculation",
       ru: "Расчет рамных лесов",

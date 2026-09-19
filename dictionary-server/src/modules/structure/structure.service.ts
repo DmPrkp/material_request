@@ -1,7 +1,7 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, asc, count, eq, getTableColumns, inArray, max, sql, type SQL } from 'drizzle-orm';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { generateCode } from '~/common/code';
 import { CrudService } from '~/common/crud.service';
 import { authorshipFor, canModify, canSee, copyable, isAdmin, visibleTo } from '~/common/ownership';

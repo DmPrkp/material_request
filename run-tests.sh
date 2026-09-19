@@ -64,6 +64,10 @@ if [ ! -f "compose.dev.yaml" ]; then
     exit 1
 fi
 
+# Проверка токена на nginx — njs из того же образа, что в Dockerfile nginx
+echo -e "\n${YELLOW}Testing nginx auth (njs)...${NC}"
+docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test.js
+
 # Run tests for each service
 run_service_tests "order-server" "./order-server" 
 run_service_tests "ionic-client" "./ionic-client"

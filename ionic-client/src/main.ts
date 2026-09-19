@@ -105,7 +105,7 @@ router.beforeEach(async (to) => {
       const redirectTarget =
         typeof to.query.redirect === "string"
           ? (to.query.redirect as string)
-          : `/${localeParam}/main`;
+          : `/${localeParam}/zaiavka`;
       return redirectTarget;
     }
     return true;

@@ -2,7 +2,7 @@ import { ForbiddenException } from '@nestjs/common';
 import { eq, or, type SQL } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 
 /**
  * Кто что видит и правит в справочниках с автором (authorship в schema.ts).

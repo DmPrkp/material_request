@@ -1,0 +1,13 @@
+FROM node:22-alpine
+
+WORKDIR /usr/warehouse-server
+
+COPY package*.json ./
+RUN npm install
+
+COPY ./ ./
+
+EXPOSE 4400
+
+# db:migrate сам заводит базу warehouse, если её нет (src/db/migrate.ts).
+CMD ["sh", "-c", "npm run db:migrate && npm run start:dev"]

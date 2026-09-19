@@ -14,6 +14,12 @@
           </ion-title>
         </ion-item-divider>
       </div>
+      <!-- Калькулятор — начало новой заявки: расчёт сам сохраняется и появится здесь. -->
+      <ion-row class="new-zaiavka ion-justify-content-end ion-padding-horizontal">
+        <CutCornerBtn @click="router.push({ name: 'calculator' })">
+          {{ $t("pages.zaiavka_list.new") }}
+        </CutCornerBtn>
+      </ion-row>
       <!-- Без входа заявки ничьи: почистят данные сайта — список их больше не найдёт. -->
       <ion-item
         v-if="!authStore.isAuthenticated"
@@ -30,35 +36,36 @@
           {{ $t("pages.zaiavka_list.auth_warning") }}
         </ion-label>
       </ion-item>
-      <ion-list>
-        <ion-item
-          v-for="zaiavka in materialRequests"
-          :key="zaiavka.id"
+      <!-- Год — полосой, как разделы заявки; день — подзаголовком, как этапы работ. -->
+      <template
+        v-for="year in groups"
+        :key="year.year"
+      >
+        <TitledDivider :title="String(year.year)" />
+        <ion-item-group
+          v-for="day in year.days"
+          :key="day.key"
         >
-          <ion-grid>
-            <ion-row
-              color="secondary"
-              @click="openItem(zaiavka.id)"
-              style="cursor: pointer"
-            >
-              <ion-col
-                size="5"
-                class="ion-align-items-start"
-              >
-                {{ $t("pages.zaiavka_list.item_title") }}
-                {{ zaiavka.id }}
-              </ion-col>
-              <ion-col
-                size="7"
-                class="ion-align-items-start"
-              >
-                {{ $t("pages.zaiavka_list.from") }}
-                {{ toLocaleDate(zaiavka.createdAt) }}
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-item>
-      </ion-list>
+          <ion-item-divider>
+            <ion-label color="secondary">
+              <h2>{{ day.label }}</h2>
+            </ion-label>
+          </ion-item-divider>
+          <ion-item
+            v-for="zaiavka in day.items"
+            :key="zaiavka.id"
+            button
+            :detail="false"
+            @click="openItem(zaiavka.id)"
+          >
+            <ion-label>
+              {{ $t("pages.zaiavka_list.item_title") }}
+              {{ zaiavka.id }}
+            </ion-label>
+            <ion-note slot="end">{{ formatTime(zaiavka.createdAt) }}</ion-note>
+          </ion-item>
+        </ion-item-group>
+      </template>
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -70,19 +77,60 @@
   import { claimAnonymous } from "@/models/zaiavka/claimAnonymous";
   import { useAuthStore } from "@/store/auth";
   import { MaterialRequestDTO, StoredMaterialRequestDTO } from "@/types/dto";
-  import { IonIcon, RefresherCustomEvent } from "@ionic/vue";
+  import {
+    IonIcon,
+    IonItemGroup,
+    IonNote,
+    IonRow,
+    RefresherCustomEvent,
+  } from "@ionic/vue";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import TitledDivider from "@/components/ui/TitledDivider.vue";
   import { alertCircle } from "ionicons/icons";
-  import { onMounted, ref, watch } from "vue";
+  import { computed, onMounted, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
 
   const route = useRoute();
   const router = useRouter();
   const authStore = useAuthStore();
 
-  function toLocaleDate(date: string) {
-    const l = new Date(Date.parse(date));
-    return l.toLocaleString(route.params.locale);
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  function formatTime(date: string) {
+    const d = new Date(date);
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
+
+  type DayGroup = { key: string; label: string; items: MaterialRequestDTO[] };
+  type YearGroup = { year: number; days: DayGroup[] };
+
+  /**
+   * Заявки по годам и дням, по местному времени. Порядок — как пришёл список
+   * (новые сверху), группы идут в том же порядке. Месяц — «сентябрь 19»: month:
+   * "long" без дня даёт именительный падеж, «сентября» было бы с днём.
+   */
+  const groups = computed<YearGroup[]>(() => {
+    const years: YearGroup[] = [];
+    for (const zaiavka of materialRequests.value) {
+      const d = new Date(zaiavka.createdAt);
+      const year = d.getFullYear();
+      const key = `${year}-${d.getMonth()}-${d.getDate()}`;
+
+      let yearGroup = years.find((y) => y.year === year);
+      if (!yearGroup) years.push((yearGroup = { year, days: [] }));
+
+      let day = yearGroup.days.find((g) => g.key === key);
+      if (!day) {
+        const month = d.toLocaleString(String(route.params.locale), {
+          month: "long",
+        });
+        day = { key, label: `${month} ${pad(d.getDate())}`, items: [] };
+        yearGroup.days.push(day);
+      }
+      day.items.push(zaiavka);
+    }
+    return years;
+  });
 
   function openItem(id: StoredMaterialRequestDTO["id"]) {
     router.push({ name: "zaiavka", params: { zaiavka: id } });
@@ -131,6 +179,10 @@
 </script>
 
 <style scoped>
+  .new-zaiavka {
+    margin-bottom: 12px;
+  }
+
   .auth-warning {
     --background: transparent;
     --color: var(--orange-01);

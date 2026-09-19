@@ -3,7 +3,7 @@
 # Остальные сервисы держат свои базы в том же инстансе — заводим их здесь.
 set -euo pipefail
 
-for db in order user dictionary; do
+for db in order user dictionary warehouse company; do
   echo "создаю базу $db"
   # --dbname обязателен: без него psql идёт в базу с именем пользователя, которой нет
   psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-SQL

@@ -2,7 +2,7 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { and, asc, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { CrudService } from '~/common/crud.service';
 import { authorshipFor, canModify, type Owned } from '~/common/ownership';
 import type { ListQuery } from '~/common/pagination';

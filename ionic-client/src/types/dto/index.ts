@@ -108,3 +108,4 @@ export type {
   StageNorms,
   StageNormsInput,
 } from "./norms";
+export type { Company, CompanyPage, CompanyRole } from "./company";

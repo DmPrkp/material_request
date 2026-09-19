@@ -1,6 +1,5 @@
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { ZaiavkaController } from './zaiavka.controller';
 import { ZaiavkaService } from './zaiavka.service';
 
@@ -8,13 +7,12 @@ describe('ZaiavkaController', () => {
   let controller: ZaiavkaController;
   let service: ZaiavkaService;
 
-  const user = { id: 7, login: 'ivan', role: 'USER' as const };
+  const user = { id: 7, role: 'USER' as const };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ZaiavkaController],
       providers: [
-        JwtService,
         {
           provide: ZaiavkaService,
           useValue: {

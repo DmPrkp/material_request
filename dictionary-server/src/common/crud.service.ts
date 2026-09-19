@@ -2,7 +2,7 @@ import { NotFoundException } from '@nestjs/common';
 import { and, asc, count, eq, ilike, or, type SQL } from 'drizzle-orm';
 import type { PgColumn, PgTableWithColumns } from 'drizzle-orm/pg-core';
 
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import type { Database } from '~/db/db.module';
 import { ResourceInUseException } from './errors';
 import {

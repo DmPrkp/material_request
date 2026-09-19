@@ -7,14 +7,17 @@ networks:
     name: matli_network
 
 services:
+  # Наружу опубликован только nginx. Сервисы верят заголовкам X-User-*, которые ставит
+  # nginx после проверки токена (nginx/njs/auth.js), — открытый порт сервиса дал бы
+  # подделать их мимо nginx. Друг к другу сервисы ходят по именам внутри сети compose
+  # (calc-server -> dictionary-server), ports для этого не нужны; expose — только пометка,
+  # какой порт слушает контейнер. В compose.dev.yaml порты открыты намеренно — для отладки.
   calc-server:
     image: dmprkp/calc-server:latest
-    ports:
-      - 4000:4000
+    expose:
+      - 4000
     env_file:
       - ./secrets/calc-db/.db.env
-      # Запись норм расхода — со входом: токен проверяет сам calc-server, права берёт у словаря.
-      - ./secrets/jwt/.jwt.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
@@ -24,12 +27,10 @@ services:
     build:
       context: ./order-server
       dockerfile: ./docker/Dockerfile.prod
-    ports:
-      - 4100:4100
+    expose:
+      - 4100
     env_file:
       - ./secrets/order-db/.db.env
-      # Заявки — по автору: токен проверяет сам order-server.
-      - ./secrets/jwt/.jwt.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
@@ -41,8 +42,8 @@ services:
     build:
       context: ./user-server
       dockerfile: ./docker/Dockerfile.prod
-    ports:
-      - 4200:4200
+    expose:
+      - 4200
     env_file:
       - ./secrets/user-db/.db.env
       - ./secrets/jwt/.jwt.env
@@ -55,11 +56,36 @@ services:
     build:
       context: ./dictionary-server
       dockerfile: ./docker/Dockerfile.prod
-    ports:
-      - 4300:4300
+    expose:
+      - 4300
     env_file:
       - ./secrets/dict-db/.db.env
-      - ./secrets/jwt/.jwt.env
+    environment:
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  warehouse-server:
+    build:
+      context: ./warehouse-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4400
+    env_file:
+      - ./secrets/warehouse-db/.db.env
+    environment:
+      - DB_HOST=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  company-server:
+    build:
+      context: ./company-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4500
+    env_file:
+      - ./secrets/company-db/.db.env
     environment:
       - DB_HOST=host.docker.internal
     extra_hosts:
@@ -69,10 +95,14 @@ services:
     build:
       context: ./ionic-client
       dockerfile: ./docker/Dockerfile.prod
-    ports:
-      - 5173:5173
+    expose:
+      - 5173
 
   nginx:
+    # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
+    # Секрет, кроме него, знает только user-server — он токены выпускает.
+    env_file:
+      - ./secrets/jwt/.jwt.env
     volumes:
       - ./nginx/certs:/etc/letsencrypt
       - ./nginx/logs:/var/log/nginx
@@ -88,3 +118,5 @@ services:
       - order-server
       - user-server
       - dictionary-server
+      - warehouse-server
+      - company-server

@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '~/auth/auth.guard';
+import { AuthGuard } from '~/auth/auth.guard';
 import { CurrentUser } from '~/auth/current-user.decorator';
-import type { AuthUser } from '~/auth/jwt-payload';
+import type { AuthUser } from '~/auth/auth-user';
 import { ListQueryDto } from '~/common/list-query.dto';
 import { IdLookupQueryDto } from '~/common/lookup';
 import { createDictionaryController } from '~/common/dictionary.controller';
@@ -74,10 +74,10 @@ export class HandToolsController extends createDictionaryController({
   }
 
   // Типоразмеры — часть инструмента, запись закрыта так же, как у него самого (authored).
-  // user! — за JwtAuthGuard он есть всегда.
+  // user! — за AuthGuard он есть всегда.
 
   @Post(':id/variants')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Добавить типоразмер. code собирается автоматически',
@@ -93,7 +93,7 @@ export class HandToolsController extends createDictionaryController({
   }
 
   @Put(':id/variants/:variantId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Заменить параметры типоразмера',
@@ -202,7 +202,7 @@ export class MaterialsController extends createDictionaryController({
   // Сборки — часть материала, запись закрыта так же, как у него самого (authored).
 
   @Post(':id/variants')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Добавить типоразмер. code собирается автоматически',
@@ -218,7 +218,7 @@ export class MaterialsController extends createDictionaryController({
   }
 
   @Put(':id/variants/:variantId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Заменить параметры типоразмера',

@@ -1,5 +1,5 @@
 <template>
-  <ion-page v-if="isMainPage">
+  <ion-page v-if="isCalculatorPage">
     <ion-content class="ion-padding">
       <ion-item-divider>
         <ion-title v-if="mainMenu.length">
@@ -27,12 +27,13 @@
   const router = useRouter();
   const route = useRoute();
 
-  const isMainPage = ref(route.name === "main");
+  // Калькулятор вложен в «Заявки»: отсюда начинается новая заявка.
+  const isCalculatorPage = ref(route.name === "calculator");
   preloader.setPreloader(true);
 
   watch(
     () => route.name,
-    () => (isMainPage.value = route.name === "main")
+    () => (isCalculatorPage.value = route.name === "calculator")
   );
 
   watch(
