@@ -186,11 +186,19 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        // Пока заглушка: раздел заведён в нижнем меню заранее.
         path: "warehouses",
         name: "warehouses",
         component: () => import("@/pages/WarehousesPage.vue"),
         meta: { requiresAuth: true },
+        children: [
+          {
+            // Склады — свои у каждого, в sitemap не идут.
+            path: ":warehouse(\\d+)",
+            name: "warehouse",
+            component: () => import("@/pages/WarehousePage.vue"),
+            meta: { requiresAuth: true },
+          },
+        ],
       },
       {
         // Настройки теперь модалка из аватара в шапке, а не страница. Адрес

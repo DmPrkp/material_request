@@ -1,10 +1,21 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 
 import { CurrentUser } from '~/auth/current-user.decorator';
 import type { AuthUser } from '~/auth/auth-user';
 import { hardDeleteQuery } from '~/common/delete-query';
-import { ListQueryDto } from '~/common/list-query.dto';
-import { CreateWarehouseDto, UpdateWarehouseDto } from './warehouses.dto';
+import { CreateWarehouseDto, UpdateWarehouseDto, WarehouseQueryDto } from './warehouses.dto';
 import { WarehousesService } from './warehouses.service';
 
 /** Все методы — со входом: AuthGuard висит на всём приложении (auth.module.ts). */
@@ -12,9 +23,12 @@ import { WarehousesService } from './warehouses.service';
 export class WarehousesController {
   constructor(private readonly service: WarehousesService) {}
 
-  /** Свои склады: ?page, ?limit, ?q (название или адрес), ?state=active|archived|all. */
+  /**
+   * Свои и назначенные склады: ?page, ?limit, ?q (название или адрес),
+   * ?state=active|archived|all. ?companyId — склады компании: её own/manage видят все.
+   */
   @Get()
-  list(@Query() query: ListQueryDto, @CurrentUser() user: AuthUser) {
+  list(@Query() query: WarehouseQueryDto, @CurrentUser() user: AuthUser) {
     return this.service.list(query, user);
   }
 
@@ -54,5 +68,31 @@ export class WarehousesController {
   @Post(':id/restore')
   restore(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
     return this.service.restore(id, user);
+  }
+
+  @Get(':id/users')
+  users(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: AuthUser) {
+    return this.service.users(id, user);
+  }
+
+  /** Назначить участника компании склада (только чтение); повторно — не ошибка. */
+  @Put(':id/users/:userId')
+  assign(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.service.assign(id, userId, user);
+  }
+
+  /** Снять с назначения; свой id — отказаться от склада самому. */
+  @Delete(':id/users/:userId')
+  @HttpCode(204)
+  unassign(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('userId', ParseIntPipe) userId: number,
+    @CurrentUser() user: AuthUser,
+  ) {
+    return this.service.unassign(id, userId, user);
   }
 }

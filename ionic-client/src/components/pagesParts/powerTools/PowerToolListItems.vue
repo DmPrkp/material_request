@@ -6,14 +6,21 @@
       :class="{ unfilled: isUnfilled(tool) }"
     >
       <ion-grid>
-        <ion-row color="secondary">
-          <ion-col size="1">
+        <!-- Числа и кнопки — по центру высоты строки: название бывает в две строки. -->
+        <ion-row
+          color="secondary"
+          class="ion-align-items-center"
+        >
+          <ion-col
+            size="1"
+            class="cell-center"
+          >
             <UnfilledMark v-if="isUnfilled(tool)" />
             <template v-else>{{ num + 1 }}</template>
           </ion-col>
           <ion-col
-            :size="checkIsDisableToChange() ? 7 : 9"
-            class="ion-align-items-start"
+            size="7"
+            class="ion-text-start cell-name"
           >
             <div>
               {{ tool.title }}
@@ -31,7 +38,7 @@
           <ion-col
             v-if="checkIsDisableToChange()"
             size="1"
-            class="ion-text-right"
+            class="cell-center"
           >
             <ion-button
               shape="round"
@@ -47,8 +54,8 @@
           </ion-col>
 
           <ion-col
-            size="1"
-            class="ion-text-right"
+            :size="checkIsDisableToChange() ? 1 : 2"
+            class="cell-center"
           >
             {{ tool.adjusted_consumption }}
           </ion-col>
@@ -56,7 +63,7 @@
           <ion-col
             v-if="checkIsDisableToChange()"
             size="1"
-            class="ion-text-right"
+            class="cell-center"
           >
             <ion-button
               shape="round"
@@ -71,8 +78,8 @@
             </ion-button>
           </ion-col>
           <ion-col
-            size="1"
-            class="ion-text-right"
+            :size="checkIsDisableToChange() ? 1 : 2"
+            class="cell-center"
           >
             {{ $t("measure.pcs") }}
           </ion-col>

@@ -31,6 +31,34 @@ ion-button.add_btn {
   transform: skewX(-15deg);
 }
 
+/* Ячейка таблиц заявки (№, числа, единицы, шапки): по центру по обеим осям. Именно
+   flex, а не text-align: столбцы по 1/12 уже «ед.изм» и «шт», и flex выпускает текст
+   за края поровну, а блочная ячейка ломала бы слово по буквам. Раньше так вёл себя
+   любой ion-col — правило утекало из FooterBar; теперь это нужно попросить. */
+ion-col.cell-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Шапка тех же таблиц стоит голым ion-row, а строки — внутри ion-item: 16px его
+   отступа плюс 5px своих у ion-grid. Без тех же 21px столбцы шапки сдвинуты
+   относительно чисел под ними. */
+ion-row.table-head {
+  padding: 0 21px;
+}
+
+/* Название в тех же таблицах. Ionic ставит всему overflow-wrap: break-word, и
+   «Теплоизоляционная» в узком столбце рвалась посреди слова без дефиса. Слоги — по
+   lang="ru"; ограничение — чтобы переносились только такие длинные слова, а не
+   каждое второе («латекс-ным»). */
+ion-col.cell-name {
+  hyphens: auto;
+  hyphenate-limit-chars: 14 7 6;
+}
+
 :root {
   /* Primary */
   /* --ion-color-primary: #333333; Dark Gray */

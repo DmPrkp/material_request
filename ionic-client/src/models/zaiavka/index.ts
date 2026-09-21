@@ -27,6 +27,15 @@ export default class Zaiavka {
     });
   }
 
+  /** key — для ничьей заявки, как в update(): права на удаление те же, что на правку. */
+  static remove(id: number, key?: string) {
+    const headers = {
+      ...(BaseOrderModel.baseOpts.headers as Record<string, string>),
+      ...(key ? { "X-Zaiavka-Key": key } : {}),
+    };
+    return BaseOrderModel.delete({ params: `/zaiavka/${id}`, opts: { headers } });
+  }
+
   static async find(id: number) {
     const materialRequest = await BaseOrderModel.get<MaterialRequestDTO>(
       `/zaiavka/${id}`,
@@ -36,6 +45,8 @@ export default class Zaiavka {
 
   constructor(data: ZaiavkaType) {
     this.data = {
+      // name — только если есть: у обычной заявки поля нет, и пустое писать незачем.
+      ...(data.name ? { name: data.name } : {}),
       system: data.system,
       hand_tools: data.hand_tools ?? [],
       materials: data.materials ?? [],

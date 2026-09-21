@@ -3,6 +3,8 @@ export type CreateZaiavkaDto = {
   materials: MaterialDTO[];
   power_tools: PowerTool[];
   system: string;
+  /** Имя от пользователя — у заявки, собранной объединением других. */
+  name?: string;
   user?: number;
 };
 

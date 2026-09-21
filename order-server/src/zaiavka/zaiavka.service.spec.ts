@@ -16,6 +16,7 @@ describe('ZaiavkaService', () => {
         update: jest.fn(({ where, data }) => Promise.resolve({ ...rows.find((r) => r.id === where.id), ...data })),
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+        delete: jest.fn().mockResolvedValue({}),
         findMany: jest.fn(({ where }) =>
           Promise.resolve(
             rows.filter((r) => (where.id?.in ? where.id.in.includes(r.id) : true) && (where.user === undefined || r.user === where.user)),
@@ -74,6 +75,21 @@ describe('ZaiavkaService', () => {
   it('ключ не открывает заявку, у которой уже есть автор', async () => {
     const { service } = serviceWith([{ id: 3, user: 8, editKeyHash: hash('secret') }]);
     await expect(service.put(3, data, undefined, 'secret')).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('удаляет автор, админ и владелец ключа — по тем же правам, что правка', async () => {
+    const { service, prisma } = serviceWith([
+      { id: 3, user: 7, editKeyHash: null },
+      { id: 4, user: 8, editKeyHash: null },
+      { id: 5, user: null, editKeyHash: hash('secret') },
+    ]);
+    await service.remove(3, author);
+    await expect(service.remove(4, author)).rejects.toBeInstanceOf(ForbiddenException);
+    await service.remove(4, { ...author, role: 'ADMIN' });
+    await expect(service.remove(5, undefined, 'wrong')).rejects.toBeInstanceOf(ForbiddenException);
+    await service.remove(5, undefined, 'secret');
+    await expect(service.remove(9, author)).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.zaiavka.delete.mock.calls.map(([arg]) => arg.where.id)).toEqual([3, 4, 5]);
   });
 
   it('claim забирает только ничьи с верным ключом', async () => {

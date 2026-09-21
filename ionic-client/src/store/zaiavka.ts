@@ -27,6 +27,11 @@ export const useZaiavkaStore = defineStore("materialRequests", {
       return resultMatReq.filter((mr) => mr !== undefined);
     },
 
+    /** Удалённые из списка — иначе страница заявки открыла бы их из кэша. */
+    removeMaterialRequests(ids: MaterialRequestDTO["id"][]): void {
+      ids.forEach((id) => delete this.$state[id]);
+    },
+
     define(materialsRequests: MaterialRequestDTO[]): void {
       materialsRequests.forEach(this.setMaterialRequest);
     },

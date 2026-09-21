@@ -21,7 +21,7 @@
     </ion-item>
 
     <ion-item v-if="!isDelete()">
-      <ion-row>
+      <ion-row class="ion-align-items-center">
         <ion-col size="10">
           <ion-input
             type="number"
@@ -37,7 +37,7 @@
         </ion-col>
         <ion-col
           size="2"
-          class="ion-text-right"
+          class="ion-text-center"
         >
           {{ $t("measure.pcs") }}
         </ion-col>

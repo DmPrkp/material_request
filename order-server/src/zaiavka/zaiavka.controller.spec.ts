@@ -22,6 +22,7 @@ describe('ZaiavkaController', () => {
             get: jest.fn(),
             lookup: jest.fn(),
             claim: jest.fn(),
+            remove: jest.fn(),
           },
         },
       ],
@@ -57,6 +58,9 @@ describe('ZaiavkaController', () => {
 
     controller.claim({ items: [{ id: 3, key: 'k' }] }, user);
     expect(service.claim).toHaveBeenCalledWith(user, [{ id: 3, key: 'k' }]);
+
+    controller.remove(3, user, 'k');
+    expect(service.remove).toHaveBeenCalledWith(3, user, 'k');
   });
 
   it('без входа и без ids — 401, кривые ids и items — 400', () => {

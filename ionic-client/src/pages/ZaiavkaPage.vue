@@ -13,17 +13,27 @@
             {{ $t("pages.materials.title") }}
           </ion-title>
         </ion-item-divider>
+        <!--
+          Кнопка отдельной строкой, а не в slot="end" у заголовка: на телефоне она
+          съедала его ширину, и «Заявка на материалы» ужималось до «За».
+        -->
+        <ion-row
+          v-if="loaded"
+          class="warehouse-row ion-justify-content-end"
+        >
+          <AddToWarehouseButton :zaiavka="resultMatList" />
+        </ion-row>
       </div>
       <MaterialList
         :status="MATERIAL_LIST_STATUS.DISABLED"
         :components="materials"
       ></MaterialList>
-      <HandToolListHeader />
+      <HandToolListHeader readonly />
       <HandToolListItems
         :status="MATERIAL_LIST_STATUS.DISABLED"
         v-model="handTools"
       />
-      <PowerToolListHeader />
+      <PowerToolListHeader readonly />
       <PowerToolListItems
         :status="MATERIAL_LIST_STATUS.DISABLED"
         v-model="powerTools"
@@ -39,7 +49,7 @@
 </template>
 <script setup lang="ts">
   import { useZaiavkaStore } from "@/store/zaiavka";
-  import { RefresherCustomEvent } from "@ionic/vue";
+  import { IonRow, RefresherCustomEvent } from "@ionic/vue";
   import { onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
   import { ResultMaterialsDTO, StoredMaterialRequestDTO } from "@/types/dto";
@@ -51,6 +61,7 @@
   import PowerToolListHeader from "@/components/pagesParts/powerTools/PowerToolListHeader.vue";
   import PowerToolListItems from "@/components/pagesParts/powerTools/PowerToolListItems.vue";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
+  import AddToWarehouseButton from "@/components/pagesParts/warehouses/AddToWarehouseButton.vue";
 
   const store = useZaiavkaStore();
   const route = useRoute();
@@ -58,6 +69,8 @@
   const handTools = ref<StoredMaterialRequestDTO["data"]["hand_tools"]>([]);
   const powerTools = ref<StoredMaterialRequestDTO["data"]["power_tools"]>([]);
   const system = ref<string>();
+  /** Пока заявка не пришла, класть на склад нечего — кнопки нет. */
+  const loaded = ref(false);
   const resultMatList = ref<ResultMaterialsDTO>({
     hand_tools: [],
     materials: [],
@@ -99,9 +112,16 @@
 
   function setMaterials(zaiavka: ZaiavkaType) {
     resultMatList.value = zaiavka;
+    loaded.value = true;
     materials.value = zaiavka.materials;
     handTools.value = zaiavka.hand_tools;
     powerTools.value = zaiavka.power_tools;
     system.value = zaiavka.system;
   }
 </script>
+
+<style scoped>
+  .warehouse-row {
+    margin-top: 12px;
+  }
+</style>

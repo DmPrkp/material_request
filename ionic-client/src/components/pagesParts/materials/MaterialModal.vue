@@ -20,7 +20,7 @@
     </ion-item>
 
     <ion-item>
-      <ion-row>
+      <ion-row class="ion-align-items-center">
         <ion-col size="10">
           <ion-input
             type="number"
@@ -41,7 +41,7 @@
         <ion-col
           v-if="localMaterial.measure"
           size="2"
-          class="ion-text-right"
+          class="ion-text-center"
         >
           {{ localMaterial.measure }}
         </ion-col>
@@ -49,13 +49,11 @@
     </ion-item>
 
     <ion-item>
-      <ion-row>
+      <ion-row class="ion-align-items-center">
         <ion-col size="10">
           <ion-input
             type="number"
-            :value="
-              (localMaterial.consumption * localMaterial.volume).toFixed(0)
-            "
+            :value="materialTotal(localMaterial)"
             @ionInput="calcByTotalVolume"
           >
             <div slot="label">
@@ -72,7 +70,7 @@
         <ion-col
           v-if="localMaterial.measure"
           size="2"
-          class="ion-text-right"
+          class="ion-text-center"
         >
           {{ localMaterial.measure }}
         </ion-col>
@@ -110,7 +108,7 @@
       </ion-row>
     </ion-item>
     <ion-row>
-      <ion-col>
+      <ion-col class="ion-text-center">
         <ion-text color="danger">* - все поля обязательные</ion-text>
       </ion-col>
     </ion-row>
@@ -161,6 +159,7 @@
   import { modalController } from "@ionic/vue";
   import { trashBin } from "ionicons/icons";
   import { ref } from "vue";
+  import { materialTotal, roundConsumption } from "./materialTotal";
 
   const props = defineProps<{
     id: number;
@@ -176,7 +175,7 @@
 
     if (isNaN(consum)) return;
 
-    localMaterial.value.consumption = Number(consum.toFixed(2));
+    localMaterial.value.consumption = roundConsumption(consum);
   }
 
   function calcByTotalVolume(

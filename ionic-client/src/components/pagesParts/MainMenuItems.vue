@@ -2,6 +2,7 @@
   <ion-grid>
     <ion-row>
       <ion-col
+        class="ion-text-center"
         size-xs="12"
         size-md="6"
         size-lg="4"

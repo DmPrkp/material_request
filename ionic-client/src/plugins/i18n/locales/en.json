@@ -104,7 +104,28 @@
       "new": "new request",
       "auth_warning": "Requests are tied to this browser only. Sign in to keep your data safe",
       "title": "Materials requests",
-      "item_title": "Materials request #"
+      "item_title": "Materials request #",
+      "table": {
+        "system": "work type",
+        "volume": "volume",
+        "time": "time"
+      },
+      "edit": "edit",
+      "done": "done",
+      "select_all": "select all",
+      "delete": "delete ({count})",
+      "merge": "merge",
+      "delete_confirm": {
+        "header": "Delete requests: {count}?",
+        "message": "This can't be undone"
+      },
+      "delete_error": "Failed to delete requests: {count}",
+      "merge_name": {
+        "header": "Merge requests: {count}",
+        "placeholder": "New request name",
+        "message": "The original requests will be deleted once the new one is saved"
+      },
+      "merge_error": "Failed to merge requests"
     },
     "auth": {
       "title_login": "Sign in",
@@ -129,7 +150,7 @@
       "language": "Language",
       "theme": "Dark theme",
       "heading": "Settings",
-      "open": "Open settings",
+      "details": "Warehouse details",
       "companies": {
         "title": "Companies",
         "create": "add company",
@@ -248,7 +269,38 @@
       }
     },
     "warehouses": {
-      "title": "Warehouses"
+      "title": "Warehouses",
+      "add": "add warehouse",
+      "name": "Warehouse name",
+      "empty": "No warehouses yet",
+      "load_error": "Failed to load warehouses",
+      "create_error": "Failed to add warehouse",
+      "duplicate": "A warehouse with this name already exists",
+      "auth_required": "Warehouses are available after sign-in. Tap to sign in",
+      "company": "Company",
+      "personal": "Personal warehouse",
+      "company_forbidden": "You can't add warehouses to this company",
+      "units": "pcs",
+      "items_empty": "The warehouse is empty",
+      "open": "open",
+      "remove": "Delete warehouse",
+      "remove_error": "Failed to delete the warehouse",
+      "remove_confirm": {
+        "header": "Delete “{name}”?",
+        "message": "The warehouse and everything in it will be deleted. This can't be undone."
+      },
+      "kinds": {
+        "material": "materials",
+        "hand_tool": "hand tools",
+        "power_tool": "power tools"
+      },
+      "pick": "Choose a warehouse",
+      "add_items": "add to warehouse",
+      "added": "Added to “{name}”",
+      "add_items_error": "Could not add to the warehouse",
+      "nothing_to_add": "Nothing in this order to add to a warehouse",
+      "confirm_add": "Add to “{name}”?",
+      "confirm_count": "Items: {count}"
     }
   },
   "current": {

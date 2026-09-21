@@ -224,6 +224,15 @@ export default class DictionaryModel extends BaseModel {
     return this.get<DictionaryVariantWithOwner[]>(`/${path}?codes=${query}`);
   }
 
+  /**
+   * Электроинструмент по id — у него нет сборок, и нормы со складом ссылаются на позицию.
+   * Отдельный lookup, а не ?ids= на списке: тот отдаёт страницу и фильтрует видимость.
+   */
+  static powerToolsByIds(ids: number[]) {
+    const query = encodeURIComponent(ids.join(","));
+    return this.get<DictionaryPowerTool[]>(`/power-tools/lookup?ids=${query}`);
+  }
+
   static handToolVariants(id: number) {
     return this.get<DictionaryVariant[]>(`/hand-tools/${id}/variants`);
   }

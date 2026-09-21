@@ -93,6 +93,23 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * целиком, вместе с system: раньше он здесь вырезался, и выгрузка теряла технологию.
    */
   async put(id: number, createZaiavkaDto: CreateZaiavkaDto, author?: AuthUser, key?: string) {
+    await this.findWritable(id, author, key);
+
+    const updated = await this.prisma.zaiavka.update({
+      where: { id },
+      data: { data: JSON.stringify(withoutUser(createZaiavkaDto)) },
+    });
+    return toPublic(updated);
+  }
+
+  /** Удаление — по тем же правам, что правка: своя, любая для админа, ничья по ключу. */
+  async remove(id: number, author?: AuthUser, key?: string) {
+    await this.findWritable(id, author, key);
+    await this.prisma.zaiavka.delete({ where: { id } });
+  }
+
+  /** Свою правит автор, любую — админ, ничью — тот, у кого ключ; иначе 403, нет такой — 404. */
+  private async findWritable(id: number, author?: AuthUser, key?: string) {
     const existing = await this.prisma.zaiavka.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException();
 
@@ -100,12 +117,7 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
       (author && (existing.user === author.id || author.role === 'ADMIN')) ||
       (existing.user === null && keyMatches(existing, key));
     if (!allowed) throw new ForbiddenException();
-
-    const updated = await this.prisma.zaiavka.update({
-      where: { id },
-      data: { data: JSON.stringify(withoutUser(createZaiavkaDto)) },
-    });
-    return toPublic(updated);
+    return existing;
   }
 
   /** Только свои — и у админа тоже: список это «мои заявки», а не обзор чужих. */

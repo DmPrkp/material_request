@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   HttpCode,
@@ -48,6 +49,17 @@ export class ZaiavkaController {
     @Headers(ZAIAVKA_KEY_HEADER) key?: string,
   ) {
     return this.zaiavkaService.put(id, createZaiavkaDto, user, key);
+  }
+
+  /** Права — как у PUT; ничью удаляет тот, у кого ключ. Групповое удаление в списке — по одной. */
+  @Delete(':id')
+  @HttpCode(204)
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user?: AuthUser,
+    @Headers(ZAIAVKA_KEY_HEADER) key?: string,
+  ) {
+    return this.zaiavkaService.remove(id, user, key);
   }
 
   /**

@@ -1,5 +1,5 @@
 <template>
-  <MaterialHeader />
+  <MaterialHeader :readonly="readonly" />
   <ion-item-group
     v-for="component in clearedComponents"
     :key="component.id"
@@ -13,6 +13,7 @@
       @modal="(e) => setOpen(component.id, e)"
       :materials="component.materials"
       :unfilled="unfilled.get(component.id)"
+      :readonly="readonly"
     />
     <ion-grid v-if="component.materials.length">
       <ion-row
@@ -43,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, watch } from "vue";
+  import { computed, ref, watch } from "vue";
   import { modalController } from "@ionic/vue";
   import { Material, MaterialListDTO } from "@/types/dto";
   import { MaterialListStatus } from "@/types/ui";
@@ -65,6 +66,11 @@
   }>();
 
   const emit = defineEmits(["update"]);
+
+  /** DISABLED — сохранённая заявка: только чтение, и модалку правки не открываем. */
+  const readonly = computed(
+    () => props.status === MATERIAL_LIST_STATUS.DISABLED
+  );
 
   const clearedComponents = ref<ClearedComponent[]>([]);
 
@@ -118,6 +124,7 @@
   );
 
   const setOpen = async (componentId: number, material: Partial<Material>) => {
+    if (readonly.value) return;
     const modal = await modalController.create({
       component: MaterialModal,
       componentProps: { id: componentId, material },

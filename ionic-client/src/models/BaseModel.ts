@@ -200,8 +200,14 @@ export default class BaseModel {
   }
 
   /** DELETE: словарь по умолчанию архивирует, ответ всё равно разбирать незачем. */
-  static async delete({ params }: { params: string }): Promise<void> {
-    const options = Object.assign({ method: "DELETE" }, this.baseOpts);
+  static async delete({
+    params,
+    opts,
+  }: {
+    params: string;
+    opts?: RequestInit;
+  }): Promise<void> {
+    const options = Object.assign({ method: "DELETE" }, this.baseOpts, opts);
     const response = await fetch(this.buildUrl(params), options);
 
     if (!response.ok) {
