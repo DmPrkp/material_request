@@ -8,14 +8,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 выбирает систему работ (мокрый фасад, рамные леса), получает расчёт материалов,
 ручного и электроинструмента, и выгружает заявку в таблицу.
 
-Монорепозиторий: шесть NestJS-сервисов + Ionic/Vue-клиент за nginx, всё поднимается
-одним `docker compose`.
+Монорепозиторий: шесть NestJS-сервисов + Ionic/Vue-клиент за nginx и админка разработчика
+(admin-server + admin-client) мимо него, всё поднимается одним `docker compose`.
 
 ## Запуск
 
 Основной режим разработки — compose с hot-reload (`watch` синхронизирует `src/`
 внутрь контейнеров, а изменения `package.json`/`tsconfig.json`/`nest-cli.json`/
-`schema.prisma` пересобирают образ):
+`drizzle/` пересобирают образ):
 
 ```bash
 docker compose -f compose.dev.yaml -p matli-dev watch
@@ -31,13 +31,14 @@ docker compose -f compose.dev.yaml -p matli-dev build --no-cache
 docker compose -f compose.dev.yaml -p matli-dev up -d db dictionary-server
 ```
 
-Всё приложение доступно на `http://localhost` (nginx). Adminer — `:8080`.
+Всё приложение доступно на `http://localhost` (nginx). Adminer — `:8080`, админка
+разработчика — `:8090` (см. «Админка разработчика»).
 
-**Перед первым запуском** нужны env-файлы `secrets/{calc,order,user,dict,warehouse,company}-db/.db.env` —
+**Перед первым запуском** нужны env-файлы `secrets/{calc,order,user,dict,warehouse,company,admin}-db/.db.env` —
 каталог `secrets/` в `.gitignore`, в репозитории лежат только пустые папки. Сервисы
 ждут `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-(order/user дополнительно `DATABASE_URL` для Prisma; dictionary-server соберёт строку
-подключения сам — см. `dictionary-server/src/db/config.ts`).
+(строку подключения сервисы собирают сами — `src/db/config.ts`; готовая `DATABASE_URL`, если
+задана, важнее).
 
 `JWT_SECRET` лежит отдельно — `secrets/jwt/.jwt.env`, compose подключает его только двоим:
 user-server (подписывает токены) и nginx (проверяет их — см. «Авторизация на nginx»). Файл
@@ -50,19 +51,39 @@ user-server (подписывает токены) и nginx (проверяет �
 без `DEFAULT_ADMIN_PASSWORD` пароль генерируется и печатается в лог контейнера один раз.
 Существующего пользователя с id 1 старт не трогает — env не перезапишет сменённый пароль.
 
+### Демо-данные
+
+`node scripts/seed/seed.mjs` (Node ≥ 16, без зависимостей; `--help` — опции) наполняет
+user / company / warehouse / order по 30 штук: пользователи `demo01…demo30` / `demo123`,
+компании с участниками, склады с содержимым, назначениями и выдачей «на руки», заявки.
+Идёт **через API за nginx** с настоящими токенами, а не SQL-ом, — поэтому нужен поднятый
+стек и засеянный словарь (коды сборок берутся из него). Это не сиды: в миграции и сиды
+сервисов демо-данные не попадают. Повторный прогон с теми же опциями находит своё и
+досоздаёт недостающее; новый набор — `--prefix`. Владелец всего — `demo01`: списки складов
+и заявок показывают только своё (даже админу), и под ним видно все демо-данные разом;
+остальные demo-пользователи — участники компаний, назначенные на склады и держатели «рук».
+`--spread` раздаёт владение по всем. Чужой существующий аккаунт подключает `--join <id|логин>`:
+управляющий в первых компаниях, назначен на их склады и получает свои заявки. По id пароль
+не нужен — заявки уходят мимо nginx прямо в порт order-server с `X-User-*` (работает только
+в dev, где порты открыты); по логину — с `--join-password`. Кроме localhost, без
+`--allow-remote` не запускается.
+
 ## Тесты, линт, сборка
 
 `run-tests.sh` из корня прогоняет order-server и ionic-client целиком. Точечно:
 
-|                | order-server / user-server / calc-server          | dictionary-server         | ionic-client                                                              |
-| -------------- | ------------------------------------------------- | ------------------------- | ------------------------------------------------------------------------- |
-| раннер         | Jest                                              | Vitest                    | Vitest + Cypress                                                          |
-| все юнит-тесты | `npm run test`                                    | `npm run test`            | `npx vitest run`                                                          |
-| один файл      | `npx jest src/zaiavka/zaiavka.controller.spec.ts` | `npx vitest run src/…`    | `npx vitest run tests/unit/components.spec.ts`                            |
-| один кейс      | `npm run test -- -t "имя теста"`                  | `npx vitest run -t "имя"` | `npx vitest run -t "имя"`                                                 |
-| e2e            | `npm run test:e2e` (свой jest-e2e.json)           | —                         | `npm run test:e2e` (cypress)                                              |
-| линт           | `npm run lint` (с `--fix`)                        | то же                     | то же                                                                     |
-| сборка         | `npm run build`                                   | то же                     | `npm run build` (сначала генерит sitemap, потом `vue-tsc` + `vite build`) |
+|                | Nest-сервисы (кроме calc-server — Jest)            | ionic-client                                                              |
+| -------------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| раннер         | Vitest                                             | Vitest + Cypress                                                          |
+| все юнит-тесты | `npm run test`                                     | `npx vitest run`                                                          |
+| один файл      | `npx vitest run src/zaiavka/zaiavka.service.spec.ts` | `npx vitest run tests/unit/components.spec.ts`                          |
+| один кейс      | `npx vitest run -t "имя"`                          | `npx vitest run -t "имя"`                                                 |
+| e2e            | `npm run test:e2e` у order-server (`vitest.e2e.config.mts`) | `npm run test:e2e` (cypress)                                     |
+| линт           | `npm run lint` (с `--fix`)                         | то же                                                                     |
+| сборка         | `npm run build`                                    | `npm run build` (сначала генерит sitemap, потом `vue-tsc` + `vite build`) |
+
+Сервис заявок в юнит-тестах гоняет настоящий SQL на PGlite (Postgres в памяти, та же миграция
+из `drizzle/`), поэтому CI обходится без базы. Моки цепочек Drizzle проверяли бы только вызовы.
 
 Осторожно: `npm run test:unit` в ionic-client — это `vitest` **в watch-режиме**.
 Для одного прогона используйте `npx vitest run`.
@@ -84,12 +105,14 @@ e2e клиента там закомментированы. Деплой — `./
 | Сервис            | Порт | Префикс         | Хранилище                 | Что делает                                          |
 | ----------------- | ---- | --------------- | ------------------------- | --------------------------------------------------- |
 | calc-server       | 4000 | `/calc/api/v1`  | голый `pg` + SQL-миграции | нормы расхода и логика расчёта                      |
-| order-server      | 4100 | `/order/api/v1` | Prisma                    | заявки (`Zaiavka.data` — JSON), выгрузка в xlsx/ods |
-| user-server       | 4200 | `/user/api/v1`  | Prisma                    | регистрация, вход, JWT                              |
+| order-server      | 4100 | `/order/api/v1` | Drizzle                   | заявки (`zaiavki.data` — jsonb), выгрузка в ods     |
+| user-server       | 4200 | `/user/api/v1`  | Drizzle                   | регистрация, вход, JWT                              |
 | dictionary-server | 4300 | `/dict/api/v1`  | Drizzle                   | справочник позиций, типоразмеров, параметров        |
 | warehouse-server  | 4400 | `/warehouse/api/v1` | Drizzle               | склады пользователей и их содержимое                 |
 | company-server    | 4500 | `/company/api/v1` | Drizzle                 | компании пользователей и их участники                |
 | ionic-client      | 5173 | `/`             | —                         | Ionic + Vue 3                                       |
+| admin-server      | 4600 | `/admin/api/v1` | все базы, только чтение   | админка разработчика, мимо nginx                    |
+| admin-client      | 8090 | `/`             | —                         | Vue 3 + AG Grid + PrimeVue, desktop                 |
 
 **calc-server не в этом репозитории.** `.gitignore` содержит `/calc-server/*`: код
 лежит рядом на диске и собирается compose-ом, но версионируется отдельно, а в прод
@@ -131,10 +154,10 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
 названия и параметры добирать у словаря по кодам, пропуская то, чего он не отдал.
 Не считайте это багом, который надо чинить мимоходом.
 
-### Три подхода к схеме БД — намеренно разные
+### Подходы к схеме БД
 
 **Пока проект не развёрнут, у каждого сервиса ровно одна миграция** — начальная.
-Схема меняется правкой этой миграции (у словаря и Prisma — перегенерацией из схемы),
+Схема меняется правкой этой миграции (у Drizzle — перегенерацией из схемы),
 а базы пересоздаются: `docker compose -f compose.dev.yaml -p matli-dev down -v`
 (том с данными уходит, `db/init` заводит базы заново). Досылающих миграций
 не пишем и данные SQL-ом руками не чиним — всё, что должно быть в базе, лежит в
@@ -147,10 +170,12 @@ SQL всё ещё джойнит уехавшие таблицы, да ещё и
   `drizzle.__drizzle_migrations`). Служебная `seed_history` объявлена в `schema.ts`,
   хотя из HTTP-API к ней никто не обращается: её ведёт только скрипт сидов.
   Локально: `npm run db:seed`, `npm run db:studio`.
-- **order-server / user-server** — Prisma, одна миграция `prisma/migrations/0_init`
-  (`npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script`),
-  `npx prisma migrate deploy` при старте контейнера. `prisma/prisma.service.ts` лежит **вне** `src/`, из-за чего корень
-  компиляции шире и артефакт получается `dist/src/main`, а не `dist/main`.
+- **user-server, order-server, warehouse-server, company-server** — тот же Drizzle без сидов:
+  `src/db/schema.ts`, `drizzle/0000_init.sql`, `npm run db:migrate` при старте (сам заводит базу,
+  если её нет). user и order переехали с Prisma: таблицы теперь `users` и `zaiavki` в snake_case
+  (не `"User"` / `"Zaiavka"`), автор заявки — колонка `user_id` (`user` в Postgres зарезервировано),
+  в TS-схеме и в API поле по-прежнему `user`. Дефолтного админа заводит сервис при старте
+  (`default-admin.service.ts`).
 - **calc-server** — самописный раннер поверх `pg`: пронумерованные
   `NNN-name.{up,down,seed}.sql` в `src/module.db/{migrations,seed}`, отметки в
   `schema_migrations`. Схема — `001-init`; `000-schema_migrations` — таблица самого
@@ -287,10 +312,22 @@ company-server от имени пользователя (`company.client.ts`, з
 (`WarehousePage.vue`). Содержимое склада — `warehouse_items`
 (`kind` + `ref`: код сборки у материала и ручного инструмента, id у электроинструмента —
 как в нормах расхода; `quantity` numeric, наружу числом). `POST /warehouses/:id/items` берёт
-пачку и складывает с лежащим; ведёт содержимое любой, кому склад виден. На клиенте это кнопка
-«добавить на склад» в шапке заявки (`components/pagesParts/warehouses/AddToWarehouseButton.vue`):
+пачку и складывает с лежащим; ведёт содержимое любой, кому склад виден. На клиенте это полоса
+«добавить на склад», прибитая к низу страницы заявки (`components/pagesParts/warehouses/AddToWarehouseButton.vue`,
+общий класс `.bulk-bar` в `theme/variables.css` — тот же, что у групповых операций в списке заявок):
 список заявки сводится в позиции (`zaiavkaItems.ts` — материалы суммой `consumption × volume`
-по этапам, инструмент как есть, его свёл расчёт), дальше выбор склада и подтверждение. `db:migrate` сам заводит базу `warehouse`, если её нет:
+по этапам, инструмент как есть, его свёл расчёт), дальше выбор склада и подтверждение. На странице склада — выделение и групповые действия:
+`POST …/items/remove` и `POST …/items/move` с `{ items: [{ id, quantity }] }` — количество можно
+взять частью, остаток остаётся (`planTakes`); все или ничего. Перемещать — на другой действующий
+склад той же компании, с личного — на личный (`canMoveItems` в `access.ts`); на целевом складе
+позиция складывается с лежащей. На клиенте одна форма на три действия —
+`WarehouseItemsActionModal.vue` («N из M» у каждой позиции). «Выдать» — `POST …/items/issue`
+участнику компании склада на его «руки»: склад с `holder_user_id`, один на человека в компании,
+заводится первой выдачей и в список складов не попадает. Держатель руки только видит
+(`GET /holdings/mine`, на клиенте `OnHandPage` — `/:locale/warehouses/holdings/mine`), вернуть —
+`move` обратно силами own/manage. На экране складов два таба, и они адреса, как питание
+в каталоге: `/:locale/warehouses` (склады) и `…/holdings` (на руках, пока один пункт «у меня»). Имена получателей клиент берёт у
+user-server (`GET /users/names?ids=`). `db:migrate` сам заводит базу `warehouse`, если её нет:
 `db/init` на живом томе не срабатывает. Подробности — `warehouse-server/README.md`.
 
 ### company-server: компании
@@ -333,7 +370,10 @@ docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test
 ### order-server: заявки
 
 Заявка принадлежит автору — `user` = `X-User-Id` от nginx (`src/auth/`; из тела не принимается). Без входа `POST /zaiavka` заводит **ничью** (`user = NULL`) и один раз
-отдаёт ключ правки `key`; в базе — только его sha256 (`editKeyHash`, наружу не уходит). `PUT /zaiavka/:id`:
+отдаёт ключ правки `key`; в базе — только его sha256 (`edit_key_hash`, наружу не уходит).
+`data` в базе — объект в jsonb, а наружу API отдаёт его **строкой** (`toPublic` в `zaiavka.service.ts`):
+при Prisma туда писали `JSON.stringify`, и клиент с сидами делают `JSON.parse` — контракт сохранён.
+Тело заявки не валидируется по составу (любой JSON-объект), `claim` — Zod. `PUT /zaiavka/:id`:
 своя — автору, любая — админу, ничья — по заголовку `X-Zaiavka-Key`, иначе `403`; `DELETE /zaiavka/:id` —
 по тем же правам (групповое удаление в списке шлёт их по одному: у ничьих у каждой свой ключ).
 Объединение заявок — на клиенте (`models/zaiavka/mergeZaiavki.ts`): новая заявка с обязательным
@@ -355,12 +395,56 @@ docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test
 `firstName`, необязательна `lastName`; роль `USER | ADMIN`, при регистрации всегда `USER`.
 Эндпоинты: `POST /auth/register`, `POST /auth/login`, `GET /auth/me`,
 `POST /auth/refresh` (свежий токен взамен ещё живого, пользователь перечитывается из базы),
-`POST /auth/change-password`, `GET /users` (только `ADMIN`).
+`POST /auth/change-password`, `GET /users` (только `ADMIN`), `GET /users/names?ids=` — id и имя
+любому вошедшему (перечисление закрыто, ссылку разрешаем; логина там нет).
 
 `AuthGuard` висит глобально (`APP_GUARD`): закрыто всё, что не помечено `@Public()`,
-роли — `@Roles(Role.ADMIN)`, текущий пользователь — `@CurrentUser()`. Роль гвард берёт
+роли — `@Roles('ADMIN')`, текущий пользователь — `@CurrentUser()`. Роль гвард берёт
 из базы, а не из токена; в токене (`sub`, `login`, `role`) она для других сервисов.
 Пользователь наружу отдаётся только через `toPublicUser()` — без хеша пароля.
+
+### Админка разработчика (admin-server + admin-client)
+
+Все таблицы всех шести баз, и вместо id — строки: «Иван (ivan) #7», «Дюбель · диаметр 8 mm #8:207».
+Не mobile first — desktop, широкие таблицы (AG Grid Community), остальное — PrimeVue.
+**PrimeVue закреплён на 4.5 (`~4.5.5`, темы `~2.0.3`, иконки `~7.0.0`)**: с 5-й версии у PrimeUI
+коммерческая лицензия с ключом, без него — плашка. Не обновляйте мажор вслепую.
+
+- **Чтение — напрямую из баз**, по пулу на базу под read-only ролью
+  (`db/init/02-admin-readonly.sh`, `secrets/admin-db/.db.env`: `ADMIN_DB_USER`, `ADMIN_DB_PASSWORD`;
+  этот же файл подключён к `db`, чтобы init завёл роль). Роль — `SELECT` и `DEFAULT PRIVILEGES`
+  на будущие таблицы любой схемы. Скрипт повторяемый: на живом томе — `exec db bash
+  /docker-entrypoint-initdb.d/02-admin-readonly.sh` (команда — в шапке скрипта). На проде база на
+  хосте, роль заводится там руками тем же скриптом.
+- **Пишет — только через API сервисов**, не SQL-ом: иначе мимо пройдут форки, пересчёт кодов,
+  неизменяемость значений. `ALL /proxy/:service/*` (`proxy.controller.ts`, пока только `dict`)
+  шлёт запрос в сервис по внутренней сети с `X-User-*` вошедшего админа, статус и тело
+  возвращает как есть (409 на дубль доходит до формы). Формы — `admin-client/src/forms/`;
+  таблица показывает кнопку, если у неё в реестре `create` (сейчас — «Добавить сборку» у сборок
+  материалов и ручного инструмента: `POST /{materials|hand-tools}/:id/variants`). Чего нет в списке —
+  создаётся из него же (`CreatableSelect`): вид параметра и единица — сразу, отдельным `POST`;
+  новый материал/инструмент — черновиком и потом одним `POST /{materials|hand-tools}` вместе со
+  сборкой (`variants`), иначе у него завелась бы лишняя служебная сборка без параметров. 403 сервиса через
+  прокси из админки не выкидывает — это «нельзя это», а не «вы не админ».
+- Связок `*_variant_params` в реестре нет намеренно: их показывает подпись `code` у самих сборок.
+- **Реестр таблиц** — `admin-server/src/tables/registry.ts`. Колонки не перечисляются (берутся из
+  ответа Postgres, новая колонка миграции появится сама); описывается только `refs` — куда ведёт
+  колонка — и `select`, когда `*` не годится (хеш пароля, enum-массив, `edit_key_hash`). Новая
+  таблица в сервисе — строчка сюда.
+- **Подписи ссылок** — `tables/refs.ts`: по SQL-запросу на вид ссылки (`user`, `company`,
+  `material_variant_code`…), ключи собираются со всей выборки, один запрос на вид. Ссылка может
+  зависеть от соседней колонки (`warehouse_items.ref` по `kind`). Не нашлось — `null`, клиент
+  рисует «⚠ нет»: висячие ссылки между базами так и ловятся. Коды сборок подписываются из
+  `*_variants.code` в базе словаря, не через его API.
+- **Вход** — тот же логин, что в приложении; `AdminGuard` спрашивает `GET /auth/me` у user-server
+  (кэш 30 с) и пускает только `ADMIN`, секрета JWT у админки нет. `POST /auth/login` токен
+  не-админа не отдаёт (`403`).
+- **Порт наружу — осознанное исключение** из «наружу только nginx»: на проде `admin-client`
+  публикует `8090`, снаружи его закрывает роутер. Порт сервиса открывать нельзя, потому что тот
+  верит `X-User-*`; админка им не верит, она проверяет токен сама.
+- Грузит таблицу целиком, до 5000 строк (`ROW_LIMIT`), сортировка, фильтры и поиск — в браузере.
+  Раскладка колонок запоминается в localStorage по таблице. В dev API проксирует Vite, в проде —
+  nginx образа (`admin-client/docker/nginx.conf`).
 
 ### ionic-client
 
@@ -408,6 +492,14 @@ docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test
   наклон делается `transform: skewX(...)`, как в `CutCornerBtn` и `TitledDivider`.
   Кнопки «Добавить …» — либо `CutCornerBtn`, либо `ion-button class="add_btn"` с текстом
   в `<span class="slanted">` (общие классы там же, в `variables.css`) — новую такую туда же.
+- **Текущая компания** (`store/company.ts`) — одна на всё приложение: склады, «на руках»,
+  выбор склада в заявке и создание склада показывают и заводят только её. Личные склады
+  компанией не считаются: выбрать их нельзя, они идут на экране складов отдельным разделом
+  под складами компании (без компаний — просто список личных, без разделителя). Выбор помнится
+  в localStorage **по пользователю** (за одним браузером работают с разных аккаунтов), при
+  входе сверяется со списком своих компаний, иначе берётся первая. Меняется в настройках
+  (`SettingsCompanies.vue`: текущая + «сменить»/«добавить»). Заявки к компании не привязаны —
+  у order-server её просто нет.
 - **Настройки — не роут, а `ion-modal`** (`components/nav/SettingsModal.vue`): язык,
   тема, профиль. Открывается аватаром справа в шапке (`SettingsAvatar.vue`), а сама
   модалка и флаг «открыта» живут в корне `App.vue`, не внутри шапки. Старый адрес

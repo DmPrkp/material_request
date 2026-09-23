@@ -27,7 +27,42 @@ export const updateItemSchema = z.strictObject({
   quantity: z.number().positive().max(1_000_000_000),
 });
 
+/**
+ * Выбранные позиции склада и сколько взять у каждой — для групповых действий со страницы
+ * склада. Взять можно часть: остаток остаётся лежать (items.service.ts → planTakes).
+ */
+const takesSchema = z
+  .array(
+    z.strictObject({
+      id: z.number().int().positive(),
+      quantity: z.number().positive().max(1_000_000_000),
+    }),
+  )
+  .min(1)
+  .max(500)
+  .refine((takes) => new Set(takes.map((take) => take.id)).size === takes.length, {
+    message: 'Позиция указана дважды',
+  });
+
+export const removeItemsSchema = z.strictObject({ items: takesSchema });
+
+export const moveItemsSchema = z.strictObject({
+  items: takesSchema,
+  targetWarehouseId: z.number().int().positive(),
+});
+
+/** Выдать на руки: кому — id пользователя из user-server, участника компании склада. */
+export const issueItemsSchema = z.strictObject({
+  items: takesSchema,
+  userId: z.number().int().positive(),
+});
+
+export type ItemTake = z.infer<typeof takesSchema>[number];
+
 export type WarehouseItemInput = z.infer<typeof itemSchema>;
 
 export class AddItemsDto extends createZodDto(addItemsSchema) {}
 export class UpdateItemDto extends createZodDto(updateItemSchema) {}
+export class RemoveItemsDto extends createZodDto(removeItemsSchema) {}
+export class MoveItemsDto extends createZodDto(moveItemsSchema) {}
+export class IssueItemsDto extends createZodDto(issueItemsSchema) {}

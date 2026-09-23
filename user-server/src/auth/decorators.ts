@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
-import { Role } from '@prisma/client';
+import type { Role } from '~/db/schema';
 import type { Request } from 'express';
 import { PublicUser } from '../users/public-user';
 

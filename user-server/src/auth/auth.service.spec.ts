@@ -1,13 +1,15 @@
+import { beforeAll, beforeEach, describe, expect, it, vi, type Mocked } from 'vitest';
+
 import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Role, User } from '@prisma/client';
+import type { User } from '~/db/schema';
 import { hashPassword } from '../users/password';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   const jwtService = new JwtService({ secret: 'test-secret' });
-  let users: jest.Mocked<Pick<UsersService, 'create' | 'findByLogin' | 'findById' | 'updatePassword'>>;
+  let users: Mocked<Pick<UsersService, 'create' | 'findByLogin' | 'findById' | 'updatePassword'>>;
   let service: AuthService;
   let ivan: User;
 
@@ -18,7 +20,7 @@ describe('AuthService', () => {
       password: await hashPassword('secret1'),
       firstName: 'Иван',
       lastName: null,
-      role: Role.USER,
+      role: 'USER',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -26,16 +28,16 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     users = {
-      create: jest.fn(),
-      findByLogin: jest.fn(),
-      findById: jest.fn(),
-      updatePassword: jest.fn(),
+      create: vi.fn(),
+      findByLogin: vi.fn(),
+      findById: vi.fn(),
+      updatePassword: vi.fn(),
     };
     service = new AuthService(users as unknown as UsersService, jwtService);
   });
 
   it('register stores a hash, not the password, and never returns it', async () => {
-    users.create.mockImplementation(async (data) => ({ ...ivan, ...data }) as User);
+    users.create.mockImplementation((data) => Promise.resolve({ ...ivan, ...data }));
 
     const result = await service.register({ login: 'ivan', password: 'secret1', firstName: 'Иван' });
 
@@ -44,7 +46,7 @@ describe('AuthService', () => {
     expect(saved.lastName).toBeNull();
     expect(saved).not.toHaveProperty('role');
     expect(result.user).not.toHaveProperty('password');
-    expect(jwtService.verify(result.accessToken)).toMatchObject({ sub: 2, login: 'ivan', role: Role.USER });
+    expect(jwtService.verify(result.accessToken)).toMatchObject({ sub: 2, login: 'ivan', role: 'USER' });
   });
 
   it('login succeeds with the right password', async () => {
@@ -82,12 +84,12 @@ describe('AuthService', () => {
   });
 
   it('refresh re-reads the user and issues a fresh token; a deleted user gets none', async () => {
-    users.findById.mockResolvedValueOnce({ ...ivan, role: Role.ADMIN }).mockResolvedValueOnce(null);
+    users.findById.mockResolvedValueOnce({ ...ivan, role: 'ADMIN' }).mockResolvedValueOnce(null);
 
     const result = await service.refresh(2);
 
     // Роль из базы, а не из старого токена: повышение видно сразу после продления.
-    expect(jwtService.verify(result.accessToken)).toMatchObject({ sub: 2, login: 'ivan', role: Role.ADMIN });
+    expect(jwtService.verify(result.accessToken)).toMatchObject({ sub: 2, login: 'ivan', role: 'ADMIN' });
     expect(result.user).not.toHaveProperty('password');
     await expect(service.refresh(99)).rejects.toBeInstanceOf(UnauthorizedException);
   });

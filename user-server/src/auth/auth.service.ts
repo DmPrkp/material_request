@@ -1,12 +1,10 @@
 import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import type { User } from '~/db/schema';
 import { hashPassword, verifyPassword } from '../users/password';
 import { toPublicUser } from '../users/public-user';
 import { UsersService } from '../users/users.service';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto, LoginDto, RegisterDto } from './dto/auth.dto';
 import { JwtPayload } from './jwt-payload';
 
 @Injectable()

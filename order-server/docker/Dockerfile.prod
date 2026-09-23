@@ -1,23 +1,27 @@
-# docker build -t calc-server -f Dockerfile.prod --no-cache .
-# docker run -p 4000:4000 --name calc-server calc-server
-
-FROM node:20-alpine
-
-ENV NODE_ENV production
+FROM node:22-alpine AS build
 
 WORKDIR /usr/order-server
 
-RUN npm i -g typescript
-RUN npm i -g @nestjs/cli
-
-COPY ./package*.json ./
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 COPY ./ ./
-RUN npm run prisma:gen
 RUN npm run build
 
+
+FROM node:22-alpine AS runtime
+
+ENV NODE_ENV=production
+WORKDIR /usr/order-server
+
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY --from=build /usr/order-server/dist ./dist
+COPY --from=build /usr/order-server/drizzle ./drizzle
+
+# Без USER node: выгрузка пишет файлы в ./static, а на проде это том с хоста
+# (compose.prod.yaml) — права на него у root, не у node.
 EXPOSE 4100
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
-# CMD node test.js
+CMD ["sh", "-c", "node dist/db/migrate && node dist/main"]

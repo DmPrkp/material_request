@@ -43,7 +43,6 @@ services:
     env_file:
       - ./secrets/order-db/.db.env
     volumes:
-      - ./order-server/prisma/migrations:/usr/order-server/prisma/migrations
       - ./order-server/static:/usr/order-server/static
     develop:
       watch:
@@ -62,9 +61,11 @@ services:
         - action: rebuild
           path: ./order-server/docker
         - action: rebuild
-          path: ./order-server/prisma/schema.prisma
+          path: ./order-server/drizzle
     depends_on:
-      - db
+      db:
+        # миграция первым делом стучится в базу (и заводит её, если нет)
+        condition: service_healthy
 
   user-server:
     build:
@@ -92,9 +93,11 @@ services:
         - action: rebuild
           path: ./user-server/docker
         - action: rebuild
-          path: ./user-server/prisma/schema.prisma
+          path: ./user-server/drizzle
     depends_on:
-      - db
+      db:
+        # миграция первым делом стучится в базу (и заводит её, если нет)
+        condition: service_healthy
 
   dictionary-server:
     build:
@@ -207,6 +210,64 @@ services:
     depends_on:
       - db
 
+  admin-server:
+    # Админка разработчика: читает все базы напрямую под read-only ролью
+    # (db/init/02-admin-readonly.sh), вход — ADMIN из user-server. Мимо nginx.
+    build:
+      context: ./admin-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4600:4600
+    env_file:
+      - ./secrets/admin-db/.db.env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - USER_SERVER_URL=http://user-server:4200/user/api/v1
+    develop:
+      watch:
+        - action: sync
+          path: ./admin-server/src
+          target: /usr/admin-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./admin-server/package.json
+        - action: rebuild
+          path: ./admin-server/tsconfig.json
+        - action: rebuild
+          path: ./admin-server/nest-cli.json
+        - action: rebuild
+          path: ./admin-server/docker
+    depends_on:
+      db:
+        condition: service_healthy
+      user-server:
+        condition: service_started
+
+  admin-client:
+    build:
+      context: ./admin-client
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 8090:8090
+    environment:
+      - ADMIN_API_URL=http://admin-server:4600
+    develop:
+      watch:
+        - action: sync
+          path: ./admin-client/src
+          target: /usr/admin-client/src
+        - action: rebuild
+          path: ./admin-client/package.json
+        - action: rebuild
+          path: ./admin-client/vite.config.ts
+        - action: rebuild
+          path: ./admin-client/docker
+    depends_on:
+      - admin-server
+
   nginx:
     # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
     # Секрет, кроме него, знает только user-server — он токены выпускает.
@@ -237,6 +298,9 @@ services:
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
       - POSTGRES_DB=calc
+    # ADMIN_DB_USER/ADMIN_DB_PASSWORD — для read-only роли админки (db/init/02-admin-readonly.sh).
+    env_file:
+      - ./secrets/admin-db/.db.env
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d:ro
       # postgres 18+ ждёт монтирование каталогом выше, а не в /data

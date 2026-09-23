@@ -26,6 +26,11 @@ import {
  *
  * is_active — мягкое удаление, как в словаре: на склад будут ссылаться остатки
  * и движения, и физически сносить его по первому клику незачем.
+ *
+ * holder_user_id — «на руках»: не место, а человек, которому компания выдала позиции.
+ * Такой склад всегда компании (выданное — её имущество, а не личное держателя) и у
+ * человека один на компанию; заводится сам при первой выдаче (items.service.ts → issue),
+ * owner_id у него — кто выдал впервые, прав это не даёт (access.ts).
  */
 export const warehouses = pgTable(
   'warehouses',
@@ -33,6 +38,7 @@ export const warehouses = pgTable(
     id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
     ownerId: integer('owner_id').notNull(),
     companyId: integer('company_id'),
+    holderUserId: integer('holder_user_id'),
     name: varchar('name', { length: 100 }).notNull(),
     address: varchar('address', { length: 300 }),
     description: varchar('description', { length: 500 }),
@@ -47,13 +53,19 @@ export const warehouses = pgTable(
     // Название уникально у владельца без учёта регистра, но только среди действующих:
     // удалённый «Основной» не мешает завести новый «Основной». Вернуть архивный при
     // живом тёзке не даст этот же индекс — 409 (PgConstraintFilter).
+    // «Руки» из правила выпадают: их заводит первый выдавший, и у кладовщика, выдавшего
+    // троим, было бы три одноимённых склада.
     uniqueIndex('warehouses_owner_name_active_uq')
       .on(t.ownerId, sql`lower(${t.name})`)
-      .where(sql`${t.isActive}`),
+      .where(sql`${t.isActive} and ${t.holderUserId} is null`),
     // Список фильтрует по владельцу при любом state, а уникальный индекс частичный.
     index('warehouses_owner_idx').on(t.ownerId),
     // Склады компании: ?companyId= и доступ её own/manage.
     index('warehouses_company_idx').on(t.companyId),
+    // Одни «руки» на человека в компании: параллельная первая выдача двоим кладовщикам
+    // упрётся сюда, а не заведёт вторые (issue ловит конфликт и берёт существующие).
+    uniqueIndex('warehouses_holder_uq').on(t.companyId, t.holderUserId),
+    check('warehouses_holder_in_company', sql`${t.holderUserId} is null or ${t.companyId} is not null`),
   ],
 );
 

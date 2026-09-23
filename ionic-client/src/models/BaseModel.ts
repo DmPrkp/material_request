@@ -135,6 +135,8 @@ export default class BaseModel {
       throw new HttpError(response.status, response.statusText);
     }
 
+    // 204 — тела нет, и response.json() на нём падает (групповое удаление на складе).
+    if (response.status === 204) return undefined as R;
     return response.json();
   }
 

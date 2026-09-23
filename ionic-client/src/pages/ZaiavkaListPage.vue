@@ -1,6 +1,6 @@
 <template>
   <ion-page v-if="route.name === 'zaiavka-list'">
-    <ion-content>
+    <ion-content :class="{ 'with-bulk-bar': editing && selected.size }">
       <ion-refresher
         slot="fixed"
         @ionRefresh="handleRefresh($event)"
@@ -561,22 +561,6 @@
 
   .zaiavka-row.selected {
     --background: rgba(var(--ion-color-primary-rgb), 0.12);
-  }
-
-  .bulk-bar {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    gap: 8px;
-    padding: 8px;
-    background: var(--ion-background-color);
-    border-top: 1px solid var(--ion-color-step-150, rgba(127, 127, 127, 0.3));
-  }
-
-  .bulk-bar ion-button {
-    flex: 1;
-    margin: 0;
   }
 
   /* Столько же, сколько у строк ниже (--padding-start у ion-item): иначе шапка

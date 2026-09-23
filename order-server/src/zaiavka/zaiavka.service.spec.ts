@@ -1,125 +1,178 @@
+import { PGlite } from '@electric-sql/pglite';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { createHash } from 'crypto';
+import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/pglite';
+import { migrate } from 'drizzle-orm/pglite/migrator';
+import { createHash } from 'node:crypto';
+import { join } from 'node:path';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+
+import type { Database } from '~/db/db.module';
+import * as schema from '~/db/schema';
+import { zaiavki } from '~/db/schema';
+
 import { ZaiavkaService } from './zaiavka.service';
 
+/**
+ * Настоящий Postgres в памяти (PGlite) с той же миграцией, что в проде: моки цепочек
+ * Drizzle проверяли бы только, что вызваны методы, а не что условия в SQL верные.
+ */
 describe('ZaiavkaService', () => {
   const author = { id: 7, role: 'USER' as const };
+  const admin = { id: 1, role: 'ADMIN' as const };
   const data = { hand_tools: [], materials: [], power_tools: [], system: 'EIFS' };
   const hash = (key: string) => createHash('sha256').update(key).digest('hex');
 
-  type Row = { id: number; user: number | null; editKeyHash: string | null };
+  let client: PGlite;
+  let db: ReturnType<typeof drizzle<typeof schema>>;
+  let service: ZaiavkaService;
 
-  function serviceWith(rows: Row[] = []) {
-    const prisma = {
-      zaiavka: {
-        create: jest.fn(({ data }) => Promise.resolve({ id: 1, ...data })),
-        update: jest.fn(({ where, data }) => Promise.resolve({ ...rows.find((r) => r.id === where.id), ...data })),
-        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
-        delete: jest.fn().mockResolvedValue({}),
-        findMany: jest.fn(({ where }) =>
-          Promise.resolve(
-            rows.filter((r) => (where.id?.in ? where.id.in.includes(r.id) : true) && (where.user === undefined || r.user === where.user)),
-          ),
-        ),
-        findUnique: jest.fn(({ where }) => Promise.resolve(rows.find((r) => r.id === where.id) ?? null)),
-      },
-    };
-    return { service: new ZaiavkaService(prisma as never), prisma };
-  }
+  beforeAll(async () => {
+    client = new PGlite();
+    db = drizzle(client, { schema, casing: 'snake_case' });
+    await migrate(db, { migrationsFolder: join(process.cwd(), 'drizzle') });
+    // Сервис типизирован под node-postgres; API запросов у драйверов общий.
+    service = new ZaiavkaService(db as unknown as Database);
+  });
+
+  afterAll(() => client.close());
+
+  beforeEach(async () => {
+    await db.execute(sql`TRUNCATE zaiavki RESTART IDENTITY`);
+  });
+
+  const seed = (rows: { id: number; user: number | null; editKeyHash?: string | null; updatedAt?: Date }[]) =>
+    db.insert(zaiavki).values(rows.map((row) => ({ data, editKeyHash: null, ...row })));
+
+  const byId = async (id: number) =>
+    (
+      await db
+        .select()
+        .from(zaiavki)
+        .where(sql`id = ${id}`)
+    )[0];
 
   it('со входом автор — из токена, user из тела игнорируется, ключа нет', async () => {
-    const { service, prisma } = serviceWith();
     const res = await service.create({ ...data, user: 1 }, author);
-    const arg = prisma.zaiavka.create.mock.calls[0][0];
-    expect(arg.data.user).toBe(7);
-    expect(JSON.parse(arg.data.data)).toEqual(data);
+
     expect(res).not.toHaveProperty('key');
+    expect(res.user).toBe(7);
+    const row = await byId(res.id);
+    expect(row.data).toEqual(data);
+    expect(row.editKeyHash).toBeNull();
   });
 
   it('без входа — ничья, ключ в ответе, в базе только его хеш', async () => {
-    const { service, prisma } = serviceWith();
     const res = await service.create(data);
-    const arg = prisma.zaiavka.create.mock.calls[0][0];
-    expect(arg.data.user).toBeNull();
-    expect(arg.data.editKeyHash).toBe(hash(res.key));
+
+    expect(res.key).toEqual(expect.any(String));
     expect(res).not.toHaveProperty('editKeyHash');
+    const row = await byId(res.id);
+    expect(row.user).toBeNull();
+    expect(row.editKeyHash).toBe(hash(res.key!));
   });
 
-  it('список — только свои', async () => {
-    const { service, prisma } = serviceWith();
-    await service.getAll(author);
-    expect(prisma.zaiavka.findMany.mock.calls[0][0].where).toEqual({ user: 7 });
+  it('в базе — объект, наружу data — строкой, как ждёт клиент', async () => {
+    const res = await service.create(data, author);
+
+    expect(typeof res.data).toBe('string');
+    expect(JSON.parse(res.data)).toEqual(data);
+    const [{ name }] = (
+      await db.execute<{ name: string }>(sql`SELECT jsonb_typeof(data) AS name FROM zaiavki`)
+    ).rows;
+    expect(name).toBe('object');
   });
 
-  it('правка своей сохраняет system и не отдаёт хеш', async () => {
-    const { service, prisma } = serviceWith([{ id: 3, user: 7, editKeyHash: null }]);
-    const res = await service.put(3, data, author);
-    expect(JSON.parse(prisma.zaiavka.update.mock.calls[0][0].data.data).system).toBe('EIFS');
-    expect(res).not.toHaveProperty('editKeyHash');
+  it('правка меняет данные и updated_at, автора не трогает', async () => {
+    await seed([{ id: 3, user: 7, updatedAt: new Date('2020-01-01') }]);
+
+    const res = await service.put(3, { ...data, system: 'scaffold', user: 99 }, author);
+
+    expect(JSON.parse(res.data)).toMatchObject({ system: 'scaffold' });
+    expect(JSON.parse(res.data)).not.toHaveProperty('user');
+    expect(res.user).toBe(7);
+    expect(res.updatedAt.getTime()).toBeGreaterThan(new Date('2020-01-01').getTime());
   });
 
   it('чужую править нельзя — 403, админ — можно', async () => {
-    const { service } = serviceWith([{ id: 3, user: 8, editKeyHash: null }]);
+    await seed([{ id: 3, user: 8 }]);
     await expect(service.put(3, data, author)).rejects.toBeInstanceOf(ForbiddenException);
-    await expect(service.put(3, data, { ...author, role: 'ADMIN' })).resolves.toBeDefined();
+    await expect(service.put(3, data, admin)).resolves.toBeDefined();
   });
 
   it('ничью правит только тот, у кого ключ', async () => {
-    const { service } = serviceWith([{ id: 3, user: null, editKeyHash: hash('secret') }]);
+    await seed([{ id: 3, user: null, editKeyHash: hash('secret') }]);
     await expect(service.put(3, data, undefined, 'secret')).resolves.toBeDefined();
     await expect(service.put(3, data, undefined, 'wrong')).rejects.toBeInstanceOf(ForbiddenException);
     await expect(service.put(3, data, author)).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('ключ не открывает заявку, у которой уже есть автор', async () => {
-    const { service } = serviceWith([{ id: 3, user: 8, editKeyHash: hash('secret') }]);
+    await seed([{ id: 3, user: 8, editKeyHash: hash('secret') }]);
     await expect(service.put(3, data, undefined, 'secret')).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('удаляет автор, админ и владелец ключа — по тем же правам, что правка', async () => {
-    const { service, prisma } = serviceWith([
-      { id: 3, user: 7, editKeyHash: null },
-      { id: 4, user: 8, editKeyHash: null },
+    await seed([
+      { id: 3, user: 7 },
+      { id: 4, user: 8 },
       { id: 5, user: null, editKeyHash: hash('secret') },
     ]);
     await service.remove(3, author);
     await expect(service.remove(4, author)).rejects.toBeInstanceOf(ForbiddenException);
-    await service.remove(4, { ...author, role: 'ADMIN' });
+    await service.remove(4, admin);
     await expect(service.remove(5, undefined, 'wrong')).rejects.toBeInstanceOf(ForbiddenException);
     await service.remove(5, undefined, 'secret');
     await expect(service.remove(9, author)).rejects.toBeInstanceOf(NotFoundException);
-    expect(prisma.zaiavka.delete.mock.calls.map(([arg]) => arg.where.id)).toEqual([3, 4, 5]);
+    expect(await db.select().from(zaiavki)).toEqual([]);
   });
 
-  it('claim забирает только ничьи с верным ключом', async () => {
-    const { service, prisma } = serviceWith([
+  it('список — только свои, и у админа тоже; по ids — любые, новые сверху', async () => {
+    await seed([
+      { id: 1, user: 7 },
+      { id: 2, user: 8 },
+      { id: 3, user: 7 },
+      { id: 4, user: null },
+    ]);
+    expect((await service.getAll(author)).map((z) => z.id)).toEqual([3, 1]);
+    expect(await service.getAll(admin)).toEqual([]);
+    expect((await service.lookup([4, 2, 99])).map((z) => z.id)).toEqual([4, 2]);
+    expect(await service.lookup([])).toEqual([]);
+  });
+
+  it('claim забирает только ничьи с верным ключом и снимает ключ', async () => {
+    await seed([
       { id: 1, user: null, editKeyHash: hash('a') },
       { id: 2, user: null, editKeyHash: hash('b') },
       { id: 3, user: 8, editKeyHash: null },
     ]);
+
     const res = await service.claim(author, [
       { id: 1, key: 'a' },
       { id: 2, key: 'wrong' },
       { id: 3, key: 'x' },
     ]);
+
     expect(res).toEqual({ claimed: [1] });
-    expect(prisma.zaiavka.updateMany.mock.calls[0][0]).toEqual({
-      where: { id: { in: [1] }, user: null },
-      data: { user: 7, editKeyHash: null },
-    });
+    expect(await byId(1)).toMatchObject({ user: 7, editKeyHash: null });
+    expect(await byId(2)).toMatchObject({ user: null });
+    expect(await byId(3)).toMatchObject({ user: 8 });
   });
 
-  it('чистка трогает только ничьи старше 30 дней', async () => {
-    const { service, prisma } = serviceWith();
+  it('чистка удаляет только ничьи старше 30 дней', async () => {
+    const old = new Date(Date.now() - 31 * 24 * 60 * 60 * 1000);
+    await seed([
+      { id: 1, user: null, updatedAt: old },
+      { id: 2, user: null },
+      { id: 3, user: 7, updatedAt: old },
+    ]);
+
     await service.removeStaleAnonymous();
-    const where = prisma.zaiavka.deleteMany.mock.calls[0][0].where;
-    expect(where.user).toBeNull();
-    expect(Date.now() - where.updatedAt.lt.getTime()).toBeGreaterThanOrEqual(30 * 24 * 60 * 60 * 1000);
+
+    expect((await db.select({ id: zaiavki.id }).from(zaiavki)).map((r) => r.id).sort()).toEqual([2, 3]);
   });
 
   it('нет такой — 404', async () => {
-    const { service } = serviceWith();
     await expect(service.put(3, data, author)).rejects.toBeInstanceOf(NotFoundException);
     await expect(service.get(3)).rejects.toBeInstanceOf(NotFoundException);
   });

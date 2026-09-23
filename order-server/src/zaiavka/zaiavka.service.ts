@@ -1,17 +1,21 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
-  OnModuleDestroy,
-  OnModuleInit,
+  type OnModuleDestroy,
+  type OnModuleInit,
 } from '@nestjs/common';
-import type { Zaiavka } from '@prisma/client';
-import { createHash, randomBytes, timingSafeEqual } from 'crypto';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreateZaiavkaDto } from '../types';
-import type { AuthUser } from '../auth/auth-user';
+import { and, desc, eq, inArray, isNull, lt } from 'drizzle-orm';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+
+import type { AuthUser } from '~/auth/auth-user';
+import { type Database, DB } from '~/db/db.module';
+import { type Zaiavka, zaiavki } from '~/db/schema';
+
+import { MAX_LOOKUP_IDS } from './limits';
 
 /**
  * Ничьи заявки заводит каждое открытие расчёта без входа — большинство так никто и не
@@ -20,16 +24,29 @@ import type { AuthUser } from '../auth/auth-user';
 const ANONYMOUS_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
-/** Больше в браузере не накопится разумным путём; не даём одним запросом выгрести базу. */
-const MAX_LOOKUP_IDS = 200;
+export type ZaiavkaBody = Record<string, unknown>;
 
-export type PublicZaiavka = Omit<Zaiavka, 'editKeyHash'>;
+/**
+ * Что уходит наружу. data — строкой, как отдавал сервис при Prisma (там в jsonb лежала
+ * строка): клиент и сиды делают JSON.parse. В базе теперь объект, строкой он становится
+ * только здесь. Поля перечислены явно — хеш ключа не уйдёт наружу, даже если его забудут.
+ */
+export type PublicZaiavka = {
+  id: number;
+  data: string;
+  user: number | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-/** Хеш ключа наружу не отдаём никогда — ни автору, ни по ссылке. */
-function toPublic(zaiavka: Zaiavka): PublicZaiavka {
-  const result: Partial<Zaiavka> = { ...zaiavka };
-  delete result.editKeyHash;
-  return result as PublicZaiavka;
+function toPublic(row: Zaiavka): PublicZaiavka {
+  return {
+    id: row.id,
+    data: JSON.stringify(row.data),
+    user: row.user,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
 }
 
 /** Ключ случайный, 192 бита — перебор не грозит, поэтому хватает sha256 без соли. */
@@ -37,11 +54,18 @@ function hashKey(key: string): string {
   return createHash('sha256').update(key).digest('hex');
 }
 
-function keyMatches(zaiavka: Zaiavka, key: string | undefined): boolean {
+function keyMatches(zaiavka: Pick<Zaiavka, 'editKeyHash'>, key: string | undefined): boolean {
   if (!key || !zaiavka.editKeyHash) return false;
   const expected = Buffer.from(zaiavka.editKeyHash, 'hex');
   const actual = Buffer.from(hashKey(key), 'hex');
   return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+
+/** Автор — только из токена: user из тела подделал бы кто угодно. */
+function withoutUser(body: ZaiavkaBody): ZaiavkaBody {
+  const data = { ...body };
+  delete data.user;
+  return data;
 }
 
 @Injectable()
@@ -49,42 +73,44 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ZaiavkaService.name);
   private cleanupTimer?: ReturnType<typeof setInterval>;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(@Inject(DB) private readonly db: Database) {}
 
-  onModuleInit() {
+  onModuleInit(): void {
     void this.removeStaleAnonymous();
     this.cleanupTimer = setInterval(() => void this.removeStaleAnonymous(), CLEANUP_INTERVAL_MS);
     this.cleanupTimer.unref();
   }
 
-  onModuleDestroy() {
+  onModuleDestroy(): void {
     clearInterval(this.cleanupTimer);
   }
 
-  async removeStaleAnonymous() {
+  async removeStaleAnonymous(): Promise<void> {
     try {
-      const { count } = await this.prisma.zaiavka.deleteMany({
-        where: { user: null, updatedAt: { lt: new Date(Date.now() - ANONYMOUS_TTL_MS) } },
-      });
-      if (count) this.logger.log(`Удалено ничьих заявок старше 30 дней: ${count}`);
+      const removed = await this.db
+        .delete(zaiavki)
+        .where(and(isNull(zaiavki.user), lt(zaiavki.updatedAt, new Date(Date.now() - ANONYMOUS_TTL_MS))))
+        .returning({ id: zaiavki.id });
+      if (removed.length) this.logger.log(`Удалено ничьих заявок старше 30 дней: ${removed.length}`);
     } catch (error) {
       this.logger.error('Не удалось почистить ничьи заявки', error);
     }
   }
 
-  /**
-   * Автор — только из токена: user из тела подделал бы кто угодно. Без входа заявка
-   * ничья, и ответ несёт ключ правки — единственный раз, когда он виден.
-   */
-  async create(createZaiavkaDto: CreateZaiavkaDto, author?: AuthUser): Promise<PublicZaiavka & { key?: string }> {
-    const data = JSON.stringify(withoutUser(createZaiavkaDto));
+  /** Без входа заявка ничья, и ответ несёт ключ правки — единственный раз, когда он виден. */
+  async create(body: ZaiavkaBody, author?: AuthUser): Promise<PublicZaiavka & { key?: string }> {
+    const data = withoutUser(body);
 
     if (author) {
-      return toPublic(await this.prisma.zaiavka.create({ data: { user: author.id, data } }));
+      const [created] = await this.db.insert(zaiavki).values({ user: author.id, data }).returning();
+      return toPublic(created);
     }
 
     const key = randomBytes(24).toString('base64url');
-    const created = await this.prisma.zaiavka.create({ data: { user: null, editKeyHash: hashKey(key), data } });
+    const [created] = await this.db
+      .insert(zaiavki)
+      .values({ user: null, editKeyHash: hashKey(key), data })
+      .returning();
     return { ...toPublic(created), key };
   }
 
@@ -92,25 +118,25 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * Свою правит автор, любую — админ, ничью — тот, у кого ключ. Клиент шлёт заявку
    * целиком, вместе с system: раньше он здесь вырезался, и выгрузка теряла технологию.
    */
-  async put(id: number, createZaiavkaDto: CreateZaiavkaDto, author?: AuthUser, key?: string) {
+  async put(id: number, body: ZaiavkaBody, author?: AuthUser, key?: string): Promise<PublicZaiavka> {
     await this.findWritable(id, author, key);
-
-    const updated = await this.prisma.zaiavka.update({
-      where: { id },
-      data: { data: JSON.stringify(withoutUser(createZaiavkaDto)) },
-    });
+    const [updated] = await this.db
+      .update(zaiavki)
+      .set({ data: withoutUser(body) })
+      .where(eq(zaiavki.id, id))
+      .returning();
     return toPublic(updated);
   }
 
   /** Удаление — по тем же правам, что правка: своя, любая для админа, ничья по ключу. */
-  async remove(id: number, author?: AuthUser, key?: string) {
+  async remove(id: number, author?: AuthUser, key?: string): Promise<void> {
     await this.findWritable(id, author, key);
-    await this.prisma.zaiavka.delete({ where: { id } });
+    await this.db.delete(zaiavki).where(eq(zaiavki.id, id));
   }
 
   /** Свою правит автор, любую — админ, ничью — тот, у кого ключ; иначе 403, нет такой — 404. */
-  private async findWritable(id: number, author?: AuthUser, key?: string) {
-    const existing = await this.prisma.zaiavka.findUnique({ where: { id } });
+  private async findWritable(id: number, author?: AuthUser, key?: string): Promise<Zaiavka> {
+    const [existing] = await this.db.select().from(zaiavki).where(eq(zaiavki.id, id));
     if (!existing) throw new NotFoundException();
 
     const allowed =
@@ -121,11 +147,12 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Только свои — и у админа тоже: список это «мои заявки», а не обзор чужих. */
-  async getAll(author: AuthUser) {
-    const rows = await this.prisma.zaiavka.findMany({
-      where: { user: author.id },
-      orderBy: { id: 'desc' },
-    });
+  async getAll(author: AuthUser): Promise<PublicZaiavka[]> {
+    const rows = await this.db
+      .select()
+      .from(zaiavki)
+      .where(eq(zaiavki.user, author.id))
+      .orderBy(desc(zaiavki.id));
     return rows.map(toPublic);
   }
 
@@ -133,12 +160,14 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * Список без входа: браузер помнит id своих ничьих заявок. Открыто, как и GET /:id, —
    * по id заявку и так откроет любой, у кого ссылка. Удалённых чисткой просто нет в ответе.
    */
-  async lookup(ids: number[]) {
+  async lookup(ids: number[]): Promise<PublicZaiavka[]> {
     if (ids.length > MAX_LOOKUP_IDS) throw new BadRequestException(`не больше ${MAX_LOOKUP_IDS} id`);
-    const rows = await this.prisma.zaiavka.findMany({
-      where: { id: { in: ids } },
-      orderBy: { id: 'desc' },
-    });
+    if (!ids.length) return [];
+    const rows = await this.db
+      .select()
+      .from(zaiavki)
+      .where(inArray(zaiavki.id, ids))
+      .orderBy(desc(zaiavki.id));
     return rows.map(toPublic);
   }
 
@@ -147,32 +176,30 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * id не присвоить. Отвечаем id тех, что стали его; остальные (удалены чисткой, уже
    * чьи-то) клиенту помнить больше незачем.
    */
-  async claim(author: AuthUser, items: { id: number; key: string }[]) {
-    if (items.length > MAX_LOOKUP_IDS) throw new BadRequestException(`не больше ${MAX_LOOKUP_IDS} заявок`);
+  async claim(author: AuthUser, items: { id: number; key: string }[]): Promise<{ claimed: number[] }> {
+    if (!items.length) return { claimed: [] };
 
-    const rows = await this.prisma.zaiavka.findMany({
-      where: { id: { in: items.map((item) => item.id) }, user: null },
-    });
+    const ids = items.map((item) => item.id);
+    const rows = await this.db
+      .select({ id: zaiavki.id, editKeyHash: zaiavki.editKeyHash })
+      .from(zaiavki)
+      .where(and(inArray(zaiavki.id, ids), isNull(zaiavki.user)));
     const claimable = rows.filter((row) => keyMatches(row, items.find((item) => item.id === row.id)?.key));
     if (!claimable.length) return { claimed: [] };
 
-    // user: null в условии — две вкладки не заберут одну заявку дважды.
-    await this.prisma.zaiavka.updateMany({
-      where: { id: { in: claimable.map((row) => row.id) }, user: null },
-      data: { user: author.id, editKeyHash: null },
-    });
-    return { claimed: claimable.map((row) => row.id) };
+    // user IS NULL в условии — две вкладки не заберут одну заявку дважды.
+    const claimableIds = claimable.map((row) => row.id);
+    const claimed = await this.db
+      .update(zaiavki)
+      .set({ user: author.id, editKeyHash: null })
+      .where(and(inArray(zaiavki.id, claimableIds), isNull(zaiavki.user)))
+      .returning({ id: zaiavki.id });
+    return { claimed: claimed.map((row) => row.id) };
   }
 
-  async get(id: number) {
-    const zaiavka = await this.prisma.zaiavka.findUnique({ where: { id } });
-    if (!zaiavka) throw new NotFoundException();
-    return toPublic(zaiavka);
+  async get(id: number): Promise<PublicZaiavka> {
+    const [row] = await this.db.select().from(zaiavki).where(eq(zaiavki.id, id));
+    if (!row) throw new NotFoundException();
+    return toPublic(row);
   }
-}
-
-function withoutUser(dto: CreateZaiavkaDto): Omit<CreateZaiavkaDto, 'user'> {
-  const data = { ...dto };
-  delete data.user;
-  return data;
 }

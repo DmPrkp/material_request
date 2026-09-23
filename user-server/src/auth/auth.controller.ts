@@ -2,9 +2,7 @@ import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/commo
 import { PublicUser } from '../users/public-user';
 import { AuthService } from './auth.service';
 import { CurrentUser, Public } from './decorators';
-import { ChangePasswordDto } from './dto/change-password.dto';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { ChangePasswordDto, LoginDto, RegisterDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {

@@ -1,7 +1,7 @@
 import { Logger, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, type JwtSignOptions } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
@@ -17,7 +17,10 @@ import { AuthService } from './auth.service';
         secret: resolveJwtSecret(config.get<string>('JWT_SECRET')),
         // Три дня, а клиент раз в сутки меняет токен на свежий (POST /auth/refresh):
         // кто заходит хоть раз в три дня, из аккаунта не вылетает, а брошенный токен умирает сам.
-        signOptions: { expiresIn: config.get<string>('JWT_EXPIRES_IN') || '3d' },
+        // Строка вида «3d» — формат ms; что в env не опечатка, проверит jsonwebtoken при подписи.
+        signOptions: {
+          expiresIn: (config.get<string>('JWT_EXPIRES_IN') || '3d') as JwtSignOptions['expiresIn'],
+        },
       }),
     }),
   ],
@@ -34,6 +37,8 @@ function resolveJwtSecret(secret: string | undefined): string {
     return secret;
   }
 
-  new Logger('AuthModule').warn('JWT_SECRET is not set: using a random secret, tokens will not survive a restart');
+  new Logger('AuthModule').warn(
+    'JWT_SECRET is not set: using a random secret, tokens will not survive a restart',
+  );
   return randomBytes(32).toString('hex');
 }

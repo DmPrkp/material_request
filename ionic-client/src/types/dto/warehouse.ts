@@ -7,6 +7,8 @@ export type Warehouse = {
   address: string | null;
   description: string | null;
   companyId: number | null;
+  /** Задан — это не место, а «на руках» у пользователя (в обычный список не попадает). */
+  holderUserId: number | null;
   isActive: boolean;
   /** Приходит только в списке. */
   counts?: WarehouseItemCounts;
@@ -50,3 +52,9 @@ export type WarehouseItemInput = {
   ref: string;
   quantity: number;
 };
+
+/** Сколько снять с позиции склада (id строки) — для удаления и перемещения. */
+export type WarehouseItemTake = { id: number; quantity: number };
+
+/** Позиция у меня на руках: из какой компании выдана (GET /holdings/mine). */
+export type HoldingItem = WarehouseItem & { warehouseId: number; companyId: number };

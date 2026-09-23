@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import type { User } from '~/db/schema';
 
 export type PublicUser = Omit<User, 'password'>;
 

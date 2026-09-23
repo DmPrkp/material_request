@@ -14,14 +14,11 @@ const TITLES = {
 @Controller('ods-generator')
 export class XlsxGeneratorController {
   @Post()
-  async create(
-    @Body() createZaiavkaDto: CreateZaiavkaDto,
-    @Res() res: Response,
-  ) {
+  create(@Body() createZaiavkaDto: CreateZaiavkaDto, @Res() res: Response) {
     const id = Date.now();
     const fileName = `zaiavka_${id}.ods`;
     const filePath = path.resolve('./static', fileName);
-    await createSheetFile(createZaiavkaDto, filePath);
+    createSheetFile(createZaiavkaDto, filePath);
     console.log('Excel file created successfully!');
 
     if (!fs.existsSync(filePath)) {
@@ -31,10 +28,7 @@ export class XlsxGeneratorController {
 
     // Set headers for file download
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.oasis.opendocument.spreadsheet',
-    );
+    res.setHeader('Content-Type', 'application/vnd.oasis.opendocument.spreadsheet');
 
     return res.sendFile(filePath, (err) => {
       if (err) {
@@ -63,18 +57,13 @@ function addToolsToRows<
       corded = tool.corded ? 'сетевой' : 'аккумуляторный';
     }
 
-    rows.push([
-      index + 1,
-      `${tool.title} ${params} ${corded}`,
-      tool.adjusted_consumption,
-      'шт',
-    ]);
+    rows.push([index + 1, `${tool.title} ${params} ${corded}`, tool.adjusted_consumption, 'шт']);
   });
   rows.push([]);
   return rows;
 }
 
-async function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
+function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
   let rows: any[] = [];
 
   // Add Materials section
@@ -88,18 +77,10 @@ async function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
   });
 
   // Add Hand Tools section
-  rows = addToolsToRows<CreateZaiavkaDto['hand_tools']>(
-    data.hand_tools,
-    TITLES.HAND_TOOLS,
-    rows,
-  );
+  rows = addToolsToRows<CreateZaiavkaDto['hand_tools']>(data.hand_tools, TITLES.HAND_TOOLS, rows);
 
   // Add Power Tools section
-  rows = addToolsToRows<CreateZaiavkaDto['power_tools']>(
-    data.power_tools,
-    TITLES.POWER_TOOLS,
-    rows,
-  );
+  rows = addToolsToRows<CreateZaiavkaDto['power_tools']>(data.power_tools, TITLES.POWER_TOOLS, rows);
 
   // Convert the rows to a worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(rows);

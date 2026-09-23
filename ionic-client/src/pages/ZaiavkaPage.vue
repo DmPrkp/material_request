@@ -1,6 +1,6 @@
 <template>
   <ion-page v-if="route.name === 'zaiavka'">
-    <ion-content>
+    <ion-content :class="{ 'with-bulk-bar': loaded && authStore.isAuthenticated }">
       <ion-refresher
         slot="fixed"
         @ionRefresh="handleRefresh($event)"
@@ -13,16 +13,6 @@
             {{ $t("pages.materials.title") }}
           </ion-title>
         </ion-item-divider>
-        <!--
-          Кнопка отдельной строкой, а не в slot="end" у заголовка: на телефоне она
-          съедала его ширину, и «Заявка на материалы» ужималось до «За».
-        -->
-        <ion-row
-          v-if="loaded"
-          class="warehouse-row ion-justify-content-end"
-        >
-          <AddToWarehouseButton :zaiavka="resultMatList" />
-        </ion-row>
       </div>
       <MaterialList
         :status="MATERIAL_LIST_STATUS.DISABLED"
@@ -43,13 +33,19 @@
         :system="system"
         :materials="resultMatList"
       />
+      <!-- Пока заявка не пришла, класть на склад нечего — полосы нет. -->
+      <AddToWarehouseButton
+        v-if="loaded"
+        slot="fixed"
+        :zaiavka="resultMatList"
+      />
     </ion-content>
   </ion-page>
   <router-view v-else />
 </template>
 <script setup lang="ts">
   import { useZaiavkaStore } from "@/store/zaiavka";
-  import { IonRow, RefresherCustomEvent } from "@ionic/vue";
+  import { RefresherCustomEvent } from "@ionic/vue";
   import { onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
   import { ResultMaterialsDTO, StoredMaterialRequestDTO } from "@/types/dto";
@@ -62,14 +58,16 @@
   import PowerToolListItems from "@/components/pagesParts/powerTools/PowerToolListItems.vue";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
   import AddToWarehouseButton from "@/components/pagesParts/warehouses/AddToWarehouseButton.vue";
+  import { useAuthStore } from "@/store/auth";
 
   const store = useZaiavkaStore();
+  const authStore = useAuthStore();
   const route = useRoute();
   const materials = ref<StoredMaterialRequestDTO["data"]["materials"]>([]);
   const handTools = ref<StoredMaterialRequestDTO["data"]["hand_tools"]>([]);
   const powerTools = ref<StoredMaterialRequestDTO["data"]["power_tools"]>([]);
   const system = ref<string>();
-  /** Пока заявка не пришла, класть на склад нечего — кнопки нет. */
+  /** Пока заявка не пришла, класть на склад нечего — полосы нет. */
   const loaded = ref(false);
   const resultMatList = ref<ResultMaterialsDTO>({
     hand_tools: [],
@@ -120,8 +118,3 @@
   }
 </script>
 
-<style scoped>
-  .warehouse-row {
-    margin-top: 12px;
-  }
-</style>

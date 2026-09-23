@@ -98,6 +98,35 @@ services:
     expose:
       - 5173
 
+  # Админка разработчика — осознанное исключение из «наружу только nginx»: свой порт,
+  # снаружи закрыт роутером (сервер в домашней сети), внутри пускает только ADMIN
+  # (admin-server спрашивает user-server). X-User-* она не принимает, поэтому открытый
+  # порт не даёт подделать пользователя, как дал бы порт сервиса.
+  admin-server:
+    build:
+      context: ./admin-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4600
+    env_file:
+      - ./secrets/admin-db/.db.env
+    environment:
+      - DB_HOST=host.docker.internal
+      - USER_SERVER_URL=http://user-server:4200/user/api/v1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - user-server
+
+  admin-client:
+    build:
+      context: ./admin-client
+      dockerfile: ./docker/Dockerfile.prod
+    ports:
+      - "8090:80"
+    depends_on:
+      - admin-server
+
   nginx:
     # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
     # Секрет, кроме него, знает только user-server — он токены выпускает.

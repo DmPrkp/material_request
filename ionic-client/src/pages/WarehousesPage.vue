@@ -4,6 +4,15 @@
       <ion-item-divider>
         <ion-title>{{ $t("pages.warehouses.title") }}</ion-title>
       </ion-item-divider>
+      <WarehousesTabs />
+
+      <!-- Чьи склады видно: список — всегда одной компании (настройки → Компании). -->
+      <ion-note
+        v-if="authStore.isAuthenticated && currentCompanyName"
+        class="current-company"
+      >
+        {{ currentCompanyName }}
+      </ion-note>
 
       <!-- Склад — чей-то (owner_id из токена): без входа сервис отвечает 401. -->
       <ion-item
@@ -36,7 +45,7 @@
         -->
         <ion-accordion-group v-model="expanded">
           <ion-accordion
-            v-for="warehouse in warehouses"
+            v-for="warehouse in companyWarehouses"
             :key="warehouse.id"
             :value="String(warehouse.id)"
           >
@@ -49,12 +58,6 @@
               <ion-label class="ion-text-wrap">
                 {{ warehouse.name }}
               </ion-label>
-              <ion-note
-                v-if="warehouse.companyId"
-                slot="end"
-              >
-                {{ companyName(warehouse.companyId) }}
-              </ion-note>
             </ion-item>
             <div slot="content">
               <!-- Счётчики — строками <p> в одной ячейке: так они мельче и плотнее,
@@ -85,6 +88,63 @@
             </div>
           </ion-accordion>
         </ion-accordion-group>
+
+        <!--
+          Личные склады — под складами компании, отдельным разделом: компанией они не
+          являются и в переключателе настроек их нет. Компаний вовсе нет — раздел один,
+          и делить нечего, поэтому разделитель только вместе с компанией.
+        -->
+        <template v-if="personalWarehouses.length">
+          <TitledDivider
+            v-if="companyStore.current"
+            :title="$t('pages.warehouses.personal')"
+          />
+          <ion-accordion-group v-model="expandedPersonal">
+            <ion-accordion
+            v-for="warehouse in personalWarehouses"
+            :key="warehouse.id"
+            :value="String(warehouse.id)"
+          >
+            <ion-item
+              slot="header"
+              button
+              :detail="false"
+              @click="onHeaderClick($event, warehouse.id)"
+            >
+              <ion-label class="ion-text-wrap">
+                {{ warehouse.name }}
+              </ion-label>
+            </ion-item>
+            <div slot="content">
+              <!-- Счётчики — строками <p> в одной ячейке: так они мельче и плотнее,
+                   отдельными ion-item каждая занимала бы строку списка. -->
+              <ion-item lines="none">
+                <ion-label class="ion-text-wrap">
+                  <p
+                    v-for="kind in ITEM_KINDS"
+                    :key="kind"
+                  >
+                    {{ $t(`pages.warehouses.kinds.${kind}`) }} —
+                    {{ warehouse.counts?.[kind] ?? 0 }}
+                    {{ $t("pages.warehouses.units") }}
+                  </p>
+                </ion-label>
+              </ion-item>
+              <ion-row
+                v-if="canRemove(warehouse)"
+                class="ion-justify-content-end"
+              >
+                <CutCornerBtn
+                  class="remove_btn"
+                  @click="removeWarehouse(warehouse)"
+                >
+                  {{ $t("ui.buttons.remove") }}
+                </CutCornerBtn>
+              </ion-row>
+            </div>
+          </ion-accordion>
+          </ion-accordion-group>
+        </template>
 
         <ion-note
           v-if="state === 'empty'"
@@ -120,14 +180,15 @@
   import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import WarehousesTabs from "@/components/pagesParts/warehouses/WarehousesTabs.vue";
+  import TitledDivider from "@/components/ui/TitledDivider.vue";
   import WarehouseModel from "@/models/WarehouseModel";
-  import CompanyModel from "@/models/CompanyModel";
   import WarehouseCreateModal from "@/components/pagesParts/warehouses/WarehouseCreateModal.vue";
   import { HttpError } from "@/models/BaseModel";
   import { useAuthStore } from "@/store/auth";
+  import { useCompanyStore } from "@/store/company";
   import { tokenUser } from "@/store/authToken";
   import type {
-    Company,
     Warehouse,
     WarehouseCreateInput,
     WarehouseItemKind,
@@ -146,10 +207,11 @@
   const authStore = useAuthStore();
 
   const warehouses = ref<Warehouse[]>([]);
-  /** Раскрытый склад; значение ведёт ion-accordion-group. */
+  /** Раскрытый склад; значение ведёт ion-accordion-group (у разделов они свои). */
   const expanded = ref<string>();
-  /** Все мои компании — для подписи склада; заводить склад можно не во всех. */
-  const companies = ref<Company[]>([]);
+  const expandedPersonal = ref<string>();
+  /** Текущая компания: и список складов, и новый склад — только в её рамках. */
+  const companyStore = useCompanyStore();
   const loaded = ref<"loading" | "done" | "error">("loading");
 
   const state = computed(() => {
@@ -164,22 +226,33 @@
       return;
     }
     loaded.value = "loading";
-    const [items, myCompanies] = await Promise.all([
-      WarehouseModel.listMine(),
-      CompanyModel.listMine(),
+    const me = authStore.token ? tokenUser(authStore.token) : undefined;
+    if (!companyStore.loaded) await companyStore.load(me?.id);
+
+    // Два списка: склады текущей компании (там управляющий видит и чужие) и свои личные.
+    const current = companyStore.currentId ?? null;
+    const [company, personal] = await Promise.all([
+      current === null ? Promise.resolve([]) : WarehouseModel.listByCompany(current),
+      WarehouseModel.listByCompany(null),
     ]);
-    // Компании не загрузились — склады всё равно показываем, только без подписей.
-    companies.value = myCompanies ?? [];
-    if (!items) {
+    if (!company || !personal) {
       loaded.value = "error";
       return;
     }
-    warehouses.value = items;
+    warehouses.value = [
+      // ?companyId= отдаёт и свои личные, поэтому фильтруем оба ответа по принадлежности.
+      ...company.filter((warehouse) => warehouse.companyId === current),
+      ...personal.filter((warehouse) => warehouse.companyId === null),
+    ];
     loaded.value = "done";
   }
 
-  // Вошли или вышли, не уходя со страницы, — список другого человека.
-  watch(() => authStore.token, load, { immediate: true });
+  // Вошли, вышли или сменили компанию, не уходя со страницы, — другой список.
+  watch(
+    () => [authStore.token, companyStore.currentId],
+    () => void load(),
+    { immediate: true }
+  );
 
   /**
    * Удаляют создатель, own/manage компании склада и админ — так решает warehouse-server
@@ -190,7 +263,7 @@
     const me = authStore.token ? tokenUser(authStore.token) : undefined;
     if (!me) return false;
     if (me.role === "ADMIN" || warehouse.ownerId === me.id) return true;
-    return creatableCompanies.value.some((c) => c.id === warehouse.companyId);
+    return companyStore.canManageCurrent;
   }
 
   /** Склад уходит вместе с содержимым — спрашиваем, и удаление помечено destructive. */
@@ -237,22 +310,24 @@
     router.push({ name: "auth", query: { redirect: route.fullPath } });
   }
 
-  /** Склад без компании или в компании, где пользователь own/manage — так решает сервер. */
-  const creatableCompanies = computed(() =>
-    companies.value.filter((c) =>
-      c.roles.some((role) => role === "own" || role === "manage")
-    )
+  /** Компаний нет — показываем только личные склады, и подписывать нечем. */
+  const currentCompanyName = computed(() => companyStore.current?.name ?? "");
+
+  const companyWarehouses = computed(() =>
+    warehouses.value.filter((warehouse) => warehouse.companyId !== null)
+  );
+  const personalWarehouses = computed(() =>
+    warehouses.value.filter((warehouse) => warehouse.companyId === null)
   );
 
-  function companyName(id: number) {
-    return companies.value.find((c) => c.id === id)?.name ?? "";
-  }
-
-  /** Нижняя модалка-форма: на телефоне поля под пальцем, страница остаётся под ней. */
+  /**
+   * Нижняя модалка-форма: на телефоне поля под пальцем, страница остаётся под ней.
+   * Компанию не спрашиваем — склад заводится в текущей (в «Личном» — без компании).
+   */
   async function addWarehouse() {
     const modal = await modalController.create({
       component: WarehouseCreateModal,
-      componentProps: { companies: creatableCompanies.value },
+      componentProps: { company: companyStore.current },
       breakpoints: [0, 0.6, 1],
       initialBreakpoint: 0.6,
     });
@@ -288,6 +363,12 @@
 </script>
 
 <style scoped>
+  .current-company {
+    display: block;
+    padding: 4px 16px 0;
+    color: var(--ion-color-secondary);
+  }
+
   /* Удаление — красным: кнопка красит себя переменной --color. */
   .remove_btn {
     --color: var(--ion-color-danger);

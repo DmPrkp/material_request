@@ -10,6 +10,13 @@ export type Company = {
   updatedAt: string;
 };
 
+/** Участник компании: имени здесь нет — оно у user-server (UserModel.names). */
+export type CompanyMember = {
+  userId: number;
+  roles: CompanyRole[];
+  createdAt: string;
+};
+
 export type CompanyPage = {
   items: Company[];
   total: number;

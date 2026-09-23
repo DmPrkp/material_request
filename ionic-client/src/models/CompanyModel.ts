@@ -1,5 +1,5 @@
 import BaseModel from "./BaseModel";
-import type { Company, CompanyPage } from "@/types/dto";
+import type { Company, CompanyMember, CompanyPage } from "@/types/dto";
 
 /** Больше, чем компаний у одного человека, быть не должно; страниц в настройках нет. */
 const COMPANIES_LIMIT = 200;
@@ -11,6 +11,11 @@ export default class CompanyModel extends BaseModel {
   static async listMine(): Promise<Company[] | undefined> {
     const page = await this.get<CompanyPage>(`/companies?limit=${COMPANIES_LIMIT}`);
     return page?.items;
+  }
+
+  /** Участники компании (видит любой участник). undefined — не достучались. */
+  static members(id: number) {
+    return this.get<CompanyMember[]>(`/companies/${id}/members`);
   }
 
   /** Создатель сразу владелец (own) — это делает сервис. */

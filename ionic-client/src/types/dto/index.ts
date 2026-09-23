@@ -108,12 +108,15 @@ export type {
   StageNorms,
   StageNormsInput,
 } from "./norms";
-export type { Company, CompanyPage, CompanyRole } from "./company";
+export type { Company, CompanyMember, CompanyPage, CompanyRole } from "./company";
+export type { UserName } from "./user";
 export type {
+  HoldingItem,
   Warehouse,
   WarehouseCreateInput,
   WarehouseItem,
   WarehouseItemInput,
   WarehouseItemKind,
+  WarehouseItemTake,
   WarehousePage,
 } from "./warehouse";

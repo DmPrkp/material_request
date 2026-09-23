@@ -1,10 +1,20 @@
-import { BadGatewayException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, NotFoundException } from '@nestjs/common';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { canAssign, canManage, canUnassign, canView, managesCompany, type WarehouseActor } from './access';
+import {
+  canAssign,
+  canEditItems,
+  canIssueFrom,
+  canManage,
+  canMoveItems,
+  canUnassign,
+  canView,
+  managesCompany,
+  type WarehouseActor,
+} from './access';
 import { CompanyClient } from './company.client';
-import { addItemsSchema } from './items.dto';
-import { toView } from './items.service';
+import { addItemsSchema, issueItemsSchema, moveItemsSchema, removeItemsSchema } from './items.dto';
+import { planTakes, toView } from './items.service';
 import { createWarehouseSchema, updateWarehouseSchema, warehouseQuerySchema } from './warehouses.dto';
 import { withCounts } from './warehouses.service';
 
@@ -16,6 +26,8 @@ const actor = (patch: Partial<WarehouseActor> = {}): WarehouseActor => ({
   isOwner: false,
   isAssigned: false,
   companyRoles: [],
+  holding: false,
+  isHolder: false,
   ...patch,
 });
 const creator = actor({ isOwner: true });
@@ -61,6 +73,32 @@ describe('права на склад', () => {
   });
 });
 
+describe('права на «руки»', () => {
+  const holding = (patch: Partial<WarehouseActor> = {}) => actor({ holding: true, ...patch });
+
+  it('видят держатель, own/manage компании и админ', () => {
+    expect(canView(holding({ isHolder: true }))).toBe(true);
+    expect(canView(holding({ companyRoles: ['manage'] }))).toBe(true);
+    expect(canView(holding({ user: admin }))).toBe(true);
+  });
+
+  it('выдавший впервые (owner_id) и кладовщик компании чужие руки не видят', () => {
+    expect(canView(holding({ isOwner: true, companyRoles: ['store'] }))).toBe(false);
+    expect(canView(holding({ isAssigned: true }))).toBe(false);
+  });
+
+  it('держатель выданное только видит: вернуть и списать может own/manage', () => {
+    expect(canEditItems(holding({ isHolder: true }))).toBe(false);
+    expect(canManage(holding({ isHolder: true }))).toBe(false);
+    expect(canEditItems(holding({ companyRoles: ['own'] }))).toBe(true);
+  });
+
+  it('содержимое обычного склада ведёт любой, кому он виден', () => {
+    expect(canEditItems(assigned)).toBe(true);
+    expect(canEditItems(stranger)).toBe(false);
+  });
+});
+
 describe('CompanyClient', () => {
   afterEach(() => vi.unstubAllGlobals());
 
@@ -82,7 +120,17 @@ describe('CompanyClient', () => {
   });
 
   it('участника ищет в составе компании', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockImplementation(() => Promise.resolve(json([{ userId: 7, roles: ['own'] }, { userId: 9, roles: ['store'] }]))));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() =>
+        Promise.resolve(
+          json([
+            { userId: 7, roles: ['own'] },
+            { userId: 9, roles: ['store'] },
+          ]),
+        ),
+      ),
+    );
     await expect(new CompanyClient().isMember(3, 9, user)).resolves.toBe(true);
     await expect(new CompanyClient().isMember(3, 10, user)).resolves.toBe(false);
   });
@@ -142,16 +190,18 @@ describe('схемы содержимого склада', () => {
 
   it('пустая пачка, ноль и отрицательное количество — отказ', () => {
     expect(addItemsSchema.safeParse({ items: [] }).success).toBe(false);
-    expect(addItemsSchema.safeParse({ items: [{ kind: 'material', ref: '7:227', quantity: 0 }] }).success).toBe(
-      false,
-    );
-    expect(addItemsSchema.safeParse({ items: [{ kind: 'material', ref: '7:227', quantity: -1 }] }).success).toBe(
-      false,
-    );
+    expect(
+      addItemsSchema.safeParse({ items: [{ kind: 'material', ref: '7:227', quantity: 0 }] }).success,
+    ).toBe(false);
+    expect(
+      addItemsSchema.safeParse({ items: [{ kind: 'material', ref: '7:227', quantity: -1 }] }).success,
+    ).toBe(false);
   });
 
   it('незнакомый вид позиции и лишние поля — отказ', () => {
-    expect(addItemsSchema.safeParse({ items: [{ kind: 'screw', ref: '7', quantity: 1 }] }).success).toBe(false);
+    expect(addItemsSchema.safeParse({ items: [{ kind: 'screw', ref: '7', quantity: 1 }] }).success).toBe(
+      false,
+    );
     expect(
       addItemsSchema.safeParse({ items: [{ kind: 'material', ref: '7:227', quantity: 1, title: 'Клей' }] })
         .success,
@@ -192,5 +242,110 @@ describe('счётчики содержимого', () => {
   it('пустой склад получает нули, а не пропуски: клиенту не надо их дорисовывать', () => {
     const [only] = withCounts([warehouse(1)], []);
     expect(only.counts).toEqual({ material: 0, hand_tool: 0, power_tool: 0 });
+  });
+});
+
+describe('перемещение содержимого', () => {
+  const store = (id: number, companyId: number | null, isActive = true) => ({
+    id,
+    companyId,
+    holderUserId: null,
+    isActive,
+  });
+  const hands = (id: number, companyId: number, holderUserId = 9) => ({
+    id,
+    companyId,
+    holderUserId,
+    isActive: true,
+  });
+
+  it('на другой действующий склад той же компании — можно', () => {
+    expect(canMoveItems(store(1, 3), store(2, 3))).toBe(true);
+  });
+
+  it('с личного — только на личный', () => {
+    expect(canMoveItems(store(1, null), store(2, null))).toBe(true);
+    expect(canMoveItems(store(1, null), store(2, 3))).toBe(false);
+  });
+
+  it('в другую компанию, на личный, на архивный и сам на себя — нельзя', () => {
+    expect(canMoveItems(store(1, 3), store(2, 4))).toBe(false);
+    expect(canMoveItems(store(1, 3), store(2, null))).toBe(false);
+    expect(canMoveItems(store(1, 3), store(2, 3, false))).toBe(false);
+    expect(canMoveItems(store(1, 3), store(1, 3))).toBe(false);
+  });
+
+  it('с рук на склад той же компании — возврат, можно; на руки перемещением — нельзя', () => {
+    expect(canMoveItems(hands(1, 3), store(2, 3))).toBe(true);
+    expect(canMoveItems(hands(1, 3), store(2, 4))).toBe(false);
+    expect(canMoveItems(store(1, 3), hands(2, 3))).toBe(false);
+    expect(canMoveItems(hands(1, 3), hands(2, 3, 10))).toBe(false);
+  });
+
+  it('выдают только со склада компании: не с личного и не с рук', () => {
+    expect(canIssueFrom(store(1, 3))).toBe(true);
+    expect(canIssueFrom(store(1, null))).toBe(false);
+    expect(canIssueFrom(hands(1, 3))).toBe(false);
+  });
+
+  it('схема выдачи: кому — положительный id', () => {
+    const items = [{ id: 1, quantity: 1 }];
+    expect(issueItemsSchema.safeParse({ items, userId: 9 }).success).toBe(true);
+    expect(issueItemsSchema.safeParse({ items }).success).toBe(false);
+    expect(issueItemsSchema.safeParse({ items, userId: 0 }).success).toBe(false);
+  });
+
+  it('схемы групповых действий: хоть одна позиция, количество больше нуля, без повторов', () => {
+    expect(removeItemsSchema.safeParse({ items: [{ id: 1, quantity: 2.5 }] }).success).toBe(true);
+    expect(removeItemsSchema.safeParse({ items: [] }).success).toBe(false);
+    expect(removeItemsSchema.safeParse({ items: [{ id: 1, quantity: 0 }] }).success).toBe(false);
+    expect(
+      removeItemsSchema.safeParse({
+        items: [
+          { id: 1, quantity: 1 },
+          { id: 1, quantity: 2 },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(moveItemsSchema.safeParse({ items: [{ id: 1, quantity: 1 }], targetWarehouseId: 2 }).success).toBe(
+      true,
+    );
+    expect(moveItemsSchema.safeParse({ items: [{ id: 1, quantity: 1 }] }).success).toBe(false);
+  });
+});
+
+describe('сколько снять со склада', () => {
+  const row = (id: number, quantity: string) => ({
+    id,
+    warehouseId: 3,
+    kind: 'material' as const,
+    ref: `1:${id}`,
+    quantity,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+
+  it('часть — остаток остаётся, всё — ноль и строка уходит', () => {
+    const plan = planTakes(
+      [row(1, '5000.0000'), row(2, '5.0000')],
+      [
+        { id: 1, quantity: 2 },
+        { id: 2, quantity: 5 },
+      ],
+      3,
+    );
+    expect(plan.map(({ take, rest }) => [take, rest])).toEqual([
+      [2, 4998],
+      [5, 0],
+    ]);
+  });
+
+  it('дроби без хвостов float: 0.3 − 0.1 = 0.2', () => {
+    expect(planTakes([row(1, '0.3000')], [{ id: 1, quantity: 0.1 }], 3)[0].rest).toBe(0.2);
+  });
+
+  it('больше, чем лежит, — 400; нет на складе — 404', () => {
+    expect(() => planTakes([row(1, '5.0000')], [{ id: 1, quantity: 6 }], 3)).toThrow(BadRequestException);
+    expect(() => planTakes([row(1, '5.0000')], [{ id: 2, quantity: 1 }], 3)).toThrow(NotFoundException);
   });
 });

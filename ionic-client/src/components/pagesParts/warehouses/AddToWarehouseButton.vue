@@ -1,29 +1,32 @@
 <template>
-  <!-- Без входа склада нет вовсе: сервис отвечает 401, кнопку не показываем. -->
-  <ion-button
+  <!--
+    Без входа склада нет вовсе: сервис отвечает 401, полосу не показываем.
+    Полоса, а не кнопка в шапке: страница заявки длинная, и кнопка наверху уезжала бы
+    вместе с ней. Вид — общий bulk-bar, как у групповых операций в списке заявок;
+    slot="fixed" ставит её страница, иначе она прокручивалась бы с содержимым.
+  -->
+  <div
     v-if="authStore.isAuthenticated"
-    class="add_btn"
-    fill="outline"
-    size="small"
-    :disabled="busy"
-    @click="chooseWarehouse"
+    class="bulk-bar"
   >
-    <ion-icon
-      slot="start"
-      :icon="fileTrayStackedOutline"
-    />
-    <span class="slanted">{{ $t("pages.warehouses.add_items") }}</span>
-  </ion-button>
+    <ion-button
+      fill="outline"
+      :disabled="busy"
+      @click="chooseWarehouse"
+    >
+      {{ $t("pages.warehouses.add_items") }}
+    </ion-button>
+  </div>
 </template>
 
 <script lang="ts" setup>
-  import { alertController, IonIcon, modalController, toastController } from "@ionic/vue";
-  import { fileTrayStackedOutline } from "ionicons/icons";
+  import { alertController, modalController, toastController } from "@ionic/vue";
   import { ref } from "vue";
   import { useI18n } from "vue-i18n";
-  import CompanyModel from "@/models/CompanyModel";
   import WarehouseModel from "@/models/WarehouseModel";
   import { useAuthStore } from "@/store/auth";
+  import { useCompanyStore } from "@/store/company";
+  import { tokenUser } from "@/store/authToken";
   import type { Warehouse } from "@/types/dto";
   import WarehousePickerModal from "./WarehousePickerModal.vue";
   import { zaiavkaToWarehouseItems, type ZaiavkaItemsSource } from "./zaiavkaItems";
@@ -36,6 +39,7 @@
 
   const { t } = useI18n();
   const authStore = useAuthStore();
+  const companyStore = useCompanyStore();
   const busy = ref(false);
 
   async function chooseWarehouse() {
@@ -43,17 +47,24 @@
     if (!items.length) return notify(t("pages.warehouses.nothing_to_add"));
 
     busy.value = true;
-    // Компании — только ради подписи склада в списке, их отсутствие не мешает.
-    const [warehouses, companies] = await Promise.all([
-      WarehouseModel.listMine(),
-      CompanyModel.listMine(),
+    const me = authStore.token ? tokenUser(authStore.token) : undefined;
+    if (!companyStore.loaded) await companyStore.load(me?.id);
+    // Склады текущей компании и свои личные — те же два раздела, что на экране складов.
+    const current = companyStore.currentId ?? null;
+    const [company, personal] = await Promise.all([
+      current === null ? Promise.resolve([]) : WarehouseModel.listByCompany(current),
+      WarehouseModel.listByCompany(null),
     ]);
     busy.value = false;
-    if (!warehouses) return notify(t("pages.warehouses.load_error"));
+    if (!company || !personal) return notify(t("pages.warehouses.load_error"));
+    const warehouses = [
+      ...company.filter((warehouse) => warehouse.companyId === current),
+      ...personal.filter((warehouse) => warehouse.companyId === null),
+    ];
 
     const modal = await modalController.create({
       component: WarehousePickerModal,
-      componentProps: { warehouses, companies: companies ?? [] },
+      componentProps: { warehouses, companies: companyStore.companies },
       breakpoints: [0, 0.6, 1],
       initialBreakpoint: 0.6,
     });

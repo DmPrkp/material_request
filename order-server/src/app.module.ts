@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
+
+import { AuthGuard, IdentifyGuard } from './auth/auth.guard';
+import { DbModule } from './db/db.module';
 import { ZaiavkaController } from './zaiavka/zaiavka.controller';
 import { ZaiavkaService } from './zaiavka/zaiavka.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { IdentifyGuard, AuthGuard } from './auth/auth.guard';
 import { ZaiavkaSheetGeneratorModule } from './zaiavka_sheet_generator/zaiavka_sheet_generator.module';
 
 @Module({
-  imports: [ZaiavkaSheetGeneratorModule],
+  imports: [DbModule, ZaiavkaSheetGeneratorModule],
   controllers: [ZaiavkaController],
-  providers: [ZaiavkaService, PrismaService, AuthGuard, IdentifyGuard],
+  providers: [ZaiavkaService, AuthGuard, IdentifyGuard],
 })
 export class AppModule {}

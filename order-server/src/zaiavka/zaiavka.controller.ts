@@ -14,11 +14,13 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+
+import type { AuthUser } from '~/auth/auth-user';
+import { AuthGuard, IdentifyGuard } from '~/auth/auth.guard';
+import { CurrentUser } from '~/auth/current-user.decorator';
+
+import { ClaimDto, ZaiavkaBodyDto } from './zaiavka.dto';
 import { ZaiavkaService } from './zaiavka.service';
-import { CreateZaiavkaDto } from '../types/index';
-import { IdentifyGuard, AuthGuard } from '../auth/auth.guard';
-import { CurrentUser } from '../auth/current-user.decorator';
-import type { AuthUser } from '../auth/auth-user';
 
 /** Ключ правки ничьей заявки — отдельным заголовком: Authorization занят токеном. */
 export const ZAIAVKA_KEY_HEADER = 'x-zaiavka-key';
@@ -30,25 +32,25 @@ export class ZaiavkaController {
 
   /** Без входа — ничья заявка, в ответе ключ правки. */
   @Post()
-  create(@Body() createZaiavkaDto: CreateZaiavkaDto, @CurrentUser() user?: AuthUser) {
-    return this.zaiavkaService.create(createZaiavkaDto, user);
+  create(@Body() body: ZaiavkaBodyDto, @CurrentUser() user?: AuthUser) {
+    return this.zaiavkaService.create(body, user);
   }
 
   @Post('claim')
   @HttpCode(200)
   @UseGuards(AuthGuard)
-  claim(@Body() body: { items?: unknown }, @CurrentUser() user: AuthUser) {
-    return this.zaiavkaService.claim(user, parseClaimItems(body?.items));
+  claim(@Body() body: ClaimDto, @CurrentUser() user: AuthUser) {
+    return this.zaiavkaService.claim(user, body.items);
   }
 
   @Put(':id')
   put(
     @Param('id', ParseIntPipe) id: number,
-    @Body() createZaiavkaDto: CreateZaiavkaDto,
+    @Body() body: ZaiavkaBodyDto,
     @CurrentUser() user?: AuthUser,
     @Headers(ZAIAVKA_KEY_HEADER) key?: string,
   ) {
-    return this.zaiavkaService.put(id, createZaiavkaDto, user, key);
+    return this.zaiavkaService.put(id, body, user, key);
   }
 
   /** Права — как у PUT; ничью удаляет тот, у кого ключ. Групповое удаление в списке — по одной. */
@@ -82,14 +84,7 @@ export class ZaiavkaController {
 
 function parseIds(raw: string): number[] {
   const ids = raw.split(',').filter(Boolean).map(Number);
-  if (ids.some((id) => !Number.isInteger(id) || id < 1)) throw new BadRequestException('ids: целые id через запятую');
+  if (ids.some((id) => !Number.isInteger(id) || id < 1))
+    throw new BadRequestException('ids: целые id через запятую');
   return ids;
-}
-
-function parseClaimItems(raw: unknown): { id: number; key: string }[] {
-  const valid =
-    Array.isArray(raw) &&
-    raw.every((item) => Number.isInteger(item?.id) && typeof item?.key === 'string' && item.key.length > 0);
-  if (!valid) throw new BadRequestException('items: [{ id, key }]');
-  return raw as { id: number; key: string }[];
 }

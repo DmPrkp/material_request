@@ -1,0 +1,35 @@
+/* Цвета — из токенов темы PrimeVue (Aura): они уже переключаются по системной теме
+   (darkModeSelector: 'system'), своих светлой/тёмной палитр не заводим. */
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  background: var(--p-content-background);
+  color: var(--p-text-color);
+}
+
+.ref-id {
+  color: var(--p-text-muted-color);
+  font-size: 12px;
+}
+
+.ref-dangling {
+  color: var(--p-red-500);
+}
+
+.cell-json {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  cursor: zoom-in;
+}
+
+/* Мягко удалённое видно, но не путается с живым. */
+.row-archived {
+  opacity: 0.55;
+}

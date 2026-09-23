@@ -1,5 +1,5 @@
 {
-  "id": "2336daf1-7e92-40c6-a97b-cbc03c6be6c3",
+  "id": "c12dcadc-d21f-4605-9567-a19f5f002e49",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -205,6 +205,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "holder_user_id": {
+          "name": "holder_user_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "varchar(100)",
@@ -263,7 +269,7 @@
             }
           ],
           "isUnique": true,
-          "where": "\"warehouses\".\"is_active\"",
+          "where": "\"warehouses\".\"is_active\" and \"warehouses\".\"holder_user_id\" is null",
           "concurrently": false,
           "method": "btree",
           "with": {}
@@ -297,13 +303,39 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "warehouses_holder_uq": {
+          "name": "warehouses_holder_uq",
+          "columns": [
+            {
+              "expression": "company_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "holder_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "warehouses_holder_in_company": {
+          "name": "warehouses_holder_in_company",
+          "value": "\"warehouses\".\"holder_user_id\" is null or \"warehouses\".\"company_id\" is not null"
+        }
+      },
       "isRLSEnabled": false
     }
   },

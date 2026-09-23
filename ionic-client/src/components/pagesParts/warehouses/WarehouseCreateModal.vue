@@ -15,26 +15,22 @@
           :clear-input="true"
         />
       </ion-item>
-      <!-- Нет компаний, где можно заводить склады, — выбирать нечего, склад личный. -->
-      <ion-item v-if="companies.length">
-        <ion-select
-          v-model="companyId"
-          :label="$t('pages.warehouses.company')"
-          label-placement="stacked"
-          interface="action-sheet"
-          :cancel-text="$t('ui.buttons.cancel')"
-        >
-          <ion-select-option :value="PERSONAL">
-            {{ $t("pages.warehouses.personal") }}
-          </ion-select-option>
-          <ion-select-option
-            v-for="company in companies"
-            :key="company.id"
-            :value="company.id"
-          >
-            {{ company.name }}
-          </ion-select-option>
-        </ion-select>
+      <!--
+        Компанию не выбирают — склад заводится в текущей (настройки → Компании).
+        Переключатель только на личный склад: он ничьей компании не принадлежит.
+      -->
+      <ion-item v-if="company">
+        <ion-toggle v-model="personal">
+          {{ $t("pages.warehouses.personal_one") }}
+        </ion-toggle>
+      </ion-item>
+      <ion-item
+        v-else
+        lines="none"
+      >
+        <ion-label class="ion-text-wrap">
+          <p>{{ $t("pages.warehouses.personal_one") }}</p>
+        </ion-label>
       </ion-item>
     </ion-list>
     <!--
@@ -70,29 +66,24 @@
     IonCol,
     IonHeader,
     IonRow,
-    IonSelect,
-    IonSelectOption,
     IonToolbar,
     modalController,
   } from "@ionic/vue";
   import { ref } from "vue";
   import type { Company, WarehouseCreateInput } from "@/types/dto";
 
-  /** ion-select не различает null и «не выбрано» — личный склад отдельным значением. */
-  const PERSONAL = 0;
-
-  /** Только компании, где создатель own/manage: в остальных warehouse-server ответит 403. */
-  defineProps<{ companies: Company[] }>();
+  /** Текущая компания; нет — «Личное», склад без компании. */
+  const props = defineProps<{ company?: Company }>();
 
   const name = ref("");
-  const companyId = ref<number>(PERSONAL);
+  const personal = ref(false);
 
   function confirm() {
     const trimmed = name.value.trim();
     if (!trimmed) return;
     const result: WarehouseCreateInput = {
       name: trimmed,
-      companyId: companyId.value === PERSONAL ? undefined : companyId.value,
+      companyId: personal.value ? undefined : props.company?.id,
     };
     modalController.dismiss(result, "confirm");
   }

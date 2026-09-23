@@ -31,6 +31,33 @@ ion-button.add_btn {
   transform: skewX(-15deg);
 }
 
+/* Полоса действий, прибитая к низу ion-content (slot="fixed"): групповые операции в
+   списке заявок, «добавить на склад» в самой заявке. Класс общий, потому что полоса
+   должна выглядеть одинаково везде — страницы длинные, и кнопка наверху уезжала бы
+   со списком. Фон непрозрачный: содержимое проходит под полосой. */
+.bulk-bar {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-color-step-150, rgba(127, 127, 127, 0.3));
+}
+
+/* Поровну на всю ширину: одна кнопка занимает полосу целиком, две делят пополам. */
+.bulk-bar ion-button {
+  flex: 1;
+  margin: 0;
+}
+
+/* Полоса перекрывает низ страницы — на столько же отодвигаем конец содержимого,
+   иначе последняя строка списка и кнопки выгрузки прячутся под ней. */
+ion-content.with-bulk-bar {
+  --padding-bottom: 60px;
+}
+
 /* Ячейка таблиц заявки (№, числа, единицы, шапки): по центру по обеим осям. Именно
    flex, а не text-align: столбцы по 1/12 уже «ед.изм» и «шт», и flex выпускает текст
    за края поровну, а блочная ячейка ломала бы слово по буквам. Раньше так вёл себя
@@ -256,6 +283,31 @@ body.dark ion-card-title {
  */
 body.dark ion-note {
   --color: rgba(var(--ion-text-color-rgb, 255, 255, 255), 0.6);
+}
+
+/*
+ * И у списка вариантов ion-select (interface="action-sheet", выбор компании склада):
+ * текст пунктов в md — --ion-color-step-850 с тем же запасным #262626, и «Личный
+ * склад» с названиями компаний почти пропадали на фиолетовом.
+ */
+body.dark ion-action-sheet {
+  --button-color: var(--ion-text-color);
+}
+
+/*
+ * И у ion-alert со списком выбора (смена текущей компании): подпись варианта в md —
+ * тот же --ion-color-step-850 с запасным #262626, на фиолетовом её было не прочесть.
+ * Кружок переключателя красится --ion-color-step-550, тоже тёмным по тёмному.
+ */
+body.dark ion-alert .alert-radio-label,
+body.dark ion-alert .alert-checkbox-label,
+body.dark ion-alert [aria-checked="true"].alert-radio-button .alert-radio-label,
+body.dark ion-alert [aria-checked="true"].alert-checkbox-button .alert-checkbox-label {
+  color: var(--ion-text-color);
+}
+
+body.dark ion-alert .alert-radio-icon {
+  border-color: rgba(var(--ion-text-color-rgb, 255, 255, 255), 0.5);
 }
 
 /* iOS Dark Theme */

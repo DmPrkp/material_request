@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, asc, count, eq, ilike, inArray, or, type SQL } from 'drizzle-orm';
+import { and, asc, count, eq, ilike, inArray, isNull, or, type SQL } from 'drizzle-orm';
 
 import type { AuthUser } from '~/auth/auth-user';
 import { type Page, toPage } from '~/common/pagination';
@@ -19,7 +19,15 @@ import {
   warehouses,
   warehouseUsers,
 } from '~/db/schema';
-import { canAssign, canManage, canUnassign, canView, managesCompany, type WarehouseActor } from './access';
+import {
+  canAssign,
+  canEditItems,
+  canManage,
+  canUnassign,
+  canView,
+  managesCompany,
+  type WarehouseActor,
+} from './access';
 import { CompanyClient } from './company.client';
 import type { CreateWarehouseDto, UpdateWarehouseDto, WarehouseQuery } from './warehouses.dto';
 
@@ -55,6 +63,9 @@ function emptyCounts(): ItemCounts {
  *
  * Список без фильтра — свои и назначенные, у админа тоже: иначе его собственные тонули
  * бы в чужих. С ?companyId= own/manage компании получают все её склады.
+ *
+ * «На руках» (holder_user_id) в списке складов нет: это люди, а не места, и их заводит
+ * выдача, а не пользователь. Своё на руках отдаёт GET /holdings/mine.
  */
 @Injectable()
 export class WarehousesService {
@@ -65,6 +76,7 @@ export class WarehousesService {
 
   async list(query: WarehouseQuery, user: AuthUser): Promise<Page<WarehouseView>> {
     const where = and(
+      isNull(warehouses.holderUserId),
       await this.listScope(query.companyId, user),
       stateFilter(query.state),
       searchFilter(query.q),
@@ -123,6 +135,7 @@ export class WarehousesService {
 
   async update(id: number, dto: UpdateWarehouseDto, user: AuthUser): Promise<Warehouse> {
     const { warehouse, actor } = await this.managed(id, user);
+    assertNotHolding(warehouse);
     if (dto.companyId !== undefined && dto.companyId !== warehouse.companyId) {
       await this.assertCanMove(warehouse, actor, dto.companyId);
     }
@@ -132,12 +145,12 @@ export class WarehousesService {
   }
 
   async archive(id: number, user: AuthUser): Promise<Warehouse> {
-    await this.managed(id, user);
+    assertNotHolding((await this.managed(id, user)).warehouse);
     return this.set(id, { isActive: false });
   }
 
   async restore(id: number, user: AuthUser): Promise<Warehouse> {
-    await this.managed(id, user);
+    assertNotHolding((await this.managed(id, user)).warehouse);
     return this.set(id, { isActive: true });
   }
 
@@ -166,6 +179,7 @@ export class WarehousesService {
     // id пользователя из user-server — identity с единицы.
     if (userId <= 0) throw new BadRequestException('userId — положительное целое');
     const { warehouse, actor } = await this.visible(id, user);
+    assertNotHolding(warehouse);
     if (!warehouse.companyId) {
       throw new ConflictException({
         error: 'personal_warehouse',
@@ -206,6 +220,15 @@ export class WarehousesService {
 
   /* ---------------------------------------------------------------- доступ */
 
+  /** Склад, содержимое которого спрашивающий ведёт; «руки» держатель только видит — 403. */
+  async editable(id: number, user: AuthUser): Promise<Warehouse> {
+    const { warehouse, actor } = await this.visible(id, user);
+    if (!canEditItems(actor)) {
+      throw new ForbiddenException('Выданное на руки возвращает или списывает владелец или управляющий компании');
+    }
+    return warehouse;
+  }
+
   /** Склад и то, кем ему приходится спрашивающий; невидимый — 404. */
   private async visible(id: number, user: AuthUser): Promise<{ warehouse: Warehouse; actor: WarehouseActor }> {
     const [warehouse] = await this.db.select().from(warehouses).where(eq(warehouses.id, id)).limit(1);
@@ -228,6 +251,8 @@ export class WarehousesService {
       isOwner: warehouse.ownerId === user.id,
       isAssigned: !!link,
       companyRoles,
+      holding: warehouse.holderUserId !== null,
+      isHolder: warehouse.holderUserId === user.id,
     };
     if (!canView(actor)) throw notFound(id);
     return { warehouse, actor };
@@ -297,6 +322,15 @@ export class WarehousesService {
 
 function notFound(id: number): NotFoundException {
   return new NotFoundException(`Склад ${id} не найден`);
+}
+
+/** «Руки» заводит и ведёт выдача: имя, архив, назначенные и компания им ни к чему. */
+function assertNotHolding(warehouse: Warehouse): void {
+  if (warehouse.holderUserId === null) return;
+  throw new ConflictException({
+    error: 'holding',
+    message: 'Это «на руках» у пользователя: такой склад не правят, не архивируют и никого на него не назначают',
+  });
 }
 
 function forbidden(): ForbiddenException {

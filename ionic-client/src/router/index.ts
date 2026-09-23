@@ -192,6 +192,22 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true },
         children: [
           {
+            // Второй таб складов: кому что выдано. Таб — адрес, как питание в каталоге.
+            path: "holdings",
+            name: "holdings",
+            component: () => import("@/pages/HoldingsPage.vue"),
+            meta: { requiresAuth: true },
+            children: [
+              {
+                // Что у меня на руках; как и склады, в sitemap не идёт.
+                path: "mine",
+                name: "on-hand",
+                component: () => import("@/pages/OnHandPage.vue"),
+                meta: { requiresAuth: true },
+              },
+            ],
+          },
+          {
             // Склады — свои у каждого, в sitemap не идут.
             path: ":warehouse(\\d+)",
             name: "warehouse",

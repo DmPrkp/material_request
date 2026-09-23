@@ -1,42 +1,43 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
-import { APP_GUARD } from '@nestjs/core';
-import { PrismaService } from '../prisma/prisma.service';
+import { type INestApplication } from '@nestjs/common';
+import { Test } from '@nestjs/testing';
+import request from 'supertest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe('AppController (e2e)', () => {
+import { AppModule } from '~/app.module';
+import { DB, PG_POOL } from '~/db/db.module';
+
+/** Приложение целиком, но без базы: проверяются маршруты, пайпы и гварды, не SQL. */
+describe('order-server (e2e)', () => {
   let app: INestApplication;
+  const db = {
+    select: vi.fn(() => ({ from: () => ({ where: () => ({ orderBy: () => Promise.resolve([]) }) }) })),
+    delete: vi.fn(() => ({ where: () => ({ returning: () => Promise.resolve([]) }) })),
+  };
 
   beforeEach(async () => {
-    const builder = Test.createTestingModule({
-      imports: [AppModule],
-      providers: [
-        {
-          provide: APP_GUARD,
-          useValue: { canActivate: () => true },
-        },
-      ],
-    });
-
-    const moduleFixture: TestingModule = await builder
-      .overrideProvider(PrismaService)
-      .useValue({
-        zaiavka: {
-          findMany: jest.fn().mockResolvedValue([]),
-          findUnique: jest.fn().mockResolvedValue(null),
-          create: jest.fn().mockResolvedValue({ id: 1 }),
-          update: jest.fn().mockResolvedValue({ id: 1 }),
-        },
-      })
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+      .overrideProvider(PG_POOL)
+      .useValue({ end: () => Promise.resolve() })
+      .overrideProvider(DB)
+      .useValue(db)
       .compile();
-
-    app = moduleFixture.createNestApplication();
+    app = moduleRef.createNestApplication();
+    app.setGlobalPrefix('order/api/v1');
     await app.init();
   });
 
-  it('/order/api/v1/zaiavka (GET)', async () => {
-    const res = await request(app.getHttpServer()).get('/order/api/v1/zaiavka');
-    expect([200, 404]).toContain(res.status);
+  afterEach(() => app.close());
+
+  it('GET /zaiavka без входа — 401: список только свой', async () => {
+    await request(app.getHttpServer()).get('/order/api/v1/zaiavka').expect(401);
+  });
+
+  it('GET /zaiavka со входом — свои', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/order/api/v1/zaiavka')
+      .set('X-User-Id', '7')
+      .set('X-User-Role', 'USER')
+      .expect(200);
+    expect(res.body).toEqual([]);
   });
 });

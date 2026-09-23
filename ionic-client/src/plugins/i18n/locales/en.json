@@ -163,7 +163,8 @@
           "manage": "manager",
           "review": "reviewer",
           "store": "storekeeper"
-        }
+        },
+        "switch": "switch"
       }
     },
     "catalog": {
@@ -278,7 +279,7 @@
       "duplicate": "A warehouse with this name already exists",
       "auth_required": "Warehouses are available after sign-in. Tap to sign in",
       "company": "Company",
-      "personal": "Personal warehouse",
+      "personal": "Personal warehouses",
       "company_forbidden": "You can't add warehouses to this company",
       "units": "pcs",
       "items_empty": "The warehouse is empty",
@@ -300,7 +301,48 @@
       "add_items_error": "Could not add to the warehouse",
       "nothing_to_add": "Nothing in this order to add to a warehouse",
       "confirm_add": "Add to “{name}”?",
-      "confirm_count": "Items: {count}"
+      "confirm_count": "Items: {count}",
+      "select_all": "select all",
+      "clear_selection": "clear",
+      "delete_items": "delete ({count})",
+      "move_items": "move",
+      "issue_items": "issue",
+      "deleted_items": "Items deleted: {count}",
+      "delete_items_error": "Failed to delete items",
+      "move_empty": "This company has no other warehouses",
+      "moved": "Moved to “{name}”",
+      "move_error": "Failed to move items",
+      "action": {
+        "remove": {
+          "title": "Remove from warehouse"
+        },
+        "move": {
+          "title": "Move to warehouse"
+        },
+        "issue": {
+          "title": "Issue from warehouse"
+        },
+        "target": "Where to",
+        "quantity": "Quantity",
+        "of": "of {max} {unit}",
+        "done": "done",
+        "recipient": "To whom"
+      },
+      "issued": "Issued to {name}",
+      "issue_error": "Could not issue",
+      "issue_empty": "Nobody in the warehouse company to issue to",
+      "members_error": "Could not load company members",
+      "on_hand": {
+        "title": "On hand",
+        "empty": "Nothing on hand",
+        "load_error": "Could not load what is on hand",
+        "mine": "mine"
+      },
+      "personal_one": "Personal warehouse",
+      "tabs": {
+        "warehouses": "warehouses",
+        "holdings": "on hand"
+      }
     }
   },
   "current": {

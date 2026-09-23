@@ -7,23 +7,10 @@ on:
     branches: [main, develop]
 
 jobs:
+  # Базы не нужно: юнит-тесты сервиса гоняют SQL на PGlite (Postgres в памяти),
+  # e2e подменяют базу целиком.
   test-order-server:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: order
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
       - name: Checkout code
@@ -40,27 +27,13 @@ jobs:
         working-directory: ./order-server
         run: npm ci
 
-      - name: Generate Prisma client
-        working-directory: ./order-server
-        run: npx prisma generate
-
-      - name: Run database migrations
-        working-directory: ./order-server
-        run: npx prisma migrate deploy
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/order
-
       - name: Run unit tests
         working-directory: ./order-server
         run: npm run test
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/order
 
       - name: Run e2e tests
         working-directory: ./order-server
         run: npm run test:e2e
-        env:
-          DATABASE_URL: postgresql://test:test@localhost:5432/order
 
   test-ionic-client:
     runs-on: ubuntu-latest

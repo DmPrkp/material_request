@@ -1,21 +1,24 @@
-import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { Logger } from '@nestjs/common';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { ZodValidationPipe } from 'nestjs-zod';
+
 import { AppModule } from './app.module';
+import { PgConstraintFilter } from './common/pg-errors.filter';
 
-async function bootstrap() {
+const PREFIX = 'user/api/v1';
+const PORT = Number(process.env.PORT ?? 4200);
+
+async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-  app.setGlobalPrefix('user/api/v1');
 
-  const port = process.env.PORT ? Number(process.env.PORT) : 4200;
-  await app.listen(port);
-  console.log(`User server is running on port ${port}`);
+  app.setGlobalPrefix(PREFIX);
+  app.enableShutdownHooks();
+  // Валидацию целиком делает Zod (auth/dto/auth.dto.ts) — как в остальных сервисах.
+  app.useGlobalPipes(new ZodValidationPipe());
+  app.useGlobalFilters(new PgConstraintFilter(app.get(HttpAdapterHost).httpAdapter));
+
+  await app.listen(PORT, '0.0.0.0');
+  new Logger('bootstrap').log(`Пользователи подняты на :${PORT}`);
 }
 
 void bootstrap();

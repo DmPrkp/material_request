@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { type ExecutionContext, UnauthorizedException } from '@nestjs/common';
 
 import { AuthGuard, IdentifyGuard } from './auth.guard';
@@ -48,8 +49,6 @@ describe('AuthGuard', () => {
   });
 
   it('аноним — 401', () => {
-    expect(() => new AuthGuard().canActivate(contextFor().context)).toThrow(
-      UnauthorizedException,
-    );
+    expect(() => new AuthGuard().canActivate(contextFor().context)).toThrow(UnauthorizedException);
   });
 });
