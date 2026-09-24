@@ -10,3 +10,11 @@ export { materialTypes } from './material-types';
 export { materials } from './materials';
 export { handToolVariants } from './hand-tool-variants';
 export { materialVariants } from './material-variants';
+export {
+  c112MaterialTypes,
+  c112MaterialVariants,
+  c112Materials,
+  c112ParamValues,
+  c112Systems,
+  c112WorkStages,
+} from './c112';

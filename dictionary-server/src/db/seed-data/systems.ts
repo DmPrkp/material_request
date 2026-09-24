@@ -37,14 +37,4 @@ export const systems: System[] = [
     workTypeId: 1,
     unitId: 7,
   },
-  {
-    id: 999,
-    title: 'TEST',
-    nameRu: 'Тестовая технология',
-    nameEn: 'Test system',
-    descriptionRu: 'Для проверки',
-    descriptionEn: 'test system',
-    workTypeId: 1,
-    unitId: 7,
-  },
 ];

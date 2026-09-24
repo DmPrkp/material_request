@@ -12,6 +12,5 @@ export type MainMenuItem = {
    */
   label?: string;
   description: string;
-  items?: MainMenuItem[];
   disable?: boolean;
 };

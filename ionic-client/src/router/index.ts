@@ -160,6 +160,18 @@ const routes: Array<RouteRecordRaw> = [
                 meta: { requiresAuth: true },
                 children: [
                   {
+                    // Группа технологий — шаг навигации внутри вида работ
+                    // («Перегородки» → «Гипсокартон»). Статический сегмент group
+                    // не даёт спутать код группы с техническим кодом технологии,
+                    // а сама технология остаётся на прежнем адресе — sitemap,
+                    // SEO-ключи и старые ссылки не трогаем. Состав групп —
+                    // в constants/systems.
+                    path: "group/:group",
+                    name: "system-group",
+                    component: () => import("@/pages/SystemGroupPage.vue"),
+                    meta: { requiresAuth: true },
+                  },
+                  {
                     path: ":system",
                     name: "system",
                     component: () => import("@/pages/ComponentsPage.vue"),

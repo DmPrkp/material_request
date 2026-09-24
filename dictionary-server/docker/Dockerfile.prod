@@ -23,4 +23,6 @@ COPY --from=build /usr/dictionary-server/drizzle ./drizzle
 USER node
 EXPOSE 4300
 
-CMD ["node", "dist/main"]
+# Как в dev: схема и сиды при каждом старте. Без этого прод поднимался на пустой базе —
+# ни таблиц, ни справочника. Сиды повторяемые (отметки в seed_history), рестарт их не дублирует.
+CMD ["sh", "-c", "node dist/db/migrate && node dist/db/seed && node dist/main"]

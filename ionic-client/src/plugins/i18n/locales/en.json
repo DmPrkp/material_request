@@ -64,13 +64,12 @@
         "facade": "Facade",
         "roof": "Roof",
         "interior": "Interior works",
-        "EIFS": "EIFS",
-        "flat": "Flat roof",
-        "frame_scaffold": "Frame scaffold set 2х3m"
+        "partitions": "Partitions"
       }
     },
     "system": {
-      "title": "Select a technology"
+      "title": "Select a technology",
+      "empty": "No technologies for this type of work yet"
     },
     "components": {
       "title": "Specify the scope of works",

@@ -79,6 +79,17 @@ const materialLinks = data.materialVariants.flatMap((v) =>
   v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
 );
 
+// Перегородка С112 — отдельным шагом, чтобы доехать до уже залитой базы (см. c112.ts).
+const c112MaterialVariantRows = data.c112MaterialVariants.map((v) => ({
+  id: v.id,
+  materialId: v.materialId,
+  code: buildVariantCode(v.materialId, v.paramValueIds),
+}));
+
+const c112MaterialLinks = data.c112MaterialVariants.flatMap((v) =>
+  v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
+);
+
 /** Вставка с подсчётом затронутых строк. */
 async function insert(query: PromiseLike<{ rowCount: number | null }>): Promise<number> {
   const result = await query;
@@ -121,11 +132,36 @@ const STEPS: Step[] = [
     name: 'material-variant-params',
     run: (tx) => insert(tx.insert(schema.materialVariantParams).values(materialLinks)),
   },
+  {
+    // Весь С112 одним шагом: порядок вставки — по внешним ключам.
+    name: 'c112',
+    run: async (tx) => {
+      let rows = 0;
+      rows += await insert(
+        tx
+          .insert(schema.paramValues)
+          .values(data.c112ParamValues.map((p) => ({ ...p, value: String(p.value) }))),
+      );
+      rows += await insert(tx.insert(schema.materialTypes).values(data.c112MaterialTypes));
+      rows += await insert(tx.insert(schema.materials).values(data.c112Materials));
+      rows += await insert(tx.insert(schema.systems).values(data.c112Systems));
+      rows += await insert(tx.insert(schema.workStages).values(data.c112WorkStages));
+      rows += await insert(tx.insert(schema.materialVariants).values(c112MaterialVariantRows));
+      rows += await insert(tx.insert(schema.materialVariantParams).values(c112MaterialLinks));
+      return rows;
+    },
+  },
 ];
 
 async function main(): Promise<void> {
-  assertUniqueCodes('ручной инструмент', handToolVariantRows.map((v) => v.code));
-  assertUniqueCodes('материалы', materialVariantRows.map((v) => v.code));
+  assertUniqueCodes(
+    'ручной инструмент',
+    handToolVariantRows.map((v) => v.code),
+  );
+  assertUniqueCodes(
+    'материалы',
+    [...materialVariantRows, ...c112MaterialVariantRows].map((v) => v.code),
+  );
 
   const pool = new Pool({ connectionString: databaseUrl(), max: 1 });
   const db = drizzle(pool, { schema, casing: 'snake_case' });

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Перегородка из гипсокартона: металлический каркас и двухслойная обшивка">
+  <!--
+    Схема перегородки С112: направляющие и стойки каркаса с шагом 600 мм, поверх —
+    два слоя ГКЛ; левый край переднего слоя сдвинут, поэтому виден задний.
+    Нарисована вручную: у технологий словаря фотографий нет, а карточке нужен образ.
+    Палитра — из assets/css/index.css, чтобы картинка не спорила с тёмной темой.
+  -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#31234a" />
+      <stop offset="1" stop-color="#1f1430" />
+    </linearGradient>
+    <linearGradient id="boardBack" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6f7488" />
+      <stop offset="1" stop-color="#868c9e" />
+    </linearGradient>
+    <linearGradient id="boardFront" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#aeb3c2" />
+      <stop offset="1" stop-color="#d8dbe4" />
+    </linearGradient>
+    <linearGradient id="stud" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a67bd" />
+      <stop offset="0.5" stop-color="#c3a8e4" />
+      <stop offset="1" stop-color="#8a67bd" />
+    </linearGradient>
+  </defs>
+
+  <rect width="640" height="360" fill="url(#bg)" />
+
+  <!-- Направляющие ПН: сверху и снизу, во всю перегородку -->
+  <g stroke="#4a3566" stroke-width="2">
+    <rect x="40" y="40" width="560" height="18" rx="3" fill="url(#stud)" />
+    <rect x="40" y="302" width="560" height="18" rx="3" fill="url(#stud)" />
+  </g>
+
+  <!-- Стойки ПС: шаг постоянный, как 600 мм в конструкции -->
+  <g stroke="#4a3566" stroke-width="2">
+    <rect x="60" y="58" width="20" height="244" fill="url(#stud)" />
+    <rect x="170" y="58" width="20" height="244" fill="url(#stud)" />
+    <rect x="280" y="58" width="20" height="244" fill="url(#stud)" />
+    <rect x="390" y="58" width="20" height="244" fill="url(#stud)" />
+    <rect x="500" y="58" width="20" height="244" fill="url(#stud)" />
+  </g>
+
+  <!-- Полки профиля: две линии вдоль стойки, чтобы читался С-образный профиль -->
+  <g stroke="#5d3f8a" stroke-width="1.5" opacity="0.8">
+    <path d="M65 62V298M75 62V298" />
+    <path d="M175 62V298M185 62V298" />
+    <path d="M285 62V298M295 62V298" />
+    <path d="M395 62V298M405 62V298" />
+    <path d="M505 62V298M515 62V298" />
+  </g>
+
+  <!-- Обшивка. Задний слой шире и выступает слева, сверху и снизу — видно, что слоёв два -->
+  <rect x="248" y="26" width="360" height="308" rx="4" fill="url(#boardBack)" stroke="#4d5262" stroke-width="2" />
+  <rect x="288" y="42" width="360" height="276" rx="4" fill="url(#boardFront)" stroke="#4d5262" stroke-width="2" />
+
+  <!-- Шов переднего слоя приходится на стойку — как и в конструкции -->
+  <path d="M400 42V318" stroke="#8f95a6" stroke-width="2.5" stroke-dasharray="12 9" />
+
+  <!--
+    Шурупы — по осям стоек под обшивкой. У шва их два ряда: оба листа крепятся
+    к одной стойке, каждый со своей стороны стыка.
+  -->
+  <g fill="#e8790c">
+    <circle cx="386" cy="80" r="5.5" />
+    <circle cx="386" cy="150" r="5.5" />
+    <circle cx="386" cy="220" r="5.5" />
+    <circle cx="386" cy="290" r="5.5" />
+    <circle cx="414" cy="80" r="5.5" />
+    <circle cx="414" cy="150" r="5.5" />
+    <circle cx="414" cy="220" r="5.5" />
+    <circle cx="414" cy="290" r="5.5" />
+    <circle cx="510" cy="115" r="5.5" />
+    <circle cx="510" cy="185" r="5.5" />
+    <circle cx="510" cy="255" r="5.5" />
+    <circle cx="612" cy="115" r="5.5" />
+    <circle cx="612" cy="255" r="5.5" />
+  </g>
+</svg>
