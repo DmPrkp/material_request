@@ -34,15 +34,17 @@ docker compose -f compose.dev.yaml -p matli-dev up -d db dictionary-server
 Всё приложение доступно на `http://localhost` (nginx). Adminer — `:8080`, админка
 разработчика — `:8090` (см. «Админка разработчика»).
 
-**Перед первым запуском** нужны env-файлы `secrets/{calc,order,user,dict,warehouse,company,admin}-db/.db.env` —
-каталог `secrets/` в `.gitignore`, в репозитории лежат только пустые папки. Сервисы
-ждут `DB_HOST`, `DB_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-(строку подключения сервисы собирают сами — `src/db/config.ts`; готовая `DATABASE_URL`, если
-задана, важнее).
+**Перед первым запуском** нужен `.env` в корне — все секреты стека в одном файле
+(`cp .env.example .env`; сам `.env` в `.gitignore`, на сервер `deploy.sh` его не возит — он
+лежит там отдельно). Compose читает его для подстановок `${...}`, а каждому сервису
+перечисляет в `environment` только его переменные (общий кусок про базу — якорь `x-db-env`
+в шапке compose-файлов). `DB_HOST`, `DB_PORT` и `POSTGRES_DB` не секреты и заданы в compose;
+строку подключения сервисы собирают сами — `src/db/config.ts` (готовая `DATABASE_URL`, если
+задана, важнее). Без `POSTGRES_USER`/`POSTGRES_PASSWORD`/`JWT_SECRET` compose не стартует вовсе.
 
-`JWT_SECRET` лежит отдельно — `secrets/jwt/.jwt.env`, compose подключает его только двоим:
-user-server (подписывает токены) и nginx (проверяет их — см. «Авторизация на nginx»). Файл
-обязателен, в том числе на проде. Без секрета user-server берёт случайный на каждый запуск
+`JWT_SECRET` compose отдаёт только двоим:
+user-server (подписывает токены) и nginx (проверяет их — см. «Авторизация на nginx»); nginx,
+в свою очередь, не получает пароля базы. Секрет обязателен, в том числе на проде. Без секрета user-server берёт случайный на каждый запуск
 (токены не переживают рестарт), а nginx отвечает 503 на любой запрос с токеном. user-server дополнительно читает
 `JWT_EXPIRES_IN` (по умолчанию `3d`; клиент раз в сутки от `iat` меняет токен на свежий
 через `POST /auth/refresh` — `refreshDueAt()` в `ionic-client/src/store/authToken.ts`, — так что
@@ -92,8 +94,10 @@ user / company / warehouse / order по 30 штук: пользователи `d
 
 CI (`.github/workflows/test.yml`) гоняет на Node 22 order-server и ionic-client;
 e2e клиента там закомментированы. Деплой — `./deploy.sh` из локальной сети (сервер
-`192.168.1.49:22`): заливает закоммиченный `HEAD` через `git archive` и пересобирает
-`compose.prod.yaml`. `deploy.yml` в Actions оставлен только на ручной запуск.
+`192.168.1.49:22`, TrueNAS): заливает закоммиченный `HEAD` через `git archive` и пересобирает
+`compose.prod.yaml`. Postgres на проде — сервис `db` в том же compose (не приложение TrueNAS),
+данные — bind mount в датасет `/mnt/tank/postgres` (`PGDATA_DIR`, владелец `70:70` — postgres в
+alpine), а не именованный том: тот живёт в хранилище docker, которое на TrueNAS уже ломалось. `deploy.yml` в Actions оставлен только на ручной запуск.
 
 ## Архитектура
 
@@ -411,11 +415,11 @@ docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test
 коммерческая лицензия с ключом, без него — плашка. Не обновляйте мажор вслепую.
 
 - **Чтение — напрямую из баз**, по пулу на базу под read-only ролью
-  (`db/init/02-admin-readonly.sh`, `secrets/admin-db/.db.env`: `ADMIN_DB_USER`, `ADMIN_DB_PASSWORD`;
-  этот же файл подключён к `db`, чтобы init завёл роль). Роль — `SELECT` и `DEFAULT PRIVILEGES`
+  (`db/init/02-admin-readonly.sh`, `ADMIN_DB_USER` / `ADMIN_DB_PASSWORD` из `.env`;
+  их получает и `db`, чтобы init завёл роль). Роль — `SELECT` и `DEFAULT PRIVILEGES`
   на будущие таблицы любой схемы. Скрипт повторяемый: на живом томе — `exec db bash
-  /docker-entrypoint-initdb.d/02-admin-readonly.sh` (команда — в шапке скрипта). На проде база на
-  хосте, роль заводится там руками тем же скриптом.
+  /docker-entrypoint-initdb.d/02-admin-readonly.sh` (команда — в шапке скрипта). На проде база —
+  тот же сервис `db` в `compose.prod.yaml`, init отрабатывает так же.
 - **Пишет — только через API сервисов**, не SQL-ом: иначе мимо пройдут форки, пересчёт кодов,
   неизменяемость значений. `ALL /proxy/:service/*` (`proxy.controller.ts`, пока только `dict`)
   шлёт запрос в сервис по внутренней сети с `X-User-*` вошедшего админа, статус и тело

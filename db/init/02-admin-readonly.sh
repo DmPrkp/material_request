@@ -6,7 +6,7 @@
 # Официальный образ гоняет это при первой инициализации тома. Скрипт повторяемый, так что
 # на живом томе его можно запустить руками, не пересоздавая базы:
 #   docker compose -f compose.dev.yaml -p matli-dev exec db bash /docker-entrypoint-initdb.d/02-admin-readonly.sh
-# На проде база на хосте — там с теми же переменными и PGHOST/PGPORT вместо сокета.
+# На проде — то же с compose.prod.yaml вместо compose.dev.yaml и без -p.
 set -euo pipefail
 
 # Без exit: неисполняемый .sh образ не запускает, а подключает через source, и exit

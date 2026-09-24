@@ -2,6 +2,15 @@
 # docker compose -f compose.dev.yaml -p matli-dev watch
 # docker compose -f compose.dev.yaml -p matli-dev build --no-cache
 
+# Секреты — один файл .env в корне (в .gitignore, ключи — .env.example). Compose читает его сам
+# для подстановок ${...}, а сервис получает только перечисленное у него в environment: nginx,
+# который смотрит в интернет, не знает пароля базы, а сервисы за ним — секрета JWT.
+x-db-env: &db-env
+  DB_HOST: db
+  DB_PORT: "5432"
+  POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
+
 networks:
   matli_network:
     name: matli_network
@@ -13,8 +22,9 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4000:4000
-    env_file:
-      - ./secrets/calc-db/.db.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: calc
     develop:
       watch:
         - action: sync
@@ -40,8 +50,9 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4100:4100
-    env_file:
-      - ./secrets/order-db/.db.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: order
     volumes:
       - ./order-server/static:/usr/order-server/static
     develop:
@@ -73,9 +84,14 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4200:4200
-    env_file:
-      - ./secrets/user-db/.db.env
-      - ./secrets/jwt/.jwt.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: user
+      JWT_SECRET: ${JWT_SECRET:?нет в .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
+      DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
+      DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
     develop:
       watch:
         - action: sync
@@ -105,8 +121,9 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4300:4300
-    env_file:
-      - ./secrets/dict-db/.db.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: dictionary
     develop:
       watch:
         - action: sync
@@ -138,8 +155,9 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4400:4400
-    env_file:
-      - ./secrets/warehouse-db/.db.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: warehouse
     develop:
       watch:
         - action: sync
@@ -169,8 +187,9 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4500:4500
-    env_file:
-      - ./secrets/company-db/.db.env
+    environment:
+      <<: *db-env
+      POSTGRES_DB: company
     develop:
       watch:
         - action: sync
@@ -218,12 +237,12 @@ services:
       dockerfile: ./docker/Dockerfile.dev
     ports:
       - 4600:4600
-    env_file:
-      - ./secrets/admin-db/.db.env
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - USER_SERVER_URL=http://user-server:4200/user/api/v1
+      DB_HOST: db
+      DB_PORT: "5432"
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
+      USER_SERVER_URL: http://user-server:4200/user/api/v1
     develop:
       watch:
         - action: sync
@@ -271,8 +290,8 @@ services:
   nginx:
     # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
     # Секрет, кроме него, знает только user-server — он токены выпускает.
-    env_file:
-      - ./secrets/jwt/.jwt.env
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?нет в .env}
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.dev
@@ -294,13 +313,13 @@ services:
     image: postgres:18-alpine
     restart: always
     user: postgres
-    environment:
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_DB=calc
     # ADMIN_DB_USER/ADMIN_DB_PASSWORD — для read-only роли админки (db/init/02-admin-readonly.sh).
-    env_file:
-      - ./secrets/admin-db/.db.env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
+      POSTGRES_DB: calc
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
     volumes:
       - ./db/init:/docker-entrypoint-initdb.d:ro
       # postgres 18+ ждёт монтирование каталогом выше, а не в /data

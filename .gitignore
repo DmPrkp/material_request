@@ -2,3 +2,4 @@
 /secrets
 /calc-server/*
 /deploy.sh
+/.env

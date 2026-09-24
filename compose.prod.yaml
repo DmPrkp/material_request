@@ -2,6 +2,15 @@
 # docker compose -f compose.prod.yaml build --no-cache
 # docker compose -f compose.prod.yaml up --force-recreate --build
 
+# Секреты — один файл .env в корне (в .gitignore, ключи — .env.example). Compose читает его сам
+# для подстановок ${...}, а сервис получает только перечисленное у него в environment: nginx,
+# который смотрит в интернет, не знает пароля базы, а сервисы за ним — секрета JWT.
+x-db-env: &db-env
+  DB_HOST: db
+  DB_PORT: "5432"
+  POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
+
 networks:
   matli_network:
     name: matli_network
@@ -13,85 +22,96 @@ services:
   # (calc-server -> dictionary-server), ports для этого не нужны; expose — только пометка,
   # какой порт слушает контейнер. В compose.dev.yaml порты открыты намеренно — для отладки.
   calc-server:
+    restart: unless-stopped
     image: dmprkp/calc-server:latest
     expose:
       - 4000
-    env_file:
-      - ./secrets/calc-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: calc
+    depends_on:
+      db:
+        condition: service_healthy
 
   order-server:
+    restart: unless-stopped
     build:
       context: ./order-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4100
-    env_file:
-      - ./secrets/order-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: order
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - ./order-server/static:/usr/order-server/static
 
   user-server:
+    restart: unless-stopped
     build:
       context: ./user-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4200
-    env_file:
-      - ./secrets/user-db/.db.env
-      - ./secrets/jwt/.jwt.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: user
+      JWT_SECRET: ${JWT_SECRET:?нет в .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
+      DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
+      DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
+    depends_on:
+      db:
+        condition: service_healthy
 
   dictionary-server:
+    restart: unless-stopped
     build:
       context: ./dictionary-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4300
-    env_file:
-      - ./secrets/dict-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: dictionary
+    depends_on:
+      db:
+        condition: service_healthy
 
   warehouse-server:
+    restart: unless-stopped
     build:
       context: ./warehouse-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4400
-    env_file:
-      - ./secrets/warehouse-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: warehouse
+    depends_on:
+      db:
+        condition: service_healthy
 
   company-server:
+    restart: unless-stopped
     build:
       context: ./company-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4500
-    env_file:
-      - ./secrets/company-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      <<: *db-env
+      POSTGRES_DB: company
+    depends_on:
+      db:
+        condition: service_healthy
 
   ionic-client:
+    restart: unless-stopped
     build:
       context: ./ionic-client
       dockerfile: ./docker/Dockerfile.prod
@@ -103,22 +123,26 @@ services:
   # (admin-server спрашивает user-server). X-User-* она не принимает, поэтому открытый
   # порт не даёт подделать пользователя, как дал бы порт сервиса.
   admin-server:
+    restart: unless-stopped
     build:
       context: ./admin-server
       dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4600
-    env_file:
-      - ./secrets/admin-db/.db.env
     environment:
-      - DB_HOST=host.docker.internal
-      - USER_SERVER_URL=http://user-server:4200/user/api/v1
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      DB_HOST: db
+      DB_PORT: "5432"
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
+      USER_SERVER_URL: http://user-server:4200/user/api/v1
     depends_on:
-      - user-server
+      db:
+        condition: service_healthy
+      user-server:
+        condition: service_started
 
   admin-client:
+    restart: unless-stopped
     build:
       context: ./admin-client
       dockerfile: ./docker/Dockerfile.prod
@@ -128,10 +152,11 @@ services:
       - admin-server
 
   nginx:
+    restart: unless-stopped
     # Токен user-server проверяет nginx (nginx/njs/auth.js) и передаёт сервисам X-User-*.
     # Секрет, кроме него, знает только user-server — он токены выпускает.
-    env_file:
-      - ./secrets/jwt/.jwt.env
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?нет в .env}
     volumes:
       - ./nginx/certs:/etc/letsencrypt
       - ./nginx/logs:/var/log/nginx
@@ -149,3 +174,34 @@ services:
       - dictionary-server
       - warehouse-server
       - company-server
+
+  # База — в этом же compose, а не приложением TrueNAS: та же версия, что в dev, db/init
+  # заводит базы и read-only роль админки сам, а сервисы ходят к ней по сети compose —
+  # порт 5432 на хосте не публикуется.
+  db:
+    restart: unless-stopped
+    # Версия закреплена намеренно: с незакреплённым postgres очередной pull приносит
+    # новую мажорную версию, которая не читает старый каталог данных.
+    image: postgres:18-alpine
+    # Владелец баз — тот же POSTGRES_USER, под которым ходят сервисы; POSTGRES_DB — база
+    # calc-server, остальные заводит db/init. ADMIN_DB_* — для 02-admin-readonly.sh.
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
+      POSTGRES_DB: calc
+      ADMIN_DB_USER: ${ADMIN_DB_USER:-}
+      ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
+    # 64 МБ по умолчанию у docker мало: параллельные запросы падают на resize shared memory.
+    shm_size: 256mb
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+      # Данные — в датасете ZFS, а не в именованном томе: том лежит в хранилище docker
+      # (/mnt/.ix-apps/docker), которое уже ломалось, а у датасета свои снапшоты.
+      # postgres 18+ ждёт монтирование каталогом выше, а не в /data. Каталог на хосте —
+      # владелец 70:70 (postgres в alpine), иначе entrypoint не пройдёт в него после смены пользователя.
+      - ${PGDATA_DIR:-/mnt/tank/postgres}:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 20

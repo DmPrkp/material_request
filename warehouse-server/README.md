@@ -106,7 +106,6 @@ company-server); без компании он личный. На склад на
 
 Схема — `src/db/schema.ts`, миграция — `drizzle/0000_init.sql` (`npm run db:generate`; пока
 проект не развёрнут, миграция одна — перед генерацией удалить `drizzle/`). `npm run db:migrate`
-сам заводит базу, если её нет: `db/init` срабатывает только на пустом томе, а на проде
-Postgres внешний. Нет прав на `CREATE DATABASE` — базу надо завести руками.
+сам заводит базу, если её нет: `db/init` срабатывает только на пустом томе. Нет прав на `CREATE DATABASE` — базу надо завести руками.
 
-Env — `secrets/warehouse-db/.db.env` в том же формате, что у словаря (`POSTGRES_DB=warehouse`).
+Env — общий `.env` в корне (`.env.example`), `POSTGRES_DB=warehouse` задан в compose.

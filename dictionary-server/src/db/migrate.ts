@@ -6,7 +6,7 @@
  * до базы не доезжали. Миграции применяются по журналу (drizzle.__drizzle_migrations)
  * и повторно не накатываются.
  *
- * Базу заводит тоже он, если её нет: на проде Postgres внешний и db/init там не запускается.
+ * Базу заводит тоже он, если её нет: db/init срабатывает только на пустом каталоге данных.
  */
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
