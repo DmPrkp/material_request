@@ -23,7 +23,13 @@ services:
   # какой порт слушает контейнер. В compose.dev.yaml порты открыты намеренно — для отладки.
   calc-server:
     restart: unless-stopped
-    image: dmprkp/calc-server:latest
+    # Собирается из исходников, как остальные сервисы, а не тянется образом с Docker Hub:
+    # с образом прод отставал от кода — на сервер уезжал последний запушенный latest,
+    # а не то, что деплоят. Код calc-server версионируется отдельно и в git этого
+    # репозитория не лежит, поэтому deploy.sh заливает его отдельным rsync.
+    build:
+      context: ./calc-server
+      dockerfile: ./docker/Dockerfile.prod
     expose:
       - 4000
     environment:
