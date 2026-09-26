@@ -35,6 +35,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: calc
+      LOG_DIR: /var/log/matli
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy
@@ -187,6 +191,9 @@ services:
       - ./nginx/certs:/etc/letsencrypt:ro
       - ./nginx/acme:/var/www/certbot:ro
       - ./nginx/logs:/var/log/nginx
+      # Второй error_log — в общий каталог поломок (main.conf). Без этой строки
+      # nginx не поднимется: путь из конфига обязан существовать.
+      - ./logs:/var/log/matli
     build:
       context: ./nginx
       dockerfile: ./Dockerfile.prod
