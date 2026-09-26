@@ -6,110 +6,10 @@
           <ion-card-title>{{ title }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-segment
-            v-model="mode"
-            @ionChange="handleModeChange"
-          >
-            <ion-segment-button value="login">
-              {{ $t("pages.auth.login") }}
-            </ion-segment-button>
-            <ion-segment-button value="register">
-              {{ $t("pages.auth.register") }}
-            </ion-segment-button>
-          </ion-segment>
-
-          <form @submit.prevent="handleSubmit">
-            <ion-list>
-              <ion-item>
-                <ion-label position="stacked">
-                  {{ $t("pages.auth.username") }}
-                </ion-label>
-                <ion-input
-                  v-model="login"
-                  autocomplete="username"
-                  autocapitalize="off"
-                  required
-                />
-              </ion-item>
-
-              <template v-if="mode === 'register'">
-                <ion-item>
-                  <ion-label position="stacked">
-                    {{ $t("pages.auth.first_name") }}
-                  </ion-label>
-                  <ion-input
-                    v-model="firstName"
-                    autocomplete="given-name"
-                    required
-                  />
-                </ion-item>
-
-                <ion-item>
-                  <ion-label position="stacked">
-                    {{ $t("pages.auth.last_name") }}
-                  </ion-label>
-                  <ion-input
-                    v-model="lastName"
-                    autocomplete="family-name"
-                  />
-                </ion-item>
-              </template>
-
-              <ion-item>
-                <ion-label position="stacked">
-                  {{ $t("pages.auth.password") }}
-                </ion-label>
-                <ion-input
-                  v-model="password"
-                  type="password"
-                  :autocomplete="
-                    mode === 'register' ? 'new-password' : 'current-password'
-                  "
-                  :minlength="mode === 'register' ? 6 : undefined"
-                  required
-                />
-              </ion-item>
-
-              <ion-item v-if="mode === 'register'">
-                <ion-label position="stacked">
-                  {{ $t("pages.auth.confirm") }}
-                </ion-label>
-                <ion-input
-                  v-model="confirmPassword"
-                  type="password"
-                  autocomplete="new-password"
-                  :minlength="6"
-                  required
-                />
-              </ion-item>
-            </ion-list>
-
-            <ion-text
-              v-if="errorMessage"
-              color="danger"
-            >
-              <p class="error-text">{{ errorMessage }}</p>
-            </ion-text>
-
-            <CutCornerBtn
-              expand="block"
-              type="submit"
-              :disabled="isSubmitting"
-              fullWidth
-            >
-              <ion-spinner
-                v-if="isSubmitting"
-                name="dots"
-              />
-              <span v-else>
-                {{
-                  mode === "login"
-                    ? $t("pages.auth.login_action")
-                    : $t("pages.auth.register_action")
-                }}
-              </span>
-            </CutCornerBtn>
-          </form>
+          <AuthForm
+            v-model:mode="mode"
+            @success="handleSuccess"
+          />
         </ion-card-content>
       </ion-card>
     </ion-content>
@@ -117,48 +17,26 @@
 </template>
 
 <script setup lang="ts">
-  import {
-    IonPage,
-    IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonSegment,
-    IonSegmentButton,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonText,
-    IonSpinner,
-  } from "@ionic/vue";
+  /**
+   * Отдельный адрес входа: сюда ведут прямые ссылки и редирект гварда с ?redirect=.
+   * Сама форма общая с модалкой из шапки (AuthForm) — здесь только обёртка и то,
+   * куда уйти после успеха.
+   */
   import { computed, ref, watch } from "vue";
-  import { useAuthStore } from "@/store/auth";
   import { useRoute, useRouter } from "vue-router";
   import { useI18n } from "vue-i18n";
-  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
-
-  type AuthMode = "login" | "register";
+  import AuthForm from "@/components/pagesParts/auth/AuthForm.vue";
 
   const route = useRoute();
   const router = useRouter();
-  const authStore = useAuthStore();
   const { t } = useI18n();
 
-  const mode = ref<AuthMode>("login");
-  const login = ref<string>("");
-  const firstName = ref<string>("");
-  const lastName = ref<string>("");
-  const password = ref<string>("");
-  const confirmPassword = ref<string>("");
-  const isSubmitting = computed(() => authStore.status === "loading");
-  const errorMessage = computed(() => authStore.error);
+  const mode = ref<"login" | "register">("login");
 
   const title = computed(() =>
     mode.value === "login"
       ? t("pages.auth.title_login")
-      : t("pages.auth.title_register")
+      : t("pages.auth.title_register"),
   );
 
   watch(
@@ -168,51 +46,16 @@
         mode.value = newMode;
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
-  function handleModeChange(event: CustomEvent) {
-    const value = event.detail.value;
-    if (value === "login" || value === "register") {
-      mode.value = value;
-    }
-  }
+  function handleSuccess() {
+    const redirect =
+      typeof route.query.redirect === "string"
+        ? route.query.redirect
+        : `/${route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE}/zayavka`;
 
-  async function handleSubmit() {
-    authStore.clearError();
-    try {
-      if (mode.value === "register") {
-        if (password.value !== confirmPassword.value) {
-          throw new Error(t("pages.auth.password_mismatch"));
-        }
-        await authStore.register({
-          login: login.value,
-          password: password.value,
-          firstName: firstName.value,
-          lastName: lastName.value.trim() || undefined,
-        });
-      } else {
-        await authStore.login(login.value, password.value);
-      }
-
-      const redirect =
-        typeof route.query.redirect === "string"
-          ? route.query.redirect
-          : `/${
-              route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE
-            }/zayavka`;
-
-      router.replace(redirect);
-      login.value = "";
-      firstName.value = "";
-      lastName.value = "";
-      password.value = "";
-      confirmPassword.value = "";
-    } catch (error) {
-      if (error instanceof Error) {
-        authStore.error = error.message;
-      }
-    }
+    router.replace(redirect);
   }
 </script>
 
@@ -220,9 +63,5 @@
   ion-card {
     max-width: 480px;
     margin: 40px auto;
-  }
-
-  .error-text {
-    margin: 16px 0;
   }
 </style>

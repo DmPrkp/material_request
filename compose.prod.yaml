@@ -52,8 +52,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./order-server/static:/usr/order-server/static
 
   user-server:
     restart: unless-stopped

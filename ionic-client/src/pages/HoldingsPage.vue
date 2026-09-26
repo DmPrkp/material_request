@@ -2,7 +2,9 @@
   <ion-page v-if="route.name === 'holdings'">
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title>{{ $t("pages.warehouses.title") }}</ion-title>
+        <ion-title>
+          <h1>{{ $t("pages.warehouses.title") }}</h1>
+        </ion-title>
       </ion-item-divider>
       <WarehousesTabs />
 

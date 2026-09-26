@@ -3,7 +3,7 @@
     <ion-content class="ion-padding">
       <ion-item-divider>
         <ion-title v-if="mainMenu.length">
-          {{ $t(`pages.main.title`) }}
+          <h1>{{ $t(`pages.main.title`) }}</h1>
         </ion-title>
       </ion-item-divider>
       <MainMenuItems

@@ -53,8 +53,6 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: order
-    volumes:
-      - ./order-server/static:/usr/order-server/static
     develop:
       watch:
         - action: sync

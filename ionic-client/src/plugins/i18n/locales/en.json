@@ -129,6 +129,7 @@
     "auth": {
       "title_login": "Sign in",
       "title_register": "Create a new account",
+      "login": "Sign in",
       "register": "Sign up",
       "username": "Login",
       "first_name": "First name",
@@ -149,6 +150,7 @@
       "language": "Language",
       "theme": "Dark theme",
       "heading": "Settings",
+      "open": "Settings",
       "details": "Warehouse details",
       "companies": {
         "title": "Companies",
@@ -343,6 +345,11 @@
         "warehouses": "warehouses",
         "holdings": "on hand"
       }
+    },
+    "not_found": {
+      "title": "Page not found",
+      "text": "There is no such address: the link may be outdated or contain a typo.",
+      "home": "to requests"
     }
   },
   "current": {

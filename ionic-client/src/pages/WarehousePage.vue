@@ -2,7 +2,9 @@
   <ion-page>
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title>{{ warehouse?.name || $t("pages.warehouses.title") }}</ion-title>
+        <ion-title>
+          <h1>{{ warehouse?.name || $t("pages.warehouses.title") }}</h1>
+        </ion-title>
       </ion-item-divider>
 
       <ion-text

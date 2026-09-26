@@ -2,7 +2,9 @@
   <ion-page>
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title> {{ $t(`pages.main.types.${groupCode}`) }} </ion-title>
+        <ion-title>
+          <h1>{{ $t(`pages.main.types.${groupCode}`) }}</h1>
+        </ion-title>
       </ion-item-divider>
       <MainMenuItems
         :items="items"

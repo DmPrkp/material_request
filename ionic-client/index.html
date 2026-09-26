@@ -2,7 +2,58 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
-    <title>Zayávka</title>
+    <title>
+      Zayávka — Заявки на строительные материалы и калькулятор расхода
+    </title>
+    <!--
+      data-seo — для тех, кто JS не исполняет (превью ссылок в мессенджерах, часть роботов).
+      После запуска их убирает router/seo.ts и ставит свои, по странице.
+    -->
+    <meta
+      data-seo
+      name="description"
+      content="Расчёт материалов, ручного и электроинструмента по технологии работ и заявка для бригады или снабжения. Бесплатно и без регистрации."
+    />
+    <meta
+      data-seo
+      property="og:type"
+      content="website"
+    />
+    <meta
+      data-seo
+      property="og:site_name"
+      content="Zayávka"
+    />
+    <meta
+      data-seo
+      property="og:title"
+      content="Zayávka — Заявки на строительные материалы и калькулятор расхода"
+    />
+    <meta
+      data-seo
+      property="og:description"
+      content="Расчёт материалов, ручного и электроинструмента по технологии работ и заявка для бригады или снабжения. Бесплатно и без регистрации."
+    />
+    <meta
+      data-seo
+      property="og:url"
+      content="https://zayavka.app/"
+    />
+    <meta
+      data-seo
+      property="og:image"
+      content="https://zayavka.app/logo-img.jpg"
+    />
+    <meta
+      data-seo
+      property="og:locale"
+      content="ru_RU"
+    />
+    <meta
+      data-seo
+      name="twitter:card"
+      content="summary_large_image"
+    />
 
     <base href="/" />
 
@@ -47,7 +98,7 @@
     />
     <link
       rel="manifest"
-      href="/site.webmanifest"
+      href="/manifest.json"
     />
 
     <!-- add to homescreen for ios -->
@@ -70,6 +121,19 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Zayávka",
+        "url": "https://zayavka.app",
+        "description": "Калькулятор строительных материалов и инструмента по технологии работ и заявки для бригад",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "inLanguage": ["ru", "en"],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "RUB" }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Zayávka",
         "url": "https://zayavka.app",
@@ -80,6 +144,34 @@
         }
       }
     </script>
+    <!--
+      Оболочка страниц из seo-prerender.ts: видна, пока грузится JS, потом её заменяет
+      приложение. Стили Ionic к этому моменту ещё не загружены — только самое нужное.
+    -->
+    <style>
+      .seo-shell {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 16px;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      .seo-shell h1 {
+        font-size: 1.4rem;
+      }
+      .seo-shell ul {
+        padding-left: 1.2rem;
+      }
+      .seo-shell a {
+        color: inherit;
+      }
+      @media (prefers-color-scheme: dark) {
+        html {
+          background: #261935;
+          color: #fff;
+        }
+      }
+    </style>
   </head>
 
   <body>

@@ -20,8 +20,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY --from=build /usr/order-server/dist ./dist
 COPY --from=build /usr/order-server/drizzle ./drizzle
 
-# Без USER node: выгрузка пишет файлы в ./static, а на проде это том с хоста
-# (compose.prod.yaml) — права на него у root, не у node.
+# Сервис ничего не пишет на диск (ods собирается в памяти) — root ему не нужен.
+USER node
 EXPOSE 4100
 
 CMD ["sh", "-c", "node dist/db/migrate && node dist/main"]

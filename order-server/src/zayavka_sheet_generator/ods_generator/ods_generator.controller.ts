@@ -1,9 +1,6 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
-import { Response } from 'express';
+import { Body, Controller, Post, StreamableFile } from '@nestjs/common';
 import { CreateZayavkaDto, Param } from '~/types';
 import * as XLSX from 'xlsx';
-import * as path from 'path';
-import * as fs from 'fs';
 
 const TITLES = {
   MATERIALS: 'Материалы и расходники',
@@ -13,28 +10,19 @@ const TITLES = {
 
 @Controller('ods-generator')
 export class XlsxGeneratorController {
+  /**
+   * Файл собирается в памяти и сразу уходит в ответ. Раньше он писался в ./static
+   * (на проде — том с хоста), отправлялся и не удалялся: каждая выгрузка оседала на
+   * диске навсегда, а сервис из-за записи в том работал под root.
+   */
   @Post()
-  create(@Body() createZayavkaDto: CreateZayavkaDto, @Res() res: Response) {
-    const id = Date.now();
-    const fileName = `zayavka_${id}.ods`;
-    const filePath = path.resolve('./static', fileName);
-    createSheetFile(createZayavkaDto, filePath);
-    console.log('Excel file created successfully!');
-
-    if (!fs.existsSync(filePath)) {
-      console.error('File not found:', filePath);
-      return res.status(404).send('File not found');
-    }
-
-    // Set headers for file download
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    res.setHeader('Content-Type', 'application/vnd.oasis.opendocument.spreadsheet');
-
-    return res.sendFile(filePath, (err) => {
-      if (err) {
-        console.error('Error sending the file:', err);
-        res.status(500).send('Error sending the file');
-      }
+  create(@Body() createZayavkaDto: CreateZayavkaDto) {
+    const fileName = `zayavka_${Date.now()}.ods`;
+    return new StreamableFile(createSheet(createZayavkaDto), {
+      type: 'application/vnd.oasis.opendocument.spreadsheet',
+      // Имя в кавычках: клиент (BaseModel.downloadFile) ищет filename="…", и без них
+      // файл скачивался как downloaded_file.xlsx.
+      disposition: `attachment; filename="${fileName}"`,
     });
   }
 }
@@ -63,7 +51,7 @@ function addToolsToRows<
   return rows;
 }
 
-function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
+function createSheet(data: CreateZayavkaDto): Buffer {
   let rows: any[] = [];
 
   // Add Materials section
@@ -96,8 +84,7 @@ function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Zayavka Sheet');
 
-  // Write the workbook to the desired output path with the ODS format
-  XLSX.writeFile(workbook, outputPath, { bookType: 'ods' });
+  return XLSX.write(workbook, { bookType: 'ods', type: 'buffer' });
 }
 
 /** Значения параметров приходят из базы строкой NUMERIC: '10.0000' -> '10'. */

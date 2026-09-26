@@ -11,6 +11,14 @@ html {
   font-synthesis-weight: none;
 }
 
+/* h1 в заголовке страницы — для поисковика (один на страницу), выглядеть должен как
+   прежний текст ion-title. inline — иначе блок внутри ломает многоточие ion-title. */
+ion-title h1 {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+}
+
 /* Нативные контролы шрифт не наследуют, а normalize Ionic этого не исправляет. */
 button,
 input,

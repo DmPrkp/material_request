@@ -2,7 +2,9 @@
   <ion-page v-if="route.name === 'work-type'">
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title> {{ $t(`pages.system.title`) }} </ion-title>
+        <ion-title>
+          <h1>{{ $t(`pages.system.title`) }}</h1>
+        </ion-title>
       </ion-item-divider>
       <MainMenuItems
         :items="items"

@@ -1,6 +1,11 @@
 <template>
   <ion-page>
     <ion-content class="ion-padding">
+      <ion-item-divider>
+        <ion-title>
+          <h1>{{ $t("footer.about") }}</h1>
+        </ion-title>
+      </ion-item-divider>
       <ion-accordion-group expand="inset">
         <ion-accordion
           v-for="item in aboutContent"
@@ -88,31 +93,31 @@
       body: {
         items: [
           {
-            img: "shedevrum.jpg",
+            img: "shedevrum.webp",
             desc: "Генерация картинок от Yandex",
             link: "shedevrum.ai",
             linkDesc: "Shedevrum",
           },
           {
-            img: "vue.jpg",
+            img: "vue.webp",
             desc: "Opensource веб фрэмворк",
             link: "vuejs.org",
             linkDesc: "Vue.js",
           },
           {
-            img: "nginx.jpg",
+            img: "nginx.webp",
             desc: "Opensource веб сервер",
             link: "nginx.org",
             linkDesc: "Nginx",
           },
           {
-            img: "node.jpg",
+            img: "node.webp",
             desc: "Opensource runtime для исполнения языка Java Script",
             link: "nodejs.org",
             linkDesc: "Node.js",
           },
           {
-            img: "docker.jpg",
+            img: "docker.webp",
             desc: "Контейнеризация сервисов",
             link: "docker.com",
             linkDesc: "Docker",

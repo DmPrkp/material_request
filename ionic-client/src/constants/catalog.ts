@@ -36,7 +36,7 @@ export const CATALOG_MENU: MainMenuItem[] = [
     title: "materials",
     description: "materials catalog",
     img: {
-      src: "/catalog/materials.jpg",
+      src: "/catalog/materials.webp",
       alt: "materials",
       width: 150,
     },
@@ -45,7 +45,7 @@ export const CATALOG_MENU: MainMenuItem[] = [
     title: "hand_tools",
     description: "hand tools catalog",
     img: {
-      src: "/catalog/hand-tools.jpg",
+      src: "/catalog/hand-tools.webp",
       alt: "materials",
       width: 150,
     },
@@ -54,7 +54,7 @@ export const CATALOG_MENU: MainMenuItem[] = [
     title: "power_tools",
     description: "power tools catalog",
     img: {
-      src: "/catalog/power-tools.jpg",
+      src: "/catalog/power-tools.webp",
       alt: "materials",
       width: 150,
     },
@@ -63,7 +63,7 @@ export const CATALOG_MENU: MainMenuItem[] = [
     title: "systems",
     description: "work technologies and stages",
     img: {
-      src: "/catalog/tech-stages.jpg",
+      src: "/catalog/tech-stages.webp",
       alt: "tech-stages",
       width: 150,
     },

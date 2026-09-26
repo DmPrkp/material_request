@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
-import { RouteRecordRaw } from "vue-router";
-import { useHead } from "@vueuse/head";
+import { RouteRecordRaw, RouterView } from "vue-router";
 import { Locale } from "@/types";
 import {
   DEFAULT_LOCALE,
@@ -13,7 +12,7 @@ import {
   POWER_TOOL_CURRENTS,
   normalizeCatalogTab,
 } from "@/constants";
-import { defaultKeys, routeMeta } from "./constants";
+import { applySeo } from "./seo";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -24,9 +23,9 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/:locale",
     redirect: (to) => `${to.path}/zayavka`,
-    component: {
-      template: "<router-view />",
-    },
+    // Сам RouterView, а не { template: "<router-view />" }: строковый шаблон требовал
+    // полной сборки Vue с компилятором шаблонов (~60 КБ в главном чанке).
+    component: RouterView,
     children: [
       {
         // Сборники устроены как главная: плитка разделов, каждый — свой адрес.
@@ -234,6 +233,15 @@ const routes: Array<RouteRecordRaw> = [
         path: "settings",
         redirect: (to) => `/${to.params.locale}/zayavka`,
       },
+      {
+        // Без него неизвестный адрес давал пустую страницу со статусом 200 — для
+        // поисковика «мягкий 404», дубль пустой страницы. Здесь хотя бы noindex
+        // (router/constants.ts) и дорога назад; настоящий 404 SPA не отдаст.
+        path: ":pathMatch(.*)*",
+        name: "not-found",
+        component: () => import("@/pages/NotFoundPage.vue"),
+        meta: { requiresAuth: false },
+      },
     ],
   },
 ];
@@ -264,27 +272,7 @@ router.beforeEach(async (to) => {
 router.afterEach((to) => {
   const locale = (normalizeLocale(to.params.locale) ||
     DEFAULT_LOCALE) as Locale;
-
-  // До четырёх сегментов: zayavka/calculator/facade/EIFS. materialList пятый — у
-  // расчёта своего описания нет, берётся общее.
-  const currentRoute = to.path.split("/").slice(2, 6).join("/");
-  const keywords =
-    routeMeta[currentRoute]?.key?.[locale] || defaultKeys[locale];
-
-  document.documentElement.lang = locale;
-
-  useHead({
-    meta: [
-      {
-        name: "description",
-        content: defaultKeys[locale],
-      },
-      {
-        name: "keywords",
-        content: keywords,
-      },
-    ],
-  });
+  applySeo(to, locale);
 });
 
 export default router;

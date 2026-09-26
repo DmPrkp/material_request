@@ -30,22 +30,20 @@
             :aria-label="$t('ui.buttons.back')"
             @click="router.back"
           />
+          <AuthAvatar @click="openAccount" />
           <ion-button
-            v-if="!authStore.isAuthenticated"
-            class="auth_warning"
+            class="settings_trigger"
             fill="clear"
             shape="round"
-            color="warning"
-            :aria-label="$t('pages.auth.not_authorized')"
-            :title="$t('pages.auth.not_authorized')"
-            @click="goToAuth"
+            :aria-label="$t('pages.settings.open')"
+            :title="$t('pages.settings.open')"
+            @click="settingsOpen = true"
           >
             <ion-icon
               slot="icon-only"
-              :icon="alertCircle"
+              :icon="settingsSharp"
             />
           </ion-button>
-          <SettingsAvatar @click="settingsOpen = true" />
         </ion-buttons>
         <ion-progress-bar
           v-if="preloaderStatus"
@@ -57,10 +55,14 @@
       <router-view></router-view>
     </ion-content>
     <FooterBar />
-    <!-- Модалка в корне, а не рядом с аватаром: стили шапки не влияют на оверлей. -->
+    <!-- Модалки в корне, а не рядом с аватаром: стили шапки не влияют на оверлей. -->
     <SettingsModal
       :is-open="settingsOpen"
       @close="settingsOpen = false"
+    />
+    <AuthModal
+      :is-open="authOpen"
+      @close="authOpen = false"
     />
   </ion-app>
 </template>
@@ -77,9 +79,10 @@
     IonBackButton,
     IonIcon,
   } from "@ionic/vue";
-  import { alertCircle } from "ionicons/icons";
+  import { settingsSharp } from "ionicons/icons";
   import FooterBar from "@/components/nav/FooterBar.vue";
-  import SettingsAvatar from "@/components/nav/SettingsAvatar.vue";
+  import AuthAvatar from "@/components/nav/AuthAvatar.vue";
+  import AuthModal from "@/components/nav/AuthModal.vue";
   import SettingsModal from "@/components/nav/SettingsModal.vue";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
   import { useAuthStore } from "./store/auth";
@@ -88,18 +91,21 @@
   const preloader = usePreloader();
   const authStore = useAuthStore();
 
-  /** Восклицательный знак у аватара ведёт на вход и сам исчезает после него. */
-  function goToAuth() {
-    if (route.name === "auth") return;
-    router.push({
-      name: "auth",
-      params: { locale: route.params.locale || locale },
-      query: { redirect: route.fullPath },
-    });
-  }
-
-  /** Настройки — не роут, а модалка поверх любого экрана. */
+  /** Настройки и вход — не роуты, а модалки поверх текущего экрана. */
   const settingsOpen = ref(false);
+  const authOpen = ref(false);
+
+  /**
+   * Аватар ведёт туда, где по состоянию есть смысл: гостя зовём войти, вошедшему
+   * показываем профиль — он в настройках, рядом с выходом.
+   */
+  function openAccount() {
+    if (authStore.isAuthenticated) {
+      settingsOpen.value = true;
+      return;
+    }
+    authOpen.value = true;
+  }
 
   const preloaderStatus: ComputedRef<boolean> = computed(() => preloader.state);
 

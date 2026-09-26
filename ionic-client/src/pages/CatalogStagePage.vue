@@ -3,9 +3,9 @@
     <ion-content>
       <div class="ion-padding">
         <ion-item-divider>
-          <ion-title>{{
-            stageName || $t("pages.catalog.norms.title")
-          }}</ion-title>
+          <ion-title>
+            <h1>{{ stageName || $t("pages.catalog.norms.title") }}</h1>
+          </ion-title>
         </ion-item-divider>
       </div>
 

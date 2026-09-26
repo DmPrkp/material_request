@@ -10,7 +10,9 @@
 
       <div class="ion-padding">
         <ion-item-divider>
-          <ion-title>{{ heading }}</ion-title>
+          <ion-title>
+            <h1>{{ heading }}</h1>
+          </ion-title>
         </ion-item-divider>
       </div>
 

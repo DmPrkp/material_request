@@ -2,7 +2,9 @@
   <ion-page v-if="route.name === 'catalog-systems'">
     <ion-content class="ion-padding">
       <ion-item-divider>
-        <ion-title>{{ $t("pages.catalog.tabs.systems") }}</ion-title>
+        <ion-title>
+          <h1>{{ $t("pages.catalog.tabs.systems") }}</h1>
+        </ion-title>
       </ion-item-divider>
 
       <!--

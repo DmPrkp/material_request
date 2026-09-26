@@ -1,5 +1,4 @@
 import { createApp, watch } from "vue";
-import { createHead } from "@vueuse/head";
 import { createPinia } from "pinia";
 import {
   IonicVue,
@@ -28,7 +27,6 @@ import {
 } from "@ionic/vue";
 import App from "./App.vue";
 import router from "./router";
-import MaterialList from "./components/pagesParts/materials/MaterialList.vue";
 
 import i18n from "./plugins/i18n";
 
@@ -61,8 +59,8 @@ import AuthModel from "./models/AuthModel";
 import { useAuthStore } from "./store/auth";
 import { AUTH_ENABLED } from "./constants/auth";
 import { claimAnonymous } from "./models/zayavka/claimAnonymous";
+import { head } from "./plugins/head";
 
-const head = createHead();
 const pinia = createPinia();
 // Тема не привязана к странице настроек: применяем до монтирования.
 applyInitialTheme();
@@ -161,8 +159,7 @@ const app = createApp(App)
   .component("IonCardSubtitle", IonCardSubtitle)
   .component("IonSegment", IonSegment)
   .component("IonSegmentButton", IonSegmentButton)
-  .component("IonSpinner", IonSpinner)
-  .component("MaterialList", MaterialList);
+  .component("IonSpinner", IonSpinner);
 
 router.isReady().then(() => {
   app.mount("#app");

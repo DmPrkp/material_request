@@ -1,32 +1,22 @@
 {
-  "name": "Zayávka",
+  "name": "Zayávka — заявки на строительные материалы",
   "short_name": "Zayávka",
-  "theme_color": "#4DBA87",
+  "description": "Калькулятор строительных материалов и инструмента по технологии работ и заявки для бригад",
+  "lang": "ru",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#261935",
+  "background_color": "#261935",
   "icons": [
     {
-      "src": "./img/icons/android-chrome-192x192.png",
+      "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./img/icons/android-chrome-512x512.png",
+      "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "./img/icons/android-chrome-maskable-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "./img/icons/android-chrome-maskable-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#000000"
+  ]
 }

@@ -10,7 +10,8 @@
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title size="large">
-            {{ $t("pages.materials.title") }}
+            <!-- h1 — название технологии: по нему страницу и ищут («мокрый фасад»). -->
+            <h1>{{ systemName || $t("pages.materials.title") }}</h1>
           </ion-title>
         </ion-item-divider>
       </div>
@@ -107,6 +108,7 @@
   const unitLabel = useUnitLabel();
   /** Единица объёма технологии из словаря (Технологии работ → форма). */
   const unit = ref<DictionaryUnit | null>(null);
+  const systemName = ref("");
   // Словарь не ответил — «м²», как было до выбора единицы в технологии.
   const unitText = computed(() =>
     unit.value ? unitLabel(unit.value) : t("measure.square"),
@@ -123,6 +125,7 @@
     try {
       const found = await DictionaryModel.systemByTitle(system);
       unit.value = found?.unit ?? null;
+      systemName.value = found?.name ?? "";
       stages.value = found
         ? ((await DictionaryModel.systemStages(found.id)) ?? [])
         : [];

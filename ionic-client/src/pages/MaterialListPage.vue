@@ -10,7 +10,7 @@
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title>
-            {{ $t("pages.materials.title") }}
+            <h1>{{ $t("pages.materials.title") }}</h1>
           </ion-title>
         </ion-item-divider>
       </div>
@@ -46,6 +46,7 @@
   import { useI18n } from "vue-i18n";
   import BaseModel from "@/models/calc/BaseCalcModel";
   import MaterialActionPanel from "@/components/pagesParts/MaterialActionPanel.vue";
+  import MaterialList from "@/components/pagesParts/materials/MaterialList.vue";
   import HandToolList from "@/components/pagesParts/handTools/HandToolList.vue";
   import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
   import { MATERIAL_LIST_STATUS } from "@/constants";

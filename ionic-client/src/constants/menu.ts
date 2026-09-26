@@ -11,7 +11,7 @@ const FACADE_MENU = {
   title: "facade",
   description: "facade items",
   img: {
-    src: "/main-menu/facade-main-narrow.jpg",
+    src: "/main-menu/facade-main-narrow.webp",
     alt: "facade-main",
     width: 150,
   },
@@ -22,7 +22,7 @@ const ROOF_MENU = {
   title: "roof",
   description: "roof items",
   img: {
-    src: "/main-menu/roof-main-narrow.jpg",
+    src: "/main-menu/roof-main-narrow.webp",
     alt: "roof-main",
     width: 150,
   },
@@ -35,7 +35,7 @@ const INTERIOR_MENU = {
   title: "interior",
   description: "interior items",
   img: {
-    src: "/main-menu/interior-main-narrow.jpg",
+    src: "/main-menu/interior-main-narrow.webp",
     alt: "interior-main",
     width: 150,
   },

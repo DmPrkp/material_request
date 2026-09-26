@@ -2,17 +2,18 @@
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import { defineConfig, UserConfig } from "vite";
+import { seoPrerender } from "./seo-prerender";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    seoPrerender(),
     // legacy()
   ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      vue: "vue/dist/vue.esm-bundler.js",
     },
   },
   preview: {
