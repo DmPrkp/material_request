@@ -74,7 +74,9 @@
     "components": {
       "title": "Specify the scope of works",
       "send": "Calculate",
-      "crew-num": "Number of crews"
+      "crew-num": "Number of crews",
+      "total-volume": "Total volume",
+      "by-layers": "By layers"
     },
     "materials": {
       "unfilled_hint": "Fill it in yourself or remove it from the list",

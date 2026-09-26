@@ -7,19 +7,32 @@
       >
         <ion-refresher-content />
       </ion-refresher>
-      <div class="ion-padding">
-        <ion-item-divider>
-          <ion-title size="large">
-            <!-- h1 — название технологии: по нему страницу и ищут («мокрый фасад»). -->
-            <h1>{{ systemName || $t("pages.materials.title") }}</h1>
-          </ion-title>
-        </ion-item-divider>
-      </div>
+      <!--
+        Не ion-item-divider + ion-title, как на других страницах: там заголовок — пара
+        слов, а здесь полное описание технологии из словаря («Системы фасадные
+        теплоизоляционные…») в несколько строк. У ion-title свой отступ слева и
+        крупный кегль — описание съезжало от полей и занимало пол-экрана.
+        h1 — описание, а не короткое имя: по нему страницу и ищут.
+      -->
+      <header class="technology_header">
+        <h1>
+          {{ systemDescription || systemName || $t("pages.materials.title") }}
+        </h1>
+        <!-- Что значат цифры расчёта: у материалов — на объём, у инструмента — на звено. -->
+        <p>
+          {{ $t("pages.catalog.norms.hint_materials", { unit: unitText }) }}
+          {{ $t("pages.catalog.norms.hint_tools") }}
+        </p>
+      </header>
       <div class="full-volume-block">
         <ion-input
           class="full-volume-block_input"
           :disabled="!isValueToAll"
-          :label="isValueToAll ? 'Общий объем:' : 'По слоям'"
+          :label="
+            isValueToAll
+              ? `${$t('pages.components.total-volume')}:`
+              : $t('pages.components.by-layers')
+          "
           placeholder="_________"
           :value="allValue"
           type="number"
@@ -109,6 +122,7 @@
   /** Единица объёма технологии из словаря (Технологии работ → форма). */
   const unit = ref<DictionaryUnit | null>(null);
   const systemName = ref("");
+  const systemDescription = ref<string | null>(null);
   // Словарь не ответил — «м²», как было до выбора единицы в технологии.
   const unitText = computed(() =>
     unit.value ? unitLabel(unit.value) : t("measure.square"),
@@ -126,6 +140,7 @@
       const found = await DictionaryModel.systemByTitle(system);
       unit.value = found?.unit ?? null;
       systemName.value = found?.name ?? "";
+      systemDescription.value = found?.description ?? null;
       stages.value = found
         ? ((await DictionaryModel.systemStages(found.id)) ?? [])
         : [];
@@ -178,6 +193,26 @@
 </script>
 
 <style>
+  /* Левый край — как у полей ниже (16px), кегль умеренный: описание в 2–3 строки. */
+  .technology_header {
+    padding: 16px 16px 8px;
+  }
+
+  .technology_header h1 {
+    margin: 0 0 6px;
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+
+  /* Приглушено, как примечания на странице норм: --ion-color-medium на тёмной
+     теме почти сливается с фоном. */
+  .technology_header p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.6);
+  }
+
   .full-volume-block {
     display: flex;
     align-items: center;

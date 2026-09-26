@@ -80,6 +80,26 @@ const seoPages: SeoPages = {
       ru: "Комплектующие рамных лесов на площадь фасада и инструмент для монтажа.",
     },
   },
+  "zayavka/calculator/interior": {
+    title: {
+      en: "Interior finishing materials calculation",
+      ru: "Расчёт материалов для внутренней отделки",
+    },
+    description: {
+      en: "Interior finishing calculator: partitions and surfaces. Materials, tools and consumption for your area.",
+      ru: "Калькулятор внутренней отделки: перегородки и поверхности. Материалы, инструмент и расход на вашу площадь.",
+    },
+  },
+  "zayavka/calculator/interior/GKL_C112": {
+    title: {
+      en: "C112 drywall partition calculation",
+      ru: "Расчёт перегородки из гипсокартона С112",
+    },
+    description: {
+      en: "Materials and tools for a C112 partition — single metal frame, double-layer board on both sides — by stages: layout, frame, cladding, joints.",
+      ru: "Материалы и инструмент на перегородку С112 — одинарный каркас, двухслойная обшивка ГКЛ с двух сторон — по этапам: разметка, каркас, обшивка, швы.",
+    },
+  },
   catalog: {
     title: {
       en: "Catalogs: materials, hand and power tools",
