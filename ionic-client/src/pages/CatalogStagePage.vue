@@ -84,7 +84,6 @@
                       class="norm_values"
                       :lines="row.open ? 'none' : 'full'"
                     >
-
                       <ion-input
                         v-if="editable"
                         v-model="row.rate"
@@ -579,7 +578,8 @@
       const unit = units?.items.find((item) => item.id === technology.unitId);
       volumeUnit.value = unit ? unitLabel(unit) : "";
 
-      const codes = (kind: NormKind) => norms[kind].map((norm) => String(norm.ref));
+      const codes = (kind: NormKind) =>
+        norms[kind].map((norm) => String(norm.ref));
       const lookup = (owner: VariantOwner, kind: NormKind) =>
         codes(kind).length
           ? DictionaryModel.variantsByCodes(owner, codes(kind))
@@ -881,9 +881,7 @@
     color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.6);
   }
 
-  /* Приглушено, как параметры сборки под названием: примечание — пояснение, не главное в строке. */
   .note_input {
-    font-size: 0.9em;
     --color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.6);
     --placeholder-color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.6);
   }
