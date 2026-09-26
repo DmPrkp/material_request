@@ -1,5 +1,14 @@
-import { type ArgumentsHost, BadRequestException, Catch, ConflictException } from '@nestjs/common';
+import {
+  type ArgumentsHost,
+  BadRequestException,
+  Catch,
+  ConflictException,
+  HttpException,
+} from '@nestjs/common';
 import { BaseExceptionFilter } from '@nestjs/core';
+import type { Request } from 'express';
+
+import { logError } from './error-log';
 
 type PgError = { code: string; constraint?: string; detail?: string };
 
@@ -52,8 +61,20 @@ export class PgConstraintFilter extends BaseExceptionFilter {
       );
     }
 
+    // Сюда доходит всё, что станет 5xx, — и только оно попадает в файл лога: ветки выше
+    // уже превратили нарушения ограничений в ответ клиенту, это не поломка сервиса.
+    logServerError(exception, host);
     super.catch(exception, host);
   }
+}
+
+/** 4xx не пишем: это нормальная работа, в файле они утопили бы настоящие поломки. */
+function logServerError(exception: unknown, host: ArgumentsHost): void {
+  if (exception instanceof HttpException && exception.getStatus() < 500) return;
+
+  const request = host.switchToHttp().getRequest<Request | undefined>();
+  const where = request ? `${request.method} ${request.originalUrl}` : 'вне запроса';
+  logError(where, exception);
 }
 
 /** Drizzle заворачивает ошибку pg в свою, настоящая лежит в cause. */

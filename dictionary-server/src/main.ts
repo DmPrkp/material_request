@@ -6,6 +6,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 
 import { AppModule } from './app.module';
 import { LocalizeInterceptor } from './common/localize.interceptor';
+import { logError } from './common/error-log';
 import { PgConstraintFilter } from './common/pg-errors.filter';
 
 const PREFIX = 'dict/api/v1';
@@ -72,4 +73,19 @@ async function bootstrap(): Promise<void> {
   logger.log(`Документация: /${PREFIX}/docs`);
 }
 
-void bootstrap();
+/**
+ * Мимо глобального фильтра проходит всё, что случилось вне запроса: не поднялся сам сервис,
+ * отвалилась фоновая задача, отказала база не на запросе. Раньше это оставалось только
+ * в stderr контейнера — теперь попадает в файл, где мы ошибки и ищем.
+ */
+process.on('unhandledRejection', (reason) => logError('unhandledRejection', reason));
+process.on('uncaughtException', (error) => {
+  logError('uncaughtException', error);
+  // Состояние процесса после такого неизвестно — выходим, restart: unless-stopped поднимет.
+  process.exit(1);
+});
+
+void bootstrap().catch((error) => {
+  logError('bootstrap', error);
+  process.exit(1);
+});

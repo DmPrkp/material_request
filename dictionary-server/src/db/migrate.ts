@@ -10,9 +10,12 @@
  */
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Client, escapeIdentifier, Pool } from 'pg';
 
+import { logError } from '../common/error-log';
 import { databaseUrl } from './config';
 
 async function ensureDatabase(url: string): Promise<void> {
@@ -46,14 +49,64 @@ async function main() {
   const pool = new Pool({ connectionString: url });
   try {
     // Путь от корня пакета, а не от файла: скрипт гоняется tsx из src/, а в образе лежит dist/.
-    await migrate(drizzle(pool), { migrationsFolder: join(process.cwd(), 'drizzle') });
+    const folder = join(process.cwd(), 'drizzle');
+    await migrate(drizzle(pool), { migrationsFolder: folder });
     console.log('✓ миграции применены');
+    await warnIfAppliedChanged(pool, folder);
   } finally {
     await pool.end();
   }
 }
 
+/**
+ * Проверяет, не правили ли уже применённую миграцию. Drizzle решает, что применять, только
+ * по `when` из журнала против `created_at` последней записи в базе; хеш файла он пишет, но
+ * не сверяет, — поэтому правка применённого файла молча не доезжает. Так лёг прод
+ * 26.09.2026: переименование таблицы внутри `0000_init.sql` с прежним `when`, старт прошёл
+ * успешно, а сервис отдавал 500 на всё, что трогает базу. Хеш в базе лежит — сверяем сами.
+ *
+ * Не роняем старт, а предупреждаем: расхождение бывает и уже вылеченным (базу догнали руками
+ * ALTER-ом, а хеш в журнале остался от прежнего текста файла), и падать в этом случае значило бы
+ * ронять рабочий сервис. Запись видна там же, где мы теперь ищем ошибки.
+ */
+async function warnIfAppliedChanged(pool: Pool, folder: string): Promise<void> {
+  try {
+    const journal = JSON.parse(readFileSync(join(folder, 'meta/_journal.json'), 'utf8')) as {
+      entries: { tag: string; when: number }[];
+    };
+
+    const { rows } = await pool.query<{ hash: string; created_at: string }>(
+      'select hash, created_at from drizzle.__drizzle_migrations',
+    );
+    if (!rows.length) return;
+
+    const applied = new Set(rows.map((row) => row.hash));
+    const latest = Math.max(...rows.map((row) => Number(row.created_at)));
+
+    for (const entry of journal.entries) {
+      // Ещё не применённая (`when` новее последней записи) — не расхождение, а работа на будущее.
+      if (entry.when > latest) continue;
+
+      const sql = readFileSync(join(folder, `${entry.tag}.sql`), 'utf8');
+      const hash = createHash('sha256').update(sql).digest('hex');
+      if (applied.has(hash)) continue;
+
+      logError(
+        'migrate',
+        new Error(
+          `миграция ${entry.tag} изменилась после применения: база отстала от репозитория. ` +
+            'Правку применённого файла drizzle не накатывает — нужна новая миграция, ' +
+            'а базу догнать руками',
+        ),
+      );
+    }
+  } catch (error) {
+    // Диагностика не обязана работать: не смогли проверить — миграции всё равно применены.
+    console.warn('! не удалось сверить миграции с базой:', (error as Error).message);
+  }
+}
+
 main().catch((error) => {
-  console.error('✗ миграции не применились', error);
+  logError('migrate', error);
   process.exit(1);
 });

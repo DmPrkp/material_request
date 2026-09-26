@@ -49,6 +49,11 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: order
+      # Лог ошибок в файл на хосте: stderr контейнера достаётся только через sudo docker logs,
+      # и надо заранее знать, в каком из сервисов смотреть (src/common/error-log.ts).
+      LOG_DIR: /var/log/matli
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy
@@ -63,11 +68,15 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: user
+      LOG_DIR: /var/log/matli
       JWT_SECRET: ${JWT_SECRET:?нет в .env}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy
@@ -82,6 +91,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: dictionary
+      LOG_DIR: /var/log/matli
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy
@@ -96,6 +109,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: warehouse
+      LOG_DIR: /var/log/matli
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy
@@ -110,6 +127,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: company
+      LOG_DIR: /var/log/matli
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
     depends_on:
       db:
         condition: service_healthy

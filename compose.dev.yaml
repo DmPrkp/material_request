@@ -53,6 +53,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: order
+      LOG_DIR: /var/log/matli
+    volumes:
+      # Тот же лог ошибок, что на проде, — чтобы проверять его локально, а не только там.
+      - ./logs:/var/log/matli
     develop:
       watch:
         - action: sync
@@ -85,11 +89,15 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: user
+      LOG_DIR: /var/log/matli
       JWT_SECRET: ${JWT_SECRET:?нет в .env}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
+    # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
+    volumes:
+      - ./logs:/var/log/matli
     develop:
       watch:
         - action: sync
@@ -122,6 +130,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: dictionary
+      LOG_DIR: /var/log/matli
+    # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
+    volumes:
+      - ./logs:/var/log/matli
     develop:
       watch:
         - action: sync
@@ -156,6 +168,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: warehouse
+      LOG_DIR: /var/log/matli
+    # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
+    volumes:
+      - ./logs:/var/log/matli
     develop:
       watch:
         - action: sync
@@ -188,6 +204,10 @@ services:
     environment:
       <<: *db-env
       POSTGRES_DB: company
+      LOG_DIR: /var/log/matli
+    # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
+    volumes:
+      - ./logs:/var/log/matli
     develop:
       watch:
         - action: sync

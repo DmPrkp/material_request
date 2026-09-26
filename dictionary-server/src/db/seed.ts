@@ -15,14 +15,15 @@
  * Шаги именованные и отмечаются в seed_history поштучно: контейнер гоняет
  * db:seed при каждом старте, а том переживает рестарт — без отметок вторая
  * заливка падала бы на duplicate key. Правка уже применённого шага до базы
- * не доедет: справочник пока не в проде, поэтому чинится пересозданием
- * (`down -v`), а не досылкой.
+ * не доедет — а справочник с сентября 2026 в проде, где пересоздать базу нельзя:
+ * данные правятся новым именованным шагом, как схема — новой миграцией.
  */
 import { eq } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 import { buildVariantCode } from '~/modules/catalog/variant-code';
+import { logError } from '../common/error-log';
 import { databaseUrl } from './config';
 import * as data from './seed-data';
 import * as schema from './schema';
@@ -215,6 +216,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error('Заливка справочника провалилась:', error);
+  logError('seed', error);
   process.exit(1);
 });
