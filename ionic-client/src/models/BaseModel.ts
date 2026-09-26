@@ -64,12 +64,20 @@ export default class BaseModel {
     this.baseOpts.headers = headers;
   }
 
+  /**
+   * Протокол берём у страницы, а не из VITE_PROTOCOL: `.env` клиента лежит в
+   * .gitignore, а на прод уезжает `git archive HEAD` — переменной там нет, и в
+   * сборку подставлялась строка «undefined». Наружу это вылезало как
+   * `undefined://zayavka.app/user/api/v1/auth/login` и падало на fetch.
+   * Прописать `http` в коммит тоже нельзя: прод на https, и запрос зарубила бы
+   * блокировка смешанного содержимого. Клиент и API всё равно за одним nginx.
+   */
   static setBaseUrl(url?: string | undefined) {
     const port = import.meta.env.VITE_PORT
       ? `:${import.meta.env.VITE_PORT}`
       : "";
     this.baseURL =
-      url || `${import.meta.env.VITE_PROTOCOL}://${location.hostname + port}`;
+      url || `${location.protocol}//${location.hostname}${port}`;
   }
 
   private static buildUrl(params: string, queries: string[] = []) {
