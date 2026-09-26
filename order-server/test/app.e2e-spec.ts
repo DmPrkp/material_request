@@ -28,13 +28,13 @@ describe('order-server (e2e)', () => {
 
   afterEach(() => app.close());
 
-  it('GET /zaiavka без входа — 401: список только свой', async () => {
-    await request(app.getHttpServer()).get('/order/api/v1/zaiavka').expect(401);
+  it('GET /zayavka без входа — 401: список только свой', async () => {
+    await request(app.getHttpServer()).get('/order/api/v1/zayavka').expect(401);
   });
 
-  it('GET /zaiavka со входом — свои', async () => {
+  it('GET /zayavka со входом — свои', async () => {
     const res = await request(app.getHttpServer())
-      .get('/order/api/v1/zaiavka')
+      .get('/order/api/v1/zayavka')
       .set('X-User-Id', '7')
       .set('X-User-Role', 'USER')
       .expect(200);

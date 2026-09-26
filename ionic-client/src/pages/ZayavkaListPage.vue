@@ -1,5 +1,5 @@
 <template>
-  <ion-page v-if="route.name === 'zaiavka-list'">
+  <ion-page v-if="route.name === 'zayavka-list'">
     <ion-content :class="{ 'with-bulk-bar': editing && selected.size }">
       <ion-refresher
         slot="fixed"
@@ -10,22 +10,22 @@
       <div class="ion-padding">
         <ion-item-divider>
           <ion-title>
-            {{ $t("pages.zaiavka_list.title") }}
+            {{ $t("pages.zayavka_list.title") }}
           </ion-title>
         </ion-item-divider>
       </div>
       <!-- Калькулятор — начало новой заявки: расчёт сам сохраняется и появится здесь. -->
-      <ion-row class="new-zaiavka ion-justify-content-between ion-align-items-center ion-padding-horizontal">
+      <ion-row class="new-zayavka ion-justify-content-between ion-align-items-center ion-padding-horizontal">
         <!-- Режим правки: вместо времени — чекбоксы, строка не открывает заявку, а выделяется. -->
         <CutCornerBtn
           v-if="rows.length"
           @click="toggleEditing"
         >
-          {{ $t(editing ? "pages.zaiavka_list.done" : "pages.zaiavka_list.edit") }}
+          {{ $t(editing ? "pages.zayavka_list.done" : "pages.zayavka_list.edit") }}
         </CutCornerBtn>
         <span v-else />
         <CutCornerBtn @click="router.push({ name: 'calculator' })">
-          {{ $t("pages.zaiavka_list.new") }}
+          {{ $t("pages.zayavka_list.new") }}
         </CutCornerBtn>
       </ion-row>
       <!-- Без входа заявки ничьи: почистят данные сайта — список их больше не найдёт. -->
@@ -41,7 +41,7 @@
           :icon="alertCircle"
         />
         <ion-label class="ion-text-wrap">
-          {{ $t("pages.zaiavka_list.auth_warning") }}
+          {{ $t("pages.zayavka_list.auth_warning") }}
         </ion-label>
       </ion-item>
       <!-- Шапка столбцов — как в самой заявке: одна на весь список, над группами. -->
@@ -49,11 +49,11 @@
         <ion-col class="col-num"> № </ion-col>
 
         <ion-col class="col-system">
-          {{ $t("pages.zaiavka_list.table.system") }}
+          {{ $t("pages.zayavka_list.table.system") }}
         </ion-col>
 
         <ion-col class="col-volume">
-          {{ $t("pages.zaiavka_list.table.volume") }}
+          {{ $t("pages.zayavka_list.table.volume") }}
         </ion-col>
 
         <ion-col
@@ -66,14 +66,14 @@
             :color="allSelected ? 'primary' : undefined"
             role="checkbox"
             :aria-checked="allSelected"
-            :aria-label="$t('pages.zaiavka_list.select_all')"
+            :aria-label="$t('pages.zayavka_list.select_all')"
           />
         </ion-col>
         <ion-col
           v-else
           class="col-time"
         >
-          {{ $t("pages.zaiavka_list.table.time") }}
+          {{ $t("pages.zayavka_list.table.time") }}
         </ion-col>
       </ion-row>
       <!-- Год — полосой, как разделы заявки; день — подзаголовком, как этапы работ. -->
@@ -92,25 +92,25 @@
             </ion-label>
           </ion-item-divider>
           <ion-item
-            v-for="zaiavka in day.items"
-            :key="zaiavka.id"
-            class="zaiavka-row"
-            :class="{ selected: editing && selected.has(zaiavka.id) }"
+            v-for="zayavka in day.items"
+            :key="zayavka.id"
+            class="zayavka-row"
+            :class="{ selected: editing && selected.has(zayavka.id) }"
             button
             :detail="false"
-            @click="onRowClick(zaiavka.id)"
+            @click="onRowClick(zayavka.id)"
           >
             <ion-grid>
               <ion-row>
-                <ion-col class="col-num">{{ zaiavka.id }}</ion-col>
+                <ion-col class="col-num">{{ zayavka.id }}</ion-col>
 
                 <!-- Своё имя (у объединённой) важнее технологии: их там может быть несколько. -->
                 <ion-col class="col-system">
-                  {{ zaiavka.name || systemLabel(zaiavka.system) }}
+                  {{ zayavka.name || systemLabel(zayavka.system) }}
                 </ion-col>
 
                 <ion-col class="col-volume">
-                  {{ volumeLabel(zaiavka) }}
+                  {{ volumeLabel(zayavka) }}
                 </ion-col>
 
                 <ion-col
@@ -118,18 +118,18 @@
                   class="col-time col-check"
                 >
                   <IonIcon
-                    :icon="selected.has(zaiavka.id) ? checkbox : squareOutline"
-                    :color="selected.has(zaiavka.id) ? 'primary' : undefined"
+                    :icon="selected.has(zayavka.id) ? checkbox : squareOutline"
+                    :color="selected.has(zayavka.id) ? 'primary' : undefined"
                     role="checkbox"
-                    :aria-checked="selected.has(zaiavka.id)"
-                    :aria-label="String(zaiavka.id)"
+                    :aria-checked="selected.has(zayavka.id)"
+                    :aria-label="String(zayavka.id)"
                   />
                 </ion-col>
                 <ion-col
                   v-else
                   class="col-time"
                 >
-                  <ion-note>{{ formatTime(zaiavka.createdAt) }}</ion-note>
+                  <ion-note>{{ formatTime(zayavka.createdAt) }}</ion-note>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -151,14 +151,14 @@
           :disabled="busy"
           @click="removeSelected"
         >
-          {{ $t("pages.zaiavka_list.delete", { count: selected.size }) }}
+          {{ $t("pages.zayavka_list.delete", { count: selected.size }) }}
         </ion-button>
         <ion-button
           fill="outline"
           :disabled="busy || selected.size < 2"
           @click="mergeSelected"
         >
-          {{ $t("pages.zaiavka_list.merge") }}
+          {{ $t("pages.zayavka_list.merge") }}
         </ion-button>
       </div>
     </ion-content>
@@ -167,24 +167,24 @@
 </template>
 
 <script setup lang="ts">
-  import Zaiavka from "@/models/zaiavka";
+  import Zayavka from "@/models/zayavka";
   import {
     addKey,
     findKey,
     listKeys,
     removeKeys,
-  } from "@/models/zaiavka/anonymousKeys";
-  import { mergeZaiavki } from "@/models/zaiavka/mergeZaiavki";
-  import { claimAnonymous } from "@/models/zaiavka/claimAnonymous";
+  } from "@/models/zayavka/anonymousKeys";
+  import { mergeZayavki } from "@/models/zayavka/mergeZayavki";
+  import { claimAnonymous } from "@/models/zayavka/claimAnonymous";
   import DictionaryModel from "@/models/DictionaryModel";
   import { useAuthStore } from "@/store/auth";
-  import { useZaiavkaStore } from "@/store/zaiavka";
+  import { useZayavkaStore } from "@/store/zayavka";
   import {
     DictionarySystem,
     MaterialRequestDTO,
     StoredMaterialRequestDTO,
   } from "@/types/dto";
-  import { ZaiavkaType } from "@/types/entity/zaiavka";
+  import { ZayavkaType } from "@/types/entity/zayavka";
   import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
   import {
     alertController,
@@ -205,7 +205,7 @@
   const route = useRoute();
   const router = useRouter();
   const authStore = useAuthStore();
-  const zaiavkaStore = useZaiavkaStore();
+  const zayavkaStore = useZayavkaStore();
   const unitLabel = useUnitLabel();
   const { t } = useI18n({ useScope: "global" });
 
@@ -217,7 +217,7 @@
   }
 
   /** Строка списка: сама заявка разобрана заранее, чтобы не парсить JSON на каждый рендер. */
-  type ZaiavkaRow = {
+  type ZayavkaRow = {
     id: number;
     createdAt: string;
     /** Технический код технологии (EIFS, frame_scaffold); пустой — заявка без него. */
@@ -225,16 +225,16 @@
     name?: string;
     volume?: number;
     /** Разобранная заявка целиком — из неё собирается объединённая. */
-    data?: ZaiavkaType;
+    data?: ZayavkaType;
   };
 
-  type DayGroup = { key: string; label: string; items: ZaiavkaRow[] };
+  type DayGroup = { key: string; label: string; items: ZayavkaRow[] };
   type YearGroup = { year: number; days: DayGroup[] };
 
   /** data приходит строкой JSON — той же, что записал расчёт; битую просто пропускаем. */
-  function parseData(raw: string): ZaiavkaType | undefined {
+  function parseData(raw: string): ZayavkaType | undefined {
     try {
-      return JSON.parse(raw) as ZaiavkaType;
+      return JSON.parse(raw) as ZayavkaType;
     } catch {
       return undefined;
     }
@@ -244,7 +244,7 @@
    * Объём работ — наибольший по этапам: в калькуляторе объём можно задать каждому
    * слою отдельно, а в списке нужна одна цифра, и общая как раз наибольшая.
    */
-  function totalVolume(data?: ZaiavkaType): number | undefined {
+  function totalVolume(data?: ZayavkaType): number | undefined {
     let max = 0;
     for (const stage of data?.materials ?? []) {
       for (const material of stage.materials ?? []) {
@@ -256,12 +256,12 @@
     return max || undefined;
   }
 
-  const rows = computed<ZaiavkaRow[]>(() =>
-    materialRequests.value.map((zaiavka) => {
-      const data = parseData(zaiavka.data);
+  const rows = computed<ZayavkaRow[]>(() =>
+    materialRequests.value.map((zayavka) => {
+      const data = parseData(zayavka.data);
       return {
-        id: zaiavka.id,
-        createdAt: zaiavka.createdAt,
+        id: zayavka.id,
+        createdAt: zayavka.createdAt,
         system: data?.system ?? "",
         name: data?.name,
         volume: totalVolume(data),
@@ -294,7 +294,7 @@
     return systems.value.get(title)?.name || title || "—";
   }
 
-  function volumeLabel(row: ZaiavkaRow) {
+  function volumeLabel(row: ZayavkaRow) {
     if (row.volume === undefined) return "—";
     const unit = systems.value.get(row.system)?.unit;
     // Единицу дописываем только когда знаем её: в списке рядом технологии с разными.
@@ -308,8 +308,8 @@
    */
   const groups = computed<YearGroup[]>(() => {
     const years: YearGroup[] = [];
-    for (const zaiavka of rows.value) {
-      const d = new Date(zaiavka.createdAt);
+    for (const zayavka of rows.value) {
+      const d = new Date(zayavka.createdAt);
       const year = d.getFullYear();
       const key = `${year}-${d.getMonth()}-${d.getDate()}`;
 
@@ -324,13 +324,13 @@
         day = { key, label: `${month} ${pad(d.getDate())}`, items: [] };
         yearGroup.days.push(day);
       }
-      day.items.push(zaiavka);
+      day.items.push(zayavka);
     }
     return years;
   });
 
   function openItem(id: StoredMaterialRequestDTO["id"]) {
-    router.push({ name: "zaiavka", params: { zaiavka: id } });
+    router.push({ name: "zayavka", params: { zayavka: id } });
   }
 
   /** Режим правки списка: выделение и групповые операции над выделенным. */
@@ -368,10 +368,10 @@
   async function removeSelected() {
     const ids = [...selected.value];
     const alert = await alertController.create({
-      header: t("pages.zaiavka_list.delete_confirm.header", {
+      header: t("pages.zayavka_list.delete_confirm.header", {
         count: ids.length,
       }),
-      message: t("pages.zaiavka_list.delete_confirm.message"),
+      message: t("pages.zayavka_list.delete_confirm.message"),
       buttons: [
         { text: t("ui.buttons.cancel"), role: "cancel" },
         { text: t("ui.buttons.remove"), role: "destructive" },
@@ -383,7 +383,7 @@
 
     busy.value = true;
     try {
-      const removed = await deleteZaiavki(ids);
+      const removed = await deleteZayavki(ids);
       // Неудавшиеся остаются выделенными — можно повторить.
       selected.value = new Set(ids.filter((id) => !removed.includes(id)));
       await load();
@@ -397,29 +397,29 @@
    * свой ключ правки, одного запроса на всех нет. Отвечает id удалённых; о тех, что
    * не удались, говорит сама.
    */
-  async function deleteZaiavki(ids: number[]): Promise<number[]> {
+  async function deleteZayavki(ids: number[]): Promise<number[]> {
     const results = await Promise.allSettled(
-      ids.map((id) => Zaiavka.remove(id, findKey(id)))
+      ids.map((id) => Zayavka.remove(id, findKey(id)))
     );
     const removed = ids.filter((_, i) => results[i].status === "fulfilled");
     const failed = ids.length - removed.length;
 
     removeKeys(removed);
-    zaiavkaStore.removeMaterialRequests(removed);
+    zayavkaStore.removeMaterialRequests(removed);
     if (failed) {
       console.error("Не удалось удалить заявки", results);
-      await notify(t("pages.zaiavka_list.delete_error", { count: failed }));
+      await notify(t("pages.zayavka_list.delete_error", { count: failed }));
     }
     return removed;
   }
 
   /**
    * Объединение: имя обязательно — у новой заявки несколько технологий, и без имени
-   * в списке её не отличить. Сами правила слияния — mergeZaiavki.
+   * в списке её не отличить. Сами правила слияния — mergeZayavki.
    *
    * Исходные удаляем только после того, как новая сохранилась: упади создание —
    * данные не должны пропасть. Не удалилась какая-то из исходных — новая всё равно
-   * есть, о неудаче скажет deleteZaiavki, а оставшаяся будет видна в списке.
+   * есть, о неудаче скажет deleteZayavki, а оставшаяся будет видна в списке.
    */
   async function mergeSelected() {
     const sources = rows.value.filter(
@@ -432,22 +432,22 @@
 
     busy.value = true;
     try {
-      const data = mergeZaiavki(
-        sources.map((row) => ({ id: row.id, data: row.data as ZaiavkaType })),
+      const data = mergeZayavki(
+        sources.map((row) => ({ id: row.id, data: row.data as ZayavkaType })),
         name
       );
-      let created: Awaited<ReturnType<Zaiavka["create"]>>;
+      let created: Awaited<ReturnType<Zayavka["create"]>>;
       try {
-        created = await new Zaiavka(data).create();
+        created = await new Zayavka(data).create();
       } catch (error) {
         console.error("Не удалось объединить заявки", error);
-        await notify(t("pages.zaiavka_list.merge_error"));
+        await notify(t("pages.zayavka_list.merge_error"));
         return;
       }
       // Без входа новая заявка ничья, как и исходные: её ключ правки — только здесь.
       if (created.key) addKey(created.id, created.key);
 
-      await deleteZaiavki(sources.map((row) => row.id));
+      await deleteZayavki(sources.map((row) => row.id));
       openItem(created.id);
     } finally {
       busy.value = false;
@@ -457,22 +457,22 @@
   /** Имя новой заявки; пустое не пускаем — окно остаётся открытым. Отмена — undefined. */
   async function askMergeName(): Promise<string | undefined> {
     const alert = await alertController.create({
-      header: t("pages.zaiavka_list.merge_name.header", {
+      header: t("pages.zayavka_list.merge_name.header", {
         count: selected.value.size,
       }),
-      message: t("pages.zaiavka_list.merge_name.message"),
+      message: t("pages.zayavka_list.merge_name.message"),
       inputs: [
         {
           name: "name",
           type: "text",
-          placeholder: t("pages.zaiavka_list.merge_name.placeholder"),
+          placeholder: t("pages.zayavka_list.merge_name.placeholder"),
           attributes: { maxlength: 100 },
         },
       ],
       buttons: [
         { text: t("ui.buttons.cancel"), role: "cancel" },
         {
-          text: t("pages.zaiavka_list.merge"),
+          text: t("pages.zayavka_list.merge"),
           role: "confirm",
           handler: (values: { name?: string }) => Boolean(values.name?.trim()),
         },
@@ -505,9 +505,9 @@
     if (authStore.isAuthenticated) {
       // Вошли, а перенос ещё идёт — дождёмся, иначе только что забранные не попадут в список.
       await claimAnonymous();
-      materialRequests.value = await Zaiavka.findAll();
+      materialRequests.value = await Zayavka.findAll();
     } else {
-      materialRequests.value = await Zaiavka.findByIds(
+      materialRequests.value = await Zayavka.findByIds(
         listKeys().map((item) => item.id)
       );
     }
@@ -521,7 +521,7 @@
   watch(
     () => route.name,
     (name) => {
-      if (name === "zaiavka-list") void load();
+      if (name === "zayavka-list") void load();
       // Ушли в заявку или калькулятор — режим правки не тащим обратно.
       else if (editing.value) toggleEditing();
     }
@@ -546,7 +546,7 @@
 </script>
 
 <style scoped>
-  .new-zaiavka {
+  .new-zayavka {
     margin-bottom: 12px;
   }
 
@@ -559,7 +559,7 @@
     cursor: pointer;
   }
 
-  .zaiavka-row.selected {
+  .zayavka-row.selected {
     --background: rgba(var(--ion-color-primary-rgb), 0.12);
   }
 
@@ -571,34 +571,34 @@
 
   /* ion-item по умолчанию отдаёт краям 16px, да ещё 5px своих у ion-grid внутри
      и по 5px у каждой колонки — на 375px это полстолбца, потраченных на воздух. */
-  .zaiavka-row {
+  .zayavka-row {
     --padding-start: 8px;
     --inner-padding-end: 8px;
   }
 
   /* width/min-width — чтобы строка жила по ширине экрана: без них длинное
      название распирает grid, и столбцы уезжают за правый край. */
-  .zaiavka-row ion-grid {
+  .zayavka-row ion-grid {
     padding: 0;
     width: 100%;
     min-width: 0;
   }
 
   .table-header,
-  .zaiavka-row ion-row {
+  .zayavka-row ion-row {
     min-width: 0;
     flex-wrap: nowrap;
   }
 
   .table-header,
-  .zaiavka-row ion-grid {
+  .zayavka-row ion-grid {
     --ion-grid-column-padding: 0;
   }
 
   /* Длинное название — одной строкой: перенос ломал высоту строк и раздвигал столбцы.
      display: block — чтобы text-overflow работал на самой колонке, без вложенных обёрток. */
   .table-header ion-col,
-  .zaiavka-row ion-col {
+  .zayavka-row ion-col {
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -609,7 +609,7 @@
      сколько занимают, а весь остаток забирает название. Одни и те же классы у
      шапки и у строк, иначе столбцы разъезжаются. */
   .table-header .col-num,
-  .zaiavka-row .col-num {
+  .zayavka-row .col-num {
     flex: 0 0 28px;
     max-width: 28px;
     text-align: start;
@@ -618,7 +618,7 @@
   /* basis 0 и min-width: 0 — иначе длинное название распирает столбец, и ion-row
      переносит остальные на вторую строку вместо обрезки. */
   .table-header .col-system,
-  .zaiavka-row .col-system {
+  .zayavka-row .col-system {
     flex: 1 1 0;
     min-width: 0;
     max-width: none;
@@ -629,7 +629,7 @@
      и «объем» слипался с «время» в шапке. */
   /* 72px — под «9999 м²» (63px в Russo One 16px) плюс отступ: больше объём не бывает. */
   .table-header .col-volume,
-  .zaiavka-row .col-volume {
+  .zayavka-row .col-volume {
     flex: 0 0 72px;
     max-width: 72px;
     padding-inline-start: 8px;
@@ -638,7 +638,7 @@
 
   /* 54px — «время» 14px (46px) плюс отступ; значения в ion-note ещё уже (41px). */
   .table-header .col-time,
-  .zaiavka-row .col-time {
+  .zayavka-row .col-time {
     flex: 0 0 54px;
     max-width: 54px;
     padding-inline-start: 8px;

@@ -4,8 +4,8 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.zaiavki": {
-      "name": "zaiavki",
+    "public.zayavki": {
+      "name": "zayavki",
       "schema": "",
       "columns": {
         "id": {
@@ -15,7 +15,7 @@
           "notNull": true,
           "identity": {
             "type": "byDefault",
-            "name": "zaiavki_id_seq",
+            "name": "zayavki_id_seq",
             "schema": "public",
             "increment": "1",
             "startWith": "1",
@@ -59,8 +59,8 @@
         }
       },
       "indexes": {
-        "zaiavki_user_idx": {
-          "name": "zaiavki_user_idx",
+        "zayavki_user_idx": {
+          "name": "zayavki_user_idx",
           "columns": [
             {
               "expression": "user_id",

@@ -1,13 +1,13 @@
-import { ZaiavkaType } from "@/types/entity/zaiavka";
-import BaseOrderModel from "./BaseZaiavkaModel";
+import { ZayavkaType } from "@/types/entity/zayavka";
+import BaseOrderModel from "./BaseZayavkaModel";
 import { MaterialRequestDTO } from "@/types/dto";
 
-export default class Zaiavka {
-  data: ZaiavkaType;
+export default class Zayavka {
+  data: ZayavkaType;
 
   static async findAll() {
     const materialRequests =
-      await BaseOrderModel.get<MaterialRequestDTO[]>("/zaiavka");
+      await BaseOrderModel.get<MaterialRequestDTO[]>("/zayavka");
     return materialRequests || [];
   }
 
@@ -15,14 +15,14 @@ export default class Zaiavka {
   static async findByIds(ids: number[]) {
     if (!ids.length) return [];
     const materialRequests = await BaseOrderModel.get<MaterialRequestDTO[]>(
-      `/zaiavka?ids=${ids.join(",")}`,
+      `/zayavka?ids=${ids.join(",")}`,
     );
     return materialRequests || [];
   }
 
   static claim(items: { id: number; key: string }[]) {
     return BaseOrderModel.post<{ claimed: number[] }>({
-      params: "/zaiavka/claim",
+      params: "/zayavka/claim",
       body: { items },
     });
   }
@@ -31,19 +31,19 @@ export default class Zaiavka {
   static remove(id: number, key?: string) {
     const headers = {
       ...(BaseOrderModel.baseOpts.headers as Record<string, string>),
-      ...(key ? { "X-Zaiavka-Key": key } : {}),
+      ...(key ? { "X-Zayavka-Key": key } : {}),
     };
-    return BaseOrderModel.delete({ params: `/zaiavka/${id}`, opts: { headers } });
+    return BaseOrderModel.delete({ params: `/zayavka/${id}`, opts: { headers } });
   }
 
   static async find(id: number) {
     const materialRequest = await BaseOrderModel.get<MaterialRequestDTO>(
-      `/zaiavka/${id}`,
+      `/zayavka/${id}`,
     );
     return materialRequest;
   }
 
-  constructor(data: ZaiavkaType) {
+  constructor(data: ZayavkaType) {
     this.data = {
       // name — только если есть: у обычной заявки поля нет, и пустое писать незачем.
       ...(data.name ? { name: data.name } : {}),
@@ -58,7 +58,7 @@ export default class Zaiavka {
   create(opts?: RequestInit) {
     // key — только у заведённой без входа: ключ правки, сервер показывает его один раз.
     return BaseOrderModel.post<MaterialRequestDTO & { key?: string }>({
-      params: "/zaiavka",
+      params: "/zayavka",
       body: this.data,
       opts,
     });
@@ -78,10 +78,10 @@ export default class Zaiavka {
   update(id: number, { key, ...opts }: RequestInit & { key?: string } = {}) {
     const headers = {
       ...(BaseOrderModel.baseOpts.headers as Record<string, string>),
-      ...(key ? { "X-Zaiavka-Key": key } : {}),
+      ...(key ? { "X-Zayavka-Key": key } : {}),
     };
     return BaseOrderModel.put<MaterialRequestDTO>({
-      params: `/zaiavka/${id}`,
+      params: `/zayavka/${id}`,
       body: this.data,
       opts: { ...opts, headers },
     });

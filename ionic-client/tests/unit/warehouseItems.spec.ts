@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { zaiavkaToWarehouseItems } from "@/components/pagesParts/warehouses/zaiavkaItems";
-import type { ZaiavkaItemsSource } from "@/components/pagesParts/warehouses/zaiavkaItems";
+import { zayavkaToWarehouseItems } from "@/components/pagesParts/warehouses/zayavkaItems";
+import type { ZayavkaItemsSource } from "@/components/pagesParts/warehouses/zayavkaItems";
 
 const material = (uniqKey: string, consumption: number, volume: number) =>
   ({
@@ -12,16 +12,16 @@ const material = (uniqKey: string, consumption: number, volume: number) =>
     description: "",
     consumption,
     volume,
-  }) as ZaiavkaItemsSource["materials"][number]["materials"][number];
+  }) as ZayavkaItemsSource["materials"][number]["materials"][number];
 
 const stage = (
   id: number,
-  materials: ZaiavkaItemsSource["materials"][number]["materials"],
+  materials: ZayavkaItemsSource["materials"][number]["materials"],
 ) => ({ id, title: `этап ${id}`, materials });
 
-describe("zaiavkaToWarehouseItems", () => {
+describe("zayavkaToWarehouseItems", () => {
   it("материал считает как на экране (расход × объём) и суммирует по этапам", () => {
-    const items = zaiavkaToWarehouseItems({
+    const items = zayavkaToWarehouseItems({
       materials: [
         stage(1, [material("7:227", 2.5, 10)]),
         stage(2, [material("7:227", 1, 4)]),
@@ -34,7 +34,7 @@ describe("zaiavkaToWarehouseItems", () => {
   });
 
   it("инструмент берёт как есть: между этапами его свёл расчёт", () => {
-    const items = zaiavkaToWarehouseItems({
+    const items = zayavkaToWarehouseItems({
       materials: [],
       hand_tools: [
         {
@@ -65,7 +65,7 @@ describe("zaiavkaToWarehouseItems", () => {
   });
 
   it("нули и позиции без кода сборки не едут: на складе им делать нечего", () => {
-    const items = zaiavkaToWarehouseItems({
+    const items = zayavkaToWarehouseItems({
       materials: [
         stage(1, [material("7:227", 0, 10), material("", 2, 3)]),
       ],
@@ -78,7 +78,7 @@ describe("zaiavkaToWarehouseItems", () => {
 
   it("пустая заявка — пустой список", () => {
     expect(
-      zaiavkaToWarehouseItems({ materials: [], hand_tools: [], power_tools: [] }),
+      zayavkaToWarehouseItems({ materials: [], hand_tools: [], power_tools: [] }),
     ).toEqual([]);
   });
 });

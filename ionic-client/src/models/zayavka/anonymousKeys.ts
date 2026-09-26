@@ -1,10 +1,10 @@
 /**
  * Заявки без входа лежат на сервере ничьими, а браузер помнит только их id и ключ
- * правки: по нему order-server пускает PUT и отдаёт заявку вошедшему (POST /zaiavka/claim).
+ * правки: по нему order-server пускает PUT и отдаёт заявку вошедшему (POST /zayavka/claim).
  * Сама заявка здесь не хранится — почистят данные сайта, пропадёт только право правки,
  * а по ссылке заявка останется.
  */
-const STORAGE_KEY = "mr-zaiavka-keys";
+const STORAGE_KEY = "mr-zayavka-keys";
 
 export type AnonymousKey = { id: number; key: string };
 

@@ -32,10 +32,10 @@ const routes = [
     name: "about",
   },
   // /ru/main пуст (туда ведёт только логотип) — в sitemap его нет. Калькулятор
-  // живёт в «Заявках»: /ru/zaiavka/calculator/...
+  // живёт в «Заявках»: /ru/zayavka/calculator/...
   {
-    path: "ru/zaiavka",
-    name: "zaiavka-list",
+    path: "ru/zayavka",
+    name: "zayavka-list",
     children: [
       {
         path: "calculator",
@@ -58,7 +58,7 @@ const routes = [
   },
 ];
 
-const baseUrl = "https://zaiavka.xyz";
+const baseUrl = "https://zayavka.app";
 
 // Recursively extract all route paths
 function getPaths(routes, parentPath = "") {
@@ -81,7 +81,7 @@ const pages = getPaths(routes).map((path) => ({
   url: path.replace(/\/$/, ""), // Remove trailing slashes
   lastmod: new Date().toISOString().split("T")[0], // Format YYYY-MM-DD
   changefreq: "weekly",
-  priority: path === "/ru/zaiavka" ? 1.0 : 0.8,
+  priority: path === "/ru/zayavka" ? 1.0 : 0.8,
 }));
 
 // Generate XML content

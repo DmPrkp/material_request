@@ -19,38 +19,38 @@ import type { AuthUser } from '~/auth/auth-user';
 import { AuthGuard, IdentifyGuard } from '~/auth/auth.guard';
 import { CurrentUser } from '~/auth/current-user.decorator';
 
-import { ClaimDto, ZaiavkaBodyDto } from './zaiavka.dto';
-import { ZaiavkaService } from './zaiavka.service';
+import { ClaimDto, ZayavkaBodyDto } from './zayavka.dto';
+import { ZayavkaService } from './zayavka.service';
 
 /** Ключ правки ничьей заявки — отдельным заголовком: Authorization занят токеном. */
-export const ZAIAVKA_KEY_HEADER = 'x-zaiavka-key';
+export const ZAYAVKA_KEY_HEADER = 'x-zayavka-key';
 
-@Controller('zaiavka')
+@Controller('zayavka')
 @UseGuards(IdentifyGuard)
-export class ZaiavkaController {
-  constructor(private readonly zaiavkaService: ZaiavkaService) {}
+export class ZayavkaController {
+  constructor(private readonly zayavkaService: ZayavkaService) {}
 
   /** Без входа — ничья заявка, в ответе ключ правки. */
   @Post()
-  create(@Body() body: ZaiavkaBodyDto, @CurrentUser() user?: AuthUser) {
-    return this.zaiavkaService.create(body, user);
+  create(@Body() body: ZayavkaBodyDto, @CurrentUser() user?: AuthUser) {
+    return this.zayavkaService.create(body, user);
   }
 
   @Post('claim')
   @HttpCode(200)
   @UseGuards(AuthGuard)
   claim(@Body() body: ClaimDto, @CurrentUser() user: AuthUser) {
-    return this.zaiavkaService.claim(user, body.items);
+    return this.zayavkaService.claim(user, body.items);
   }
 
   @Put(':id')
   put(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: ZaiavkaBodyDto,
+    @Body() body: ZayavkaBodyDto,
     @CurrentUser() user?: AuthUser,
-    @Headers(ZAIAVKA_KEY_HEADER) key?: string,
+    @Headers(ZAYAVKA_KEY_HEADER) key?: string,
   ) {
-    return this.zaiavkaService.put(id, body, user, key);
+    return this.zayavkaService.put(id, body, user, key);
   }
 
   /** Права — как у PUT; ничью удаляет тот, у кого ключ. Групповое удаление в списке — по одной. */
@@ -59,9 +59,9 @@ export class ZaiavkaController {
   remove(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user?: AuthUser,
-    @Headers(ZAIAVKA_KEY_HEADER) key?: string,
+    @Headers(ZAYAVKA_KEY_HEADER) key?: string,
   ) {
-    return this.zaiavkaService.remove(id, user, key);
+    return this.zayavkaService.remove(id, user, key);
   }
 
   /**
@@ -70,15 +70,15 @@ export class ZaiavkaController {
    */
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.zaiavkaService.get(id);
+    return this.zayavkaService.get(id);
   }
 
   /** ?ids= — ничьи заявки этого браузера (без входа); без него — свои, со входом. */
   @Get()
   findAll(@CurrentUser() user?: AuthUser, @Query('ids') ids?: string) {
-    if (ids !== undefined) return this.zaiavkaService.lookup(parseIds(ids));
+    if (ids !== undefined) return this.zayavkaService.lookup(parseIds(ids));
     if (!user) throw new UnauthorizedException();
-    return this.zaiavkaService.getAll(user);
+    return this.zayavkaService.getAll(user);
   }
 }
 

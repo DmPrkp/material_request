@@ -1,5 +1,5 @@
 <template>
-  <ion-page v-if="route.name === 'zaiavka'">
+  <ion-page v-if="route.name === 'zayavka'">
     <ion-content :class="{ 'with-bulk-bar': loaded && authStore.isAuthenticated }">
       <ion-refresher
         slot="fixed"
@@ -29,7 +29,7 @@
         v-model="powerTools"
       />
       <MaterialActionPanel
-        :id="Number(route.params.zaiavka)"
+        :id="Number(route.params.zayavka)"
         :system="system"
         :materials="resultMatList"
       />
@@ -37,20 +37,20 @@
       <AddToWarehouseButton
         v-if="loaded"
         slot="fixed"
-        :zaiavka="resultMatList"
+        :zayavka="resultMatList"
       />
     </ion-content>
   </ion-page>
   <router-view v-else />
 </template>
 <script setup lang="ts">
-  import { useZaiavkaStore } from "@/store/zaiavka";
+  import { useZayavkaStore } from "@/store/zayavka";
   import { RefresherCustomEvent } from "@ionic/vue";
   import { onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
   import { ResultMaterialsDTO, StoredMaterialRequestDTO } from "@/types/dto";
-  import { ZaiavkaType } from "@/types/entity/zaiavka";
-  import Zaiavka from "@/models/zaiavka";
+  import { ZayavkaType } from "@/types/entity/zayavka";
+  import Zayavka from "@/models/zayavka";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import HandToolListItems from "@/components/pagesParts/handTools/HandToolListItems.vue";
   import HandToolListHeader from "@/components/pagesParts/handTools/HandToolListHeader.vue";
@@ -60,7 +60,7 @@
   import AddToWarehouseButton from "@/components/pagesParts/warehouses/AddToWarehouseButton.vue";
   import { useAuthStore } from "@/store/auth";
 
-  const store = useZaiavkaStore();
+  const store = useZayavkaStore();
   const authStore = useAuthStore();
   const route = useRoute();
   const materials = ref<StoredMaterialRequestDTO["data"]["materials"]>([]);
@@ -81,7 +81,7 @@
   }
 
   onMounted(async () => {
-    const id = Number(route.params.zaiavka);
+    const id = Number(route.params.zayavka);
 
     let mr = store.getMaterialRequest(id);
 
@@ -90,8 +90,8 @@
       return;
     }
 
-    const materialRequestsDTO = await Zaiavka.find(
-      Number(route.params.zaiavka),
+    const materialRequestsDTO = await Zayavka.find(
+      Number(route.params.zayavka),
     );
 
     if (!materialRequestsDTO) {
@@ -99,7 +99,7 @@
     }
 
     store.setMaterialRequest(materialRequestsDTO);
-    mr = store.getMaterialRequest(Number(route.params.zaiavka));
+    mr = store.getMaterialRequest(Number(route.params.zayavka));
 
     if (!mr) {
       return;
@@ -108,13 +108,13 @@
     setMaterials(mr.data);
   });
 
-  function setMaterials(zaiavka: ZaiavkaType) {
-    resultMatList.value = zaiavka;
+  function setMaterials(zayavka: ZayavkaType) {
+    resultMatList.value = zayavka;
     loaded.value = true;
-    materials.value = zaiavka.materials;
-    handTools.value = zaiavka.hand_tools;
-    powerTools.value = zaiavka.power_tools;
-    system.value = zaiavka.system;
+    materials.value = zayavka.materials;
+    handTools.value = zayavka.hand_tools;
+    powerTools.value = zayavka.power_tools;
+    system.value = zayavka.system;
   }
 </script>
 

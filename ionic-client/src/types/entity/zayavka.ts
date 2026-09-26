@@ -1,6 +1,6 @@
 import { MaterialListDTO, MergedHandTool, PowerTool } from "../dto";
 
-export type ZaiavkaType = {
+export type ZayavkaType = {
   id?: number;
   /** Имя, которое дал пользователь; пока его просит только объединение заявок. */
   name?: string;

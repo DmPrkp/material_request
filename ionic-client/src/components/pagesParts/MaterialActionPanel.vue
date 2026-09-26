@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-  import Zaiavka from "@/models/zaiavka";
+  import Zayavka from "@/models/zayavka";
   import { ResultMaterialsDTO } from "@/types/dto";
   import {
     logoWhatsapp,
@@ -54,7 +54,7 @@
 
   /**
    * Сохранять вручную больше нечего: страница расчёта пишет заявку сама
-   * (useZaiavkaAutosave). Ссылке для мессенджера нужен id — его отдаёт ensureSaved,
+   * (useZayavkaAutosave). Ссылке для мессенджера нужен id — его отдаёт ensureSaved,
    * а на странице готовой заявки он уже есть в props.id.
    */
   const props = defineProps<{
@@ -73,8 +73,8 @@
   function createFullPath(orderId: number): string {
     const origin = window.location.origin;
     const route = router.resolve({
-      name: "zaiavka",
-      params: { zaiavka: orderId },
+      name: "zayavka",
+      params: { zayavka: orderId },
     });
     return origin + route.fullPath;
   }
@@ -84,8 +84,8 @@
       ...props.materials,
       system: props.system || route.params.system.toString(),
     };
-    const zaiavka = new Zaiavka(data);
-    await zaiavka.generateSheetFile("ods");
+    const zayavka = new Zayavka(data);
+    await zayavka.generateSheetFile("ods");
   }
 
   async function shareOnWhatsApp() {

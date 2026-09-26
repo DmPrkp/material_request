@@ -6,7 +6,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /etc/letsencrypt/live/zaiavka.xyz
+RUN mkdir -p /etc/letsencrypt/live/zayavka.app
 
 # Главный конфиг — ради модуля njs и env JWT_SECRET (см. шапку main.conf).
 COPY main.conf /etc/nginx/nginx.conf

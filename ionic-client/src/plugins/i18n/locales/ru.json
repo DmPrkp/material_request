@@ -1,8 +1,8 @@
 {
-  "title": "Zaiavka.ru",
+  "title": "Zayavka.app",
   "footer": {
     "about": "О проекте",
-    "zaiavka": "Заявки",
+    "zayavka": "Заявки",
     "auth": "Войти",
     "catalog": "Сборники",
     "warehouses": "Склады"
@@ -99,7 +99,7 @@
         }
       }
     },
-    "zaiavka_list": {
+    "zayavka_list": {
       "new": "новая заявка",
       "auth_warning": "Заявки привязаны только к этому браузеру. Для сохранности данных лучше авторизоваться",
       "title": "Заявки на материалы",

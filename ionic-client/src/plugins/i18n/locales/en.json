@@ -1,8 +1,8 @@
 {
-  "title": "Zaiavka.ru",
+  "title": "Zayavka.app",
   "footer": {
     "about": "About",
-    "zaiavka": "Requests",
+    "zayavka": "Requests",
     "auth": "Sign in",
     "catalog": "Catalogs",
     "warehouses": "Warehouses"
@@ -99,7 +99,7 @@
         }
       }
     },
-    "zaiavka_list": {
+    "zayavka_list": {
       "new": "new request",
       "auth_warning": "Requests are tied to this browser only. Sign in to keep your data safe",
       "title": "Materials requests",

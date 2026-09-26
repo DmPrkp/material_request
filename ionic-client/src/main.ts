@@ -60,7 +60,7 @@ import BaseModel from "./models/BaseModel";
 import AuthModel from "./models/AuthModel";
 import { useAuthStore } from "./store/auth";
 import { AUTH_ENABLED } from "./constants/auth";
-import { claimAnonymous } from "./models/zaiavka/claimAnonymous";
+import { claimAnonymous } from "./models/zayavka/claimAnonymous";
 
 const head = createHead();
 const pinia = createPinia();
@@ -105,7 +105,7 @@ router.beforeEach(async (to) => {
       const redirectTarget =
         typeof to.query.redirect === "string"
           ? (to.query.redirect as string)
-          : `/${localeParam}/zaiavka`;
+          : `/${localeParam}/zayavka`;
       return redirectTarget;
     }
     return true;

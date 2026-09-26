@@ -261,7 +261,7 @@ export default class DictionaryModel extends BaseModel {
   // отдают одно name на языке страницы. ?translations=all отключает сворачивание.
 
   /**
-   * Технология по техническому коду из адреса калькулятора (/zaiavka/calculator/facade/EIFS) —
+   * Технология по техническому коду из адреса калькулятора (/zayavka/calculator/facade/EIFS) —
    * вместе с единицей объёма. Не видна или нет такой — undefined, как у всех get().
    */
   static systemByTitle(title: string) {

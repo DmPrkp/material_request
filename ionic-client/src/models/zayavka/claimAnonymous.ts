@@ -1,4 +1,4 @@
-import Zaiavka from "./index";
+import Zayavka from "./index";
 import { listKeys, removeKeys } from "./anonymousKeys";
 
 let claiming: Promise<void> | undefined;
@@ -15,7 +15,7 @@ export function claimAnonymous(): Promise<void> {
       const items = listKeys();
       if (!items.length) return;
       try {
-        await Zaiavka.claim(items);
+        await Zayavka.claim(items);
         removeKeys(items.map((item) => item.id));
       } catch (error) {
         console.error("Не удалось перенести заявки в аккаунт", error);

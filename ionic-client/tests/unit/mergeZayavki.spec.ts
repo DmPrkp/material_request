@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { mergeZaiavki } from "@/models/zaiavka/mergeZaiavki";
-import type { ZaiavkaType } from "@/types/entity/zaiavka";
+import { mergeZayavki } from "@/models/zayavka/mergeZayavki";
+import type { ZayavkaType } from "@/types/entity/zayavka";
 
 const handTool = (uniqKey: string, adjusted_consumption: number) => ({
   uniqKey,
@@ -19,7 +19,7 @@ const powerTool = (uniqKey: string, adjusted_consumption: number) => ({
   adjusted_consumption,
 });
 
-const zaiavka = (over: Partial<ZaiavkaType>): ZaiavkaType => ({
+const zayavka = (over: Partial<ZayavkaType>): ZayavkaType => ({
   system: "EIFS",
   materials: [],
   hand_tools: [],
@@ -27,14 +27,14 @@ const zaiavka = (over: Partial<ZaiavkaType>): ZaiavkaType => ({
   ...over,
 });
 
-describe("mergeZaiavki", () => {
+describe("mergeZayavki", () => {
   it("этапы идут подряд по заявкам в порядке создания, с номером заявки в названии", () => {
-    const merged = mergeZaiavki(
+    const merged = mergeZayavki(
       [
-        { id: 9, data: zaiavka({ materials: [{ id: 1, title: "Грунт", materials: [] }] }) },
+        { id: 9, data: zayavka({ materials: [{ id: 1, title: "Грунт", materials: [] }] }) },
         {
           id: 4,
-          data: zaiavka({
+          data: zayavka({
             materials: [
               { id: 1, title: "Грунт", materials: [] },
               { id: 2, title: "Клей", materials: [] },
@@ -54,23 +54,23 @@ describe("mergeZaiavki", () => {
   });
 
   it("ручной инструмент складывается, электро — по максимуму", () => {
-    const merged = mergeZaiavki(
+    const merged = mergeZayavki(
       [
         {
           id: 1,
-          data: zaiavka({
+          data: zayavka({
             hand_tools: [handTool("1:5", 2), handTool("1:6", 1)],
             power_tools: [powerTool("2", 1)],
           }),
         },
         {
           id: 2,
-          data: zaiavka({
+          data: zayavka({
             hand_tools: [handTool("1:5", 3)],
             power_tools: [powerTool("2", 3)],
           }),
         },
-        { id: 3, data: zaiavka({ power_tools: [powerTool("2", 2)] }) },
+        { id: 3, data: zayavka({ power_tools: [powerTool("2", 2)] }) },
       ],
       "x"
     );
@@ -83,16 +83,16 @@ describe("mergeZaiavki", () => {
   });
 
   it("исходники не мутирует", () => {
-    const source = zaiavka({ hand_tools: [handTool("1:5", 2)] });
-    mergeZaiavki([{ id: 1, data: source }, { id: 2, data: source }], "x");
+    const source = zayavka({ hand_tools: [handTool("1:5", 2)] });
+    mergeZayavki([{ id: 1, data: source }, { id: 2, data: source }], "x");
     expect(source.hand_tools[0].adjusted_consumption).toBe(2);
   });
 
   it("system — общий, если один; иначе перечень", () => {
-    expect(mergeZaiavki([{ id: 1, data: zaiavka({}) }, { id: 2, data: zaiavka({}) }], "x").system).toBe("EIFS");
+    expect(mergeZayavki([{ id: 1, data: zayavka({}) }, { id: 2, data: zayavka({}) }], "x").system).toBe("EIFS");
     expect(
-      mergeZaiavki(
-        [{ id: 1, data: zaiavka({}) }, { id: 2, data: zaiavka({ system: "frame_scaffold" }) }],
+      mergeZayavki(
+        [{ id: 1, data: zayavka({}) }, { id: 2, data: zayavka({ system: "frame_scaffold" }) }],
         "x"
       ).system
     ).toBe("EIFS, frame_scaffold");

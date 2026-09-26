@@ -9,15 +9,15 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import type { Database } from '~/db/db.module';
 import * as schema from '~/db/schema';
-import { zaiavki } from '~/db/schema';
+import { zayavki } from '~/db/schema';
 
-import { ZaiavkaService } from './zaiavka.service';
+import { ZayavkaService } from './zayavka.service';
 
 /**
  * Настоящий Postgres в памяти (PGlite) с той же миграцией, что в проде: моки цепочек
  * Drizzle проверяли бы только, что вызваны методы, а не что условия в SQL верные.
  */
-describe('ZaiavkaService', () => {
+describe('ZayavkaService', () => {
   const author = { id: 7, role: 'USER' as const };
   const admin = { id: 1, role: 'ADMIN' as const };
   const data = { hand_tools: [], materials: [], power_tools: [], system: 'EIFS' };
@@ -25,30 +25,30 @@ describe('ZaiavkaService', () => {
 
   let client: PGlite;
   let db: ReturnType<typeof drizzle<typeof schema>>;
-  let service: ZaiavkaService;
+  let service: ZayavkaService;
 
   beforeAll(async () => {
     client = new PGlite();
     db = drizzle(client, { schema, casing: 'snake_case' });
     await migrate(db, { migrationsFolder: join(process.cwd(), 'drizzle') });
     // Сервис типизирован под node-postgres; API запросов у драйверов общий.
-    service = new ZaiavkaService(db as unknown as Database);
+    service = new ZayavkaService(db as unknown as Database);
   });
 
   afterAll(() => client.close());
 
   beforeEach(async () => {
-    await db.execute(sql`TRUNCATE zaiavki RESTART IDENTITY`);
+    await db.execute(sql`TRUNCATE zayavki RESTART IDENTITY`);
   });
 
   const seed = (rows: { id: number; user: number | null; editKeyHash?: string | null; updatedAt?: Date }[]) =>
-    db.insert(zaiavki).values(rows.map((row) => ({ data, editKeyHash: null, ...row })));
+    db.insert(zayavki).values(rows.map((row) => ({ data, editKeyHash: null, ...row })));
 
   const byId = async (id: number) =>
     (
       await db
         .select()
-        .from(zaiavki)
+        .from(zayavki)
         .where(sql`id = ${id}`)
     )[0];
 
@@ -78,7 +78,7 @@ describe('ZaiavkaService', () => {
     expect(typeof res.data).toBe('string');
     expect(JSON.parse(res.data)).toEqual(data);
     const [{ name }] = (
-      await db.execute<{ name: string }>(sql`SELECT jsonb_typeof(data) AS name FROM zaiavki`)
+      await db.execute<{ name: string }>(sql`SELECT jsonb_typeof(data) AS name FROM zayavki`)
     ).rows;
     expect(name).toBe('object');
   });
@@ -124,7 +124,7 @@ describe('ZaiavkaService', () => {
     await expect(service.remove(5, undefined, 'wrong')).rejects.toBeInstanceOf(ForbiddenException);
     await service.remove(5, undefined, 'secret');
     await expect(service.remove(9, author)).rejects.toBeInstanceOf(NotFoundException);
-    expect(await db.select().from(zaiavki)).toEqual([]);
+    expect(await db.select().from(zayavki)).toEqual([]);
   });
 
   it('список — только свои, и у админа тоже; по ids — любые, новые сверху', async () => {
@@ -169,7 +169,7 @@ describe('ZaiavkaService', () => {
 
     await service.removeStaleAnonymous();
 
-    expect((await db.select({ id: zaiavki.id }).from(zaiavki)).map((r) => r.id).sort()).toEqual([2, 3]);
+    expect((await db.select({ id: zayavki.id }).from(zayavki)).map((r) => r.id).sort()).toEqual([2, 3]);
   });
 
   it('нет такой — 404', async () => {

@@ -52,9 +52,9 @@
     name: "catalog",
     icon: libraryOutline,
   };
-  const ZAIAVKA = {
-    link: "zaiavka",
-    name: "zaiavka",
+  const ZAYAVKA = {
+    link: "zayavka",
+    name: "zayavka",
     icon: documentsOutline,
   };
   const WAREHOUSES = {
@@ -74,10 +74,10 @@
     // Пока авторизация выключена флагом, вкладку входа не показываем
     // и работаем так, будто пользователь уже вошёл.
     if (!AUTH_ENABLED || authStore.isAuthenticated) {
-      return [CATALOG, ZAIAVKA, WAREHOUSES];
+      return [CATALOG, ZAYAVKA, WAREHOUSES];
     }
 
-    return [CATALOG, AUTH, ZAIAVKA];
+    return [CATALOG, AUTH, ZAYAVKA];
   });
 
   const getLocalizedRoute = (routeName: string) => {

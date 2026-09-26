@@ -29,13 +29,13 @@
   import { tokenUser } from "@/store/authToken";
   import type { Warehouse } from "@/types/dto";
   import WarehousePickerModal from "./WarehousePickerModal.vue";
-  import { zaiavkaToWarehouseItems, type ZaiavkaItemsSource } from "./zaiavkaItems";
+  import { zayavkaToWarehouseItems, type ZayavkaItemsSource } from "./zayavkaItems";
 
   /**
    * «Добавить на склад»: весь список заявки уезжает на выбранный склад одной пачкой.
    * Позиции складываются с лежащими там же (сервер, POST /warehouses/:id/items).
    */
-  const props = defineProps<{ zaiavka: ZaiavkaItemsSource }>();
+  const props = defineProps<{ zayavka: ZayavkaItemsSource }>();
 
   const { t } = useI18n();
   const authStore = useAuthStore();
@@ -43,7 +43,7 @@
   const busy = ref(false);
 
   async function chooseWarehouse() {
-    const items = zaiavkaToWarehouseItems(props.zaiavka);
+    const items = zayavkaToWarehouseItems(props.zayavka);
     if (!items.length) return notify(t("pages.warehouses.nothing_to_add"));
 
     busy.value = true;
@@ -76,7 +76,7 @@
 
   async function confirmAndSend(
     warehouse: Warehouse,
-    items: ReturnType<typeof zaiavkaToWarehouseItems>,
+    items: ReturnType<typeof zayavkaToWarehouseItems>,
   ) {
     const alert = await alertController.create({
       header: t("pages.warehouses.confirm_add", { name: warehouse.name }),

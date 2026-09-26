@@ -1,4 +1,4 @@
-import { ZaiavkaType } from "../entity/zaiavka";
+import { ZayavkaType } from "../entity/zayavka";
 
 export type CalcResponseDTO = {
   id: number;
@@ -75,7 +75,7 @@ export type MaterialRequestDTO = {
 };
 
 export type StoredMaterialRequestDTO = {
-  data: ZaiavkaType;
+  data: ZayavkaType;
   createdAt: string;
   updatedAt: string;
   id: number;

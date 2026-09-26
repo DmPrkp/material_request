@@ -40,5 +40,5 @@ jobs:
             sudo docker system prune -f
             sudo docker ps -a | grep -q "matli-nginx" && echo "Nginx контейнер запущен" || echo "Nginx контейнер не запущен"
             sudo docker ps -a | grep -q "dmprkp/calc-server" && echo "Calc сервер контейнер запущен" || echo "Calc сервер контейнер не запущен"
-            curl -s -f https://zaiavka.xyz/ && echo "Приложение доступно" || echo "Приложение не доступно"
+            curl -s -f https://zayavka.app/ && echo "Приложение доступно" || echo "Приложение не доступно"
           EOF

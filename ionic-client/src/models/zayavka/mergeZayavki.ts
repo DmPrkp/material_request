@@ -1,7 +1,7 @@
 import type { MergedHandTool, PowerTool } from "@/types/dto";
-import type { ZaiavkaType } from "@/types/entity/zaiavka";
+import type { ZayavkaType } from "@/types/entity/zayavka";
 
-export type MergeSource = { id: number; data: ZaiavkaType };
+export type MergeSource = { id: number; data: ZayavkaType };
 
 /** Суммы расхода — без хвостов вида 0.30000000000000004, как у склада. */
 const round = (n: number) => Number(n.toFixed(4));
@@ -24,7 +24,7 @@ const round = (n: number) => Number(n.toFixed(4));
  * system — общая технология, если она у всех одна; иначе перечень через запятую.
  * Он должен быть непустым: MaterialActionPanel без него лезет в route.params.system.
  */
-export function mergeZaiavki(sources: MergeSource[], name: string): ZaiavkaType {
+export function mergeZayavki(sources: MergeSource[], name: string): ZayavkaType {
   const ordered = [...sources].sort((a, b) => a.id - b.id);
 
   const materials = ordered.flatMap(({ id, data }) =>

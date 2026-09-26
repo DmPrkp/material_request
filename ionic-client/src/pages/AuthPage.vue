@@ -200,7 +200,7 @@
           ? route.query.redirect
           : `/${
               route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE
-            }/zaiavka`;
+            }/zayavka`;
 
       router.replace(redirect);
       login.value = "";

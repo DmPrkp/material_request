@@ -13,7 +13,7 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix(PREFIX);
   app.enableShutdownHooks();
-  // Валидацию целиком делает Zod (zaiavka.dto.ts) — как в остальных сервисах.
+  // Валидацию целиком делает Zod (zayavka.dto.ts) — как в остальных сервисах.
   app.useGlobalPipes(new ZodValidationPipe());
   app.useGlobalFilters(new PgConstraintFilter(app.get(HttpAdapterHost).httpAdapter));
 

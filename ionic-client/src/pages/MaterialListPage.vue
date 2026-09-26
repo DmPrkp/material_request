@@ -50,7 +50,7 @@
   import PowerToolList from "@/components/pagesParts/powerTools/PowerToolList.vue";
   import { MATERIAL_LIST_STATUS } from "@/constants";
   import { usePreloader } from "@/store";
-  import { useZaiavkaAutosave } from "@/components/pagesParts/materials/useZaiavkaAutosave";
+  import { useZayavkaAutosave } from "@/components/pagesParts/materials/useZayavkaAutosave";
 
   const MATERIALS_KEYS = {
     MATERIALS: "materials",
@@ -76,13 +76,13 @@
    * id заявки — в адресе: перезагрузка страницы продолжает ту же заявку, а не заводит
    * вторую. replace, а не push, — кнопка «назад» не должна ходить по черновикам.
    */
-  const { ensureSaved } = useZaiavkaAutosave(
+  const { ensureSaved } = useZayavkaAutosave(
     () => ({ ...resultMatList.value, system }),
     {
-      initialId: Number(route.query.zaiavka) || undefined,
+      initialId: Number(route.query.zayavka) || undefined,
       onCreated: (id) => {
         if (route.name !== "material-list") return;
-        router.replace({ query: { ...route.query, zaiavka: id } });
+        router.replace({ query: { ...route.query, zayavka: id } });
       },
     }
   );

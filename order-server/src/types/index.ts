@@ -1,4 +1,4 @@
-export type CreateZaiavkaDto = {
+export type CreateZayavkaDto = {
   hand_tools: HandTool[];
   materials: MaterialDTO[];
   power_tools: PowerTool[];

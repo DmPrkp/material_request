@@ -4,4 +4,4 @@ import { XlsxGeneratorController } from './ods_generator/ods_generator.controlle
 @Module({
   controllers: [XlsxGeneratorController],
 })
-export class ZaiavkaSheetGeneratorModule {}
+export class ZayavkaSheetGeneratorModule {}

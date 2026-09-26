@@ -19,11 +19,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     // Стартовая — «Заявки»: /main пуст, туда ведёт только логотип.
-    redirect: () => `/${resolveInitialLocale()}/zaiavka`,
+    redirect: () => `/${resolveInitialLocale()}/zayavka`,
   },
   {
     path: "/:locale",
-    redirect: (to) => `${to.path}/zaiavka`,
+    redirect: (to) => `${to.path}/zayavka`,
     component: {
       template: "<router-view />",
     },
@@ -134,20 +134,20 @@ const routes: Array<RouteRecordRaw> = [
         // (materialList с объёмами в query) — переводим в новый, query сохраняем.
         path: "main/:calcPath(.+)",
         redirect: (to) => ({
-          path: to.path.replace(/^\/([^/]+)\/main\//, "/$1/zaiavka/calculator/"),
+          path: to.path.replace(/^\/([^/]+)\/main\//, "/$1/zayavka/calculator/"),
           query: to.query,
         }),
       },
       {
-        path: "zaiavka",
-        name: "zaiavka-list",
-        component: () => import("@/pages/ZaiavkaListPage.vue"),
+        path: "zayavka",
+        name: "zayavka-list",
+        component: () => import("@/pages/ZayavkaListPage.vue"),
         meta: { requiresAuth: true },
         children: [
           {
             // Калькулятор — начало новой заявки, поэтому он внутри «Заявок»: кнопка
             // «Новая заявка» в списке ведёт сюда, а расчёт сам сохраняется заявкой.
-            // Статический сегмент выигрывает у :zaiavka, но id и так только цифры.
+            // Статический сегмент выигрывает у :zayavka, но id и так только цифры.
             path: "calculator",
             name: "calculator",
             component: () => import("@/pages/CalculatorPage.vue"),
@@ -190,9 +190,9 @@ const routes: Array<RouteRecordRaw> = [
             ],
           },
           {
-            path: ":zaiavka(\\d+)",
-            name: "zaiavka",
-            component: () => import("@/pages/ZaiavkaPage.vue"),
+            path: ":zayavka(\\d+)",
+            name: "zayavka",
+            component: () => import("@/pages/ZayavkaPage.vue"),
             meta: { requiresAuth: true },
           },
         ],
@@ -232,7 +232,7 @@ const routes: Array<RouteRecordRaw> = [
         // Настройки теперь модалка из аватара в шапке, а не страница. Адрес
         // оставлен редиректом: /ru/settings был в sitemap и мог осесть в закладках.
         path: "settings",
-        redirect: (to) => `/${to.params.locale}/zaiavka`,
+        redirect: (to) => `/${to.params.locale}/zayavka`,
       },
     ],
   },
@@ -254,7 +254,7 @@ router.beforeEach(async (to) => {
     const fallback = resolveInitialLocale();
     const segments = to.fullPath.split("/");
     segments[1] = fallback;
-    return segments.join("/") || `/${fallback}/zaiavka`;
+    return segments.join("/") || `/${fallback}/zayavka`;
   }
 
   await setI18nLocale(locale);
@@ -265,7 +265,7 @@ router.afterEach((to) => {
   const locale = (normalizeLocale(to.params.locale) ||
     DEFAULT_LOCALE) as Locale;
 
-  // До четырёх сегментов: zaiavka/calculator/facade/EIFS. materialList пятый — у
+  // До четырёх сегментов: zayavka/calculator/facade/EIFS. materialList пятый — у
   // расчёта своего описания нет, берётся общее.
   const currentRoute = to.path.split("/").slice(2, 6).join("/");
   const keywords =

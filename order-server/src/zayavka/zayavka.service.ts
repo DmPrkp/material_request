@@ -13,7 +13,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 import type { AuthUser } from '~/auth/auth-user';
 import { type Database, DB } from '~/db/db.module';
-import { type Zaiavka, zaiavki } from '~/db/schema';
+import { type Zayavka, zayavki } from '~/db/schema';
 
 import { MAX_LOOKUP_IDS } from './limits';
 
@@ -24,14 +24,14 @@ import { MAX_LOOKUP_IDS } from './limits';
 const ANONYMOUS_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const CLEANUP_INTERVAL_MS = 24 * 60 * 60 * 1000;
 
-export type ZaiavkaBody = Record<string, unknown>;
+export type ZayavkaBody = Record<string, unknown>;
 
 /**
  * Что уходит наружу. data — строкой, как отдавал сервис при Prisma (там в jsonb лежала
  * строка): клиент и сиды делают JSON.parse. В базе теперь объект, строкой он становится
  * только здесь. Поля перечислены явно — хеш ключа не уйдёт наружу, даже если его забудут.
  */
-export type PublicZaiavka = {
+export type PublicZayavka = {
   id: number;
   data: string;
   user: number | null;
@@ -39,7 +39,7 @@ export type PublicZaiavka = {
   updatedAt: Date;
 };
 
-function toPublic(row: Zaiavka): PublicZaiavka {
+function toPublic(row: Zayavka): PublicZayavka {
   return {
     id: row.id,
     data: JSON.stringify(row.data),
@@ -54,23 +54,23 @@ function hashKey(key: string): string {
   return createHash('sha256').update(key).digest('hex');
 }
 
-function keyMatches(zaiavka: Pick<Zaiavka, 'editKeyHash'>, key: string | undefined): boolean {
-  if (!key || !zaiavka.editKeyHash) return false;
-  const expected = Buffer.from(zaiavka.editKeyHash, 'hex');
+function keyMatches(zayavka: Pick<Zayavka, 'editKeyHash'>, key: string | undefined): boolean {
+  if (!key || !zayavka.editKeyHash) return false;
+  const expected = Buffer.from(zayavka.editKeyHash, 'hex');
   const actual = Buffer.from(hashKey(key), 'hex');
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
 /** Автор — только из токена: user из тела подделал бы кто угодно. */
-function withoutUser(body: ZaiavkaBody): ZaiavkaBody {
+function withoutUser(body: ZayavkaBody): ZayavkaBody {
   const data = { ...body };
   delete data.user;
   return data;
 }
 
 @Injectable()
-export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
-  private readonly logger = new Logger(ZaiavkaService.name);
+export class ZayavkaService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(ZayavkaService.name);
   private cleanupTimer?: ReturnType<typeof setInterval>;
 
   constructor(@Inject(DB) private readonly db: Database) {}
@@ -88,9 +88,9 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   async removeStaleAnonymous(): Promise<void> {
     try {
       const removed = await this.db
-        .delete(zaiavki)
-        .where(and(isNull(zaiavki.user), lt(zaiavki.updatedAt, new Date(Date.now() - ANONYMOUS_TTL_MS))))
-        .returning({ id: zaiavki.id });
+        .delete(zayavki)
+        .where(and(isNull(zayavki.user), lt(zayavki.updatedAt, new Date(Date.now() - ANONYMOUS_TTL_MS))))
+        .returning({ id: zayavki.id });
       if (removed.length) this.logger.log(`Удалено ничьих заявок старше 30 дней: ${removed.length}`);
     } catch (error) {
       this.logger.error('Не удалось почистить ничьи заявки', error);
@@ -98,17 +98,17 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Без входа заявка ничья, и ответ несёт ключ правки — единственный раз, когда он виден. */
-  async create(body: ZaiavkaBody, author?: AuthUser): Promise<PublicZaiavka & { key?: string }> {
+  async create(body: ZayavkaBody, author?: AuthUser): Promise<PublicZayavka & { key?: string }> {
     const data = withoutUser(body);
 
     if (author) {
-      const [created] = await this.db.insert(zaiavki).values({ user: author.id, data }).returning();
+      const [created] = await this.db.insert(zayavki).values({ user: author.id, data }).returning();
       return toPublic(created);
     }
 
     const key = randomBytes(24).toString('base64url');
     const [created] = await this.db
-      .insert(zaiavki)
+      .insert(zayavki)
       .values({ user: null, editKeyHash: hashKey(key), data })
       .returning();
     return { ...toPublic(created), key };
@@ -118,12 +118,12 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * Свою правит автор, любую — админ, ничью — тот, у кого ключ. Клиент шлёт заявку
    * целиком, вместе с system: раньше он здесь вырезался, и выгрузка теряла технологию.
    */
-  async put(id: number, body: ZaiavkaBody, author?: AuthUser, key?: string): Promise<PublicZaiavka> {
+  async put(id: number, body: ZayavkaBody, author?: AuthUser, key?: string): Promise<PublicZayavka> {
     await this.findWritable(id, author, key);
     const [updated] = await this.db
-      .update(zaiavki)
+      .update(zayavki)
       .set({ data: withoutUser(body) })
-      .where(eq(zaiavki.id, id))
+      .where(eq(zayavki.id, id))
       .returning();
     return toPublic(updated);
   }
@@ -131,12 +131,12 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   /** Удаление — по тем же правам, что правка: своя, любая для админа, ничья по ключу. */
   async remove(id: number, author?: AuthUser, key?: string): Promise<void> {
     await this.findWritable(id, author, key);
-    await this.db.delete(zaiavki).where(eq(zaiavki.id, id));
+    await this.db.delete(zayavki).where(eq(zayavki.id, id));
   }
 
   /** Свою правит автор, любую — админ, ничью — тот, у кого ключ; иначе 403, нет такой — 404. */
-  private async findWritable(id: number, author?: AuthUser, key?: string): Promise<Zaiavka> {
-    const [existing] = await this.db.select().from(zaiavki).where(eq(zaiavki.id, id));
+  private async findWritable(id: number, author?: AuthUser, key?: string): Promise<Zayavka> {
+    const [existing] = await this.db.select().from(zayavki).where(eq(zayavki.id, id));
     if (!existing) throw new NotFoundException();
 
     const allowed =
@@ -147,12 +147,12 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
   }
 
   /** Только свои — и у админа тоже: список это «мои заявки», а не обзор чужих. */
-  async getAll(author: AuthUser): Promise<PublicZaiavka[]> {
+  async getAll(author: AuthUser): Promise<PublicZayavka[]> {
     const rows = await this.db
       .select()
-      .from(zaiavki)
-      .where(eq(zaiavki.user, author.id))
-      .orderBy(desc(zaiavki.id));
+      .from(zayavki)
+      .where(eq(zayavki.user, author.id))
+      .orderBy(desc(zayavki.id));
     return rows.map(toPublic);
   }
 
@@ -160,14 +160,14 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
    * Список без входа: браузер помнит id своих ничьих заявок. Открыто, как и GET /:id, —
    * по id заявку и так откроет любой, у кого ссылка. Удалённых чисткой просто нет в ответе.
    */
-  async lookup(ids: number[]): Promise<PublicZaiavka[]> {
+  async lookup(ids: number[]): Promise<PublicZayavka[]> {
     if (ids.length > MAX_LOOKUP_IDS) throw new BadRequestException(`не больше ${MAX_LOOKUP_IDS} id`);
     if (!ids.length) return [];
     const rows = await this.db
       .select()
-      .from(zaiavki)
-      .where(inArray(zaiavki.id, ids))
-      .orderBy(desc(zaiavki.id));
+      .from(zayavki)
+      .where(inArray(zayavki.id, ids))
+      .orderBy(desc(zayavki.id));
     return rows.map(toPublic);
   }
 
@@ -181,24 +181,24 @@ export class ZaiavkaService implements OnModuleInit, OnModuleDestroy {
 
     const ids = items.map((item) => item.id);
     const rows = await this.db
-      .select({ id: zaiavki.id, editKeyHash: zaiavki.editKeyHash })
-      .from(zaiavki)
-      .where(and(inArray(zaiavki.id, ids), isNull(zaiavki.user)));
+      .select({ id: zayavki.id, editKeyHash: zayavki.editKeyHash })
+      .from(zayavki)
+      .where(and(inArray(zayavki.id, ids), isNull(zayavki.user)));
     const claimable = rows.filter((row) => keyMatches(row, items.find((item) => item.id === row.id)?.key));
     if (!claimable.length) return { claimed: [] };
 
     // user IS NULL в условии — две вкладки не заберут одну заявку дважды.
     const claimableIds = claimable.map((row) => row.id);
     const claimed = await this.db
-      .update(zaiavki)
+      .update(zayavki)
       .set({ user: author.id, editKeyHash: null })
-      .where(and(inArray(zaiavki.id, claimableIds), isNull(zaiavki.user)))
-      .returning({ id: zaiavki.id });
+      .where(and(inArray(zayavki.id, claimableIds), isNull(zayavki.user)))
+      .returning({ id: zayavki.id });
     return { claimed: claimed.map((row) => row.id) };
   }
 
-  async get(id: number): Promise<PublicZaiavka> {
-    const [row] = await this.db.select().from(zaiavki).where(eq(zaiavki.id, id));
+  async get(id: number): Promise<PublicZayavka> {
+    const [row] = await this.db.select().from(zayavki).where(eq(zayavki.id, id));
     if (!row) throw new NotFoundException();
     return toPublic(row);
   }

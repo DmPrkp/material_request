@@ -89,11 +89,11 @@ export const TABLES: TableDef[] = [
   },
 
   {
-    key: 'order.zaiavki',
+    key: 'order.zayavki',
     db: 'order',
     group: 'Заявки',
     title: 'Заявки',
-    from: 'zaiavki',
+    from: 'zayavki',
     // Ключ правки ничьей заявки — только признак: хеш ничего не скажет, а светить его незачем.
     select: `id, user_id, data->>'name' AS name, data->>'system' AS system,
              edit_key_hash IS NOT NULL AS has_edit_key, created_at, updated_at, data`,

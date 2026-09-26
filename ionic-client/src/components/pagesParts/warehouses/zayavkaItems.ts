@@ -1,9 +1,9 @@
 import type { WarehouseItemInput } from "@/types/dto";
-import type { ZaiavkaType } from "@/types/entity/zaiavka";
+import type { ZayavkaType } from "@/types/entity/zayavka";
 
 /** Списки заявки без служебных полей: на странице расчёта system лежит отдельно. */
-export type ZaiavkaItemsSource = Pick<
-  ZaiavkaType,
+export type ZayavkaItemsSource = Pick<
+  ZayavkaType,
   "materials" | "hand_tools" | "power_tools"
 >;
 
@@ -19,7 +19,7 @@ export type ZaiavkaItemsSource = Pick<
  * словарь ничего не отдаст. У электроинструмента сборок нет, ссылка — id позиции.
  * Нули не едут: сервер их не принимает, а «ноль такого-то» на складе не нужен.
  */
-export function zaiavkaToWarehouseItems(zaiavka: ZaiavkaItemsSource): WarehouseItemInput[] {
+export function zayavkaToWarehouseItems(zayavka: ZayavkaItemsSource): WarehouseItemInput[] {
   const quantities = new Map<string, WarehouseItemInput>();
 
   const add = (kind: WarehouseItemInput["kind"], ref: string | undefined, quantity: number) => {
@@ -30,15 +30,15 @@ export function zaiavkaToWarehouseItems(zaiavka: ZaiavkaItemsSource): WarehouseI
     else quantities.set(key, { kind, ref, quantity: Number(quantity.toFixed(4)) });
   };
 
-  for (const stage of zaiavka.materials ?? []) {
+  for (const stage of zayavka.materials ?? []) {
     for (const material of stage.materials ?? []) {
       add("material", material.uniqKey, material.consumption * material.volume);
     }
   }
-  for (const tool of zaiavka.hand_tools ?? []) {
+  for (const tool of zayavka.hand_tools ?? []) {
     add("hand_tool", tool.uniqKey, tool.adjusted_consumption);
   }
-  for (const tool of zaiavka.power_tools ?? []) {
+  for (const tool of zayavka.power_tools ?? []) {
     add("power_tool", tool.id ? String(tool.id) : undefined, tool.adjusted_consumption);
   }
 

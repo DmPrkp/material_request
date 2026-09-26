@@ -14,7 +14,7 @@
               font-size: 1.5em;
             "
           >
-            {{ "zaiávka" }}
+            {{ "zayávka" }}
           </ion-title>
         </router-link>
 

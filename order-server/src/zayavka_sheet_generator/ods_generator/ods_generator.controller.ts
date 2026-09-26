@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { CreateZaiavkaDto, Param } from '~/types';
+import { CreateZayavkaDto, Param } from '~/types';
 import * as XLSX from 'xlsx';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -14,11 +14,11 @@ const TITLES = {
 @Controller('ods-generator')
 export class XlsxGeneratorController {
   @Post()
-  create(@Body() createZaiavkaDto: CreateZaiavkaDto, @Res() res: Response) {
+  create(@Body() createZayavkaDto: CreateZayavkaDto, @Res() res: Response) {
     const id = Date.now();
-    const fileName = `zaiavka_${id}.ods`;
+    const fileName = `zayavka_${id}.ods`;
     const filePath = path.resolve('./static', fileName);
-    createSheetFile(createZaiavkaDto, filePath);
+    createSheetFile(createZayavkaDto, filePath);
     console.log('Excel file created successfully!');
 
     if (!fs.existsSync(filePath)) {
@@ -63,7 +63,7 @@ function addToolsToRows<
   return rows;
 }
 
-function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
+function createSheetFile(data: CreateZayavkaDto, outputPath: string) {
   let rows: any[] = [];
 
   // Add Materials section
@@ -77,10 +77,10 @@ function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
   });
 
   // Add Hand Tools section
-  rows = addToolsToRows<CreateZaiavkaDto['hand_tools']>(data.hand_tools, TITLES.HAND_TOOLS, rows);
+  rows = addToolsToRows<CreateZayavkaDto['hand_tools']>(data.hand_tools, TITLES.HAND_TOOLS, rows);
 
   // Add Power Tools section
-  rows = addToolsToRows<CreateZaiavkaDto['power_tools']>(data.power_tools, TITLES.POWER_TOOLS, rows);
+  rows = addToolsToRows<CreateZayavkaDto['power_tools']>(data.power_tools, TITLES.POWER_TOOLS, rows);
 
   // Convert the rows to a worksheet
   const worksheet = XLSX.utils.aoa_to_sheet(rows);
@@ -94,7 +94,7 @@ function createSheetFile(data: CreateZaiavkaDto, outputPath: string) {
 
   // Create a new workbook
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Zaiavka Sheet');
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Zayavka Sheet');
 
   // Write the workbook to the desired output path with the ODS format
   XLSX.writeFile(workbook, outputPath, { bookType: 'ods' });

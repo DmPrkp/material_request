@@ -1,15 +1,15 @@
 import { objectName } from '../lib/fixtures.mjs';
 import { consumption } from '../lib/amounts.mjs';
 
-const ZAIAVKA = '/order/api/v1/zaiavka';
+const ZAYAVKA = '/order/api/v1/zayavka';
 
 /**
- * Заявка в той форме, в какой её сохраняет калькулятор (ZaiavkaType на клиенте):
+ * Заявка в той форме, в какой её сохраняет калькулятор (ZayavkaType на клиенте):
  * материалы по этапам технологии, инструмент уже сведён между этапами. uniqKey —
  * настоящие коды сборок из словаря, поэтому такую заявку можно и выгрузить, и
  * положить на склад.
  */
-function randomZaiavka(random, dict) {
+function randomZayavka(random, dict) {
   const technology = random.pick(dict.technologies);
   const volume = random.int(5, 200) * 10;
 
@@ -72,20 +72,20 @@ export async function ensureOrders(api, random, { count, ownerOf, joined, perJoi
   const existing = new Map();
   for (const user of new Set(authors)) {
     const { api: via, opts } = as(user);
-    existing.set(user.id, (await via.get(ZAIAVKA, opts)).length);
+    existing.set(user.id, (await via.get(ZAYAVKA, opts)).length);
   }
 
   let created = 0;
   for (const author of authors) {
     // Случайное тянем всегда, даже если заявка уже есть, — иначе следующие разъедутся.
-    const data = randomZaiavka(random, dict);
+    const data = randomZayavka(random, dict);
     const left = existing.get(author.id);
     if (left > 0) {
       existing.set(author.id, left - 1);
       continue;
     }
     const { api: via, opts } = as(author);
-    await via.post(ZAIAVKA, data, opts);
+    await via.post(ZAYAVKA, data, opts);
     created++;
   }
 

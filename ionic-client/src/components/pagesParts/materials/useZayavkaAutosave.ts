@@ -1,13 +1,13 @@
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
-import Zaiavka from "@/models/zaiavka";
+import Zayavka from "@/models/zayavka";
 import { HttpError } from "@/models/BaseModel";
-import { addKey, findKey } from "@/models/zaiavka/anonymousKeys";
-import { claimAnonymous } from "@/models/zaiavka/claimAnonymous";
+import { addKey, findKey } from "@/models/zayavka/anonymousKeys";
+import { claimAnonymous } from "@/models/zayavka/claimAnonymous";
 import { useAuthStore } from "@/store/auth";
-import { useZaiavkaStore } from "@/store/zaiavka";
+import { useZayavkaStore } from "@/store/zayavka";
 import { MaterialRequestDTO } from "@/types/dto";
-import { ZaiavkaType } from "@/types/entity/zaiavka";
+import { ZayavkaType } from "@/types/entity/zayavka";
 
 /** Правки копятся и уходят пачкой: на каждое нажатие +/− запрос не шлём. */
 const LAZY_SAVE_INTERVAL = 10_000;
@@ -29,29 +29,29 @@ const LAZY_SAVE_INTERVAL = 10_000;
  * Без входа заявка на сервере ничья, а браузер помнит её ключ правки (anonymousKeys.ts);
  * после входа claimAnonymous забирает её автору, и правка идёт уже по токену.
  */
-export function useZaiavkaAutosave(
-  source: () => ZaiavkaType | undefined,
+export function useZayavkaAutosave(
+  source: () => ZayavkaType | undefined,
   { initialId, onCreated }: { initialId?: number; onCreated?: (id: number) => void } = {},
 ) {
   const authStore = useAuthStore();
-  const store = useZaiavkaStore();
+  const store = useZayavkaStore();
 
   const id = ref<number | undefined>(initialId);
   let savedSnapshot: string | undefined;
   let queue: Promise<void> = Promise.resolve();
 
-  function isEmpty(data: ZaiavkaType) {
+  function isEmpty(data: ZayavkaType) {
     return !data.materials.length && !data.hand_tools.length && !data.power_tools.length;
   }
 
   /** Новая заявка; заведённая без входа приходит с ключом правки — запоминаем его. */
-  async function create(data: ZaiavkaType, opts?: RequestInit) {
-    const { key, ...res } = await new Zaiavka(data).create(opts);
+  async function create(data: ZayavkaType, opts?: RequestInit) {
+    const { key, ...res } = await new Zayavka(data).create(opts);
     if (key) addKey(res.id, key);
     return res;
   }
 
-  async function write(data: ZaiavkaType, opts?: RequestInit): Promise<MaterialRequestDTO | undefined> {
+  async function write(data: ZayavkaType, opts?: RequestInit): Promise<MaterialRequestDTO | undefined> {
     const current = id.value;
     if (current === undefined) return create(data, opts);
 
@@ -64,7 +64,7 @@ export function useZaiavkaAutosave(
     if (!authStore.isAuthenticated && !key) return;
 
     try {
-      return await new Zaiavka(data).update(current, { ...opts, key });
+      return await new Zayavka(data).update(current, { ...opts, key });
     } catch (error) {
       // Заявку удалила чистка или она чужая (id пришёл из чужой ссылки) — заводим свою.
       if (error instanceof HttpError && (error.status === 403 || error.status === 404)) {

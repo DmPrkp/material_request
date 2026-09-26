@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ZaiavkaController } from './zaiavka.controller';
-import { claimSchema } from './zaiavka.dto';
-import { ZaiavkaService } from './zaiavka.service';
+import { ZayavkaController } from './zayavka.controller';
+import { claimSchema } from './zayavka.dto';
+import { ZayavkaService } from './zayavka.service';
 
-describe('ZaiavkaController', () => {
-  let controller: ZaiavkaController;
+describe('ZayavkaController', () => {
+  let controller: ZayavkaController;
   // Моки держим сами: через module.get методы сервиса отрываются от объекта (unbound-method).
   const service = {
     create: vi.fn(),
@@ -22,16 +22,16 @@ describe('ZaiavkaController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [ZaiavkaController],
+      controllers: [ZayavkaController],
       providers: [
         {
-          provide: ZaiavkaService,
+          provide: ZayavkaService,
           useValue: service,
         },
       ],
     }).compile();
 
-    controller = module.get<ZaiavkaController>(ZaiavkaController);
+    controller = module.get<ZayavkaController>(ZayavkaController);
   });
 
   it('should be defined', () => {
@@ -68,7 +68,7 @@ describe('ZaiavkaController', () => {
   it('без входа и без ids — 401, кривые ids и items — 400', () => {
     expect(() => controller.findAll()).toThrow(UnauthorizedException);
     expect(() => controller.findAll(undefined, '1,x')).toThrow(BadRequestException);
-    // Тело claim проверяет Zod-пайп до контроллера (zaiavka.dto.ts).
+    // Тело claim проверяет Zod-пайп до контроллера (zayavka.dto.ts).
     expect(claimSchema.safeParse({ items: [{ id: 1 }] }).success).toBe(false);
     expect(claimSchema.safeParse({ items: [{ id: 1, key: 'k' }] }).success).toBe(true);
 
