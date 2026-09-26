@@ -163,8 +163,10 @@ services:
     # Секрет, кроме него, знает только user-server — он токены выпускает.
     environment:
       JWT_SECRET: ${JWT_SECRET:?нет в .env}
+    # Сертификаты пишет сервис certbot, nginx только читает; acme — его файлы проверок.
     volumes:
-      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/certs:/etc/letsencrypt:ro
+      - ./nginx/acme:/var/www/certbot:ro
       - ./nginx/logs:/var/log/nginx
     build:
       context: ./nginx
@@ -180,6 +182,23 @@ services:
       - dictionary-server
       - warehouse-server
       - company-server
+
+  # Выпуск и продление сертификата Let's Encrypt (nginx/ssl/certbot-loop.sh). Первый
+  # сертификат появится через минуты после старта, до того nginx отдаёт самоподписанный;
+  # подхватывает новый nginx сам (nginx/ssl/40-ssl-cert.sh). Нужен открытый наружу порт 80.
+  certbot:
+    restart: unless-stopped
+    image: certbot/certbot:v5.8.0
+    environment:
+      SSL_DOMAIN: zayavka.app
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+    volumes:
+      - ./nginx/certs:/etc/letsencrypt
+      - ./nginx/acme:/var/www/certbot
+      - ./nginx/ssl/certbot-loop.sh:/certbot-loop.sh:ro
+    entrypoint: ["/bin/sh", "/certbot-loop.sh"]
+    depends_on:
+      - nginx
 
   # База — в этом же compose, а не приложением TrueNAS: та же версия, что в dev, db/init
   # заводит базы и read-only роль админки сам, а сервисы ходят к ней по сети compose —

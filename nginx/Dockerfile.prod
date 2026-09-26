@@ -1,12 +1,7 @@
 FROM nginx:1.25.3
 
-# Установка Certbot и плагинов
-RUN apt-get update && \
-    apt-get install -y certbot python3-certbot-nginx python3-certbot-dns-cloudflare && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN mkdir -p /etc/letsencrypt/live/zayavka.app
+# Домен сертификата; он же — server_name в nginx.conf и SSL_DOMAIN сервиса certbot.
+ENV SSL_DOMAIN=zayavka.app
 
 # Главный конфиг — ради модуля njs и env JWT_SECRET (см. шапку main.conf).
 COPY main.conf /etc/nginx/nginx.conf
@@ -15,6 +10,11 @@ COPY njs/auth.js /etc/nginx/njs/auth.js
 COPY snippets /etc/nginx/snippets
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Выбор сертификата и reload после продления. certbot — отдельный сервис compose.
+# Неисполняемые скрипты /docker-entrypoint.sh молча пропускает.
+COPY ssl/40-ssl-cert.sh /docker-entrypoint.d/40-ssl-cert.sh
+RUN chmod +x /docker-entrypoint.d/40-ssl-cert.sh
 
 EXPOSE 80
 EXPOSE 443
