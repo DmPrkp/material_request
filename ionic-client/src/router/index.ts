@@ -17,7 +17,7 @@ import { applySeo } from "./seo";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    // Стартовая — «Заявки»: /main пуст, туда ведёт только логотип.
+    // Стартовая — «Заявки»; /main — главная для новых посетителей, туда ведёт логотип.
     redirect: () => `/${resolveInitialLocale()}/zayavka`,
   },
   {
@@ -122,7 +122,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: false },
       },
       {
-        // Пустая страница, сюда ведёт только логотип. Калькулятор переехал в «Заявки».
+        // Главная: что это и сценарии со скриншотами. Калькулятор переехал в «Заявки».
         path: "main",
         name: "main",
         component: () => import("@/pages/MainPage.vue"),

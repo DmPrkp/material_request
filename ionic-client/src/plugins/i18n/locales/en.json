@@ -352,6 +352,23 @@
       "title": "Page not found",
       "text": "There is no such address: the link may be outdated or contain a typo.",
       "home": "to requests"
+    },
+    "landing": {
+      "title": "Materials and tools for your crew in a minute",
+      "lead": "Pick a technology and get materials, hand and power tools with quantities for your area. Free, no sign-up required.",
+      "cta": "Calculate",
+      "scenarios_title": "What you can do",
+      "scenarios": {
+        "zayavka": {
+          "title": "A request in 3 steps",
+          "subtitle": "technology → area → list",
+          "steps": [
+            "Pick a type of work and a technology",
+            "Enter the area and the number of crews",
+            "Get materials and tools — the request is saved"
+          ]
+        }
+      }
     }
   },
   "current": {

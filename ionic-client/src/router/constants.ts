@@ -200,6 +200,14 @@ const seoPages: SeoPages = {
       ru: "Технологии внутренней отделки по этапам: перегородки, поверхности — материалы и инструмент.",
     },
   },
+  // Главная для новых посетителей: сценарии со скриншотами (pages/MainPage.vue).
+  main: {
+    title: {
+      en: "Materials and tools for your crew in a minute",
+      ru: "Материалы и инструмент для бригады — за минуту",
+    },
+    description: defaultSeo.description,
+  },
   about: {
     title: {
       en: "About the project",
@@ -225,7 +233,6 @@ const NOINDEX_ROUTES = new Set([
   "on-hand",
   "warehouse",
   "auth",
-  "main",
   "catalog-technology",
   "catalog-stage",
   "not-found",

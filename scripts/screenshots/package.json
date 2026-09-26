@@ -1,0 +1,16 @@
+{
+  "name": "landing-screenshots",
+  "private": true,
+  "type": "module",
+  "description": "Скриншоты сценариев для главной: node landing.mjs --help",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "shoot": "node landing.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "^1.47.0",
+    "sharp": "^0.35.4"
+  }
+}
