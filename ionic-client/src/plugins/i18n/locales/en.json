@@ -223,6 +223,7 @@
         "stages": "Stages",
         "stages_count": "Stages: {n}",
         "sign_in": "Sign in to add technologies and stages",
+        "auth_required": "Sign in to get access to the technology catalog",
         "errors": {
           "unauthorized": "Your session has expired — please sign in again",
           "exists": "This title already exists",

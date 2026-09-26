@@ -383,17 +383,4 @@
     padding: 16px;
     text-align: center;
   }
-
-  .auth-warning {
-    --background: transparent;
-    --color: var(--orange-01);
-    margin: 12px 0;
-    border: 1px solid var(--orange-01);
-    border-radius: 8px;
-  }
-
-  .auth-warning ion-icon {
-    color: var(--orange-01);
-    margin-inline-end: 12px;
-  }
 </style>

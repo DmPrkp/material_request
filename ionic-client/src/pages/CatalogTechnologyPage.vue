@@ -176,14 +176,21 @@
           </ion-note>
         </template>
 
-        <!-- Новую технологию без входа не завести. -->
+        <!-- Новую технологию без входа не завести; вид — общий, как на заявках. -->
         <ion-item
           v-else
+          class="auth-warning"
           button
           lines="none"
           @click="goToAuth"
         >
-          <ion-label>{{ $t("pages.catalog.structure.sign_in") }}</ion-label>
+          <IonIcon
+            slot="start"
+            :icon="alertCircle"
+          />
+          <ion-label class="ion-text-wrap">
+            {{ $t("pages.catalog.structure.sign_in") }}
+          </ion-label>
         </ion-item>
       </div>
     </ion-content>
@@ -224,6 +231,7 @@
   } from "@ionic/vue";
   import {
     addOutline,
+    alertCircle,
     chevronForwardOutline,
     trashOutline,
   } from "ionicons/icons";

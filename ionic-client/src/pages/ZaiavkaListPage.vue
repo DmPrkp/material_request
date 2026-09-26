@@ -652,16 +652,9 @@
     align-self: flex-end;
   }
 
+  /* Боковые поля — свои: у этого ion-content нет ion-padding, и общая табличка
+     прилегала бы к краям экрана. */
   .auth-warning {
-    --background: transparent;
-    --color: var(--orange-01);
     margin: 0 8px 8px;
-    border: 1px solid var(--orange-01);
-    border-radius: 8px;
-  }
-
-  .auth-warning ion-icon {
-    color: var(--orange-01);
-    margin-inline-end: 12px;
   }
 </style>

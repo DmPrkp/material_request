@@ -26,13 +26,19 @@
         </CutCornerBtn>
       </div>
 
+      <!-- Такая же табличка, как на заявках и складах: серой строкой её не замечали. -->
       <ion-item
         v-else-if="!canEdit"
+        class="auth-warning ion-margin-horizontal"
         button
         lines="none"
         @click="goToAuth"
       >
-        <ion-label>
+        <IonIcon
+          slot="start"
+          :icon="alertCircle"
+        />
+        <ion-label class="ion-text-wrap">
           {{ $t("pages.catalog.structure.sign_in") }}
         </ion-label>
       </ion-item>
@@ -107,7 +113,8 @@
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
-  import { IonNote, type RefresherCustomEvent } from "@ionic/vue";
+  import { IonIcon, IonNote, type RefresherCustomEvent } from "@ionic/vue";
+  import { alertCircle } from "ionicons/icons";
   import { useOwnership } from "@/components/pagesParts/catalog/ownership";
   import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
