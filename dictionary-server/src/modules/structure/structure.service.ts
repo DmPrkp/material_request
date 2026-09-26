@@ -118,6 +118,26 @@ export class SystemsService extends CrudService<typeof systems.$inferSelect> {
   }
 
   /**
+   * Технологии для sitemap (sitemap.ts): только то, что видит аноним, — общее и не
+   * в архиве, у общего вида работ. Личные и архивные поисковику не показываем.
+   */
+  publicForSitemap() {
+    return this.db
+      .select({ workType: workTypes.code, title: systems.title, updatedAt: systems.updatedAt })
+      .from(systems)
+      .innerJoin(workTypes, eq(systems.workTypeId, workTypes.id))
+      .where(
+        and(
+          eq(systems.isShared, true),
+          eq(systems.isActive, true),
+          eq(workTypes.isShared, true),
+          eq(workTypes.isActive, true),
+        ),
+      )
+      .orderBy(asc(workTypes.code), asc(systems.title));
+  }
+
+  /**
    * Технология по техническому коду из адреса калькулятора (/main/facade/EIFS), с единицей.
    * Чужая личная — как несуществующая: 404, а не 403, чтобы не выдавать, что она есть.
    */

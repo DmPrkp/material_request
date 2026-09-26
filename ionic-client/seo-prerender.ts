@@ -28,7 +28,10 @@ import {
  * и её index.html отдавался бы только по адресу со слэшем, которых у приложения нет.
  * nginx клиента (docker/nginx.conf) ищет try_files $uri $uri.html /index.html.
  *
- * Заодно — sitemap.xml из тех же ключей: раньше его список путей вёлся руками.
+ * Заодно — sitemap: /sitemap.xml — индекс из двух файлов. sitemap-pages.xml — из тех же
+ * ключей (раньше список путей вёлся руками), кроме видов работ и технологий калькулятора:
+ * их знает только словарь, и sitemap-technologies.xml отдаёт dictionary-server — там и
+ * технологии, заведённые без деплоя клиента.
  */
 export function seoPrerender(): Plugin {
   let outDir = "";
@@ -58,9 +61,10 @@ export function seoPrerender(): Plugin {
         }
       }
       fs.writeFileSync(
-        path.join(outDir, "sitemap.xml"),
-        renderSitemap(keys, locales),
+        path.join(outDir, "sitemap-pages.xml"),
+        renderSitemap(keys.filter(isStaticPage), locales),
       );
+      fs.writeFileSync(path.join(outDir, "sitemap.xml"), renderSitemapIndex());
     },
   };
 }
@@ -131,6 +135,28 @@ function renderPage(
     throw new Error(`seo-prerender: не удалось собрать ${pagePath}`);
   }
   return html;
+}
+
+/** Виды работ и технологии (zayavka/calculator/<…>) — в sitemap словаря, не здесь. */
+function isStaticPage(key: string) {
+  return !key.startsWith(`${HOME_KEY}/calculator/`);
+}
+
+function renderSitemapIndex() {
+  const lastmod = new Date().toISOString().split("T")[0];
+  const sitemaps = ["sitemap-pages.xml", "sitemap-technologies.xml"]
+    .map(
+      (file) => `  <sitemap>
+    <loc>${SITE_URL}/${file}</loc>
+    <lastmod>${lastmod}</lastmod>
+  </sitemap>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemaps}
+</sitemapindex>
+`;
 }
 
 function renderSitemap(keys: string[], locales: Locale[]) {

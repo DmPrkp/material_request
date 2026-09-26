@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Header, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '~/auth/current-user.decorator';
@@ -21,6 +21,7 @@ import {
   updateWorkStageSchema,
   updateWorkTypeSchema,
 } from './structure.dto';
+import { SITE_URL, renderTechnologiesSitemap } from './sitemap';
 import { SystemsService, WorkStagesService, WorkTypesService } from './structure.service';
 
 @ApiTags('work-types')
@@ -111,5 +112,22 @@ export class WorkStagesController extends createDictionaryController({
   @ApiQuery({ name: 'ids', required: true, example: '1,2,3' })
   lookup(@Query() query: IdLookupQueryDto) {
     return this.service.lookup(query.ids);
+  }
+}
+
+@ApiTags('sitemap')
+@Controller('sitemap')
+export class SitemapController {
+  constructor(private readonly systems: SystemsService) {}
+
+  // Наружу — /sitemap-technologies.xml: его проксирует главный nginx.
+  @Get('technologies.xml')
+  @Header('Content-Type', 'application/xml; charset=utf-8')
+  @ApiOperation({
+    summary: 'Sitemap страниц калькулятора: виды работ и технологии',
+    description: 'Общие и не архивные, на всех языках с hreflang. Часть индекса /sitemap.xml.',
+  })
+  async technologies() {
+    return renderTechnologiesSitemap(SITE_URL, await this.systems.publicForSitemap());
   }
 }

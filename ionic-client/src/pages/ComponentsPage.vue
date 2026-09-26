@@ -36,6 +36,8 @@
           placeholder="_________"
           :value="allValue"
           type="number"
+          min="0"
+          :max="MAX_VALUE"
           @ionInput="setAllValue"
         />
         <ion-text>{{ unitText }}</ion-text>
@@ -53,12 +55,14 @@
           <ion-input
             @ionInput="setVal($event, stage.id)"
             type="number"
+            min="0"
+            :max="MAX_VALUE"
             :value="volumes[stage.id]"
           />
           <ion-text justify="end">{{ unitText }}</ion-text>
         </ion-item>
       </ion-list>
-      <ion-item>
+      <ion-item class="crew-item">
         <ion-label>
           {{ $t(`pages.components.crew-num`) + ":" }}
         </ion-label>
@@ -66,6 +70,8 @@
           :disabled="!isValueToAll"
           placeholder="_______"
           type="number"
+          min="0"
+          :max="MAX_VALUE"
           :value="crew"
           @ionInput="setWorkerCrew"
         />
@@ -156,18 +162,43 @@
     }
   }
 
+  /** Потолок один на все поля страницы: в них не вводят больше четырёх знаков. */
+  const MAX_VALUE = 9999;
+
+  /**
+   * Обрезка введённого по [0, MAX_VALUE] — и обязательно обратно в само поле.
+   * Обрезать только модель мало: если обрезанное совпало с прежним значением,
+   * Vue поле не перерисует, и на экране останется набранное пятизначное число,
+   * пока расчёт молча уйдёт с другим. Ровно так и вёл себя «Общий объём».
+   *
+   * Дробные не трогаем — объём бывает и 12.5. Пустое поле и мусор вроде «-» дают
+   * запасное значение, а не NaN: NaN ушёл бы в расчёт и всплыл уже в материалах.
+   */
+  function limitValue(event: InputCustomEvent, whenEmpty: number): number {
+    const raw = String(event.detail.value ?? "");
+    if (raw === "") return whenEmpty;
+
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) return whenEmpty;
+
+    const limited = Math.min(Math.max(parsed, 0), MAX_VALUE);
+    if (String(limited) !== raw) {
+      event.target.value = limited;
+    }
+    return limited;
+  }
+
   function setAllValue(value: InputCustomEvent) {
-    const val = Number(value.detail.value || 0);
-    allValue.value = val > 9999 ? 9999 : val;
+    allValue.value = limitValue(value, 0);
     stages.value.forEach((stage) => (volumes[stage.id] = allValue.value));
   }
 
   function setWorkerCrew(value: InputCustomEvent) {
-    crew.value = Number(value.detail.value || 1);
+    crew.value = limitValue(value, 1);
   }
 
   function setVal(value: InputCustomEvent, stageId: number) {
-    volumes[stageId] = Number(value.detail.value || 0);
+    volumes[stageId] = limitValue(value, 0);
   }
 
   watch([() => route.params.system, locale], () => void load(), {
@@ -223,6 +254,8 @@
   .full-volume-block_input {
     flex: 1;
     --placeholder-width: 150px;
+    /* Тот же зазор до «м²», что и у строк ниже: иначе цифра липнет к размерности. */
+    --padding-end: 6px;
   }
 
   .custom-item {
@@ -230,15 +263,63 @@
     align-items: center;
   }
 
-  ion-label {
-    flex: 1; /* Take available space */
-    min-width: 250px; /* Minimum width of label */
-    white-space: nowrap; /* Prevent text wrapping */
-    overflow: hidden; /* Hide overflow text */
-    text-overflow: ellipsis; /* Add ellipsis for overflow text */
+  /*
+   * Цифру держим справа, вплотную к размерности: объёмы сравнивают между собой
+   * по колонке, а посреди строки они прыгали вслед за длиной названия слоя.
+   * Ширина — ровно под 9999 (в поле больше и не вводят) плюс место каретке,
+   * остальное забирает название. min-width ниже (общее правило для ion-label)
+   * распирал строку на 250px и не давал названию ужаться.
+   */
+  .custom-item ion-label {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
-  ion-input {
-    flex: 2; /* Adjust based on your layout needs */
+  .custom-item ion-input {
+    flex: 0 0 auto;
+    width: calc(4ch + 12px);
+    text-align: end;
+    --padding-end: 6px;
+  }
+
+  .custom-item ion-input .native-input,
+  .full-volume-block_input .native-input {
+    text-align: end;
+  }
+
+  /*
+   * Стрелки type="number" в Chrome вылезают поверх цифр, как только поле сузили
+   * до четырёх знаков — и накрывают собой последнюю.
+   */
+  .custom-item ion-input .native-input::-webkit-outer-spin-button,
+  .custom-item ion-input .native-input::-webkit-inner-spin-button,
+  .full-volume-block_input .native-input::-webkit-outer-spin-button,
+  .full-volume-block_input .native-input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+  }
+
+  /*
+   * Ниже было голыми ion-label/ion-input. Стили SFC глобальны (блок не scoped, а
+   * scoped и не годится: правила для .native-input внутри ion-input рисует Ionic,
+   * data-v на нём нет), поэтому после первого захода в калькулятор min-width и
+   * многоточие доставались всем ion-label приложения — склады, «на руках»,
+   * настройки — и жили до перезагрузки. Привязываем к своим строкам.
+   */
+  .custom-item ion-label,
+  .crew-item ion-label {
+    /* Название слоя в одну строку: перенос уводил цифру объёма от размерности. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .crew-item ion-label {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .crew-item ion-input {
+    flex: 2;
   }
 </style>
