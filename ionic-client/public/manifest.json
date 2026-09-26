@@ -5,6 +5,7 @@
   "lang": "ru",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
   "theme_color": "#261935",
   "background_color": "#261935",
   "icons": [
