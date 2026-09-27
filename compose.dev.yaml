@@ -11,11 +11,11 @@ x-db-env: &db-env
   POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
 
+# Как на проде (compose.prod.yaml): настраиваем сеть default — ту, что compose заводит сам,
+# потому что сервисы своих networks не перечисляют. IPv6 выключен: внутри стека его никто
+# не слушает, а AAAA от docker DNS оборачивались лишним заходом nginx в Connection refused.
 networks:
-  matli_network:
-    name: matli_network
-    # Как на проде (compose.prod.yaml): внутри стека IPv6 никто не слушает, и AAAA от
-    # docker DNS оборачивались лишним заходом nginx в Connection refused.
+  default:
     enable_ipv6: false
 
 services:

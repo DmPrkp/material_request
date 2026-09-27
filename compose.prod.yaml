@@ -11,15 +11,19 @@ x-db-env: &db-env
   POSTGRES_USER: ${POSTGRES_USER:?нет в .env}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?нет в .env}
 
+# Сеть у стека одна — та, что compose заводит сам (<проект>_default): сервисы её не
+# перечисляют, а объявленная здесь раньше matli_network никем не использовалась и поэтому
+# не создавалась вовсе (на сервере жила material_request_default). Настраиваем именно default,
+# иначе правка молча ни на что не влияет.
+#
+# IPv6 выключен намеренно. Демон на сервере раздаёт сетям адреса fdd0::/8, и docker DNS
+# отдавал на каждое имя и AAAA, и A. Внутри же IPv6 никто не слушает: у сервисов
+# app.listen(PORT, '0.0.0.0'), у клиента listen 5173. Главный nginx шёл сначала по IPv6,
+# получал Connection refused, помечал адрес нерабочим на fail_timeout и уходил на IPv4 —
+# сайт работал, но logs/nginx.log забивался парами error+warn, и настоящие 502 в них тонули.
+# Снаружи это ничего не меняет: IPv6-посетители приходят на порт хоста.
 networks:
-  matli_network:
-    name: matli_network
-    # IPv6 выключен намеренно. Демон на сервере раздаёт сетям адреса fdd0::/8, и docker DNS
-    # отдавал на каждое имя и AAAA, и A. Внутри же IPv6 никто не слушает: у сервисов
-    # app.listen(PORT, '0.0.0.0'), у клиента listen 5173. Главный nginx шёл сначала по IPv6,
-    # получал Connection refused, помечал адрес нерабочим на fail_timeout и уходил на IPv4 —
-    # сайт работал, но logs/nginx.log забивался парами error+warn, и настоящие 502 в них
-    # тонули. Снаружи это ничего не меняет: IPv6-посетители приходят на порт хоста.
+  default:
     enable_ipv6: false
 
 services:
