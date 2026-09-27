@@ -35,6 +35,33 @@ jobs:
         working-directory: ./order-server
         run: npm run test:e2e
 
+  # Ни базы, ни релея: сервис ничего не хранит, а отправку в тестах подменяет заглушка.
+  test-mail-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: mail-server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./mail-server
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./mail-server
+        run: npm run test
+
+      - name: Build
+        working-directory: ./mail-server
+        run: npm run build
+
   test-ionic-client:
     runs-on: ubuntu-latest
 

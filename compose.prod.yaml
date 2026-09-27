@@ -78,6 +78,8 @@ services:
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
+      # Из него собираются ссылки в письмах; должен совпадать с APP_URL у mail-server.
+      APP_URL: ${APP_URL:-https://zayavka.app}
     # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
     volumes:
       - ./logs:/var/log/matli
@@ -139,6 +141,31 @@ services:
       db:
         condition: service_healthy
 
+  mail-server:
+    restart: unless-stopped
+    # Своей базы нет, поэтому нет ни db-env, ни depends_on на базу. Наружу не смотрит:
+    # в nginx не заведён и порт не опубликован — иначе письма от подтверждённого домена
+    # zayavka.app мог бы слать кто угодно.
+    build:
+      context: ./mail-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4700
+    environment:
+      LOG_DIR: /var/log/matli
+      # Доступы к релею (SMTP.bz) — только этому сервису, как JWT_SECRET только user-server.
+      MAIL_HOST: ${MAIL_HOST:?нет в .env}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:?нет в .env}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?нет в .env}
+      MAIL_FROM: ${MAIL_FROM:-noreply@zayavka.app}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-}
+      MAIL_REPLY_TO: ${MAIL_REPLY_TO:-}
+      APP_URL: ${APP_URL:-https://zayavka.app}
+    # Лог ошибок сервиса — в общий logs/ на хосте (src/common/error-log.ts).
+    volumes:
+      - ./logs:/var/log/matli
+
   ionic-client:
     restart: unless-stopped
     build:
@@ -164,6 +191,11 @@ services:
       ADMIN_DB_USER: ${ADMIN_DB_USER:-}
       ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
       USER_SERVER_URL: http://user-server:4200/user/api/v1
+      # Лог ошибок всех сервисов — страница «Лог ошибок». Не LOG_DIR: так сервисы зовут
+      # каталог, куда пишут, а админка только читает (монтирование :ro).
+      ERROR_LOGS_DIR: /var/log/matli
+    volumes:
+      - ./logs:/var/log/matli:ro
     depends_on:
       db:
         condition: service_healthy

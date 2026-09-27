@@ -11,6 +11,14 @@
     </div>
 
     <nav class="menu__list">
+      <!-- Не таблица базы, а файлы logs/ — отдельной строкой над группами таблиц. -->
+      <RouterLink
+        :to="{ name: 'logs' }"
+        class="menu__item menu__item--logs"
+        active-class="menu__item--active"
+      >
+        <span><i class="pi pi-exclamation-triangle" /> Лог ошибок</span>
+      </RouterLink>
       <p
         v-if="error"
         class="menu__error"
@@ -136,6 +144,15 @@
   .menu__item--active {
     background: var(--p-highlight-background);
     color: var(--p-highlight-color);
+  }
+
+  .menu__item--logs {
+    margin-top: 8px;
+  }
+
+  .menu__item--logs i {
+    font-size: 12px;
+    margin-right: 4px;
   }
 
   .menu__db {

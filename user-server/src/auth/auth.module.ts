@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule, type JwtSignOptions } from '@nestjs/jwt';
 import { randomBytes } from 'crypto';
+import { MailModule } from '~/mail/mail.module';
+import { TokensModule } from '~/tokens/tokens.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
@@ -11,6 +13,8 @@ import { AuthService } from './auth.service';
 @Module({
   imports: [
     UsersModule,
+    TokensModule,
+    MailModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

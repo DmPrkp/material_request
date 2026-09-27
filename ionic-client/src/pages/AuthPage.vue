@@ -9,6 +9,7 @@
           <AuthForm
             v-model:mode="mode"
             @success="handleSuccess"
+            @forgot="goToForgot"
           />
         </ion-card-content>
       </ion-card>
@@ -48,6 +49,12 @@
     },
     { immediate: true },
   );
+
+  function goToForgot() {
+    router.push(
+      `/${route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE}/auth/forgot`,
+    );
+  }
 
   function handleSuccess() {
     const redirect =

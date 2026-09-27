@@ -1,12 +1,26 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { Roles } from '../auth/decorators';
+import { Body, Controller, Get, Patch, Query } from '@nestjs/common';
+import { CurrentUser, Roles } from '../auth/decorators';
+import { UpdateMeDto } from './dto/user.dto';
+import { ProfileService } from './profile.service';
 import { PublicUser, toPublicUser } from './public-user';
 import { parseIds, toUserName, UserName } from './user-name';
 import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly profileService: ProfileService,
+  ) {}
+
+  /**
+   * Своё — правит только сам владелец: id берём из токена, а не из пути, поэтому чужой
+   * профиль этой ручкой не достать вовсе.
+   */
+  @Patch('me')
+  async updateMe(@CurrentUser() user: PublicUser, @Body() dto: UpdateMeDto): Promise<PublicUser> {
+    return toPublicUser(await this.profileService.updateMe(user.id, dto));
+  }
 
   @Roles('ADMIN')
   @Get()

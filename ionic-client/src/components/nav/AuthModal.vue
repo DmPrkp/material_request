@@ -29,6 +29,7 @@
         v-if="isOpen"
         v-model:mode="mode"
         @success="emit('close')"
+        @forgot="goToForgot"
       />
     </ion-content>
   </ion-modal>
@@ -49,6 +50,7 @@
   } from "@ionic/vue";
   import { closeOutline } from "ionicons/icons";
   import { computed, ref } from "vue";
+  import { useRoute, useRouter } from "vue-router";
   import { useI18n } from "vue-i18n";
   import AuthForm from "@/components/pagesParts/auth/AuthForm.vue";
 
@@ -56,6 +58,8 @@
   const emit = defineEmits<{ close: [] }>();
 
   const { t } = useI18n();
+  const route = useRoute();
+  const router = useRouter();
   const mode = ref<"login" | "register">("login");
 
   const title = computed(() =>
@@ -63,6 +67,15 @@
       ? t("pages.auth.title_login")
       : t("pages.auth.title_register")
   );
+
+  // Восстановление — отдельная страница, поэтому модалку сперва закрываем: иначе она
+  // осталась бы висеть поверх новой страницы.
+  function goToForgot() {
+    emit("close");
+    router.push(
+      `/${route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE}/auth/forgot`,
+    );
+  }
 
   function handleDismiss() {
     mode.value = "login";

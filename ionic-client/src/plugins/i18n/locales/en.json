@@ -141,12 +141,37 @@
       "login_action": "Sign in",
       "register_action": "Create account",
       "password_mismatch": "Passwords do not match",
-      "not_authorized": "You are not signed in — tap to sign in"
+      "not_authorized": "You are not signed in — tap to sign in",
+      "email": "Email (optional)",
+      "email_label": "Email",
+      "email_hint": "* — will be used to restore your password",
+      "forgot": "Forgot your password?",
+      "forgot_title": "Password recovery",
+      "forgot_lead": "Enter the email linked to your account — we will send a link to change the password.",
+      "forgot_action": "Send the link",
+      "forgot_sent": "If that email is linked to an account, the letter is already sent. The link is valid for 2 hours.",
+      "verify_title": "Email confirmation",
+      "verify_done": "The address is confirmed — it can now be used to restore your password.",
+      "verify_taken": "This address is already confirmed by another account.",
+      "verify_bad_link": "The link is invalid or expired. Ask for a new letter in settings.",
+      "verify_continue": "Continue",
+      "reset_title": "New password",
+      "new_password": "New password",
+      "reset_action": "Save the password",
+      "reset_done": "The password is changed — sign in with the new one.",
+      "reset_bad_link": "The link is invalid or expired. Ask for a new one on the recovery page.",
+      "server_unavailable": "The server is unavailable. Try again later."
     },
     "settings": {
       "title": "Profile",
       "email": "Email",
       "joined": "Joined",
+      "email_verified": "Address confirmed",
+      "email_unverified": "Address not confirmed — it cannot restore your password",
+      "email_save": "Save the email",
+      "email_resend": "Send the letter again",
+      "email_sent": "The letter is sent — open the link inside it",
+      "email_error": "Could not save. Try again later.",
       "logout": "Sign out",
       "appearance": "Appearance",
       "language": "Language",
@@ -346,7 +371,10 @@
       "tabs": {
         "warehouses": "warehouses",
         "holdings": "on hand"
-      }
+      },
+      "add_items_title": "add items",
+      "chosen": "Chosen: {count}",
+      "added_items": "Items added: {count}"
     },
     "not_found": {
       "title": "Page not found",

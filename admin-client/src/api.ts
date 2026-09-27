@@ -83,7 +83,32 @@ export const api = {
   me: () => request<AdminUser>('/auth/me'),
   tables: () => request<TableInfo[]>('/tables'),
   table: (key: string) => request<TableData>(`/tables/${encodeURIComponent(key)}`),
+  logs: () => request<LogsData>('/logs'),
+  /** Файл лога как есть — текстом, не JSON. */
+  logFile: async (name: string) => {
+    const response = await fetch(`${BASE}/logs/files/${encodeURIComponent(name)}`, {
+      headers: token.value ? { Authorization: `Bearer ${token.value}` } : {},
+    });
+    if (response.status === 401) setToken(null);
+    if (!response.ok) throw new ApiError(response.status, response.statusText);
+    return response.text();
+  },
 };
+
+/** Запись лога ошибок (admin-server/src/logs/parse.ts). */
+export type LogEntry = {
+  id: string;
+  file: string;
+  line: number;
+  service: string;
+  at: string;
+  level: string;
+  context: string;
+  message: string;
+  stack: string;
+};
+export type LogFile = { name: string; service: string; size: number; modifiedAt: string };
+export type LogsData = { dir: string; files: LogFile[]; entries: LogEntry[]; total: number; limit: number };
 
 /**
  * API словаря через admin-server (proxy.controller.ts): запись идёт от имени вошедшего

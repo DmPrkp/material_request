@@ -10,6 +10,8 @@ export function toPublicUser(user: User): PublicUser {
     login: user.login,
     firstName: user.firstName,
     lastName: user.lastName,
+    email: user.email,
+    emailVerifiedAt: user.emailVerifiedAt,
     role: user.role,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,

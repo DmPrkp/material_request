@@ -5,12 +5,20 @@ import { AdminGuard } from './auth/auth.guard';
 import { AuthController } from './auth/auth.controller';
 import { UserServerClient } from './auth/user-server.client';
 import { DbPools } from './db/pools';
+import { LogsController } from './logs/logs.controller';
+import { LogsService } from './logs/logs.service';
 import { ProxyController } from './proxy/proxy.controller';
 import { TablesController } from './tables/tables.controller';
 import { TablesService } from './tables/tables.service';
 
 @Module({
-  controllers: [AuthController, TablesController, ProxyController],
-  providers: [DbPools, UserServerClient, TablesService, { provide: APP_GUARD, useClass: AdminGuard }],
+  controllers: [AuthController, TablesController, ProxyController, LogsController],
+  providers: [
+    DbPools,
+    UserServerClient,
+    TablesService,
+    LogsService,
+    { provide: APP_GUARD, useClass: AdminGuard },
+  ],
 })
 export class AppModule {}

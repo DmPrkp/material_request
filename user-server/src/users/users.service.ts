@@ -1,5 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { asc, eq, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNotNull } from 'drizzle-orm';
 
 import { type Database, DB } from '~/db/db.module';
 import { type NewUser, type User, users } from '~/db/schema';
@@ -35,6 +35,19 @@ export class UsersService {
     return user ?? null;
   }
 
+  /**
+   * Только подтверждённый адрес: по неподтверждённому восстановление не работает,
+   * иначе опечатка в чужой почте отдавала бы аккаунт её владельцу. Частичный уникальный
+   * индекс гарантирует, что подтверждённый адрес принадлежит ровно одному.
+   */
+  async findByVerifiedEmail(email: string): Promise<User | null> {
+    const [user] = await this.db
+      .select()
+      .from(users)
+      .where(and(eq(users.email, email), isNotNull(users.emailVerifiedAt)));
+    return user ?? null;
+  }
+
   async findById(id: number): Promise<User | null> {
     const [user] = await this.db.select().from(users).where(eq(users.id, id));
     return user ?? null;
@@ -50,5 +63,33 @@ export class UsersService {
 
   async updatePassword(id: number, passwordHash: string): Promise<void> {
     await this.db.update(users).set({ password: passwordHash }).where(eq(users.id, id));
+  }
+
+  /**
+   * Смена адреса всегда сбрасывает подтверждение: новый адрес надо подтвердить заново,
+   * иначе им можно было бы забрать чужой аккаунт, вписав чужую почту.
+   */
+  async updateEmail(id: number, email: string | null): Promise<User> {
+    const [user] = await this.db
+      .update(users)
+      .set({ email, emailVerifiedAt: null })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  /** Отметка подтверждения. Уникальность среди подтверждённых проверяет база — 409. */
+  async markEmailVerified(id: number): Promise<User> {
+    const [user] = await this.db
+      .update(users)
+      .set({ emailVerifiedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateProfile(id: number, data: Pick<NewUser, 'firstName' | 'lastName'>): Promise<User> {
+    const [user] = await this.db.update(users).set(data).where(eq(users.id, id)).returning();
+    return user;
   }
 }

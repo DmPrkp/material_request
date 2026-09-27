@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import AuthModel from '@/models/AuthModel';
+import UserModel from '@/models/UserModel';
 import BaseModel from '@/models/BaseModel';
 import type { AuthResponse, RegisterPayload, UserProfile } from '@/types/dto';
 import { isTokenExpired, refreshDueAt, shouldRefresh, tokenExpiresAt } from './authToken';
@@ -165,9 +166,15 @@ const normalizeUserProfile = (payload: unknown): UserProfile | null => {
   const optionalString = (value: unknown) =>
     typeof value === 'string' && value.trim() ? value.trim() : undefined;
 
+  // Отдельно от email: адрес может быть, а подтверждения не быть — по неподтверждённому
+  // восстановление пароля не работает, и настройки должны это показать.
+  const emailVerifiedAt =
+    normalizeDate(candidate.emailVerifiedAt ?? candidate.email_verified_at) ?? null;
+
   return {
     id: identifier,
     email,
+    emailVerifiedAt,
     username,
     firstName: optionalString(candidate.firstName),
     lastName: optionalString(candidate.lastName),
@@ -340,6 +347,21 @@ export const useAuthStore = defineStore('auth', {
         console.error('Не удалось получить профиль пользователя', error);
         return null;
       }
+    },
+    /**
+     * Смена своей почты. Новый адрес всегда приезжает неподтверждённым, сервер сам шлёт
+     * письмо — поэтому профиль перечитываем, чтобы интерфейс сразу показал «не подтверждён».
+     */
+    async updateEmail(email: string | null, locale: string) {
+      this.clearError();
+      const profile = await UserModel.updateMe({ email, locale });
+      const normalized = normalizeUserProfile(profile);
+      if (normalized) this.setUser(normalized);
+      return normalized;
+    },
+    /** Переслать письмо с подтверждением на адрес из профиля. */
+    requestEmailVerification(locale: string) {
+      return AuthModel.requestEmailVerification(locale);
     },
     initialize() {
       // Сервер отверг токен (протух раньше exp или подписан старым секретом) — выходим.

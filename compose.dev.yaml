@@ -99,6 +99,9 @@ services:
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
+      # Из него собираются ссылки в письмах (подтверждение адреса, сброс пароля).
+      # Должен совпадать с APP_URL у mail-server: чужой домен тот не пропустит.
+      APP_URL: ${APP_URL:-http://localhost}
     # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
     volumes:
       - ./logs:/var/log/matli
@@ -235,6 +238,56 @@ services:
         # миграция первым делом стучится в базу (и заводит её, если нет)
         condition: service_healthy
 
+  mail-server:
+    # Письма: шаблоны и отправка через релей. Своей базы нет — хранить нечего: токены
+    # подтверждения и сброса лежат у user-server, рядом с пользователями, а сюда приходит
+    # уже готовая ссылка. В nginx сервис не заведён — слать письма от подтверждённого
+    # домена можно только изнутри сети.
+    build:
+      context: ./mail-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4700:4700
+    environment:
+      LOG_DIR: /var/log/matli
+      # Настоящий релей в dev не подключаем намеренно: письма с машины разработчика не
+      # должны улетать живым людям. Всё уходит в mailpit и видно на http://localhost:8025.
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_FROM: noreply@zayavka.app
+      MAIL_REPLY_TO: ${MAIL_REPLY_TO:-}
+      # Ссылки в письмах ведут на локальный клиент, а не на прод.
+      APP_URL: ${APP_URL:-http://localhost}
+    # Тот же лог ошибок, что на проде, — чтобы проверять его локально.
+    volumes:
+      - ./logs:/var/log/matli
+    develop:
+      watch:
+        - action: sync
+          path: ./mail-server/src
+          target: /usr/mail-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./mail-server/package.json
+        - action: rebuild
+          path: ./mail-server/tsconfig.json
+        - action: rebuild
+          path: ./mail-server/nest-cli.json
+        - action: rebuild
+          path: ./mail-server/docker
+    depends_on:
+      - mailpit
+
+  mailpit:
+    # Поддельный SMTP только для разработки: принимает письма и никуда их не отправляет,
+    # читать — http://localhost:8025. Тег закреплён, как у postgres: незакреплённый
+    # однажды принёс мажор. (mailhog заброшен, mailpit — его живой преемник.)
+    image: axllent/mailpit:v1.31.3
+    ports:
+      - 8025:8025
+
   ionic-client:
     build:
       context: ./ionic-client
@@ -265,6 +318,11 @@ services:
       ADMIN_DB_USER: ${ADMIN_DB_USER:-}
       ADMIN_DB_PASSWORD: ${ADMIN_DB_PASSWORD:-}
       USER_SERVER_URL: http://user-server:4200/user/api/v1
+      # Лог ошибок всех сервисов — страница «Лог ошибок». Не LOG_DIR: так сервисы зовут
+      # каталог, куда пишут, а админка только читает (монтирование :ro).
+      ERROR_LOGS_DIR: /var/log/matli
+    volumes:
+      - ./logs:/var/log/matli:ro
     develop:
       watch:
         - action: sync

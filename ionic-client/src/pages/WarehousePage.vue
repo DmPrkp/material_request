@@ -16,12 +16,13 @@
       </ion-text>
 
       <template v-else>
-        <!-- Выделение доступно всегда: строка склада никуда не ведёт, нажатие её выделяет. -->
         <ion-row
-          v-if="loaded && groups.length"
+          v-if="loaded"
           class="select-row ion-justify-content-end"
         >
+          <!-- Выделение доступно всегда: строка склада никуда не ведёт, нажатие её выделяет. -->
           <ion-button
+            v-if="groups.length"
             fill="clear"
             size="small"
             @click="toggleAll"
@@ -36,45 +37,102 @@
           </ion-button>
         </ion-row>
 
-        <ion-item-group
+        <!--
+          Таблица — как в заявке: её же шапки (TitledDivider + table-head) и те же
+          столбцы, только вместо расхода на объём — сколько лежит на складе.
+        -->
+        <template
           v-for="group in groups"
           :key="group.kind"
         >
-          <ion-item-divider>
-            <ion-label color="secondary">
-              <h2>{{ $t(`pages.warehouses.kinds.${group.kind}`) }}</h2>
-            </ion-label>
-          </ion-item-divider>
+          <MaterialHeader
+            v-if="group.kind === 'material'"
+            readonly
+          />
+          <HandToolListHeader
+            v-else-if="group.kind === 'hand_tool'"
+            readonly
+          />
+          <PowerToolListHeader
+            v-else
+            readonly
+          />
           <ion-item
-            v-for="item in group.items"
+            v-for="(item, num) in group.items"
             :key="item.id"
             :class="{ selected: selected.has(item.id) }"
             button
             :detail="false"
+            role="checkbox"
+            :aria-checked="selected.has(item.id)"
+            :aria-label="item.title"
             @click="onRowClick(item.id)"
           >
-            <ion-label class="ion-text-wrap">
-              {{ item.title }}
-              <p v-if="item.details">{{ item.details }}</p>
-            </ion-label>
-            <ion-note slot="end">
-              {{ item.quantity }} {{ item.measure || $t("measure.pcs") }}
-            </ion-note>
-            <!--
-              Иконка, а не ion-checkbox: тот внутри ion-item становится вводом строки,
-              ловит её клик и переключал бы выделение второй раз (как в списке заявок).
-            -->
-            <IonIcon
-              slot="end"
-              class="check"
-              :icon="selected.has(item.id) ? checkbox : squareOutline"
-              :color="selected.has(item.id) ? 'primary' : undefined"
-              role="checkbox"
-              :aria-checked="selected.has(item.id)"
-              :aria-label="item.title"
-            />
+            <ion-grid>
+              <!-- Числа — по центру высоты строки: название бывает в две-три строки. -->
+              <ion-row class="ion-align-items-center">
+                <ion-col
+                  size="1"
+                  class="cell-center"
+                >
+                  <!--
+                    У выбранной строки на месте номера — галочка: столбец «№» шириной
+                    1/12, и номер с отдельным квадратиком в нём не помещались. Пустого
+                    квадратика нет вовсе — выбор виден по галочке и подсветке строки,
+                    а подсказка, что строки выбирают, — кнопка «выбрать все» сверху.
+                    Иконка, а не ion-checkbox: тот внутри ion-item становится вводом
+                    строки и ловит её клик (переключал бы выделение второй раз).
+                  -->
+                  <IonIcon
+                    v-if="selected.has(item.id)"
+                    class="check"
+                    :icon="checkmarkOutline"
+                    color="primary"
+                  />
+                  <template v-else>{{ num + 1 }}</template>
+                </ion-col>
+                <ion-col
+                  size="7"
+                  class="ion-text-start cell-name"
+                >
+                  {{ item.title }}
+                  <span
+                    v-if="item.details"
+                    class="param"
+                  >
+                    {{ item.details }}
+                  </span>
+                </ion-col>
+                <ion-col
+                  size="2"
+                  class="cell-center"
+                >
+                  {{ item.quantity }}
+                </ion-col>
+                <ion-col
+                  size="2"
+                  class="cell-center"
+                >
+                  {{ item.measure || $t("measure.pcs") }}
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </ion-item>
-        </ion-item-group>
+        </template>
+
+        <!-- Класть на склад может тот же, кто его видит (warehouse-server: items). -->
+        <ion-grid v-if="loaded">
+          <ion-row class="ion-justify-content-end">
+            <ion-col size="auto">
+              <CutCornerBtn
+                :disabled="busy"
+                @click="addItems"
+              >
+                {{ $t("pages.warehouses.add_items_title") }}
+              </CutCornerBtn>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
 
         <ion-note
           v-if="loaded && !groups.length"
@@ -139,7 +197,7 @@
     modalController,
     toastController,
   } from "@ionic/vue";
-  import { checkbox, squareOutline } from "ionicons/icons";
+  import { checkmarkOutline } from "ionicons/icons";
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router";
@@ -147,6 +205,11 @@
     ITEM_KINDS as KINDS,
     useItemLabels,
   } from "@/components/pagesParts/warehouses/itemLabels";
+  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import HandToolListHeader from "@/components/pagesParts/handTools/HandToolListHeader.vue";
+  import MaterialHeader from "@/components/pagesParts/materials/MaterialHeader.vue";
+  import PowerToolListHeader from "@/components/pagesParts/powerTools/PowerToolListHeader.vue";
+  import WarehouseAddItemsModal from "@/components/pagesParts/warehouses/WarehouseAddItemsModal.vue";
   import WarehouseItemsActionModal from "@/components/pagesParts/warehouses/WarehouseItemsActionModal.vue";
   import type {
     ActionPerson,
@@ -161,6 +224,7 @@
     Company,
     Warehouse,
     WarehouseItem,
+    WarehouseItemInput,
     WarehouseItemKind,
   } from "@/types/dto";
 
@@ -229,6 +293,35 @@
     },
     { immediate: true }
   );
+
+  /**
+   * Добавить позиции руками: подбор по словарю теми же тремя видами, что в заявке.
+   * Позиция, уже лежащая на складе, не задвоится — сервер сложит количества.
+   */
+  async function addItems() {
+    const id = warehouse.value?.id;
+    if (!id) return;
+
+    const modal = await modalController.create({
+      component: WarehouseAddItemsModal,
+    });
+    await modal.present();
+    const { data, role } = await modal.onWillDismiss<WarehouseItemInput[]>();
+    if (role !== "confirm" || !data?.length) return;
+
+    busy.value = true;
+    try {
+      await WarehouseModel.addItems(id, data);
+      await afterAction(
+        t("pages.warehouses.added_items", { count: data.length })
+      );
+    } catch (err) {
+      console.error("Не удалось добавить позиции на склад", err);
+      await notify(t("pages.warehouses.add_items_error"));
+    } finally {
+      busy.value = false;
+    }
+  }
 
   /* ------------------------------------------------ выделение и действия */
 
@@ -398,9 +491,13 @@
     --background: rgba(var(--ion-color-primary-rgb), 0.12);
   }
 
+  /* Параметры сборки — своей строкой под названием, как в заявке (MateriaListItems). */
+  .param {
+    display: block;
+  }
+
   .check {
     font-size: 20px;
-    margin-inline-start: 12px;
   }
 
   .bulk-spacer {

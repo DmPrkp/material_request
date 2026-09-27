@@ -10,6 +10,7 @@ export const router = createRouter({
     // Ключ таблицы — в адресе: ссылку можно открыть в соседней вкладке. Параметр не :key —
     // это зарезервированный атрибут Vue, пропсом он до страницы не дойдёт.
     { path: '/t/:table', name: 'table', component: () => import('./pages/TablePage.vue'), props: true },
+    { path: '/logs', name: 'logs', component: () => import('./pages/LogsPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

@@ -204,7 +204,7 @@ const seoPages: SeoPages = {
   main: {
     title: {
       en: "Materials and tools for your crew in a minute",
-      ru: "Материалы и инструмент для бригады — за минуту",
+      ru: "Быстрый расчет материалов",
     },
     description: defaultSeo.description,
   },
@@ -233,6 +233,9 @@ const NOINDEX_ROUTES = new Set([
   "on-hand",
   "warehouse",
   "auth",
+  "auth-forgot",
+  "auth-verify",
+  "auth-reset",
   "catalog-technology",
   "catalog-stage",
   "not-found",

@@ -14,11 +14,17 @@ export type RegisterPayload = {
   password: string;
   firstName: string;
   lastName?: string;
+  /** Необязательна: вход по логину, почта нужна только чтобы восстановить пароль. */
+  email?: string;
+  /** Язык письма и локаль в ссылке — сервер своей не знает. */
+  locale?: string;
 };
 
 export type UserProfile = {
   id: string | number;
   email?: string;
+  /** null — адрес не подтверждён, восстановление по нему не работает. */
+  emailVerifiedAt?: string | null;
   username?: string;
   firstName?: string;
   lastName?: string;

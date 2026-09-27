@@ -107,6 +107,39 @@ export default class AuthModel extends BaseModel {
     return this.postWithFallback(refreshPaths, {});
   }
 
+  /**
+   * Ручки почты добавлены позже и запасных путей не имеют: они появились сразу
+   * в user-server, подменять их через env незачем.
+   */
+  static requestEmailVerification(locale: string) {
+    return this.post<void>({
+      params: '/auth/email/verify-request',
+      body: { locale },
+      opts: authRequestOpts,
+    });
+  }
+
+  static verifyEmail(token: string) {
+    return this.post<void>({ params: '/auth/email/verify', body: { token }, opts: authRequestOpts });
+  }
+
+  /** Отвечает 204 всегда — и на незнакомый адрес: узнать, кто зарегистрирован, нельзя. */
+  static forgotPassword(email: string, locale: string) {
+    return this.post<void>({
+      params: '/auth/password/forgot',
+      body: { email, locale },
+      opts: authRequestOpts,
+    });
+  }
+
+  static resetPassword(token: string, newPassword: string) {
+    return this.post<void>({
+      params: '/auth/password/reset',
+      body: { token, newPassword },
+      opts: authRequestOpts,
+    });
+  }
+
   static profile() {
     if (!profilePaths.length) {
       return Promise.resolve(undefined);

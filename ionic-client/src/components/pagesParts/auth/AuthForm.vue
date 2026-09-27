@@ -46,6 +46,20 @@
             autocomplete="family-name"
           />
         </ion-item>
+
+        <ion-item lines="none">
+          <ion-label position="stacked">
+            {{ $t("pages.auth.email") }}
+          </ion-label>
+          <ion-input
+            v-model="email"
+            type="email"
+            inputmode="email"
+            autocomplete="email"
+            autocapitalize="off"
+          />
+        </ion-item>
+        <p class="field-hint">{{ $t("pages.auth.email_hint") }}</p>
       </template>
 
       <ion-item>
@@ -102,6 +116,19 @@
         }}
       </span>
     </CutCornerBtn>
+
+    <p
+      v-if="mode === 'login'"
+      class="forgot-line"
+    >
+      <button
+        type="button"
+        class="link-btn"
+        @click="emit('forgot')"
+      >
+        {{ $t("pages.auth.forgot") }}
+      </button>
+    </p>
   </form>
 </template>
 
@@ -115,19 +142,29 @@
    * кто форму показывает, а у страницы он ещё и приходит из query.
    */
   import { computed, ref } from "vue";
+  import { useRoute } from "vue-router";
   import { useI18n } from "vue-i18n";
   import { useAuthStore } from "@/store/auth";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
 
   const mode = defineModel<"login" | "register">("mode", { default: "login" });
-  const emit = defineEmits<{ success: [] }>();
+  // forgot наружу по той же причине, что и success: странице надо уйти на роут,
+  // а модалке сперва закрыться.
+  const emit = defineEmits<{ success: []; forgot: [] }>();
 
   const authStore = useAuthStore();
+  const route = useRoute();
   const { t } = useI18n();
+
+  /** Язык письма и локаль в ссылке: сервер своей не знает, берём из адреса. */
+  const locale = computed(
+    () => String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
+  );
 
   const login = ref<string>("");
   const firstName = ref<string>("");
   const lastName = ref<string>("");
+  const email = ref<string>("");
   const password = ref<string>("");
   const confirmPassword = ref<string>("");
   const isSubmitting = computed(() => authStore.status === "loading");
@@ -152,6 +189,10 @@
           password: password.value,
           firstName: firstName.value,
           lastName: lastName.value.trim() || undefined,
+          // Пустую почту не шлём вовсе: поле необязательное, а сервер строгий — пустая
+          // строка не адрес и упала бы валидацией.
+          email: email.value.trim() || undefined,
+          locale: locale.value,
         });
       } else {
         await authStore.login(login.value, password.value);
@@ -160,6 +201,7 @@
       login.value = "";
       firstName.value = "";
       lastName.value = "";
+      email.value = "";
       password.value = "";
       confirmPassword.value = "";
       emit("success");
@@ -174,5 +216,29 @@
 <style scoped>
   .error-text {
     margin: 16px 0;
+  }
+
+  /* Прижата к полю почты и отбита снизу: посередине между полями подсказка читалась
+     так, будто относится к паролю. */
+  .field-hint {
+    margin: 2px 16px 18px;
+    font-size: 0.8rem;
+    line-height: 1.35;
+    color: var(--ion-color-medium);
+  }
+
+  .forgot-line {
+    margin: 12px 0 0;
+    text-align: center;
+  }
+
+  .link-btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: var(--ion-color-primary);
+    text-decoration: underline;
+    cursor: pointer;
   }
 </style>

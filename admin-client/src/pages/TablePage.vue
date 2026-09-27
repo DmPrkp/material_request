@@ -122,10 +122,8 @@
     type CellDoubleClickedEvent,
     type ColDef,
     type ColumnResizedEvent,
-    colorSchemeDark,
     type GridApi,
     type GridReadyEvent,
-    themeQuartz,
   } from 'ag-grid-community';
   import { AgGridVue } from 'ag-grid-vue3';
   import Button from 'primevue/button';
@@ -135,10 +133,11 @@
   import InputText from 'primevue/inputtext';
   import Message from 'primevue/message';
   import MultiSelect from 'primevue/multiselect';
-  import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef } from 'vue';
+  import { computed, reactive, ref, shallowRef } from 'vue';
 
   import { api, type Row, type TableData } from '@/api';
   import { columnDefs } from '@/columns';
+  import { useGridTheme } from '@/gridTheme';
   import VariantCreateDialog from '@/forms/VariantCreateDialog.vue';
 
   const props = defineProps<{ table: string }>();
@@ -169,18 +168,7 @@
 
   const rowClassRules = { 'row-archived': (p: { data?: Row }) => p.data?.is_active === false };
 
-  // Тема таблицы — вслед за системной, как у PrimeVue.
-  const dark = window.matchMedia('(prefers-color-scheme: dark)');
-  const isDark = ref(dark.matches);
-  const onScheme = (e: MediaQueryListEvent) => (isDark.value = e.matches);
-  onMounted(() => dark.addEventListener('change', onScheme));
-  onBeforeUnmount(() => dark.removeEventListener('change', onScheme));
-  const theme = computed(() =>
-    (isDark.value ? themeQuartz.withPart(colorSchemeDark) : themeQuartz).withParams({
-      fontSize: 13,
-      spacing: 6,
-    }),
-  );
+  const theme = useGridTheme();
 
   async function load() {
     loading.value = true;

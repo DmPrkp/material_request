@@ -122,6 +122,26 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: false },
       },
       {
+        path: "auth/forgot",
+        name: "auth-forgot",
+        component: () => import("@/pages/AuthForgotPage.vue"),
+        meta: { requiresAuth: false },
+      },
+      {
+        // Сюда приходят по ссылке из письма, из почтового клиента и обычно без входа —
+        // поэтому requiresAuth: false и обе страницы в NOINDEX_ROUTES.
+        path: "auth/verify",
+        name: "auth-verify",
+        component: () => import("@/pages/AuthVerifyPage.vue"),
+        meta: { requiresAuth: false },
+      },
+      {
+        path: "auth/reset",
+        name: "auth-reset",
+        component: () => import("@/pages/AuthResetPage.vue"),
+        meta: { requiresAuth: false },
+      },
+      {
         // Главная: что это и сценарии со скриншотами. Калькулятор переехал в «Заявки».
         path: "main",
         name: "main",

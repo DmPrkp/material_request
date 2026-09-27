@@ -4,6 +4,9 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { User } from '~/db/schema';
 import { hashPassword } from '../users/password';
+import type { MailClient } from '~/mail/mail.client';
+import type { VerificationMailer } from '~/mail/verification.mailer';
+import type { TokensService } from '~/tokens/tokens.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 
@@ -20,6 +23,8 @@ describe('AuthService', () => {
       password: await hashPassword('secret1'),
       firstName: 'Иван',
       lastName: null,
+      email: null,
+      emailVerifiedAt: null,
       role: 'USER',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -33,13 +38,24 @@ describe('AuthService', () => {
       findById: vi.fn(),
       updatePassword: vi.fn(),
     };
-    service = new AuthService(users as unknown as UsersService, jwtService);
+    service = new AuthService(
+      users as unknown as UsersService,
+      jwtService,
+      { issue: vi.fn(), consume: vi.fn() } as unknown as TokensService,
+      { send: vi.fn().mockResolvedValue(true) } as unknown as MailClient,
+      { send: vi.fn().mockResolvedValue(true) } as unknown as VerificationMailer,
+    );
   });
 
   it('register stores a hash, not the password, and never returns it', async () => {
     users.create.mockImplementation((data) => Promise.resolve({ ...ivan, ...data }));
 
-    const result = await service.register({ login: 'ivan', password: 'secret1', firstName: 'Иван' });
+    const result = await service.register({
+      login: 'ivan',
+      password: 'secret1',
+      firstName: 'Иван',
+      locale: 'ru',
+    });
 
     const saved = users.create.mock.calls[0][0];
     expect(saved.password).not.toBe('secret1');

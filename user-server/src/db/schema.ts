@@ -1,4 +1,5 @@
-import { integer, pgEnum, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 /**
  * USER — всем при регистрации, ADMIN — только заведённому при старте (default-admin.service.ts)
@@ -24,13 +25,67 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   firstName: varchar('first_name', { length: 100 }).notNull(),
   lastName: varchar('last_name', { length: 100 }),
+  /**
+   * Необязательна: входят по логину, почта нужна только чтобы восстановить пароль.
+   * Хранится в нижнем регистре (auth.dto.ts), 320 — предел адреса по RFC.
+   */
+  email: varchar('email', { length: 320 }),
+  /** Пока null — адрес не подтверждён, и восстановление по нему не работает. */
+  emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
   role: role('role').notNull().default('USER'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })
     .notNull()
     .defaultNow()
     .$onUpdate(() => new Date()),
-});
+}, (table) => [
+  /**
+   * Уникальность только среди подтверждённых. Полная дала бы захват адреса: чужой
+   * неподтверждённый аккаунт занял бы почту навсегда, и настоящий владелец не смог бы
+   * её указать. Отсутствие уникальности дало бы неоднозначный сброс — два аккаунта на
+   * один адрес. Частичный индекс закрывает и то, и другое: кто подтвердил первым, того
+   * и адрес, а второму на подтверждении прилетит 409 (PgConstraintFilter).
+   */
+  uniqueIndex('users_email_verified_key')
+    .on(table.email)
+    .where(sql`${table.emailVerifiedAt} is not null`),
+]);
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+/**
+ * Одноразовые ссылки: подтверждение адреса и сброс пароля.
+ *
+ * В базе только sha256 — как ключ ничьей заявки в order-server. Утёкший дамп не даёт
+ * войти чужим аккаунтом: по хешу ссылку не собрать.
+ */
+export const TOKEN_TYPES = ['verify', 'reset'] as const;
+export const tokenType = pgEnum('token_type', TOKEN_TYPES);
+export type TokenType = (typeof TOKEN_TYPES)[number];
+
+export const userTokens = pgTable(
+  'user_tokens',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: tokenType('type').notNull(),
+    /** sha256 от значения из ссылки, hex — 64 символа. */
+    tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+    /**
+     * Адрес, ради которого ссылку выпускали. Сверяется при подтверждении: если человек
+     * успел сменить почту, старое письмо не должно подтверждать новый адрес.
+     */
+    email: varchar('email', { length: 320 }).notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    /** Проставляется при использовании: ссылка срабатывает один раз. */
+    usedAt: timestamp('used_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('user_tokens_user_id_idx').on(table.userId)],
+);
+
+export type UserToken = typeof userTokens.$inferSelect;
+export type NewUserToken = typeof userTokens.$inferInsert;
