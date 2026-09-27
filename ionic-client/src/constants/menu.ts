@@ -26,8 +26,6 @@ const ROOF_MENU = {
     alt: "roof-main",
     width: 150,
   },
-  // Технологий кровли в словаре пока нет — раздел закрыт.
-  disable: true,
 };
 
 const INTERIOR_MENU = {

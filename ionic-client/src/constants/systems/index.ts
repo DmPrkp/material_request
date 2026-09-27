@@ -12,6 +12,7 @@ export const SYSTEM_IMAGES: Record<string, ImageType> = {
   EIFS: { src: "/system/wet-facade-narrow.webp", alt: "wet-facade" },
   frame_scaffold: { src: "/system/scaffold.webp", alt: "scaffold" },
   flat: { src: "/system/flat-roof.webp", alt: "flat-roof" },
+  SHINGLES: { src: "/system/shingles.webp", alt: "shingles" },
   // Схема, а не снимок: нарисована вручную под палитру приложения.
   GKL_C112: { src: "/system/drywall-partition.svg", alt: "drywall-partition" },
 };

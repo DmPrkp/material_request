@@ -91,6 +91,28 @@ const c112MaterialLinks = data.c112MaterialVariants.flatMap((v) =>
   v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
 );
 
+// Гибкая черепица — тем же порядком, своим шагом (см. shingles.ts).
+const shinglesMaterialVariantRows = data.shinglesMaterialVariants.map((v) => ({
+  id: v.id,
+  materialId: v.materialId,
+  code: buildVariantCode(v.materialId, v.paramValueIds),
+}));
+
+const shinglesMaterialLinks = data.shinglesMaterialVariants.flatMap((v) =>
+  v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
+);
+
+// Металлочерепица — тем же порядком (см. metal-tile.ts).
+const metalTileMaterialVariantRows = data.metalTileMaterialVariants.map((v) => ({
+  id: v.id,
+  materialId: v.materialId,
+  code: buildVariantCode(v.materialId, v.paramValueIds),
+}));
+
+const metalTileMaterialLinks = data.metalTileMaterialVariants.flatMap((v) =>
+  v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
+);
+
 /** Вставка с подсчётом затронутых строк. */
 async function insert(query: PromiseLike<{ rowCount: number | null }>): Promise<number> {
   const result = await query;
@@ -152,6 +174,44 @@ const STEPS: Step[] = [
       return rows;
     },
   },
+  {
+    // Гибкая черепица одним шагом: порядок вставки — по внешним ключам.
+    name: 'shingles',
+    run: async (tx) => {
+      let rows = 0;
+      rows += await insert(
+        tx
+          .insert(schema.paramValues)
+          .values(data.shinglesParamValues.map((p) => ({ ...p, value: String(p.value) }))),
+      );
+      rows += await insert(tx.insert(schema.materialTypes).values(data.shinglesMaterialTypes));
+      rows += await insert(tx.insert(schema.materials).values(data.shinglesMaterials));
+      rows += await insert(tx.insert(schema.systems).values(data.shinglesSystems));
+      rows += await insert(tx.insert(schema.workStages).values(data.shinglesWorkStages));
+      rows += await insert(tx.insert(schema.materialVariants).values(shinglesMaterialVariantRows));
+      rows += await insert(tx.insert(schema.materialVariantParams).values(shinglesMaterialLinks));
+      return rows;
+    },
+  },
+  {
+    // Металлочерепица одним шагом: порядок вставки — по внешним ключам.
+    name: 'metal-tile',
+    run: async (tx) => {
+      let rows = 0;
+      rows += await insert(
+        tx
+          .insert(schema.paramValues)
+          .values(data.metalTileParamValues.map((p) => ({ ...p, value: String(p.value) }))),
+      );
+      rows += await insert(tx.insert(schema.powerTools).values(data.metalTilePowerTools));
+      rows += await insert(tx.insert(schema.materials).values(data.metalTileMaterials));
+      rows += await insert(tx.insert(schema.systems).values(data.metalTileSystems));
+      rows += await insert(tx.insert(schema.workStages).values(data.metalTileWorkStages));
+      rows += await insert(tx.insert(schema.materialVariants).values(metalTileMaterialVariantRows));
+      rows += await insert(tx.insert(schema.materialVariantParams).values(metalTileMaterialLinks));
+      return rows;
+    },
+  },
 ];
 
 async function main(): Promise<void> {
@@ -161,7 +221,12 @@ async function main(): Promise<void> {
   );
   assertUniqueCodes(
     'материалы',
-    [...materialVariantRows, ...c112MaterialVariantRows].map((v) => v.code),
+    [
+      ...materialVariantRows,
+      ...c112MaterialVariantRows,
+      ...shinglesMaterialVariantRows,
+      ...metalTileMaterialVariantRows,
+    ].map((v) => v.code),
   );
 
   const pool = new Pool({ connectionString: databaseUrl(), max: 1 });

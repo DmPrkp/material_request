@@ -18,3 +18,19 @@ export {
   c112Systems,
   c112WorkStages,
 } from './c112';
+export {
+  shinglesMaterialTypes,
+  shinglesMaterialVariants,
+  shinglesMaterials,
+  shinglesParamValues,
+  shinglesSystems,
+  shinglesWorkStages,
+} from './shingles';
+export {
+  metalTileMaterialVariants,
+  metalTileMaterials,
+  metalTileParamValues,
+  metalTilePowerTools,
+  metalTileSystems,
+  metalTileWorkStages,
+} from './metal-tile';
