@@ -3,6 +3,7 @@ import { head } from "@/plugins/head";
 import { SUPPORTED_LOCALES } from "@/plugins/i18n";
 import { Locale } from "@/types";
 import {
+  HOME_KEY,
   NOINDEX_ROUTES,
   OG_IMAGE,
   OG_LOCALES,
@@ -28,7 +29,7 @@ export function applySeo(to: RouteLocationNormalized, locale: Locale) {
   }
 
   const seo = to.name === "not-found" ? notFoundSeo : findSeo(to.path);
-  const title = pageTitle(seo, locale, to.name === "zayavka-list");
+  const title = pageTitle(seo, locale, to.name === HOME_KEY);
   const description = seo.description[locale];
   const indexable = !NOINDEX_ROUTES.has(String(to.name));
   // Без query и хвостового слэша: параметры расчёта и фильтры — не отдельные страницы.

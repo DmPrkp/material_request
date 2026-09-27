@@ -1,4 +1,5 @@
 import { createI18n } from "vue-i18n";
+import Cookies from "js-cookie";
 import { Locale } from "@/types";
 import BaseModel from "@/models/BaseModel";
 
@@ -21,6 +22,12 @@ const localeLoaders = Object.entries(
 
 export const SUPPORTED_LOCALES = Object.keys(localeLoaders) as Locale[];
 export const LOCALE_STORAGE_KEY = "user-locale";
+/**
+ * Та же локаль, но в куке: localStorage серверу не виден, а корень сайта «/» nginx
+ * клиента (docker/nginx.conf) редиректит на /<локаль>/main ещё до загрузки JS —
+ * по куке, а без неё по Accept-Language. Имя менять вместе с конфигом nginx.
+ */
+export const LOCALE_COOKIE = "user_locale";
 
 export function isSupportedLocale(value: unknown): value is Locale {
   return (
@@ -110,6 +117,9 @@ export async function setI18nLocale(value: Locale) {
     } catch {
       /* приватный режим — просто не сохраняем */
     }
+  }
+  if (typeof document !== "undefined") {
+    Cookies.set(LOCALE_COOKIE, value, { expires: 365, sameSite: "lax" });
   }
 }
 

@@ -3,6 +3,7 @@ import path from "path";
 import type { Plugin } from "vite";
 import type { Locale } from "./src/types";
 import {
+  CALCULATOR_KEY,
   HOME_KEY,
   OG_IMAGE,
   OG_LOCALES,
@@ -116,10 +117,13 @@ function renderPage(
         `<li><a href="/${locale}/${other}">${esc(seoPages[other].title[locale])}</a></li>`,
     )
     .join("");
+  const body =
+    key === HOME_KEY
+      ? renderLanding(locale)
+      : `<h1>${esc(seo.title[locale])}</h1><p>${esc(description)}</p>`;
   const shell =
     `<div id="app"><main class="seo-shell">` +
-    `<h1>${esc(seo.title[locale])}</h1><p>${esc(description)}</p>` +
-    `<nav><ul>${links}</ul></nav></main></div>`;
+    `${body}<nav><ul>${links}</ul></nav></main></div>`;
 
   const html = template
     // Общие теги index.html заменяются своими — иначе description и og:* двоились бы.
@@ -139,7 +143,58 @@ function renderPage(
 
 /** Виды работ и технологии (zayavka/calculator/<…>) — в sitemap словаря, не здесь. */
 function isStaticPage(key: string) {
-  return !key.startsWith(`${HOME_KEY}/calculator/`);
+  return !key.startsWith(`${CALCULATOR_KEY}/`);
+}
+
+type LandingTerm = { term: string; text: string; formula?: string };
+type LandingTexts = {
+  title: string;
+  lead: string;
+  cta: string;
+  scenarios_title: string;
+  scenarios: Record<
+    string,
+    { title: string; subtitle: string; steps: string[] }
+  >;
+  method: { title: string; intro: string; items: Record<string, LandingTerm> };
+  properties: { title: string; items: Record<string, LandingTerm> };
+};
+
+/**
+ * Главная — целиком, а не только h1 и описание: весь её текст статичен (словари
+ * интерфейса, не API), и Яндекс, который SPA рендерит плохо, видит всю страницу.
+ * Порядок — ключей в словаре: он совпадает с constants/landing.ts, а сам модуль
+ * отсюда не импортировать — он тянет ionicons.
+ */
+function renderLanding(locale: Locale) {
+  const file = path.resolve(
+    __dirname,
+    `src/plugins/i18n/locales/${locale}.json`,
+  );
+  const l = JSON.parse(fs.readFileSync(file, "utf8")).pages
+    .landing as LandingTexts;
+  const terms = (items: Record<string, LandingTerm>) =>
+    Object.values(items)
+      .map(
+        ({ term, text, formula }) =>
+          `<dt>${esc(term)}</dt><dd>${formula ? `<code>${esc(formula)}</code> ` : ""}${esc(text)}</dd>`,
+      )
+      .join("");
+  const scenarios = Object.values(l.scenarios)
+    .map(
+      ({ title, subtitle, steps }) =>
+        `<h3>${esc(title)}</h3><p>${esc(subtitle)}</p>` +
+        `<ol>${steps.map((step) => `<li>${esc(step)}</li>`).join("")}</ol>`,
+    )
+    .join("");
+  return (
+    `<h1>${esc(l.title)}</h1><p>${esc(l.lead)}</p>` +
+    `<p><a href="/${locale}/${CALCULATOR_KEY}">${esc(l.cta)}</a></p>` +
+    `<section><h2>${esc(l.scenarios_title)}</h2>${scenarios}</section>` +
+    `<section><h2>${esc(l.method.title)}</h2><p>${esc(l.method.intro)}</p>` +
+    `<dl>${terms(l.method.items)}</dl></section>` +
+    `<section><h2>${esc(l.properties.title)}</h2><dl>${terms(l.properties.items)}</dl></section>`
+  );
 }
 
 function renderSitemapIndex() {

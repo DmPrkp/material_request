@@ -382,19 +382,108 @@
       "home": "to requests"
     },
     "landing": {
-      "title": "Materials and tools for your crew in a minute",
-      "lead": "Pick a technology and get materials, hand and power tools with quantities for your area. Free, no sign-up required.",
-      "cta": "Calculate",
-      "scenarios_title": "What you can do",
+      "title": "Calculation and management of materials and tools",
+      "lead": "The application determines the required materials, hand and power tools for a given scope of work and keeps track of them afterwards. The calculation uses consumption rates for each technology stage; the result is saved as a request. A request is passed to the crew or received into a company warehouse. Items are moved between warehouses and issued to company members; each member has a list of what was issued to them.",
+      "cta": "Go to calculation",
+      "method": {
+        "title": "Calculation method",
+        "intro": "A technology consists of stages. Each stage has rates: for materials — per unit of work volume, for tools — per crew. A crew is the smallest working group; a team consists of one or more crews.",
+        "items": {
+          "materials": {
+            "term": "Materials",
+            "formula": "Q = n × V",
+            "text": "n — consumption rate per unit of stage volume, V — stage volume. A stage without a volume yields no materials."
+          },
+          "tools": {
+            "term": "Tools",
+            "formula": "Q = max (n × k)",
+            "text": "n — rate per crew, k — number of crews. The maximum across stages is taken, not the sum: the same tool moves from stage to stage."
+          },
+          "rounding": {
+            "term": "Rounding",
+            "text": "Items counted in pieces are rounded up to a whole number, others to hundredths."
+          },
+          "unfilled": {
+            "term": "Items without a rate",
+            "text": "When the quantity depends on site conditions, the rate is zero: the item stays in the request with a mark and is filled in manually."
+          }
+        }
+      },
+      "scenarios_title": "Workflow",
       "scenarios": {
         "zayavka": {
-          "title": "A request in 3 steps",
-          "subtitle": "technology → area → list",
+          "title": "Calculating a request",
+          "subtitle": "technology → volume → statement",
           "steps": [
-            "Pick a type of work and a technology",
-            "Enter the area and the number of crews",
-            "Get materials and tools — the request is saved"
+            "Choosing a type of work and a technology",
+            "Entering the work volume and the number of crews",
+            "Statement of materials and tools; the request is saved automatically"
           ]
+        },
+        "transfer": {
+          "title": "Passing a request on",
+          "subtitle": "list → sending → warehouse",
+          "steps": [
+            "List of saved requests",
+            "Sending a link to a messenger or exporting to .ods",
+            "Choosing a warehouse to receive the request items"
+          ]
+        },
+        "warehouse": {
+          "title": "Warehouse and issuing",
+          "subtitle": "warehouses → items → recipient",
+          "steps": [
+            "Company and personal warehouses",
+            "Selecting items in a warehouse",
+            "Issuing to a company member with quantities"
+          ]
+        },
+        "catalog": {
+          "title": "Item catalog",
+          "subtitle": "item → sizes → new item",
+          "steps": [
+            "Materials catalog with search and a type filter",
+            "Item sizes and their codes",
+            "Adding your own item"
+          ]
+        },
+        "technology": {
+          "title": "Your own technology",
+          "subtitle": "stages → rates → notes",
+          "steps": [
+            "Technology composition by stages",
+            "Stage rates: materials, hand and power tools",
+            "A note on a rate: its source or assumption"
+          ]
+        }
+      },
+      "properties": {
+        "title": "Data organization",
+        "items": {
+          "sizes": {
+            "term": "Size as the key",
+            "text": "Rates and warehouse stock are bound to the assembly code — the item and its parameter values. When parameters change, the link breaks instead of moving to another size."
+          },
+          "ownership": {
+            "term": "Shared and own data",
+            "text": "Editing a shared technology or item creates your own copy; the original stays unchanged for other users."
+          },
+          "anonymous": {
+            "term": "Working without an account",
+            "text": "Calculation and requests are available without signing in. Such a request is kept by a key in the browser and is attached to the account after signing in; otherwise it is deleted 30 days after the last change."
+          },
+          "links": {
+            "term": "Access by link",
+            "text": "A request opens by link for any recipient — without signing in and without access to the author's other requests."
+          },
+          "roles": {
+            "term": "Companies and roles",
+            "text": "Warehouses belong to a company. Member roles: owner, management, review, storage. The owner and managers assign to warehouses and issue items; a recipient must be a company member."
+          },
+          "mobile": {
+            "term": "Built for the site",
+            "text": "The layout is designed for a phone screen; action panels are placed at the bottom of the screen."
+          }
         }
       }
     }

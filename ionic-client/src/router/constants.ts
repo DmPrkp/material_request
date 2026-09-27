@@ -32,7 +32,7 @@ const notFoundSeo: SeoPages[string] = {
  * Новый индексируемый роут — просто ключ здесь.
  */
 const seoPages: SeoPages = {
-  // Стартовая: «/» и «/ru» ведут сюда, для поисковика это главная.
+  // Список заявок: сюда ведут «Заявки» в меню и переход после входа.
   zayavka: {
     title: {
       en: "Construction material requests and quantity calculator",
@@ -200,13 +200,18 @@ const seoPages: SeoPages = {
       ru: "Технологии внутренней отделки по этапам: перегородки, поверхности — материалы и инструмент.",
     },
   },
-  // Главная для новых посетителей: сценарии со скриншотами (pages/MainPage.vue).
+  // Главная: «/» и «/ru» ведут сюда (router/index.ts, docker/nginx.conf). Сценарии
+  // со скриншотами (pages/MainPage.vue). description — до ~160 знаков: длиннее
+  // поисковики обрезают.
   main: {
     title: {
-      en: "Materials and tools for your crew in a minute",
-      ru: "Быстрый расчет материалов",
+      en: "Calculation and management of materials and tools",
+      ru: "Расчёт и управление материалами и инструментом",
     },
-    description: defaultSeo.description,
+    description: {
+      en: "Materials and tools for a scope of work by the consumption rates of each technology stage, plus requests, company warehouses and issuing items.",
+      ru: "Расход материалов и инструмента на объём работ по нормам каждого этапа технологии, заявки, склады компании и выдача позиций участникам.",
+    },
   },
   about: {
     title: {
@@ -241,8 +246,10 @@ const NOINDEX_ROUTES = new Set([
   "not-found",
 ]);
 
-/** Главная — у неё имя сайта впереди заголовка. */
-export const HOME_KEY = "zayavka";
+/** Главная — у неё имя сайта впереди заголовка и высший приоритет в sitemap. */
+export const HOME_KEY = "main";
+/** Калькулятор: его виды работ и технологии — в sitemap словаря (seo-prerender.ts). */
+export const CALCULATOR_KEY = "zayavka/calculator";
 /** Язык x-default в hreflang. */
 export const DEFAULT_SEO_LOCALE: Locale = "ru";
 export const OG_LOCALES: Record<Locale, string> = { ru: "ru_RU", en: "en_US" };

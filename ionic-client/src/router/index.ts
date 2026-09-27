@@ -17,12 +17,15 @@ import { applySeo } from "./seo";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    // Стартовая — «Заявки»; /main — главная для новых посетителей, туда ведёт логотип.
-    redirect: () => `/${resolveInitialLocale()}/zayavka`,
+    // Стартовая — главная (/:locale/main): корень сайта поисковик считает самой
+    // сильной страницей, и вести он должен на описание приложения, а не на личный
+    // список заявок. На проде «/» отвечает редиректом ещё nginx клиента
+    // (docker/nginx.conf) — робот получает его без JS; этот — для dev и переходов.
+    redirect: () => `/${resolveInitialLocale()}/main`,
   },
   {
     path: "/:locale",
-    redirect: (to) => `${to.path}/zayavka`,
+    redirect: (to) => `${to.path.replace(/\/$/, "")}/main`,
     // Сам RouterView, а не { template: "<router-view />" }: строковый шаблон требовал
     // полной сборки Vue с компилятором шаблонов (~60 КБ в главном чанке).
     component: RouterView,
@@ -282,7 +285,7 @@ router.beforeEach(async (to) => {
     const fallback = resolveInitialLocale();
     const segments = to.fullPath.split("/");
     segments[1] = fallback;
-    return segments.join("/") || `/${fallback}/zayavka`;
+    return segments.join("/") || `/${fallback}/main`;
   }
 
   await setI18nLocale(locale);

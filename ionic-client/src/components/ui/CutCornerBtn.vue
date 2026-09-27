@@ -1,5 +1,20 @@
 <template>
+  <!--
+    С to — ссылка: переход, который должен видеть поисковик (главная → калькулятор),
+    обработчиком клика он не найдёт. Кнопку в <a> не завернуть — вложенные
+    интерактивные элементы, поэтому ссылкой становится сама кнопка.
+  -->
+  <router-link
+    v-if="to"
+    :to="to"
+    class="cut-corner"
+    :class="{ 'full-width': fullWidth }"
+  >
+    <span class="label"><slot></slot></span>
+  </router-link>
   <button
+    v-else
+    class="cut-corner"
     @click="$emit('click', $event)"
     :class="{ 'full-width': fullWidth }"
     :disabled="disabled"
@@ -9,14 +24,18 @@
 </template>
 
 <script lang="ts" setup>
+  import type { RouteLocationRaw } from "vue-router";
+
   interface Props {
     fullWidth?: boolean;
     disabled?: boolean;
+    to?: RouteLocationRaw;
   }
 
   withDefaults(defineProps<Props>(), {
     fullWidth: false,
     disabled: false,
+    to: undefined,
   });
 
   defineEmits<{
@@ -25,7 +44,7 @@
 </script>
 
 <style scoped>
-  button {
+  .cut-corner {
     --border: 2px;
     --slant: 0.5em;
     --color: var(--ion-color-primary);
@@ -63,7 +82,15 @@
     transform: skewX(-15deg);
   }
 
-  button.full-width {
+  /* Ссылка — не кнопка: сама она строчная, подчёркнута и прижата к левому краю. */
+  a.cut-corner {
+    display: inline-block;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .cut-corner.full-width {
     width: 100%;
   }
 

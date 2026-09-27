@@ -5,12 +5,13 @@
     :aria-labelledby="`scenario-${scenario.id}`"
   >
     <div class="scenario__text">
-      <h2
+      <h3
         :id="`scenario-${scenario.id}`"
         class="scenario__title"
       >
-        <span class="slanted">{{ t(`${base}.title`) }}</span>
-      </h2>
+        {{ t(`${base}.title`) }}
+      </h3>
+      <p class="scenario__subtitle">{{ t(`${base}.subtitle`) }}</p>
       <ol class="scenario__steps">
         <li
           v-for="i in scenario.steps"
@@ -19,8 +20,8 @@
           <button
             type="button"
             class="scenario__step"
-            :class="{ 'scenario__step--active': i - 1 === active }"
-            :aria-current="i - 1 === active ? 'step' : undefined"
+            :class="{ 'scenario__step--active': i - 1 === step }"
+            :aria-current="i - 1 === step ? 'step' : undefined"
             @click="select(i - 1)"
           >
             <span class="scenario__num">{{ i }}</span>
@@ -33,25 +34,23 @@
     <div class="phone">
       <div class="phone__screen">
         <!--
-          Обе темы в разметке, лишняя скрыта CSS по body.dark: тему переключают в
-          настройках без перезагрузки, а display:none картинку браузер не качает.
+          Только текущая тема и только шаги, до которых дошли (loaded): раньше в разметке
+          были обе темы всех шагов всех сценариев, лишние прятал CSS — но display:none
+          картинку браузер всё равно качает, а loading="lazy" в горизонтальной ленте
+          ion-segment-view не срабатывал. Выходило ~30 файлов и полмегабайта на входе.
         -->
         <template
           v-for="i in scenario.steps"
           :key="i"
         >
           <img
-            v-for="theme in THEMES"
-            :key="theme"
+            v-if="loaded.has(i - 1)"
             class="phone__shot"
-            :class="[
-              `landing-shot--${theme}`,
-              { 'phone__shot--active': i - 1 === active },
-            ]"
-            :src="`/landing/${scenario.id}/${i}-${locale}-${theme}.webp`"
+            :class="{ 'phone__shot--active': i - 1 === step }"
+            :src="`/landing/${scenario.id}/${i}-${locale}-${activeTheme}.webp`"
             :alt="t(`${base}.steps[${i - 1}]`)"
-            :aria-hidden="i - 1 !== active"
-            :loading="i === 1 ? 'eager' : 'lazy'"
+            :aria-hidden="i - 1 !== step"
+            :fetchpriority="first && i === 1 ? 'high' : undefined"
             width="480"
             height="1039"
           />
@@ -62,14 +61,21 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
   import { useRoute } from "vue-router";
   import { LANDING_STEP_MS, LandingScenario } from "@/constants/landing";
+  import { activeTheme } from "@/plugins/theme";
 
-  const props = defineProps<{ scenario: LandingScenario }>();
-
-  const THEMES = ["light", "dark"] as const;
+  /**
+   * active — карточка открыта во вкладках главной. Шаги крутятся только у открытой
+   * и видимой: соседние лежат в ion-segment-view за краем экрана.
+   * first — первая вкладка: её первый скриншот — самое крупное на экране при входе.
+   */
+  const props = withDefaults(
+    defineProps<{ scenario: LandingScenario; active?: boolean; first?: boolean }>(),
+    { active: true, first: false }
+  );
 
   const { t } = useI18n();
   const route = useRoute();
@@ -77,7 +83,25 @@
   const base = computed(() => `pages.landing.scenarios.${props.scenario.id}`);
 
   const root = ref<HTMLElement>();
-  const active = ref(0);
+  const step = ref(0);
+
+  /**
+   * Шаги, чьи скриншоты уже в разметке. Открытая карточка грузит текущий и следующий
+   * шаг — к смене кадра он уже скачан; соседние вкладки ждут, пока их откроют.
+   */
+  const loaded = ref(new Set<number>());
+  watch(
+    [() => props.active, step],
+    ([isActive, current]) => {
+      if (!isActive) return;
+      loaded.value = new Set([
+        ...loaded.value,
+        current,
+        (current + 1) % props.scenario.steps,
+      ]);
+    },
+    { immediate: true }
+  );
   let timer: ReturnType<typeof setInterval> | undefined;
   let observer: IntersectionObserver | undefined;
   let visible = false;
@@ -93,17 +117,27 @@
 
   function start() {
     stop();
-    if (reducedMotion || !visible) return;
+    if (reducedMotion || !visible || !props.active) return;
     timer = setInterval(() => {
-      active.value = (active.value + 1) % props.scenario.steps;
+      step.value = (step.value + 1) % props.scenario.steps;
     }, LANDING_STEP_MS);
   }
 
   /** Нажатый шаг держится полный интервал, а не до ближайшего тика. */
   function select(index: number) {
-    active.value = index;
+    step.value = index;
     start();
   }
+
+  // Перелистнули на эту карточку — показываем с первого шага, а не с того, на
+  // котором её оставили.
+  watch(
+    () => props.active,
+    (isActive) => {
+      if (isActive) step.value = 0;
+      start();
+    }
+  );
 
   onMounted(() => {
     // Крутим, только пока карточка на экране: за кадром смена шага — лишняя работа
@@ -137,8 +171,13 @@
 
   .scenario__title {
     margin: 0;
-    font-size: 1.3rem;
-    color: var(--ion-color-secondary);
+    font-size: 1.1rem;
+  }
+
+  .scenario__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.7;
   }
 
   .scenario__steps {
@@ -232,13 +271,5 @@
     .scenario__step {
       transition: none;
     }
-  }
-</style>
-
-<style>
-  /* Не scoped: переключатель — класс на body, вне компонента. */
-  body.dark .landing-shot--light,
-  body:not(.dark) .landing-shot--dark {
-    display: none;
   }
 </style>

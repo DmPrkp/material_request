@@ -34,7 +34,8 @@ const HELP = `
   --headed          показать браузер — отлаживать шаги
   --allow-remote    разрешить не-локальный адрес
 
-Каждый прогон проходит расчёт по-настоящему и заводит заявку у --login.
+Прогон проходит расчёт по-настоящему и заводит одну заявку у --login; сценарий
+transfer показывает её же, поэтому идёт только вместе с zayavka.
 `;
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -107,6 +108,15 @@ async function main() {
     args: ['--hide-scrollbars'],
   });
 
+  // Общее между сценариями и между проходами по локалям и темам: id заявки из
+  // расчёта, выбранный склад. Поэтому прогон заводит одну заявку, а не по штуке на кадр.
+  const state = {};
+  const api = async (p) => {
+    const res = await fetch(new URL(p, opts.base), { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) throw new Error(`GET ${p}: ${res.status}`);
+    return res.json();
+  };
+
   try {
     for (const locale of opts.locales) {
       const messages = await loadMessages(locale);
@@ -137,8 +147,16 @@ async function main() {
           const ctx = {
             page,
             locale,
+            api,
+            state,
             t: (key) => key.split('.').reduce((o, k) => o?.[k], messages),
-            go: (p) => page.goto(new URL(`/${locale}${p}`, opts.base).href),
+            go: async (p) => {
+              // Модалка Ionic живёт поверх роутера и переживает переход — закрываем сами.
+              await page.evaluate(() =>
+                Promise.all([...document.querySelectorAll('ion-modal')].map((m) => m.dismiss?.()))
+              );
+              await page.goto(new URL(`/${locale}${p}`, opts.base).href);
+            },
           };
           for (const [i, step] of scenario.steps.entries()) {
             await step(ctx);
@@ -159,7 +177,9 @@ async function shoot(page) {
   // Ionic анимирует смену страниц, а данные приходят после первой отрисовки.
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(500);
-  const png = await page.screenshot({ animations: 'disabled', caret: 'hide' });
+  // Без animations: 'disabled': Ionic анимирует через Web Animations, и отключение
+  // возвращает шторку выбора склада (modal-sheet) в исходное положение — за экран.
+  const png = await page.screenshot({ caret: 'hide' });
   return sharp(png).resize({ width: OUT_WIDTH }).webp({ quality: 80 }).toBuffer();
 }
 

@@ -23,6 +23,8 @@ import {
   IonCardSubtitle,
   IonSegment,
   IonSegmentButton,
+  IonSegmentView,
+  IonSegmentContent,
   IonSpinner,
 } from "@ionic/vue";
 import App from "./App.vue";
@@ -159,6 +161,8 @@ const app = createApp(App)
   .component("IonCardSubtitle", IonCardSubtitle)
   .component("IonSegment", IonSegment)
   .component("IonSegmentButton", IonSegmentButton)
+  .component("IonSegmentView", IonSegmentView)
+  .component("IonSegmentContent", IonSegmentContent)
   .component("IonSpinner", IonSpinner);
 
 router.isReady().then(() => {

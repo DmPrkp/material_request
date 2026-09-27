@@ -1,4 +1,10 @@
-import { clipboardOutline } from "ionicons/icons";
+import {
+  calculatorOutline,
+  fileTrayFullOutline,
+  layersOutline,
+  libraryOutline,
+  shareSocialOutline,
+} from "ionicons/icons";
 
 /**
  * Сценарии главной (/:locale/main). Тексты — pages.landing.scenarios.<id> в словарях,
@@ -13,7 +19,33 @@ export interface LandingScenario {
 }
 
 export const LANDING_SCENARIOS: LandingScenario[] = [
-  { id: "zayavka", icon: clipboardOutline, steps: 3 },
+  { id: "zayavka", icon: calculatorOutline, steps: 3 },
+  { id: "transfer", icon: shareSocialOutline, steps: 3 },
+  { id: "warehouse", icon: fileTrayFullOutline, steps: 3 },
+  { id: "catalog", icon: libraryOutline, steps: 3 },
+  { id: "technology", icon: layersOutline, steps: 3 },
+];
+
+/**
+ * Правила расчёта — pages.landing.method.items.<ключ>. Держатся того, что делает
+ * расчёт (calc-server assembleCalc и materialTotal на клиенте): поменялось
+ * правило — поправить и текст, иначе главная описывает не то приложение.
+ */
+export const LANDING_METHOD = [
+  { key: "materials", formula: true },
+  { key: "tools", formula: true },
+  { key: "rounding", formula: false },
+  { key: "unfilled", formula: false },
+];
+
+/** Свойства хранения и доступа — pages.landing.properties.items.<ключ>. */
+export const LANDING_PROPERTIES = [
+  "sizes",
+  "ownership",
+  "anonymous",
+  "links",
+  "roles",
+  "mobile",
 ];
 
 /** Смена шага в карточке: успеть прочитать подпись и разглядеть экран. */
