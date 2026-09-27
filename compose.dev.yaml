@@ -14,6 +14,9 @@ x-db-env: &db-env
 networks:
   matli_network:
     name: matli_network
+    # Как на проде (compose.prod.yaml): внутри стека IPv6 никто не слушает, и AAAA от
+    # docker DNS оборачивались лишним заходом nginx в Connection refused.
+    enable_ipv6: false
 
 services:
   calc-server:
