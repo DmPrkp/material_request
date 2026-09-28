@@ -11,7 +11,7 @@
         :item="item"
         @click="!item.disable && $emit('item', item)"
       >
-        <ion-card :class="{ icon_card: !item.img }">
+        <ion-card>
           <ImageText
             v-if="item.img"
             :image="item.img"
@@ -69,20 +69,11 @@
       /** Откуда брать подпись карточки: у сборников свой раздел словаря. */
       i18nPrefix?: string;
     }>(),
-    { i18nPrefix: "pages.main.types" }
+    { i18nPrefix: "pages.main.types" },
   );
 </script>
 
 <style scoped>
-  /*
-   * Карточку с фотографией по ширине задаёт сам снимок — так на главной.
-   * У иконки собственной ширины нет, поэтому ion-card ужимался бы под длину
-   * заголовка: «Материалы» уже, чем «Электроинструмент». Растягиваем по колонке.
-   */
-  .icon_card {
-    width: 100%;
-  }
-
   .icon_cover {
     position: relative;
     display: flex;

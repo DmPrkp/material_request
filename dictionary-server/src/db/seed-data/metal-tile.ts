@@ -158,7 +158,7 @@ export const metalTileMaterialVariants: MaterialVariant[] = [
 export const metalTileSystems: System[] = [
   {
     id: 5,
-    title: 'METAL_TILE',
+    title: 'metal_tile',
     nameRu: 'Металлочерепица',
     nameEn: 'Metal tile',
     descriptionRu: 'Скатная кровля из металлочерепицы по разреженной обрешётке',

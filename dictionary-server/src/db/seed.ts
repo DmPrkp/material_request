@@ -212,6 +212,28 @@ const STEPS: Step[] = [
       return rows;
     },
   },
+  {
+    /*
+     * Кровли завели кодами SHINGLES и METAL_TILE, а код технологии пишется строчными
+     * (frame_scaffold, flat); заглавные — только у сокращений вроде EIFS и GKL_C112.
+     * Правка в seed-data доезжает лишь до пустой базы, поэтому уже залитым — свой шаг.
+     * Код виден в адресе калькулятора и служит ключом снимка на клиенте
+     * (constants/systems), так что переименование меняет и то, и другое.
+     */
+    name: 'system-titles-lowercase',
+    run: async (tx) => {
+      let rows = 0;
+      for (const [from, to] of [
+        ['SHINGLES', 'shingles'],
+        ['METAL_TILE', 'metal_tile'],
+      ]) {
+        rows += await insert(
+          tx.update(schema.systems).set({ title: to }).where(eq(schema.systems.title, from)),
+        );
+      }
+      return rows;
+    },
+  },
 ];
 
 async function main(): Promise<void> {

@@ -190,7 +190,7 @@ export const shinglesMaterialVariants: MaterialVariant[] = [
 export const shinglesSystems: System[] = [
   {
     id: 4,
-    title: 'SHINGLES',
+    title: 'shingles',
     nameRu: 'Гибкая черепица',
     nameEn: 'Flexible shingles',
     descriptionRu: 'Скатная кровля из битумной черепицы по сплошному основанию',

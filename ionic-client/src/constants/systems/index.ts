@@ -7,12 +7,16 @@ import type { ImageType } from "@/types/entity/image";
  * и каждая новая требовала правки клиента, а заведённая пользователем не появлялась
  * вовсе. В словаре картинок нет и не будет, поэтому снимок остаётся здесь: у кого
  * его нет — карточка рисует иконку.
+ *
+ * Ключ — значение поля systems.title из словаря, а не константа приложения:
+ * регистр повторяет код как он заведён (заглавные — только у сокращений).
  */
 export const SYSTEM_IMAGES: Record<string, ImageType> = {
   EIFS: { src: "/system/wet-facade-narrow.webp", alt: "wet-facade" },
   frame_scaffold: { src: "/system/scaffold.webp", alt: "scaffold" },
   flat: { src: "/system/flat-roof.webp", alt: "flat-roof" },
-  SHINGLES: { src: "/system/shingles.webp", alt: "shingles" },
+  shingles: { src: "/system/shingles.webp", alt: "shingles" },
+  metal_tile: { src: "/system/metal-tile-roof.webp", alt: "metal-tile" },
   // Схема, а не снимок: нарисована вручную под палитру приложения.
   GKL_C112: { src: "/system/drywall-partition.svg", alt: "drywall-partition" },
 };
