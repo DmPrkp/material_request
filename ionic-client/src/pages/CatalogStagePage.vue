@@ -161,6 +161,26 @@
                         {{ displayNote(row) }}
                       </ion-label>
                     </ion-item>
+
+                    <!--
+                      Расход, пропорциональный толщине (клей кладки нормируется на м³):
+                      одна строка на все толщины вместо строки на каждую. У инструмента
+                      смысла нет — его норма на звено, толщина стены ни при чём.
+                    -->
+                    <ion-item
+                      v-if="row.open && editable && section.kind === 'materials'"
+                      lines="full"
+                    >
+                      <ion-toggle
+                        v-model="row.perVolume"
+                        justify="space-between"
+                      >
+                        <ion-label class="ion-text-wrap">
+                          <h3>{{ $t("pages.catalog.norms.per_volume") }}</h3>
+                          <p>{{ $t("pages.catalog.norms.per_volume_hint") }}</p>
+                        </ion-label>
+                      </ion-toggle>
+                    </ion-item>
                   </template>
                 </ion-list>
 
@@ -357,6 +377,8 @@
     note: string;
     /** Привязка нормы к параметру расчёта: форма её не меняет, но и не теряет. */
     optionValueId: number | null;
+    /** Норма на кубометр: расчёт умножит её на выбранную толщину. Только у материалов. */
+    perVolume: boolean;
     /** Примечания как пришли: язык, которого форма не касается, уходит обратно как был. */
     notes: Pick<StageNorm, "noteRu" | "noteEn">;
     /** Ближайшее заполненное на другом языке — подсказка в пустом поле. */
@@ -499,9 +521,14 @@
    * Только единица позиции: «на 1 м² работ» и «на звено» уже сказаны в пояснении
    * раздела, повторять знаменатель в каждой строке незачем.
    */
+  /**
+   * Единица нормы. У материала на кубометр дописываем знаменатель: без него
+   * «28 кг» в списке выглядит как расход на м², а это расход на м³ конструкции.
+   */
   function rateUnit(kind: NormKind, row: Row): string {
     if (kind !== "materials") return t("measure.pcs");
-    return row.unit ? unitLabel(row.unit) : "";
+    const unit = row.unit ? unitLabel(row.unit) : "";
+    return row.perVolume ? `${unit}/${t("measure.m3")}` : unit;
   }
 
   function displayNote(row: Row): string {
@@ -534,6 +561,7 @@
       rate: norm ? String(norm.rate) : "",
       note: own ?? "",
       optionValueId: norm?.optionValueId ?? null,
+      perVolume: norm?.perVolume ?? false,
       notes,
       otherNote: other ?? "",
       open: false,
@@ -754,6 +782,7 @@
           rate,
           // Как пришло: иначе сохранение сделало бы норму типоразмера безусловной.
           optionValueId: row.optionValueId,
+          perVolume: kind === "materials" && row.perVolume,
           noteRu: suffix.value === "Ru" ? note : row.notes.noteRu,
           noteEn: suffix.value === "En" ? note : row.notes.noteEn,
         });

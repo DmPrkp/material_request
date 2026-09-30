@@ -39,7 +39,7 @@ export type SystemGroup = {
 };
 
 export const SYSTEM_GROUPS: Record<string, SystemGroup[]> = {
-  interior: [{ code: "partitions", systems: ["GKL_C112"] }],
+  interior: [{ code: "partitions", systems: ["GKL_C112", "aerated_concrete"] }],
 };
 
 /** Группы вида работ; у кого их нет — пустой список, плитка покажет технологии. */

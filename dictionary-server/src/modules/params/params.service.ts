@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { and, asc, count, eq } from 'drizzle-orm';
+import { and, asc, count, eq, inArray } from 'drizzle-orm';
 
 import { CrudService } from '~/common/crud.service';
 import { toPage, type Page } from '~/common/pagination';
@@ -14,6 +14,15 @@ import {
   units,
 } from '~/db/schema';
 import type { ParamValueQueryDto } from './params.dto';
+
+/** Значение без единицы бесполезно, а вид необязателен — отсюда LEFT JOIN по виду. */
+const PARAM_VALUE_WITH_UNIT = {
+  id: paramValues.id,
+  value: paramValues.value,
+  isActive: paramValues.isActive,
+  unit: { id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn },
+  kind: { id: paramKinds.id, code: paramKinds.code, nameRu: paramKinds.nameRu, nameEn: paramKinds.nameEn },
+};
 
 @Injectable()
 export class UnitsService extends CrudService<typeof units.$inferSelect> {
@@ -61,6 +70,24 @@ export class ParamValuesService extends CrudService<typeof paramValues.$inferSel
     return super.create(this.normalize(data));
   }
 
+  /**
+   * Значения по списку id — для норм расхода calc-server: норма «на кубометр»
+   * умножается на выбранную толщину, и число с единицей он берёт отсюда.
+   *
+   * Как остальные lookup: видимость не проверяется, архивные отдаются, чего нет —
+   * того нет в ответе. Значения параметров неизменяемы, так что ответ стабилен.
+   */
+  lookup(ids: readonly number[]) {
+    if (ids.length === 0) return Promise.resolve([]);
+    return this.db
+      .select(PARAM_VALUE_WITH_UNIT)
+      .from(paramValues)
+      .innerJoin(units, eq(paramValues.unitId, units.id))
+      .leftJoin(paramKinds, eq(paramValues.kindId, paramKinds.id))
+      .where(inArray(paramValues.id, [...ids]))
+      .orderBy(asc(paramValues.id));
+  }
+
   /** Значения отдаём вместе с единицей — сами по себе «5.5» бесполезны. */
   async listWithUnit(query: ParamValueQueryDto): Promise<Page<Record<string, unknown>>> {
     const where = and(
@@ -70,19 +97,7 @@ export class ParamValuesService extends CrudService<typeof paramValues.$inferSel
 
     const [items, [totals]] = await Promise.all([
       this.db
-        .select({
-          id: paramValues.id,
-          value: paramValues.value,
-          isActive: paramValues.isActive,
-          unit: { id: units.id, code: units.code, nameRu: units.nameRu, nameEn: units.nameEn },
-          // Вид необязателен — LEFT JOIN, иначе значения без вида выпадут
-          kind: {
-            id: paramKinds.id,
-            code: paramKinds.code,
-            nameRu: paramKinds.nameRu,
-            nameEn: paramKinds.nameEn,
-          },
-        })
+        .select(PARAM_VALUE_WITH_UNIT)
         .from(paramValues)
         .innerJoin(units, eq(paramValues.unitId, units.id))
         .leftJoin(paramKinds, eq(paramValues.kindId, paramKinds.id))

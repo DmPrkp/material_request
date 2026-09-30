@@ -4,5 +4,6 @@
   "flat": { "src": "/system/flat-roof.webp", "alt": "flat-roof" },
   "shingles": { "src": "/system/shingles.webp", "alt": "shingles" },
   "metal_tile": { "src": "/system/metal-tile-roof.webp", "alt": "metal-tile" },
-  "GKL_C112": { "src": "/system/drywall-partition.webp", "alt": "drywall-partition" }
+  "GKL_C112": { "src": "/system/drywall-partition.webp", "alt": "drywall-partition" },
+  "aerated_concrete": { "src": "/system/aerated-concrete-partition.webp", "alt": "aerated-concrete-partition" }
 }

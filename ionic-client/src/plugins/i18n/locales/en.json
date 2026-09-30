@@ -70,7 +70,8 @@
     "cm": "cm",
     "mm": "mm",
     "m2": "m²",
-    "v": "V"
+    "v": "V",
+    "m3": "m³"
   },
   "pages": {
     "main": {
@@ -310,7 +311,9 @@
         },
         "not_found": "Stage not found",
         "hint_materials": "Materials — consumption per 1 {unit} of work.",
-        "hint_tools": "Tools — pieces per crew."
+        "hint_tools": "Tools — pieces per crew.",
+        "per_volume": "Per cubic metre",
+        "per_volume_hint": "The rate is multiplied by the chosen thickness"
       }
     },
     "warehouses": {

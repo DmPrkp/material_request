@@ -34,3 +34,14 @@ export {
   metalTileSystems,
   metalTileWorkStages,
 } from './metal-tile';
+export {
+  aeratedParamValues,
+  aeratedHandToolVariants,
+  aeratedHandTools,
+  aeratedMaterialTypes,
+  aeratedMaterialVariants,
+  aeratedMaterials,
+  aeratedSystems,
+  aeratedUnits,
+  aeratedWorkStages,
+} from './aerated-concrete';

@@ -1,7 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { createDictionaryController } from '~/common/dictionary.controller';
+import { IdLookupQueryDto } from '~/common/lookup';
 import {
   CreateParamKindDto,
   CreateParamValueDto,
@@ -77,5 +78,19 @@ export class ParamValuesController extends createDictionaryController({
   @ApiOperation({ summary: 'Значения параметров вместе с единицей измерения' })
   override list(@Query() query: ParamValueQueryDto) {
     return this.service.listWithUnit(query);
+  }
+
+  // Как у /power-tools/lookup: метод наследника регистрируется раньше фабричного,
+  // поэтому 'lookup' не уходит в GET /:id с ParseIntPipe.
+  @Get('lookup')
+  @ApiOperation({
+    summary: 'Значения параметров по списку id',
+    description:
+      'Для calc-server: параметры расчёта технологии (толщина) и множитель норм «на кубометр». ' +
+      'Видимость не проверяется, архивные отдаются, чего нет — того нет в ответе. Не больше 200 id.',
+  })
+  @ApiQuery({ name: 'ids', required: true, example: '504,531' })
+  lookup(@Query() query: IdLookupQueryDto) {
+    return this.service.lookup(query.ids);
   }
 }

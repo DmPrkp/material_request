@@ -102,6 +102,24 @@ const shinglesMaterialLinks = data.shinglesMaterialVariants.flatMap((v) =>
   v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
 );
 
+// Газобетон — тем же порядком (см. aerated-concrete.ts); у ручного инструмента
+// сборки без параметров, но код всё равно собирается той же функцией.
+const aeratedMaterialVariantRows = data.aeratedMaterialVariants.map((v) => ({
+  id: v.id,
+  materialId: v.materialId,
+  code: buildVariantCode(v.materialId, v.paramValueIds),
+}));
+
+const aeratedHandToolVariantRows = data.aeratedHandToolVariants.map((v) => ({
+  id: v.id,
+  handToolId: v.handToolId,
+  code: buildVariantCode(v.handToolId, v.paramValueIds),
+}));
+
+const aeratedMaterialLinks = data.aeratedMaterialVariants.flatMap((v) =>
+  v.paramValueIds.map((paramValueId) => ({ variantId: v.id, paramValueId })),
+);
+
 // Металлочерепица — тем же порядком (см. metal-tile.ts).
 const metalTileMaterialVariantRows = data.metalTileMaterialVariants.map((v) => ({
   id: v.id,
@@ -213,6 +231,29 @@ const STEPS: Step[] = [
     },
   },
   {
+    // Весь газобетон одним шагом: порядок вставки — по внешним ключам.
+    name: 'aerated-concrete',
+    run: async (tx) => {
+      let rows = 0;
+      // Единица идёт первой: на неё ссылаются и материалы, и сама технология.
+      rows += await insert(tx.insert(schema.units).values(data.aeratedUnits));
+      rows += await insert(
+        tx
+          .insert(schema.paramValues)
+          .values(data.aeratedParamValues.map((p) => ({ ...p, value: String(p.value) }))),
+      );
+      rows += await insert(tx.insert(schema.materialTypes).values(data.aeratedMaterialTypes));
+      rows += await insert(tx.insert(schema.handTools).values(data.aeratedHandTools));
+      rows += await insert(tx.insert(schema.handToolVariants).values(aeratedHandToolVariantRows));
+      rows += await insert(tx.insert(schema.materials).values(data.aeratedMaterials));
+      rows += await insert(tx.insert(schema.systems).values(data.aeratedSystems));
+      rows += await insert(tx.insert(schema.workStages).values(data.aeratedWorkStages));
+      rows += await insert(tx.insert(schema.materialVariants).values(aeratedMaterialVariantRows));
+      rows += await insert(tx.insert(schema.materialVariantParams).values(aeratedMaterialLinks));
+      return rows;
+    },
+  },
+  {
     /*
      * Кровли завели кодами SHINGLES и METAL_TILE, а код технологии пишется строчными
      * (frame_scaffold, flat); заглавные — только у сокращений вроде EIFS и GKL_C112.
@@ -239,7 +280,7 @@ const STEPS: Step[] = [
 async function main(): Promise<void> {
   assertUniqueCodes(
     'ручной инструмент',
-    handToolVariantRows.map((v) => v.code),
+    [...handToolVariantRows, ...aeratedHandToolVariantRows].map((v) => v.code),
   );
   assertUniqueCodes(
     'материалы',
@@ -248,6 +289,7 @@ async function main(): Promise<void> {
       ...c112MaterialVariantRows,
       ...shinglesMaterialVariantRows,
       ...metalTileMaterialVariantRows,
+      ...aeratedMaterialVariantRows,
     ].map((v) => v.code),
   );
 
