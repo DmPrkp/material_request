@@ -11,6 +11,7 @@ export const router = createRouter({
     // это зарезервированный атрибут Vue, пропсом он до страницы не дойдёт.
     { path: '/t/:table', name: 'table', component: () => import('./pages/TablePage.vue'), props: true },
     { path: '/logs', name: 'logs', component: () => import('./pages/LogsPage.vue') },
+    { path: '/images', name: 'images', component: () => import('./pages/ImagesPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

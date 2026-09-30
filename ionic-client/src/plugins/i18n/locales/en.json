@@ -39,6 +39,21 @@
       "size": "size",
       "section": "sect."
     },
+    "paramKinds": {
+      "length": "Length",
+      "weight": "Weight",
+      "width": "Width",
+      "height": "Height",
+      "depth": "Depth",
+      "volume": "Volume",
+      "area": "Area",
+      "density": "Density",
+      "thickness": "Thickness",
+      "diameter": "Diameter",
+      "voltage": "Voltage",
+      "size": "Size",
+      "section": "Section"
+    },
     "locales": {
       "ru": "Русский",
       "en": "English"

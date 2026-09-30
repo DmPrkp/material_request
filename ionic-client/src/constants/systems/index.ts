@@ -1,5 +1,7 @@
 import type { ImageType } from "@/types/entity/image";
 
+import images from "./images.json";
+
 /**
  * Снимки к технологиям калькулятора, по техническому коду технологии (title).
  *
@@ -10,16 +12,13 @@ import type { ImageType } from "@/types/entity/image";
  *
  * Ключ — значение поля systems.title из словаря, а не константа приложения:
  * регистр повторяет код как он заведён (заглавные — только у сокращений).
+ *
+ * Сами привязки — в images.json, а не здесь: их пишет админка («Фото технологий»,
+ * admin-server/src/images) вместе с обжатым в webp файлом в public/system. Руками
+ * править можно, но формат снимка (webp 800×390 — ImageText рисует его без обрезки,
+ * в своих пропорциях) тогда держать самому.
  */
-export const SYSTEM_IMAGES: Record<string, ImageType> = {
-  EIFS: { src: "/system/wet-facade-narrow.webp", alt: "wet-facade" },
-  frame_scaffold: { src: "/system/scaffold.webp", alt: "scaffold" },
-  flat: { src: "/system/flat-roof.webp", alt: "flat-roof" },
-  shingles: { src: "/system/shingles.webp", alt: "shingles" },
-  metal_tile: { src: "/system/metal-tile-roof.webp", alt: "metal-tile" },
-  // Схема, а не снимок: нарисована вручную под палитру приложения.
-  GKL_C112: { src: "/system/drywall-partition.svg", alt: "drywall-partition" },
-};
+export const SYSTEM_IMAGES: Record<string, ImageType> = images;
 
 /**
  * Группы технологий внутри вида работ: «Внутренние работы → Перегородки → Гипсокартон».

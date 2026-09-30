@@ -24,6 +24,31 @@
           {{ $t("pages.catalog.norms.hint_tools") }}
         </p>
       </header>
+      <!--
+        Параметры технологии: от них зависит типоразмер в расчёте — у перегородки
+        это ширина профиля, то есть её толщина. Список даёт calc-server: какие
+        варианты есть, знают нормы. Технология без параметров ничего не показывает.
+      -->
+      <ion-item
+        v-for="group in optionGroups"
+        :key="group.kind"
+        class="custom-item"
+      >
+        <ion-select
+          :label="groupLabel(group)"
+          :value="chosen[group.kind]"
+          interface="popover"
+          @ionChange="setOption(group.kind, $event)"
+        >
+          <ion-select-option
+            v-for="option in group.options"
+            :key="option.id"
+            :value="option.id"
+          >
+            {{ optionLabel(option) }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
       <div class="full-volume-block">
         <ion-input
           class="full-volume-block_input"
@@ -102,12 +127,19 @@
   import {
     InputCustomEvent,
     RefresherCustomEvent,
+    SelectCustomEvent,
     // ToggleCustomEvent,
   } from "@ionic/vue";
   import { usePreloader } from "@/store";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import CalcModel from "@/models/calc/CalcModel";
   import DictionaryModel from "@/models/DictionaryModel";
-  import type { DictionaryUnit, DictionaryWorkStage } from "@/types/dto";
+  import type {
+    CalcOption,
+    DictionaryUnit,
+    DictionaryWorkStage,
+  } from "@/types/dto";
+  import { useParamLabel } from "@/components/pagesParts/catalog/paramLabel";
   import { useUnitLabel } from "@/components/pagesParts/catalog/unitLabel";
 
   const route = useRoute();
@@ -123,8 +155,13 @@
   const allValue = ref(100);
   const crew = ref(1);
 
+  /** Параметры расчёта технологии и выбранное значение по виду параметра. */
+  const options = ref<CalcOption[]>([]);
+  const chosen = reactive<Record<string, number>>({});
+
   const { t, locale } = useI18n({ useScope: "global" });
   const unitLabel = useUnitLabel();
+  const { translate, calcParamLabel } = useParamLabel();
   /** Единица объёма технологии из словаря (Технологии работ → форма). */
   const unit = ref<DictionaryUnit | null>(null);
   const systemName = ref("");
@@ -133,6 +170,50 @@
   const unitText = computed(() =>
     unit.value ? unitLabel(unit.value) : t("measure.square"),
   );
+
+  /**
+   * Параметры одного вида — один выпадающий список: толщина и уклон не должны
+   * оказаться в общем перечне. Вид приходит кодом (width), как и у параметров сборки.
+   */
+  const optionGroups = computed(() => {
+    const groups = new Map<string, { kind: string; options: CalcOption[] }>();
+    options.value.forEach((option) => {
+      const kind = option.title ?? "";
+      const group = groups.get(kind) ?? { kind, options: [] };
+      group.options.push(option);
+      groups.set(kind, group);
+    });
+    return [...groups.values()];
+  });
+
+  /** Подпись списка — вид параметра словом: «Ширина». Нет перевода — короткая форма. */
+  function groupLabel(group: { kind: string }): string {
+    return translate(
+      `ui.paramKinds.${group.kind}`,
+      translate(`ui.paramsTitles.${group.kind}`, group.kind),
+    );
+  }
+
+  /** В списке — только число с единицей: вид уже в подписи самого списка. */
+  function optionLabel(option: CalcOption): string {
+    return calcParamLabel({ ...option, title: undefined });
+  }
+
+  function setOption(kind: string, event: SelectCustomEvent) {
+    chosen[kind] = Number(event.detail.value);
+  }
+
+  /**
+   * Параметры технологии — после этапов: calc-server спрашивают по их id.
+   * Выбранное сбрасываем на первое значение — оно же базовое и на сервере.
+   */
+  async function loadOptions(system: string, stageIds: number[]) {
+    options.value = (await CalcModel.options(system, stageIds)) ?? [];
+    Object.keys(chosen).forEach((kind) => delete chosen[kind]);
+    optionGroups.value.forEach((group) => {
+      chosen[group.kind] = group.options[0].id;
+    });
+  }
 
   /**
    * Технология по коду из адреса, потом её этапы. Раньше этапы отдавал calc-server
@@ -154,6 +235,10 @@
       stages.value.forEach((stage) => {
         volumes[stage.id] ??= allValue.value;
       });
+      await loadOptions(
+        system,
+        stages.value.map((stage) => stage.id),
+      );
       if (!stages.value.length) {
         console.warn("No components available for this system.");
       }
@@ -210,9 +295,16 @@
       stages.value.map((stage) => [String(stage.id), volumes[stage.id] ?? 0]),
     );
 
+    const selected = Object.values(chosen);
+
     router.push({
       name: "material-list",
-      query: { components: JSON.stringify(components), crew: crew.value },
+      query: {
+        components: JSON.stringify(components),
+        crew: crew.value,
+        // Только когда есть что выбирать: иначе в ссылке висел бы пустой параметр.
+        ...(selected.length ? { options: selected.join(",") } : {}),
+      },
     });
   }
 

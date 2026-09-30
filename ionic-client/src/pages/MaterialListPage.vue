@@ -95,17 +95,33 @@
   preloader.setPreloader(true);
 
   function parseData(query: LocationQuery) {
-    const { components, crew } = query;
+    const { components, crew, options } = query;
     if (!components || typeof components !== "string") return {};
-    return { components: JSON.parse(components), crew };
+    return { components: JSON.parse(components), crew, options };
+  }
+
+  /**
+   * Параметры расчёта из адреса ('504' или '504,12'). Ссылки, сохранённые до
+   * появления параметров, приходят без них — calc-server считает базовый вариант.
+   */
+  function parseOptions(raw: LocationQuery[string]): number[] {
+    if (typeof raw !== "string") return [];
+    return raw
+      .split(",")
+      .map((part) => Number(part))
+      .filter((id) => Number.isInteger(id) && id > 0);
   }
 
   async function calculateValues() {
     const { system } = route.params;
-    const { components, crew } = parseData(route.query);
+    const { components, crew, options } = parseData(route.query);
     if (!components || !crew) return [];
     // crew из адреса — строка, а расчёт ждёт целое число звеньев.
-    const dataToSend = { components, crew: Number(crew) };
+    const dataToSend = {
+      components,
+      crew: Number(crew),
+      options: parseOptions(options),
+    };
     // Этапы приходят в порядке слоёв технологии — не пересортировываем по id.
     return (
       (await BaseModel.post<CalcResponseDTO[]>({

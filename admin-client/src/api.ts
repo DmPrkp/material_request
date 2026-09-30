@@ -61,7 +61,8 @@ function errorText(body: unknown): string | undefined {
 async function request<T>(path: string, init: RequestInit = {}, { proxied = false } = {}): Promise<T> {
   const headers = new Headers(init.headers);
   if (token.value) headers.set('Authorization', `Bearer ${token.value}`);
-  if (init.body) headers.set('Content-Type', 'application/json');
+  // FormData (загрузка снимков) ставит свой multipart с границей — Content-Type не трогаем.
+  if (typeof init.body === 'string') headers.set('Content-Type', 'application/json');
 
   const response = await fetch(`${BASE}${path}`, { ...init, headers });
   const body: unknown = await response.json().catch(() => undefined);
@@ -92,6 +93,54 @@ export const api = {
     if (response.status === 401) setToken(null);
     if (!response.ok) throw new ApiError(response.status, response.statusText);
     return response.text();
+  },
+};
+
+/** Снимки технологий (admin-server/src/images): файлы public/system клиента и их привязки. */
+export type ImageOptions = { width: number; height: number | null; quality: number; position: 'attention' | 'centre' };
+export type ImageFile = { name: string; size: number; width?: number; height?: number; format?: string; usedBy: string[] };
+export type ImagesState = {
+  enabled: boolean;
+  files: ImageFile[];
+  map: Record<string, { src: string; alt?: string }>;
+  defaults: ImageOptions;
+};
+export type ImagePreview = {
+  original: { width?: number; height?: number; format?: string; size: number };
+  result: { width: number; height: number; size: number };
+  dataUrl: string;
+};
+
+function imageForm(file: Blob, options: ImageOptions, extra: Record<string, string | undefined> = {}): FormData {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('width', String(options.width));
+  form.append('height', String(options.height ?? 0));
+  form.append('quality', String(options.quality));
+  form.append('position', options.position);
+  for (const [key, value] of Object.entries(extra)) if (value) form.append(key, value);
+  return form;
+}
+
+export const images = {
+  state: () => request<ImagesState>('/images'),
+  preview: (file: Blob, options: ImageOptions) =>
+    request<ImagePreview>('/images/preview', { method: 'POST', body: imageForm(file, options) }),
+  save: (file: Blob, options: ImageOptions, name: string, title?: string, alt?: string) =>
+    request<{ file: string; size: number; width: number; height: number }>('/images', {
+      method: 'POST',
+      body: imageForm(file, options, { name, title, alt }),
+    }),
+  assign: (title: string, file: string | null) =>
+    request<unknown>(`/images/map/${encodeURIComponent(title)}`, { method: 'PUT', body: JSON.stringify({ file }) }),
+  remove: (name: string) => request<unknown>(`/images/files/${encodeURIComponent(name)}`, { method: 'DELETE' }),
+  /** Миниатюра: img с токеном не ходит — тянем fetch-ем и отдаём object URL. */
+  blobUrl: async (name: string) => {
+    const response = await fetch(`${BASE}/images/files/${encodeURIComponent(name)}`, {
+      headers: token.value ? { Authorization: `Bearer ${token.value}` } : {},
+    });
+    if (!response.ok) throw new ApiError(response.status, response.statusText);
+    return URL.createObjectURL(await response.blob());
   },
 };
 

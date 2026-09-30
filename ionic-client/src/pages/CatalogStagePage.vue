@@ -355,6 +355,8 @@
     rate: string;
     /** Примечание на языке страницы — его и правят. */
     note: string;
+    /** Привязка нормы к параметру расчёта: форма её не меняет, но и не теряет. */
+    optionValueId: number | null;
     /** Примечания как пришли: язык, которого форма не касается, уходит обратно как был. */
     notes: Pick<StageNorm, "noteRu" | "noteEn">;
     /** Ближайшее заполненное на другом языке — подсказка в пустом поле. */
@@ -531,6 +533,7 @@
       unit,
       rate: norm ? String(norm.rate) : "",
       note: own ?? "",
+      optionValueId: norm?.optionValueId ?? null,
       notes,
       otherNote: other ?? "",
       open: false,
@@ -749,6 +752,8 @@
         list.push({
           ref: row.ref,
           rate,
+          // Как пришло: иначе сохранение сделало бы норму типоразмера безусловной.
+          optionValueId: row.optionValueId,
           noteRu: suffix.value === "Ru" ? note : row.notes.noteRu,
           noteEn: suffix.value === "En" ? note : row.notes.noteEn,
         });

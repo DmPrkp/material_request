@@ -25,6 +25,8 @@ import {
   IonSegmentButton,
   IonSegmentView,
   IonSegmentContent,
+  IonSelect,
+  IonSelectOption,
   IonSpinner,
 } from "@ionic/vue";
 import App from "./App.vue";
@@ -163,6 +165,10 @@ const app = createApp(App)
   .component("IonSegmentButton", IonSegmentButton)
   .component("IonSegmentView", IonSegmentView)
   .component("IonSegmentContent", IonSegmentContent)
+  // Без регистрации ion-select остаётся обычным custom element: выглядит так же,
+  // но @ionChange Vue превращает в DOM-событие 'ion-change' и обработчик молчит.
+  .component("IonSelect", IonSelect)
+  .component("IonSelectOption", IonSelectOption)
   .component("IonSpinner", IonSpinner);
 
 router.isReady().then(() => {

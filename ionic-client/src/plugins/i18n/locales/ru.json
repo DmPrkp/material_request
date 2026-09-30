@@ -39,6 +39,21 @@
       "size": "разм.",
       "section": "сеч."
     },
+    "paramKinds": {
+      "length": "Длина",
+      "weight": "Вес",
+      "width": "Ширина",
+      "height": "Высота",
+      "depth": "Глубина",
+      "volume": "Объём",
+      "area": "Площадь",
+      "density": "Плотность",
+      "thickness": "Толщина",
+      "diameter": "Диаметр",
+      "voltage": "Напряжение",
+      "size": "Размер",
+      "section": "Сечение"
+    },
     "locales": {
       "ru": "Русский",
       "en": "English"

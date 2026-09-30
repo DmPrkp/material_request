@@ -66,6 +66,13 @@ type Param = {
   title?: string;
 };
 
+/**
+ * Параметр расчёта технологии — GET /calc/:system/options. Формат тот же, что у
+ * параметров сборки: id — значение параметра в словаре, его и отправляют обратно
+ * в расчёт (толщина перегородки = ширина профиля 50/75/100).
+ */
+export type CalcOption = Param;
+
 export type MaterialRequestDTO = {
   data: string;
   createdAt: string;

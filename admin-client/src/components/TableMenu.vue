@@ -11,13 +11,20 @@
     </div>
 
     <nav class="menu__list">
-      <!-- Не таблица базы, а файлы logs/ — отдельной строкой над группами таблиц. -->
+      <!-- Не таблицы базы, а файлы (logs/, снимки клиента) — отдельными строками над группами таблиц. -->
       <RouterLink
         :to="{ name: 'logs' }"
         class="menu__item menu__item--logs"
         active-class="menu__item--active"
       >
         <span><i class="pi pi-exclamation-triangle" /> Лог ошибок</span>
+      </RouterLink>
+      <RouterLink
+        :to="{ name: 'images' }"
+        class="menu__item menu__item--logs"
+        active-class="menu__item--active"
+      >
+        <span><i class="pi pi-image" /> Фото технологий</span>
       </RouterLink>
       <p
         v-if="error"
