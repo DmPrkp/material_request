@@ -35,69 +35,72 @@ const seoPages: SeoPages = {
   // Список заявок: сюда ведут «Заявки» в меню и переход после входа.
   zayavka: {
     title: {
-      en: "Construction material requests and quantity calculator",
-      ru: "Заявки на строительные материалы и калькулятор расхода",
+      en: "Construction material requests by calculation",
+      ru: "Заявки на строительные материалы по расчёту",
     },
-    description: defaultSeo.description,
+    description: {
+      en: "Material requests built from the calculation: request list, export to a spreadsheet, sending by link and to the company warehouse.",
+      ru: "Заявка на строительные материалы по расчёту: список заявок, выгрузка в таблицу, передача по ссылке и на склад компании.",
+    },
   },
   "zayavka/calculator": {
     title: {
-      en: "Construction materials calculator: types of work",
-      ru: "Калькулятор строительных материалов: виды работ",
+      en: "Construction materials calculator by type of work",
+      ru: "Калькулятор строительных материалов по видам работ",
     },
     description: {
-      en: "Choose a type of work — facade, roof, interior finishing — and get the list of materials, hand and power tools with quantities for your area.",
-      ru: "Выберите вид работ — фасад, кровля, внутренняя отделка — и получите список материалов, ручного и электроинструмента с расходом на ваш объём.",
+      en: "Online construction materials calculator: choose a type of work — facade, roof, interior — and get materials and tools for your scope.",
+      ru: "Онлайн-калькулятор строительных материалов: выберите вид работ — фасад, кровля, отделка — и получите расход материалов и инструмента на ваш объём.",
     },
   },
   "zayavka/calculator/facade": {
     title: {
-      en: "Facade materials calculation",
-      ru: "Расчёт материалов для фасада",
+      en: "Facade materials calculation: EIFS and scaffolding",
+      ru: "Расчёт материалов для фасада: СФТК и строительные леса",
     },
     description: {
-      en: "Facade works calculator: EIFS and frame scaffolding. Materials, tools and consumption for the given facade area.",
-      ru: "Калькулятор фасадных работ: мокрый фасад и рамные леса. Материалы, инструмент и расход на заданную площадь фасада.",
+      en: "Facade works calculator: EIFS (wet facade) and frame scaffolding — materials, tools and consumption for the facade area.",
+      ru: "Калькулятор фасадных работ: мокрый фасад (СФТК) и рамные строительные леса — материалы, инструмент и расход на площадь фасада.",
     },
   },
   "zayavka/calculator/facade/EIFS": {
     title: {
-      en: "EIFS materials calculation",
-      ru: "Расчёт материалов для мокрого фасада",
+      en: "EIFS calculator: wet facade materials calculation",
+      ru: "Калькулятор мокрого фасада (СФТК): расчёт материалов",
     },
     description: {
-      en: "EIFS material consumption by work stages — surface preparation, insulation, reinforcing layer, finish — plus tools for the crew.",
-      ru: "Расход материалов на мокрый фасад по этапам: подготовка основания, утепление, армирующий слой, отделка — и инструмент для бригады.",
+      en: "EIFS consumption per 1 m² by stages: insulation adhesive, boards, anchors, mesh, render — plus tools for the crew.",
+      ru: "Расход материалов на мокрый фасад СФТК на 1 м² по этапам: клей для утеплителя, утеплитель, дюбели, сетка, штукатурка — и инструмент для бригады.",
     },
   },
   "zayavka/calculator/facade/frame_scaffold": {
     title: {
-      en: "Frame scaffolding calculation",
-      ru: "Расчёт рамных строительных лесов",
+      en: "Scaffolding calculation by facade area",
+      ru: "Расчёт строительных лесов по площади фасада",
     },
     description: {
-      en: "Frame scaffolding components for your facade area and tools for assembly.",
-      ru: "Комплектующие рамных лесов на площадь фасада и инструмент для монтажа.",
+      en: "Online frame scaffolding calculator: components for the facade area and tools for assembly.",
+      ru: "Онлайн-расчёт рамных строительных лесов: комплектующие на площадь фасада и инструмент для монтажа.",
     },
   },
   "zayavka/calculator/interior": {
     title: {
-      en: "Interior finishing materials calculation",
-      ru: "Расчёт материалов для внутренней отделки",
+      en: "Interior finishing calculation: drywall partitions",
+      ru: "Расчёт материалов для отделки: перегородки из гипсокартона",
     },
     description: {
-      en: "Interior finishing calculator: partitions and surfaces. Materials, tools and consumption for your area.",
-      ru: "Калькулятор внутренней отделки: перегородки и поверхности. Материалы, инструмент и расход на вашу площадь.",
+      en: "Interior finishing calculator: drywall partitions and surfaces — materials, tools and consumption for your area.",
+      ru: "Калькулятор внутренней отделки: перегородки из гипсокартона и поверхности — материалы, инструмент и расход на вашу площадь.",
     },
   },
   "zayavka/calculator/interior/GKL_C112": {
     title: {
-      en: "C112 drywall partition calculation",
-      ru: "Расчёт перегородки из гипсокартона С112",
+      en: "Drywall partition calculator (C112)",
+      ru: "Калькулятор перегородки из гипсокартона С112",
     },
     description: {
-      en: "Materials and tools for a C112 partition — single metal frame, double-layer board on both sides — by stages: layout, frame, cladding, joints.",
-      ru: "Материалы и инструмент на перегородку С112 — одинарный каркас, двухслойная обшивка ГКЛ с двух сторон — по этапам: разметка, каркас, обшивка, швы.",
+      en: "Online drywall partition calculation: studs, boards, fixings and filler for a C112 partition — single frame, double-layer board on both sides.",
+      ru: "Расчёт перегородки из гипсокартона онлайн: профили, ГКЛ, крепёж и шпаклёвка на перегородку С112 — одинарный каркас, двухслойная обшивка.",
     },
   },
   catalog: {
@@ -203,14 +206,17 @@ const seoPages: SeoPages = {
   // Главная: «/» и «/ru» ведут сюда (router/index.ts, docker/nginx.conf). Сценарии
   // со скриншотами (pages/MainPage.vue). description — до ~160 знаков: длиннее
   // поисковики обрезают.
+  // Формулировки здесь и у технологий — по частотам Вордстата (сентябрь 2026):
+  // «заявка на материалы» 4318/мес, «расчёт строительных материалов» 1713, «учёт
+  // строительных материалов» 1179, «СФТК» 7906 рядом с «мокрый фасад» 24950.
   main: {
     title: {
-      en: "Calculation and management of materials and tools",
-      ru: "Расчёт и управление материалами и инструментом",
+      en: "Online material requests: materials and tools calculation",
+      ru: "Заявка на материалы онлайн: расчёт стройматериалов и инструмента",
     },
     description: {
-      en: "Materials and tools for a scope of work by the consumption rates of each technology stage, plus requests, company warehouses and issuing items.",
-      ru: "Расход материалов и инструмента на объём работ по нормам каждого этапа технологии, заявки, склады компании и выдача позиций участникам.",
+      en: "Calculate construction materials and tools by consumption rates, make a material request, track materials on site and tools issued. Free.",
+      ru: "Расчёт строительных материалов и инструмента по нормам, заявка на материалы, учёт материалов на объекте и выдачи инструмента. Бесплатно.",
     },
   },
   about: {
