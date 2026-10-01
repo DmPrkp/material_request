@@ -217,6 +217,17 @@ export const TABLES: TableDef[] = [
   },
 
   {
+    key: 'stats.visitors',
+    db: 'stats',
+    group: 'Статистика',
+    title: 'Посетители',
+    from: 'visitors',
+    // inet наружу — текстом: тип pg не знает, а host() отрезает маску /32.
+    select: 'host(ip) AS ip, visits, is_bot, last_seen, first_seen, user_agent, last_path',
+    orderBy: 'last_seen DESC',
+  },
+
+  {
     key: 'dict.seed_history',
     db: 'dictionary',
     group: 'Служебное',

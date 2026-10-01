@@ -12,6 +12,7 @@ import { LogsService } from './logs/logs.service';
 import { ProxyController } from './proxy/proxy.controller';
 import { TablesController } from './tables/tables.controller';
 import { TablesService } from './tables/tables.service';
+import { VisitsService } from './visits/visits.service';
 
 @Module({
   controllers: [AuthController, TablesController, ProxyController, LogsController, ImagesController],
@@ -21,6 +22,7 @@ import { TablesService } from './tables/tables.service';
     TablesService,
     LogsService,
     ImagesService,
+    VisitsService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })

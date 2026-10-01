@@ -35,9 +35,9 @@
 
       <template v-else>
         <ion-row class="add-row ion-justify-content-end">
-          <CutCornerBtn @click="addWarehouse">
+          <PlasmaButton @click="addWarehouse">
             {{ $t("pages.warehouses.add") }}
-          </CutCornerBtn>
+          </PlasmaButton>
         </ion-row>
 
         <!--
@@ -182,6 +182,7 @@
   import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import PlasmaButton from "@/components/ui/PlasmaButton.vue";
   import WarehousesTabs from "@/components/pagesParts/warehouses/WarehousesTabs.vue";
   import TitledDivider from "@/components/ui/TitledDivider.vue";
   import WarehouseModel from "@/models/WarehouseModel";

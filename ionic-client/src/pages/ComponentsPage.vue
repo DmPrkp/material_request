@@ -107,12 +107,12 @@
           @click="sendComponentsVal"
           >{{ $t("pages.components.send") }}</ion-button
         > -->
-        <CutCornerBtn
+        <PlasmaButton
           fullWidth
           @click="sendComponentsVal"
         >
           {{ $t("pages.components.send") }}
-        </CutCornerBtn>
+        </PlasmaButton>
       </div>
     </ion-content>
   </ion-page>
@@ -131,7 +131,7 @@
     // ToggleCustomEvent,
   } from "@ionic/vue";
   import { usePreloader } from "@/store";
-  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import PlasmaButton from "@/components/ui/PlasmaButton.vue";
   import CalcModel from "@/models/calc/CalcModel";
   import DictionaryModel from "@/models/DictionaryModel";
   import type {

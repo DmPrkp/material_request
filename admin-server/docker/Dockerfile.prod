@@ -18,6 +18,8 @@ COPY package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=build /usr/admin-server/dist ./dist
+# Миграции базы stats — накатываются на старте (src/visits/visits.service.ts).
+COPY --from=build /usr/admin-server/drizzle ./drizzle
 
 USER node
 EXPOSE 4600

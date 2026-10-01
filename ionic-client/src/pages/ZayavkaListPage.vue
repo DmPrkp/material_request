@@ -24,9 +24,9 @@
           {{ $t(editing ? "pages.zayavka_list.done" : "pages.zayavka_list.edit") }}
         </CutCornerBtn>
         <span v-else />
-        <CutCornerBtn @click="router.push({ name: 'calculator' })">
+        <PlasmaButton @click="router.push({ name: 'calculator' })">
           {{ $t("pages.zayavka_list.new") }}
-        </CutCornerBtn>
+        </PlasmaButton>
       </ion-row>
       <!-- Без входа заявки ничьи: почистят данные сайта — список их больше не найдёт. -->
       <ion-item
@@ -196,6 +196,7 @@
     toastController,
   } from "@ionic/vue";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import PlasmaButton from "@/components/ui/PlasmaButton.vue";
   import TitledDivider from "@/components/ui/TitledDivider.vue";
   import { alertCircle, checkbox, squareOutline } from "ionicons/icons";
   import { computed, onMounted, ref, watch } from "vue";
