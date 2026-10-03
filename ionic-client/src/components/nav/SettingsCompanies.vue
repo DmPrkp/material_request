@@ -17,23 +17,14 @@
             <p>{{ currentRoles }}</p>
           </ion-label>
         </ion-item>
-        <ion-item
-          v-if="state === 'error'"
-          lines="none"
-        >
-          <ion-label
-            class="ion-text-wrap"
-            color="danger"
-          >
+        <ion-item v-if="state === 'error'" lines="none">
+          <ion-label class="ion-text-wrap" color="danger">
             {{ $t("pages.settings.companies.load_error") }}
           </ion-label>
         </ion-item>
       </ion-list>
       <div class="buttons">
-        <CutCornerBtn
-          v-if="store.companies.length"
-          @click="switchCompany"
-        >
+        <CutCornerBtn v-if="store.companies.length" @click="switchCompany">
           {{ $t("pages.settings.companies.switch") }}
         </CutCornerBtn>
         <CutCornerBtn @click="createCompany">
@@ -66,16 +57,14 @@
 
   const loaded = ref<"loading" | "done" | "error">("loading");
 
-  const state = computed(() =>
-    loaded.value === "error" ? "error" : "list"
-  );
+  const state = computed(() => (loaded.value === "error" ? "error" : "list"));
 
   /** Компаний нет — так и пишем: работа идёт с личными складами. */
   const currentName = computed(
-    () => store.current?.name ?? t("pages.settings.companies.empty")
+    () => store.current?.name ?? t("pages.settings.companies.empty"),
   );
   const currentRoles = computed(() =>
-    store.current ? rolesLabel(store.current) : ""
+    store.current ? rolesLabel(store.current) : "",
   );
 
   async function load() {

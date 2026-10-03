@@ -1,8 +1,5 @@
 <template>
-  <div
-    v-if="text"
-    class="inscription"
-  >
+  <div v-if="text" class="inscription">
     {{ $t(`ui.labels["${text}"]`) }}
   </div>
   <img

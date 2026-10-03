@@ -1,10 +1,7 @@
 <template>
   <ion-page v-if="route.name === 'system'">
     <ion-content>
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh($event)"
-      >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
       <!--
@@ -68,11 +65,7 @@
         <ion-text>{{ unitText }}</ion-text>
       </div>
       <ion-list>
-        <ion-item
-          v-for="stage in stages"
-          :key="stage.id"
-          class="custom-item"
-        >
+        <ion-item v-for="stage in stages" :key="stage.id" class="custom-item">
           <!-- name уже на языке страницы: этапы — данные словаря, i18n их не переводит. -->
           <ion-label>
             {{ stage.name }}
@@ -107,10 +100,7 @@
           @click="sendComponentsVal"
           >{{ $t("pages.components.send") }}</ion-button
         > -->
-        <PlasmaButton
-          fullWidth
-          @click="sendComponentsVal"
-        >
+        <PlasmaButton fullWidth @click="sendComponentsVal">
           {{ $t("pages.components.send") }}
         </PlasmaButton>
       </div>

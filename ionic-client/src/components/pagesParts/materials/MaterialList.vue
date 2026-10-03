@@ -1,9 +1,6 @@
 <template>
   <MaterialHeader :readonly="readonly" />
-  <ion-item-group
-    v-for="component in clearedComponents"
-    :key="component.id"
-  >
+  <ion-item-group v-for="component in clearedComponents" :key="component.id">
     <ion-item-divider v-if="component.materials.length">
       <ion-label color="secondary">
         <h2>{{ component.title }}</h2>
@@ -69,7 +66,7 @@
 
   /** DISABLED — сохранённая заявка: только чтение, и модалку правки не открываем. */
   const readonly = computed(
-    () => props.status === MATERIAL_LIST_STATUS.DISABLED
+    () => props.status === MATERIAL_LIST_STATUS.DISABLED,
   );
 
   const clearedComponents = ref<ClearedComponent[]>([]);
@@ -86,7 +83,7 @@
     (newVal) => {
       emit("update", newVal);
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
@@ -115,12 +112,12 @@
                 new Set(
                   (c.materials ?? [])
                     .filter((m) => !m.consumption)
-                    .map(materialKey)
+                    .map(materialKey),
                 ),
-              ])
+              ]),
             );
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   const setOpen = async (componentId: number, material: Partial<Material>) => {
@@ -152,7 +149,7 @@
   function handleMaterialUpdate(
     material: Material,
     component: MaterialListDTO,
-    role: string
+    role: string,
   ) {
     const key = materialKey(material);
     const i = component.materials.findIndex((mat) => materialKey(mat) === key);

@@ -1,8 +1,5 @@
 <template>
-  <ion-modal
-    :is-open="isOpen"
-    @didDismiss="emit('close')"
-  >
+  <ion-modal :is-open="isOpen" @didDismiss="emit('close')">
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ heading }}</ion-title>
@@ -11,29 +8,20 @@
             :aria-label="$t('ui.buttons.close')"
             @click="emit('close')"
           >
-            <ion-icon
-              slot="icon-only"
-              :icon="closeOutline"
-            />
+            <ion-icon slot="icon-only" :icon="closeOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
 
     <ion-content class="ion-padding">
-      <div
-        v-if="loading"
-        class="ion-text-center ion-padding"
-      >
+      <div v-if="loading" class="ion-text-center ion-padding">
         <ion-spinner />
       </div>
 
       <template v-else>
         <!-- Чужая общая позиция: сохранение заведёт копию, оригинал не тронется. -->
-        <ion-note
-          v-if="!ownItem"
-          class="copy_hint"
-        >
+        <ion-note v-if="!ownItem" class="copy_hint">
           {{ $t("pages.catalog.copy_hint") }}
         </ion-note>
         <ion-list>
@@ -49,21 +37,12 @@
         </ion-list>
 
         <!-- Параметры — только у новой позиции: у существующей каждая сборка правится своим карандашом. -->
-        <section
-          v-if="currentId === null"
-          class="params"
-        >
+        <section v-if="currentId === null" class="params">
           <h4>{{ $t("pages.catalog.params.title") }}</h4>
-          <VariantParamsEditor
-            ref="editor"
-            v-model="rows"
-          />
+          <VariantParamsEditor ref="editor" v-model="rows" />
         </section>
 
-        <ion-text
-          v-if="error"
-          color="danger"
-        >
+        <ion-text v-if="error" color="danger">
           <p>{{ error }}</p>
         </ion-text>
         <CutCornerBtn
@@ -84,10 +63,7 @@
           :disabled="saving"
           @click="remove"
         >
-          <ion-icon
-            slot="start"
-            :icon="trashOutline"
-          />
+          <ion-icon slot="start" :icon="trashOutline" />
           {{ $t("pages.catalog.delete") }}
         </ion-button>
       </template>
@@ -112,7 +88,14 @@
    */
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { IonButtons, IonHeader, IonIcon, IonModal, IonNote, IonToolbar } from "@ionic/vue";
+  import {
+    IonButtons,
+    IonHeader,
+    IonIcon,
+    IonModal,
+    IonNote,
+    IonToolbar,
+  } from "@ionic/vue";
   import { closeOutline, trashOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import { HttpError } from "@/models/BaseModel";

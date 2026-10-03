@@ -1,10 +1,7 @@
 <template>
   <ion-page v-if="showPage">
     <ion-content>
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh($event)"
-      >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
       <div class="ion-padding">
@@ -17,17 +14,23 @@
       <MaterialList
         :components="components"
         :status="MATERIAL_LIST_STATUS.NEW"
-        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)"
+        @update="
+          (event: Event) => mergeMaterials(MATERIALS_KEYS.MATERIALS, event)
+        "
       />
       <HandToolList
         :components="components"
         :status="MATERIAL_LIST_STATUS.NEW"
-        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)"
+        @update="
+          (event: Event) => mergeMaterials(MATERIALS_KEYS.HAND_TOOLS, event)
+        "
       />
       <PowerToolList
         :components="components"
         :status="MATERIAL_LIST_STATUS.NEW"
-        @update="(event: Event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)"
+        @update="
+          (event: Event) => mergeMaterials(MATERIALS_KEYS.POWER_TOOLS, event)
+        "
       />
       <MaterialActionPanel
         :materials="resultMatList"
@@ -85,11 +88,11 @@
         if (route.name !== "material-list") return;
         router.replace({ query: { ...route.query, zayavka: id } });
       },
-    }
+    },
   );
 
   const showPage = computed(
-    () => route.name === "material-list" && !preloader.state
+    () => route.name === "material-list" && !preloader.state,
   );
 
   preloader.setPreloader(true);
@@ -159,7 +162,7 @@
 
   function mergeMaterials(
     material: (typeof MATERIALS_KEYS)[keyof typeof MATERIALS_KEYS],
-    event: Event
+    event: Event,
   ) {
     resultMatList.value = Object.assign({}, resultMatList.value, {
       [material]: event,

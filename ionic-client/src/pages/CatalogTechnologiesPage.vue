@@ -1,10 +1,7 @@
 <template>
   <ion-page v-if="route.name === 'catalog-work-type'">
     <ion-content>
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh"
-      >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh">
         <ion-refresher-content />
       </ion-refresher>
 
@@ -16,14 +13,8 @@
         </ion-item-divider>
       </div>
 
-      <div
-        v-if="canEdit && workType"
-        class="ion-padding-horizontal"
-      >
-        <CutCornerBtn
-          full-width
-          @click="openTechnology(null)"
-        >
+      <div v-if="canEdit && workType" class="ion-padding-horizontal">
+        <CutCornerBtn full-width @click="openTechnology(null)">
           {{ $t("pages.catalog.structure.add_system") }}
         </CutCornerBtn>
       </div>
@@ -36,19 +27,13 @@
         lines="none"
         @click="goToAuth"
       >
-        <IonIcon
-          slot="start"
-          :icon="alertCircle"
-        />
+        <IonIcon slot="start" :icon="alertCircle" />
         <ion-label class="ion-text-wrap">
           {{ $t("pages.catalog.structure.sign_in") }}
         </ion-label>
       </ion-item>
 
-      <ion-note
-        v-if="!loading && !systems.length"
-        class="ion-padding empty"
-      >
+      <ion-note v-if="!loading && !systems.length" class="ion-padding empty">
         {{ $t("pages.catalog.empty") }}
       </ion-note>
 
@@ -73,26 +58,17 @@
               }}
             </p>
           </ion-label>
-          <ion-note
-            v-if="isMine(system)"
-            slot="end"
-          >
+          <ion-note v-if="isMine(system)" slot="end">
             {{ $t("pages.catalog.structure.added_by_you") }}
           </ion-note>
           <!-- Чужую личную видит только админ: пусть знает, что это не общая. -->
-          <ion-note
-            v-else-if="isOthersPrivate(system)"
-            slot="end"
-          >
+          <ion-note v-else-if="isOthersPrivate(system)" slot="end">
             {{ $t("pages.catalog.added_by_user") }}
           </ion-note>
         </ion-item>
       </ion-list>
 
-      <div
-        v-if="loading"
-        class="ion-text-center ion-padding"
-      >
+      <div v-if="loading" class="ion-text-center ion-padding">
         <ion-spinner />
       </div>
     </ion-content>

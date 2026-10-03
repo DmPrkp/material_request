@@ -1,17 +1,10 @@
 <template>
   <div>
-    <ion-note
-      v-if="!rows.length"
-      class="hint"
-    >
+    <ion-note v-if="!rows.length" class="hint">
       {{ $t("pages.catalog.params.none") }}
     </ion-note>
 
-    <div
-      v-for="(row, index) in rows"
-      :key="row.key"
-      class="param"
-    >
+    <div v-for="(row, index) in rows" :key="row.key" class="param">
       <div class="param_fields">
         <ion-select
           v-model="row.kindId"
@@ -64,18 +57,12 @@
           :aria-label="$t('pages.catalog.params.remove')"
           @click="rows.splice(index, 1)"
         >
-          <ion-icon
-            slot="icon-only"
-            :icon="closeOutline"
-          />
+          <ion-icon slot="icon-only" :icon="closeOutline" />
         </ion-button>
       </div>
 
       <!-- Уже заведённые значения этого вида и единицы — выбрать в одно касание. -->
-      <div
-        v-if="suggestions(row).length"
-        class="chips"
-      >
+      <div v-if="suggestions(row).length" class="chips">
         <ion-chip
           v-for="value in suggestions(row)"
           :key="value"
@@ -87,16 +74,8 @@
       </div>
     </div>
 
-    <ion-button
-      class="add_btn"
-      fill="clear"
-      size="small"
-      @click="addRow"
-    >
-      <ion-icon
-        slot="start"
-        :icon="addOutline"
-      />
+    <ion-button class="add_btn" fill="clear" size="small" @click="addRow">
+      <ion-icon slot="start" :icon="addOutline" />
       <span class="slanted">{{ $t("pages.catalog.params.add") }}</span>
     </ion-button>
   </div>
@@ -112,7 +91,13 @@
    */
   import { onMounted, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { IonChip, IonIcon, IonNote, IonSelect, IonSelectOption } from "@ionic/vue";
+  import {
+    IonChip,
+    IonIcon,
+    IonNote,
+    IonSelect,
+    IonSelectOption,
+  } from "@ionic/vue";
   import { addOutline, closeOutline } from "ionicons/icons";
   import DictionaryModel from "@/models/DictionaryModel";
   import type {

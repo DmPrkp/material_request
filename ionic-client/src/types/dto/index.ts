@@ -109,13 +109,13 @@ export type {
   DictionaryWorkStageTranslations,
   DictionaryWorkType,
 } from "./dictionary";
+export type { NormKind, StageNorm, StageNorms, StageNormsInput } from "./norms";
 export type {
-  NormKind,
-  StageNorm,
-  StageNorms,
-  StageNormsInput,
-} from "./norms";
-export type { Company, CompanyMember, CompanyPage, CompanyRole } from "./company";
+  Company,
+  CompanyMember,
+  CompanyPage,
+  CompanyRole,
+} from "./company";
 export type { UserName } from "./user";
 export type {
   HoldingItem,

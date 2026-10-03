@@ -53,7 +53,9 @@
     background: radial-gradient(circle, #f796c0 0%, #76aef1 100%);
     /* Внешние тени clip-path всё равно срежет — остаётся только внутренний блик. */
     box-shadow: inset 2px 2px 2px 0 rgba(255, 255, 255, 0.5);
-    transition: opacity 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      box-shadow 0.3s ease;
     /* Те же срезанные углы, что у CutCornerBtn: правый верхний и левый нижний. */
     clip-path: polygon(
       0 0,

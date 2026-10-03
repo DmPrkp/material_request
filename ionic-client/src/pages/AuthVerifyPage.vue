@@ -6,10 +6,7 @@
           <ion-card-title>{{ $t("pages.auth.verify_title") }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <div
-            v-if="state === 'checking'"
-            class="centered"
-          >
+          <div v-if="state === 'checking'" class="centered">
             <ion-spinner name="dots" />
           </div>
 
@@ -18,11 +15,7 @@
               <p class="result-text">{{ message }}</p>
             </ion-text>
 
-            <CutCornerBtn
-              expand="block"
-              fullWidth
-              @click="goOn"
-            >
+            <CutCornerBtn expand="block" fullWidth @click="goOn">
               {{ $t("pages.auth.verify_continue") }}
             </CutCornerBtn>
           </template>
@@ -56,12 +49,13 @@
   const state = ref<"checking" | "done" | "failed">("checking");
   const message = ref<string>("");
 
-  const locale = computed(
-    () => String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
+  const locale = computed(() =>
+    String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
   );
 
   onMounted(async () => {
-    const token = typeof route.query.token === "string" ? route.query.token : "";
+    const token =
+      typeof route.query.token === "string" ? route.query.token : "";
     if (!token) {
       state.value = "failed";
       message.value = t("pages.auth.verify_bad_link");
@@ -86,7 +80,9 @@
   });
 
   function goOn() {
-    router.replace(authStore.token ? `/${locale.value}/zayavka` : `/${locale.value}/auth`);
+    router.replace(
+      authStore.token ? `/${locale.value}/zayavka` : `/${locale.value}/auth`,
+    );
   }
 </script>
 
@@ -100,7 +96,6 @@
   .result-text {
     margin: 0 0 18px;
   }
-
 
   .centered {
     display: flex;

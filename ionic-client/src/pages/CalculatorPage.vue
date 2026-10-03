@@ -6,10 +6,7 @@
           <h1>{{ $t(`pages.main.title`) }}</h1>
         </ion-title>
       </ion-item-divider>
-      <MainMenuItems
-        :items="mainMenu"
-        @item="chooseItem"
-      />
+      <MainMenuItems :items="mainMenu" @item="chooseItem" />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -33,7 +30,7 @@
 
   watch(
     () => route.name,
-    () => (isCalculatorPage.value = route.name === "calculator")
+    () => (isCalculatorPage.value = route.name === "calculator"),
   );
 
   watch(
@@ -43,7 +40,7 @@
         preloader.setPreloader(false);
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   const mainMenu = computed(() => mainMenuStore.$state);

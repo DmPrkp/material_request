@@ -16,10 +16,7 @@
         button
         @click="goToAuth"
       >
-        <IonIcon
-          slot="start"
-          :icon="alertCircle"
-        />
+        <IonIcon slot="start" :icon="alertCircle" />
         <ion-label class="ion-text-wrap">
           {{ $t("pages.warehouses.auth_required") }}
         </ion-label>

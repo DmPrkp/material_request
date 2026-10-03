@@ -5,22 +5,19 @@
     вместе с ней. Вид — общий bulk-bar, как у групповых операций в списке заявок;
     slot="fixed" ставит её страница, иначе она прокручивалась бы с содержимым.
   -->
-  <div
-    v-if="authStore.isAuthenticated"
-    class="bulk-bar"
-  >
-    <ion-button
-      fill="outline"
-      :disabled="busy"
-      @click="chooseWarehouse"
-    >
+  <div v-if="authStore.isAuthenticated" class="bulk-bar">
+    <ion-button fill="outline" :disabled="busy" @click="chooseWarehouse">
       {{ $t("pages.warehouses.add_items") }}
     </ion-button>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import { alertController, modalController, toastController } from "@ionic/vue";
+  import {
+    alertController,
+    modalController,
+    toastController,
+  } from "@ionic/vue";
   import { ref } from "vue";
   import { useI18n } from "vue-i18n";
   import WarehouseModel from "@/models/WarehouseModel";
@@ -29,7 +26,10 @@
   import { tokenUser } from "@/store/authToken";
   import type { Warehouse } from "@/types/dto";
   import WarehousePickerModal from "./WarehousePickerModal.vue";
-  import { zayavkaToWarehouseItems, type ZayavkaItemsSource } from "./zayavkaItems";
+  import {
+    zayavkaToWarehouseItems,
+    type ZayavkaItemsSource,
+  } from "./zayavkaItems";
 
   /**
    * «Добавить на склад»: весь список заявки уезжает на выбранный склад одной пачкой.
@@ -52,7 +52,9 @@
     // Склады текущей компании и свои личные — те же два раздела, что на экране складов.
     const current = companyStore.currentId ?? null;
     const [company, personal] = await Promise.all([
-      current === null ? Promise.resolve([]) : WarehouseModel.listByCompany(current),
+      current === null
+        ? Promise.resolve([])
+        : WarehouseModel.listByCompany(current),
       WarehouseModel.listByCompany(null),
     ]);
     busy.value = false;

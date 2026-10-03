@@ -10,26 +10,17 @@
       </div>
 
       <div class="ion-padding-horizontal ion-padding-bottom">
-        <div
-          v-if="loading"
-          class="ion-text-center ion-padding"
-        >
+        <div v-if="loading" class="ion-text-center ion-padding">
           <ion-spinner />
         </div>
 
-        <ion-note
-          v-else-if="notFound"
-          class="hint"
-        >
+        <ion-note v-else-if="notFound" class="hint">
           {{ $t("pages.catalog.structure.not_found") }}
         </ion-note>
 
         <template v-else-if="canEdit">
           <!-- Чужая общая технология: сохранение заведёт копию вместе с этапами и нормами. -->
-          <ion-note
-            v-if="!ownsCurrent"
-            class="hint"
-          >
+          <ion-note v-if="!ownsCurrent" class="hint">
             {{ $t("pages.catalog.copy_hint") }}
           </ion-note>
           <ion-list>
@@ -73,16 +64,8 @@
             <ion-list-header>
               {{ $t("pages.catalog.structure.stages") }}
             </ion-list-header>
-            <ion-item
-              v-for="(row, index) in rows"
-              :key="row.key"
-            >
-              <span
-                slot="start"
-                class="stage_index"
-              >
-                {{ index + 1 }}.
-              </span>
+            <ion-item v-for="(row, index) in rows" :key="row.key">
+              <span slot="start" class="stage_index"> {{ index + 1 }}. </span>
               <ion-input
                 v-model="row.name"
                 :aria-label="$t('pages.catalog.structure.stage_name')"
@@ -100,31 +83,18 @@
                 :disabled="saving"
                 @click="openStage(row.id)"
               >
-                <ion-icon
-                  slot="icon-only"
-                  :icon="chevronForwardOutline"
-                />
+                <ion-icon slot="icon-only" :icon="chevronForwardOutline" />
               </ion-button>
             </ion-item>
           </ion-list>
-          <ion-button
-            class="add_btn"
-            fill="clear"
-            @click="addRow"
-          >
-            <ion-icon
-              slot="start"
-              :icon="addOutline"
-            />
+          <ion-button class="add_btn" fill="clear" @click="addRow">
+            <ion-icon slot="start" :icon="addOutline" />
             <span class="slanted">{{
               $t("pages.catalog.structure.add_stage")
             }}</span>
           </ion-button>
 
-          <ion-text
-            v-if="error"
-            color="danger"
-          >
+          <ion-text v-if="error" color="danger">
             <p>{{ error }}</p>
           </ion-text>
           <CutCornerBtn
@@ -145,10 +115,7 @@
             :disabled="saving"
             @click="remove"
           >
-            <ion-icon
-              slot="start"
-              :icon="trashOutline"
-            />
+            <ion-icon slot="start" :icon="trashOutline" />
             {{ $t("pages.catalog.delete") }}
           </ion-button>
         </template>
@@ -186,10 +153,7 @@
           lines="none"
           @click="goToAuth"
         >
-          <IonIcon
-            slot="start"
-            :icon="alertCircle"
-          />
+          <IonIcon slot="start" :icon="alertCircle" />
           <ion-label class="ion-text-wrap">
             {{ $t("pages.catalog.structure.sign_in") }}
           </ion-label>

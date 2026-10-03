@@ -13,45 +13,22 @@
           :toggle-icon="caretDownCircle"
           :value="item.title"
         >
-          <ion-item
-            slot="header"
-            color="medium"
-          >
+          <ion-item slot="header" color="medium">
             <ion-label>{{ item.title }}</ion-label>
           </ion-item>
-          <div
-            v-if="item.body.paragraphs"
-            class="ion-padding"
-            slot="content"
-          >
-            <p
-              v-for="(p, index) in item.body.paragraphs"
-              :key="index"
-            >
+          <div v-if="item.body.paragraphs" class="ion-padding" slot="content">
+            <p v-for="(p, index) in item.body.paragraphs" :key="index">
               {{ p }}
             </p>
           </div>
-          <div
-            v-if="item.body.items"
-            class="ion-padding"
-            slot="content"
-          >
-            <ion-item
-              v-for="i in item.body.items"
-              :key="i.desc"
-            >
+          <div v-if="item.body.items" class="ion-padding" slot="content">
+            <ion-item v-for="i in item.body.items" :key="i.desc">
               <ion-thumbnail slot="start">
-                <img
-                  :src="`about/${i.img}`"
-                  :alt="i.img"
-                />
+                <img :src="`about/${i.img}`" :alt="i.img" />
               </ion-thumbnail>
 
               <ion-label>
-                <a
-                  v-if="i.link"
-                  :href="`https://${i.link}`"
-                >
+                <a v-if="i.link" :href="`https://${i.link}`">
                   {{ i.linkDesc || i.link }}</a
                 >
                 {{ i.desc }}

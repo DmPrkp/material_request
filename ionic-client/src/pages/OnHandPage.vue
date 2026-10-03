@@ -7,36 +7,23 @@
         </ion-title>
       </ion-item-divider>
 
-      <ion-text
-        v-if="error"
-        class="hint"
-        color="danger"
-      >
+      <ion-text v-if="error" class="hint" color="danger">
         {{ $t(error) }}
       </ion-text>
 
       <template v-else>
-        <ion-item-group
-          v-for="group in groups"
-          :key="group.kind"
-        >
+        <ion-item-group v-for="group in groups" :key="group.kind">
           <ion-item-divider>
             <ion-label color="secondary">
               <h2>{{ $t(`pages.warehouses.kinds.${group.kind}`) }}</h2>
             </ion-label>
           </ion-item-divider>
           <!-- Только смотреть: вернуть и списать выданное может own/manage компании. -->
-          <ion-item
-            v-for="item in group.items"
-            :key="item.id"
-          >
+          <ion-item v-for="item in group.items" :key="item.id">
             <ion-label class="ion-text-wrap">
               {{ item.title }}
               <p v-if="item.details">{{ item.details }}</p>
-              <p
-                v-if="item.company"
-                class="company"
-              >
+              <p v-if="item.company" class="company">
                 {{ item.company }}
               </p>
             </ion-label>
@@ -46,10 +33,7 @@
           </ion-item>
         </ion-item-group>
 
-        <ion-note
-          v-if="loaded && !groups.length"
-          class="hint"
-        >
+        <ion-note v-if="loaded && !groups.length" class="hint">
           {{ $t("pages.warehouses.on_hand.empty") }}
         </ion-note>
       </template>
@@ -97,7 +81,7 @@
     ITEM_KINDS.map((kind) => ({
       kind,
       items: rows.value.filter((row) => row.kind === kind),
-    })).filter((group) => group.items.length)
+    })).filter((group) => group.items.length),
   );
 
   async function load() {
@@ -119,11 +103,11 @@
     // Руки живут только в компаниях, а показываем текущую — как и склады.
     const current = companyStore.currentId ?? null;
     const companyNames = new Map(
-      companyStore.companies.map((company) => [company.id, company.name])
+      companyStore.companies.map((company) => [company.id, company.name]),
     );
     rows.value = await toRows(
       items.filter((item) => item.companyId === current),
-      companyNames
+      companyNames,
     );
     loaded.value = true;
   }
@@ -132,12 +116,12 @@
   watch(
     () => [authStore.token, companyStore.currentId],
     () => void load(),
-    { immediate: true }
+    { immediate: true },
   );
 
   async function toRows(
     items: HoldingItem[],
-    companyNames: Map<number, string>
+    companyNames: Map<number, string>,
   ): Promise<HoldingRow[]> {
     const labels = await itemLabels(items);
     return items.map((item) => {

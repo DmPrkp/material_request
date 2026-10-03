@@ -10,19 +10,12 @@
             <ion-text>
               <p class="result-text">{{ $t("pages.auth.reset_done") }}</p>
             </ion-text>
-            <CutCornerBtn
-              expand="block"
-              fullWidth
-              @click="goToAuth"
-            >
+            <CutCornerBtn expand="block" fullWidth @click="goToAuth">
               {{ $t("pages.auth.login_action") }}
             </CutCornerBtn>
           </template>
 
-          <form
-            v-else
-            @submit.prevent="handleSubmit"
-          >
+          <form v-else @submit.prevent="handleSubmit">
             <ion-list>
               <ion-item>
                 <ion-label position="stacked">
@@ -51,10 +44,7 @@
               </ion-item>
             </ion-list>
 
-            <ion-text
-              v-if="errorMessage"
-              color="danger"
-            >
+            <ion-text v-if="errorMessage" color="danger">
               <p>{{ errorMessage }}</p>
             </ion-text>
 
@@ -64,10 +54,7 @@
               fullWidth
               :disabled="isSubmitting"
             >
-              <ion-spinner
-                v-if="isSubmitting"
-                name="dots"
-              />
+              <ion-spinner v-if="isSubmitting" name="dots" />
               <span v-else>{{ $t("pages.auth.reset_action") }}</span>
             </CutCornerBtn>
           </form>
@@ -100,12 +87,13 @@
   const isSubmitting = ref<boolean>(false);
   const errorMessage = ref<string>("");
 
-  const locale = computed(
-    () => String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
+  const locale = computed(() =>
+    String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
   );
 
   async function handleSubmit() {
-    const token = typeof route.query.token === "string" ? route.query.token : "";
+    const token =
+      typeof route.query.token === "string" ? route.query.token : "";
     if (!token) {
       errorMessage.value = t("pages.auth.reset_bad_link");
       return;
@@ -146,5 +134,4 @@
   .result-text {
     margin: 0 0 18px;
   }
-
 </style>

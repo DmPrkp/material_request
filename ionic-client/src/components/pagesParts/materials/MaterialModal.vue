@@ -38,11 +38,7 @@
             </div>
           </ion-input>
         </ion-col>
-        <ion-col
-          v-if="localMaterial.measure"
-          size="2"
-          class="ion-text-center"
-        >
+        <ion-col v-if="localMaterial.measure" size="2" class="ion-text-center">
           {{ localMaterial.measure }}
         </ion-col>
       </ion-row>
@@ -67,11 +63,7 @@
             </div>
           </ion-input>
         </ion-col>
-        <ion-col
-          v-if="localMaterial.measure"
-          size="2"
-          class="ion-text-center"
-        >
+        <ion-col v-if="localMaterial.measure" size="2" class="ion-text-center">
           {{ localMaterial.measure }}
         </ion-col>
       </ion-row>
@@ -126,10 +118,7 @@
             v-if="getModalType() === 'edit'"
             expand="block"
             @click="remove()"
-            ><ion-icon
-              slot="icon-only"
-              :icon="trashBin"
-            ></ion-icon
+            ><ion-icon slot="icon-only" :icon="trashBin"></ion-icon
           ></ion-button>
         </ion-col>
         <ion-col size="5">
@@ -141,12 +130,9 @@
           >
         </ion-col>
         <ion-col size="5">
-          <ion-button
-            expand="block"
-            fill="clear"
-            @click="cancel()"
-            >{{ $t(`ui.buttons.cancel`) }}</ion-button
-          >
+          <ion-button expand="block" fill="clear" @click="cancel()">{{
+            $t(`ui.buttons.cancel`)
+          }}</ion-button>
         </ion-col>
       </ion-row>
     </ion-toolbar>
@@ -169,7 +155,7 @@
   const localMaterial = ref<Material>({ ...props.material });
 
   function calcByConsumption(
-    event: IonInputCustomEvent<{ value: string | number }>
+    event: IonInputCustomEvent<{ value: string | number }>,
   ) {
     const consum = Number(event.detail.value);
 
@@ -179,7 +165,7 @@
   }
 
   function calcByTotalVolume(
-    event: IonInputCustomEvent<{ value: string | number }>
+    event: IonInputCustomEvent<{ value: string | number }>,
   ) {
     const totVol = Number(event.detail.value);
     const consum = totVol / localMaterial.value.volume;
@@ -202,7 +188,7 @@
           id: localMaterial.value.id || Date.now(),
         },
       },
-      role
+      role,
     );
   };
 
@@ -212,7 +198,7 @@
         id: props.id,
         material: localMaterial.value,
       },
-      "remove"
+      "remove",
     );
   };
 

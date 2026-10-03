@@ -1,10 +1,7 @@
 <template>
   <ion-page>
     <ion-content>
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh"
-      >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh">
         <ion-refresher-content />
       </ion-refresher>
 
@@ -79,10 +76,7 @@
         </CutCornerBtn>
       </div>
 
-      <ion-note
-        v-if="!loading && !items.length"
-        class="ion-padding empty"
-      >
+      <ion-note v-if="!loading && !items.length" class="ion-padding empty">
         {{ $t("pages.catalog.empty") }}
       </ion-note>
 
@@ -104,10 +98,7 @@
         </ion-accordion-group>
       </ion-list>
 
-      <div
-        v-if="loading"
-        class="ion-text-center ion-padding"
-      >
+      <div v-if="loading" class="ion-text-center ion-padding">
         <ion-spinner />
       </div>
 
@@ -191,9 +182,7 @@
   } from "@/constants";
 
   type CatalogEntry =
-    | DictionaryMaterial
-    | DictionaryHandTool
-    | DictionaryPowerTool;
+    DictionaryMaterial | DictionaryHandTool | DictionaryPowerTool;
 
   const PAGE_SIZE = 30;
 
@@ -331,7 +320,10 @@
   /** null — новая сборка. */
   const editingVariant = ref<DictionaryVariant | null>(null);
 
-  function openVariantModal(item: CatalogEntry, variant: DictionaryVariant | null) {
+  function openVariantModal(
+    item: CatalogEntry,
+    variant: DictionaryVariant | null,
+  ) {
     variantOwner.value = {
       kind: isHandTools.value ? "hand-tools" : "materials",
       id: item.id,
@@ -357,7 +349,8 @@
       return;
     }
     const variants = await DictionaryModel.variants(owner.kind, owner.id);
-    if (variants) variantsById.value = { ...variantsById.value, [owner.id]: variants };
+    if (variants)
+      variantsById.value = { ...variantsById.value, [owner.id]: variants };
   }
 
   /** Карандаш виден только в разделах с формой — тип позиции решает раздел. */

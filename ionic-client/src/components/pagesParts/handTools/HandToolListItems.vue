@@ -7,79 +7,47 @@
     >
       <ion-grid>
         <!-- Числа и кнопки — по центру высоты строки: название бывает в две строки. -->
-        <ion-row
-          color="secondary"
-          class="ion-align-items-center"
-        >
-          <ion-col
-            size="1"
-            class="cell-center"
-          >
+        <ion-row color="secondary" class="ion-align-items-center">
+          <ion-col size="1" class="cell-center">
             <UnfilledMark v-if="isUnfilled(tool)" />
             <template v-else>{{ num + 1 }}</template>
           </ion-col>
-          <ion-col
-            size="7"
-            class="ion-text-start cell-name"
-          >
+          <ion-col size="7" class="ion-text-start cell-name">
             <div>
               {{ tool.title }}
-              <span
-                v-for="param in tool.params"
-                :key="param.id"
-              >
+              <span v-for="param in tool.params" :key="param.id">
                 {{ calcParamLabel(param) }} {{ " " }}
               </span>
             </div>
           </ion-col>
 
           <!-- Right side: adjusted consumption -->
-          <ion-col
-            v-if="checkIsDisableToChange()"
-            size="1"
-            class="cell-center"
-          >
+          <ion-col v-if="checkIsDisableToChange()" size="1" class="cell-center">
             <ion-button
               shape="round"
               fill="outline"
               color="medium"
               @click="action(--tool.adjusted_consumption, tool)"
             >
-              <ion-icon
-                slot="icon-only"
-                :icon="remove"
-              ></ion-icon>
+              <ion-icon slot="icon-only" :icon="remove"></ion-icon>
             </ion-button>
           </ion-col>
 
-          <ion-col
-            :size="checkIsDisableToChange() ? 1 : 2"
-            class="cell-center"
-          >
+          <ion-col :size="checkIsDisableToChange() ? 1 : 2" class="cell-center">
             {{ tool.adjusted_consumption }}
           </ion-col>
 
-          <ion-col
-            v-if="checkIsDisableToChange()"
-            size="1"
-            class="cell-center"
-          >
+          <ion-col v-if="checkIsDisableToChange()" size="1" class="cell-center">
             <ion-button
               shape="round"
               fill="outline"
               color="medium"
               @click="action(++tool.adjusted_consumption, tool)"
             >
-              <ion-icon
-                slot="icon-only"
-                :icon="add"
-              ></ion-icon>
+              <ion-icon slot="icon-only" :icon="add"></ion-icon>
             </ion-button>
           </ion-col>
-          <ion-col
-            :size="checkIsDisableToChange() ? 1 : 2"
-            class="cell-center"
-          >
+          <ion-col :size="checkIsDisableToChange() ? 1 : 2" class="cell-center">
             {{ $t("measure.pcs") }}
           </ion-col>
         </ion-row>

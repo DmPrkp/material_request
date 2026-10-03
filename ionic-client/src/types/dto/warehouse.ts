@@ -57,4 +57,7 @@ export type WarehouseItemInput = {
 export type WarehouseItemTake = { id: number; quantity: number };
 
 /** Позиция у меня на руках: из какой компании выдана (GET /holdings/mine). */
-export type HoldingItem = WarehouseItem & { warehouseId: number; companyId: number };
+export type HoldingItem = WarehouseItem & {
+  warehouseId: number;
+  companyId: number;
+};

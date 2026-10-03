@@ -24,14 +24,17 @@ const round = (n: number) => Number(n.toFixed(4));
  * system — общая технология, если она у всех одна; иначе перечень через запятую.
  * Он должен быть непустым: MaterialActionPanel без него лезет в route.params.system.
  */
-export function mergeZayavki(sources: MergeSource[], name: string): ZayavkaType {
+export function mergeZayavki(
+  sources: MergeSource[],
+  name: string,
+): ZayavkaType {
   const ordered = [...sources].sort((a, b) => a.id - b.id);
 
   const materials = ordered.flatMap(({ id, data }) =>
     (data.materials ?? []).map((stage) => ({
       ...stage,
       title: `${stage.title} (№${id})`,
-    }))
+    })),
   );
 
   const handTools = new Map<string, MergedHandTool>();
@@ -45,7 +48,7 @@ export function mergeZayavki(sources: MergeSource[], name: string): ZayavkaType 
         continue;
       }
       saved.adjusted_consumption = round(
-        saved.adjusted_consumption + tool.adjusted_consumption
+        saved.adjusted_consumption + tool.adjusted_consumption,
       );
       const descriptions = [
         ...(saved.descriptions ?? []),
@@ -55,7 +58,8 @@ export function mergeZayavki(sources: MergeSource[], name: string): ZayavkaType 
     }
 
     for (const tool of data.power_tools ?? []) {
-      const key = tool.uniqKey || `${tool.id}:${tool.params.map((p) => p.id).join()}`;
+      const key =
+        tool.uniqKey || `${tool.id}:${tool.params.map((p) => p.id).join()}`;
       const saved = powerTools.get(key);
       if (!saved || saved.adjusted_consumption < tool.adjusted_consumption) {
         powerTools.set(key, { ...tool });

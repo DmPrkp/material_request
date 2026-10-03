@@ -1,8 +1,5 @@
 <template>
-  <ion-modal
-    :is-open="isOpen"
-    @didDismiss="handleDismiss"
-  >
+  <ion-modal :is-open="isOpen" @didDismiss="handleDismiss">
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ title }}</ion-title>
@@ -11,10 +8,7 @@
             :aria-label="$t('ui.buttons.close')"
             @click="emit('close')"
           >
-            <ion-icon
-              slot="icon-only"
-              :icon="closeOutline"
-            />
+            <ion-icon slot="icon-only" :icon="closeOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -65,7 +59,7 @@
   const title = computed(() =>
     mode.value === "login"
       ? t("pages.auth.title_login")
-      : t("pages.auth.title_register")
+      : t("pages.auth.title_register"),
   );
 
   // Восстановление — отдельная страница, поэтому модалку сперва закрываем: иначе она

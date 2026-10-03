@@ -10,34 +10,22 @@
       </div>
 
       <div class="ion-padding-horizontal ion-padding-bottom">
-        <div
-          v-if="loading"
-          class="ion-text-center ion-padding"
-        >
+        <div v-if="loading" class="ion-text-center ion-padding">
           <ion-spinner />
         </div>
 
-        <ion-note
-          v-else-if="notFound"
-          class="hint"
-        >
+        <ion-note v-else-if="notFound" class="hint">
           {{ $t("pages.catalog.norms.not_found") }}
         </ion-note>
 
         <template v-else>
           <!-- Чужая общая технология: сохранение заведёт копию технологии, нормы — в неё. -->
-          <ion-note
-            v-if="editable && !owns"
-            class="hint"
-          >
+          <ion-note v-if="editable && !owns" class="hint">
             {{ $t("pages.catalog.norms.copy_hint") }}
           </ion-note>
 
           <!-- Одна группа без multiple: раскрыли раздел — предыдущий свернулся. -->
-          <ion-accordion-group
-            :value="openKind"
-            @ionChange="onAccordion"
-          >
+          <ion-accordion-group :value="openKind" @ionChange="onAccordion">
             <ion-accordion
               v-for="section in SECTIONS"
               :key="section.kind"
@@ -54,26 +42,17 @@
                   {{ $t(section.hint, { unit: volumeUnit }) }}
                 </ion-note>
                 <ion-list>
-                  <ion-item
-                    v-if="!rows[section.kind].length"
-                    lines="none"
-                  >
+                  <ion-item v-if="!rows[section.kind].length" lines="none">
                     <ion-note>{{ $t("pages.catalog.norms.empty") }}</ion-note>
                   </ion-item>
 
-                  <template
-                    v-for="row in rows[section.kind]"
-                    :key="row.key"
-                  >
+                  <template v-for="row in rows[section.kind]" :key="row.key">
                     <!--
                       Название с параметрами — отдельной строкой во всю ширину: так позиции
                       отделяются друг от друга. Параметры — тем же <p>, что и везде, только в
                       строку: серый у него свой в каждом режиме Ionic, свой цвет не подбираем.
                     -->
-                    <ion-item
-                      lines="none"
-                      class="norm_name"
-                    >
+                    <ion-item lines="none" class="norm_name">
                       <ion-label class="ion-text-wrap">
                         <h3>{{ row.name }}</h3>
                         <p v-if="row.details">{{ row.details }}</p>
@@ -94,17 +73,10 @@
                         min="0"
                         :aria-label="$t('pages.catalog.norms.rate')"
                       />
-                      <span
-                        v-else
-                        slot="end"
-                        class="rate_value"
-                      >
+                      <span v-else slot="end" class="rate_value">
                         {{ row.rate }}
                       </span>
-                      <span
-                        slot="end"
-                        class="rate_unit"
-                      >
+                      <span slot="end" class="rate_unit">
                         {{ rateUnit(section.kind, row) }}
                       </span>
                       <!-- Примечание — на развороте; заполненное видно по закрашенной иконке. -->
@@ -133,10 +105,7 @@
                         :aria-label="$t('pages.catalog.norms.remove')"
                         @click="removeRow(section.kind, row)"
                       >
-                        <ion-icon
-                          slot="icon-only"
-                          :icon="trashOutline"
-                        />
+                        <ion-icon slot="icon-only" :icon="trashOutline" />
                       </ion-button>
                     </ion-item>
 
@@ -154,10 +123,7 @@
                         :rows="1"
                         :auto-grow="true"
                       />
-                      <ion-label
-                        v-else
-                        class="ion-text-wrap note_text"
-                      >
+                      <ion-label v-else class="ion-text-wrap note_text">
                         {{ displayNote(row) }}
                       </ion-label>
                     </ion-item>
@@ -168,7 +134,9 @@
                       смысла нет — его норма на звено, толщина стены ни при чём.
                     -->
                     <ion-item
-                      v-if="row.open && editable && section.kind === 'materials'"
+                      v-if="
+                        row.open && editable && section.kind === 'materials'
+                      "
                       lines="full"
                     >
                       <ion-toggle
@@ -184,10 +152,7 @@
                   </template>
                 </ion-list>
 
-                <div
-                  v-if="picker.kind === section.kind"
-                  class="picker"
-                >
+                <div v-if="picker.kind === section.kind" class="picker">
                   <template v-if="picker.owner === null">
                     <ion-searchbar
                       v-model="picker.q"
@@ -195,10 +160,7 @@
                       :placeholder="$t('pages.catalog.search')"
                       @ionInput="search"
                     />
-                    <ion-spinner
-                      v-if="picker.loading"
-                      name="dots"
-                    />
+                    <ion-spinner v-if="picker.loading" name="dots" />
                     <ion-list v-else>
                       <ion-item
                         v-for="item in picker.results"
@@ -217,10 +179,7 @@
                           </p>
                         </ion-label>
                       </ion-item>
-                      <ion-item
-                        v-if="!picker.results.length"
-                        lines="none"
-                      >
+                      <ion-item v-if="!picker.results.length" lines="none">
                         <ion-note>{{ $t("pages.catalog.empty") }}</ion-note>
                       </ion-item>
                     </ion-list>
@@ -234,10 +193,7 @@
                         })
                       }}
                     </ion-list-header>
-                    <ion-spinner
-                      v-if="picker.loading"
-                      name="dots"
-                    />
+                    <ion-spinner v-if="picker.loading" name="dots" />
                     <ion-item
                       v-for="variant in picker.variants"
                       :key="variant.id"
@@ -255,11 +211,7 @@
                     </ion-item>
                   </ion-list>
 
-                  <ion-button
-                    fill="clear"
-                    size="small"
-                    @click="closePicker"
-                  >
+                  <ion-button fill="clear" size="small" @click="closePicker">
                     {{ $t("pages.catalog.norms.cancel") }}
                   </ion-button>
                 </div>
@@ -270,20 +222,14 @@
                   fill="clear"
                   @click="openPicker(section.kind)"
                 >
-                  <ion-icon
-                    slot="start"
-                    :icon="addOutline"
-                  />
+                  <ion-icon slot="start" :icon="addOutline" />
                   <span class="slanted">{{ $t(section.add) }}</span>
                 </ion-button>
               </div>
             </ion-accordion>
           </ion-accordion-group>
 
-          <ion-text
-            v-if="error"
-            color="danger"
-          >
+          <ion-text v-if="error" color="danger">
             <p>{{ error }}</p>
           </ion-text>
           <CutCornerBtn
@@ -388,9 +334,7 @@
   };
 
   type PickerItem =
-    | DictionaryMaterial
-    | DictionaryHandTool
-    | DictionaryPowerTool;
+    DictionaryMaterial | DictionaryHandTool | DictionaryPowerTool;
 
   const SECTIONS: {
     kind: NormKind;

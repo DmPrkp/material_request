@@ -1,8 +1,5 @@
 <template>
-  <ion-modal
-    :is-open="isOpen"
-    @didDismiss="emit('close')"
-  >
+  <ion-modal :is-open="isOpen" @didDismiss="emit('close')">
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ $t("pages.settings.heading") }}</ion-title>
@@ -11,10 +8,7 @@
             :aria-label="$t('ui.buttons.close')"
             @click="emit('close')"
           >
-            <ion-icon
-              slot="icon-only"
-              :icon="closeOutline"
-            />
+            <ion-icon slot="icon-only" :icon="closeOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -71,10 +65,7 @@
           </ion-list>
 
           <!-- Только тем, у кого почты ещё нет: остальным ниже и так написано состояние. -->
-          <p
-            v-if="!savedEmail"
-            class="field-hint"
-          >
+          <p v-if="!savedEmail" class="field-hint">
             {{ $t("pages.auth.email_hint") }}
           </p>
 
@@ -91,17 +82,11 @@
             </p>
           </ion-text>
 
-          <ion-text
-            v-if="emailMessage"
-            color="medium"
-          >
+          <ion-text v-if="emailMessage" color="medium">
             <p class="email-status">{{ emailMessage }}</p>
           </ion-text>
 
-          <ion-text
-            v-if="emailError"
-            color="danger"
-          >
+          <ion-text v-if="emailError" color="danger">
             <p class="email-status">{{ emailError }}</p>
           </ion-text>
 
@@ -122,10 +107,7 @@
           >
             {{ $t("pages.settings.email_resend") }}
           </CutCornerBtn>
-          <CutCornerBtn
-            class="logout_btn"
-            @click="handleLogout"
-          >
+          <CutCornerBtn class="logout_btn" @click="handleLogout">
             {{ $t("pages.settings.logout") }}
           </CutCornerBtn>
         </ion-card-content>
@@ -183,7 +165,8 @@
   const savedEmail = computed(() => authStore.user?.email ?? "");
   const isVerified = computed(() => Boolean(authStore.user?.emailVerifiedAt));
   const emailChanged = computed(
-    () => emailDraft.value.trim().toLowerCase() !== savedEmail.value.toLowerCase(),
+    () =>
+      emailDraft.value.trim().toLowerCase() !== savedEmail.value.toLowerCase(),
   );
 
   // Профиль подтягивается асинхронно и может приехать уже после открытия модалки.

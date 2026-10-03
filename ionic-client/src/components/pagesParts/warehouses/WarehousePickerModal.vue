@@ -13,19 +13,13 @@
         @click="pick(warehouse)"
       >
         <ion-label class="ion-text-wrap">{{ warehouse.name }}</ion-label>
-        <ion-note
-          v-if="warehouse.companyId"
-          slot="end"
-        >
+        <ion-note v-if="warehouse.companyId" slot="end">
           {{ companyName(warehouse.companyId) }}
         </ion-note>
       </ion-item>
     </ion-list>
 
-    <ion-note
-      v-else
-      class="hint"
-    >
+    <ion-note v-else class="hint">
       {{ $t("pages.warehouses.empty") }}
     </ion-note>
 
@@ -35,11 +29,7 @@
     -->
     <ion-row class="actions">
       <ion-col size="12">
-        <ion-button
-          fill="clear"
-          expand="block"
-          @click="cancel"
-        >
+        <ion-button fill="clear" expand="block" @click="cancel">
           {{ $t("ui.buttons.cancel") }}
         </ion-button>
       </ion-col>

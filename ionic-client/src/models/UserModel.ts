@@ -13,8 +13,13 @@ export default class UserModel extends BaseModel {
    * Своё — правит только сам владелец: id сервер берёт из токена, а не из пути.
    * `email: null` убирает адрес, новый приезжает неподтверждённым и тянет письмо.
    */
-  static updateMe(data: { email?: string | null; firstName?: string; lastName?: string | null; locale: string }) {
-    return this.patch<UserProfile>({ params: '/users/me', body: data });
+  static updateMe(data: {
+    email?: string | null;
+    firstName?: string;
+    lastName?: string | null;
+    locale: string;
+  }) {
+    return this.patch<UserProfile>({ params: "/users/me", body: data });
   }
 
   /** Имена по id; неизвестных в ответе нет. undefined — не достучались. */

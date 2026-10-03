@@ -10,14 +10,14 @@ const localeLoaders = Object.entries(
   import.meta.glob("./locales/*.json") as Record<
     string,
     () => Promise<LocaleModule>
-  >
+  >,
 ).reduce(
   (acc, [path, loader]) => {
     const code = path.match(/([\w-]+)\.json$/)?.[1];
     if (code) acc[code as Locale] = loader;
     return acc;
   },
-  {} as Record<Locale, () => Promise<LocaleModule>>
+  {} as Record<Locale, () => Promise<LocaleModule>>,
 );
 
 export const SUPPORTED_LOCALES = Object.keys(localeLoaders) as Locale[];
@@ -37,7 +37,7 @@ export function isSupportedLocale(value: unknown): value is Locale {
 
 /** "ru-RU" -> "ru", неизвестное значение -> null */
 export function normalizeLocale(
-  value?: string | string[] | null
+  value?: string | string[] | null,
 ): Locale | null {
   const raw = Array.isArray(value) ? value[0] : value;
   if (!raw) return null;

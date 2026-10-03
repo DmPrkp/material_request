@@ -24,7 +24,8 @@
   const router = useRouter();
 
   function go(event: SegmentCustomEvent) {
-    const name = event.detail.value === "warehouses" ? "warehouses" : "holdings";
+    const name =
+      event.detail.value === "warehouses" ? "warehouses" : "holdings";
     if (route.name === name) return;
     // replace, а не push: таб — не шаг вглубь, «назад» должен уводить со складов.
     router.replace({ name, params: { locale: route.params.locale } });

@@ -5,18 +5,12 @@
     :aria-labelledby="`scenario-${scenario.id}`"
   >
     <div class="scenario__text">
-      <h3
-        :id="`scenario-${scenario.id}`"
-        class="scenario__title"
-      >
+      <h3 :id="`scenario-${scenario.id}`" class="scenario__title">
         {{ t(`${base}.title`) }}
       </h3>
       <p class="scenario__subtitle">{{ t(`${base}.subtitle`) }}</p>
       <ol class="scenario__steps">
-        <li
-          v-for="i in scenario.steps"
-          :key="i"
-        >
+        <li v-for="i in scenario.steps" :key="i">
           <button
             type="button"
             class="scenario__step"
@@ -39,10 +33,7 @@
           картинку браузер всё равно качает, а loading="lazy" в горизонтальной ленте
           ion-segment-view не срабатывал. Выходило ~30 файлов и полмегабайта на входе.
         -->
-        <template
-          v-for="i in scenario.steps"
-          :key="i"
-        >
+        <template v-for="i in scenario.steps" :key="i">
           <img
             v-if="loaded.has(i - 1)"
             class="phone__shot"
@@ -73,8 +64,12 @@
    * first — первая вкладка: её первый скриншот — самое крупное на экране при входе.
    */
   const props = withDefaults(
-    defineProps<{ scenario: LandingScenario; active?: boolean; first?: boolean }>(),
-    { active: true, first: false }
+    defineProps<{
+      scenario: LandingScenario;
+      active?: boolean;
+      first?: boolean;
+    }>(),
+    { active: true, first: false },
   );
 
   const { t } = useI18n();
@@ -100,7 +95,7 @@
         (current + 1) % props.scenario.steps,
       ]);
     },
-    { immediate: true }
+    { immediate: true },
   );
   let timer: ReturnType<typeof setInterval> | undefined;
   let observer: IntersectionObserver | undefined;
@@ -136,7 +131,7 @@
     (isActive) => {
       if (isActive) step.value = 0;
       start();
-    }
+    },
   );
 
   onMounted(() => {
@@ -148,7 +143,7 @@
         if (visible) start();
         else stop();
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     if (root.value) observer.observe(root.value);
   });

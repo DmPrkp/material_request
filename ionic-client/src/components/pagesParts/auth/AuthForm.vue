@@ -1,8 +1,5 @@
 <template>
-  <ion-segment
-    v-model="mode"
-    @ionChange="handleModeChange"
-  >
+  <ion-segment v-model="mode" @ionChange="handleModeChange">
     <ion-segment-button value="login">
       {{ $t("pages.auth.login") }}
     </ion-segment-button>
@@ -30,21 +27,14 @@
           <ion-label position="stacked">
             {{ $t("pages.auth.first_name") }}
           </ion-label>
-          <ion-input
-            v-model="firstName"
-            autocomplete="given-name"
-            required
-          />
+          <ion-input v-model="firstName" autocomplete="given-name" required />
         </ion-item>
 
         <ion-item>
           <ion-label position="stacked">
             {{ $t("pages.auth.last_name") }}
           </ion-label>
-          <ion-input
-            v-model="lastName"
-            autocomplete="family-name"
-          />
+          <ion-input v-model="lastName" autocomplete="family-name" />
         </ion-item>
 
         <ion-item lines="none">
@@ -91,10 +81,7 @@
       </ion-item>
     </ion-list>
 
-    <ion-text
-      v-if="errorMessage"
-      color="danger"
-    >
+    <ion-text v-if="errorMessage" color="danger">
       <p class="error-text">{{ errorMessage }}</p>
     </ion-text>
 
@@ -104,10 +91,7 @@
       :disabled="isSubmitting"
       fullWidth
     >
-      <ion-spinner
-        v-if="isSubmitting"
-        name="dots"
-      />
+      <ion-spinner v-if="isSubmitting" name="dots" />
       <span v-else>
         {{
           mode === "login"
@@ -117,15 +101,8 @@
       </span>
     </CutCornerBtn>
 
-    <p
-      v-if="mode === 'login'"
-      class="forgot-line"
-    >
-      <button
-        type="button"
-        class="link-btn"
-        @click="emit('forgot')"
-      >
+    <p v-if="mode === 'login'" class="forgot-line">
+      <button type="button" class="link-btn" @click="emit('forgot')">
         {{ $t("pages.auth.forgot") }}
       </button>
     </p>
@@ -157,8 +134,8 @@
   const { t } = useI18n();
 
   /** Язык письма и локаль в ссылке: сервер своей не знает, берём из адреса. */
-  const locale = computed(
-    () => String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
+  const locale = computed(() =>
+    String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
   );
 
   const login = ref<string>("");

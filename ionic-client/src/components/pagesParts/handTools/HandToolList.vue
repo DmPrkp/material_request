@@ -1,10 +1,7 @@
 <template>
   <HandToolListHeader />
 
-  <HandToolListItems
-    v-model="mergedHandTools"
-    @delete="setOpen"
-  />
+  <HandToolListItems v-model="mergedHandTools" @delete="setOpen" />
   <ion-grid
     class="ion-justify-content-end"
     v-if="status !== MATERIAL_LIST_STATUS.DISABLED"
@@ -52,7 +49,7 @@
     (newVal) => {
       emit("update", newVal);
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
@@ -90,11 +87,11 @@
       }, {} as MergedHandTools);
       mergedHandTools.value = Object.values(mergedHandToolsMap.value);
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   const setOpen = async (
-    handToolKey: MergedHandTool["uniqKey"] | MouseEvent
+    handToolKey: MergedHandTool["uniqKey"] | MouseEvent,
   ) => {
     const handTool =
       typeof handToolKey === "string"

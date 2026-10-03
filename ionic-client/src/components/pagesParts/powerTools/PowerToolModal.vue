@@ -35,10 +35,7 @@
             @ionInput="calcByConsumption"
           ></ion-input>
         </ion-col>
-        <ion-col
-          size="2"
-          class="ion-text-center"
-        >
+        <ion-col size="2" class="ion-text-center">
           {{ $t("measure.pcs") }}
         </ion-col>
       </ion-row>
@@ -66,14 +63,8 @@
     <ion-toolbar>
       <ion-row>
         <ion-col size="2">
-          <ion-button
-            v-if="isDelete()"
-            expand="block"
-            @click="remove()"
-            ><ion-icon
-              slot="icon-only"
-              :icon="trashBin"
-            ></ion-icon
+          <ion-button v-if="isDelete()" expand="block" @click="remove()"
+            ><ion-icon slot="icon-only" :icon="trashBin"></ion-icon
           ></ion-button>
         </ion-col>
         <ion-col size="5">
@@ -86,12 +77,9 @@
           >
         </ion-col>
         <ion-col size="5">
-          <ion-button
-            expand="block"
-            fill="clear"
-            @click="cancel()"
-            >{{ $t(`ui.buttons.cancel`) }}</ion-button
-          >
+          <ion-button expand="block" fill="clear" @click="cancel()">{{
+            $t(`ui.buttons.cancel`)
+          }}</ion-button>
         </ion-col>
       </ion-row>
     </ion-toolbar>
@@ -116,7 +104,7 @@
   }
 
   function calcByConsumption(
-    event: IonInputCustomEvent<{ value: string | number }>
+    event: IonInputCustomEvent<{ value: string | number }>,
   ) {
     const consum = Number(event.detail.value);
 

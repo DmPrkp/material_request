@@ -21,7 +21,11 @@ export function suffixFor(lang: string): LocaleSuffix {
 }
 
 /** field(material, "name", "En") -> material.nameEn, пустое — "". */
-export function field(record: object, base: string, lang: LocaleSuffix): string {
+export function field(
+  record: object,
+  base: string,
+  lang: LocaleSuffix,
+): string {
   const value = (record as Record<string, unknown>)[`${base}${lang}`];
   return typeof value === "string" ? value : "";
 }

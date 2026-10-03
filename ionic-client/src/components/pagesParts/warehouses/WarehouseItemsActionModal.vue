@@ -22,10 +22,7 @@
           @click="target = warehouse.id"
         >
           <ion-label class="ion-text-wrap">{{ warehouse.name }}</ion-label>
-          <ion-note
-            v-if="warehouse.companyId"
-            slot="end"
-          >
+          <ion-note v-if="warehouse.companyId" slot="end">
             {{ companyName(warehouse.companyId) }}
           </ion-note>
           <IonIcon
@@ -35,10 +32,7 @@
           />
         </ion-item>
       </ion-list>
-      <ion-note
-        v-else
-        class="hint"
-      >
+      <ion-note v-else class="hint">
         {{ $t("pages.warehouses.move_empty") }}
       </ion-note>
     </template>
@@ -66,10 +60,7 @@
           />
         </ion-item>
       </ion-list>
-      <ion-note
-        v-else
-        class="hint"
-      >
+      <ion-note v-else class="hint">
         {{ $t("pages.warehouses.issue_empty") }}
       </ion-note>
     </template>
@@ -80,10 +71,7 @@
       </ion-label>
     </ion-item-divider>
     <ion-list>
-      <ion-item
-        v-for="item in items"
-        :key="item.id"
-      >
+      <ion-item v-for="item in items" :key="item.id">
         <!--
           Количество — строкой под названием, а не справа: на телефоне справа оно
           отнимало половину ширины, и длинные названия рвались посреди слова.
@@ -123,10 +111,7 @@
   <ion-footer>
     <ion-toolbar>
       <div class="actions">
-        <ion-button
-          fill="clear"
-          @click="cancel"
-        >
+        <ion-button fill="clear" @click="cancel">
           {{ $t("ui.buttons.back") }}
         </ion-button>
         <ion-button
@@ -195,7 +180,9 @@
   const holder = ref<number>();
   /** Как ввели, строкой: пустое поле — не ноль, а «ещё не ввёл». */
   const quantities = reactive<Record<number, string>>(
-    Object.fromEntries(props.items.map((item) => [item.id, String(item.quantity)]))
+    Object.fromEntries(
+      props.items.map((item) => [item.id, String(item.quantity)]),
+    ),
   );
 
   /** numeric(14, 4) на сервере: сравниваем в десятитысячных, как он. */
@@ -219,10 +206,13 @@
     () =>
       props.items.every(isValid) &&
       (props.mode !== "move" || target.value !== undefined) &&
-      (props.mode !== "issue" || holder.value !== undefined)
+      (props.mode !== "issue" || holder.value !== undefined),
   );
 
-  function setQuantity(id: number, event: CustomEvent<{ value?: string | null }>) {
+  function setQuantity(
+    id: number,
+    event: CustomEvent<{ value?: string | null }>,
+  ) {
     quantities[id] = event.detail.value ?? "";
   }
 
@@ -233,7 +223,10 @@
   function done() {
     if (!ready.value) return;
     const result: ItemsActionResult = {
-      items: props.items.map((item) => ({ id: item.id, quantity: amount(item) })),
+      items: props.items.map((item) => ({
+        id: item.id,
+        quantity: amount(item),
+      })),
       targetWarehouseId: target.value,
       holderId: holder.value,
     };

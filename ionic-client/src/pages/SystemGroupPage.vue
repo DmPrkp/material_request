@@ -6,14 +6,8 @@
           <h1>{{ $t(`pages.main.types.${groupCode}`) }}</h1>
         </ion-title>
       </ion-item-divider>
-      <MainMenuItems
-        :items="items"
-        @item="chooseItem"
-      />
-      <ion-note
-        v-if="!loading && !items.length"
-        class="ion-padding"
-      >
+      <MainMenuItems :items="items" @item="chooseItem" />
+      <ion-note v-if="!loading && !items.length" class="ion-padding">
         {{ $t("pages.system.empty") }}
       </ion-note>
     </ion-content>
@@ -46,10 +40,10 @@
   const loading = ref(true);
 
   const workTypeCode = computed(() =>
-    typeof route.params.workType === "string" ? route.params.workType : ""
+    typeof route.params.workType === "string" ? route.params.workType : "",
   );
   const groupCode = computed(() =>
-    typeof route.params.group === "string" ? route.params.group : ""
+    typeof route.params.group === "string" ? route.params.group : "",
   );
 
   async function load() {

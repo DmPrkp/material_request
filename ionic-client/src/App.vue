@@ -1,9 +1,6 @@
 <template>
   <ion-app>
-    <ion-header
-      :translucent="true"
-      color="medium"
-    >
+    <ion-header :translucent="true" color="medium">
       <ion-toolbar>
         <router-link :to="getLocalizedRoute('main')">
           <ion-title
@@ -39,16 +36,10 @@
             :title="$t('pages.settings.open')"
             @click="settingsOpen = true"
           >
-            <ion-icon
-              slot="icon-only"
-              :icon="settingsSharp"
-            />
+            <ion-icon slot="icon-only" :icon="settingsSharp" />
           </ion-button>
         </ion-buttons>
-        <ion-progress-bar
-          v-if="preloaderStatus"
-          type="indeterminate"
-        />
+        <ion-progress-bar v-if="preloaderStatus" type="indeterminate" />
       </ion-toolbar>
     </ion-header>
     <ion-content class="main_content">
@@ -56,14 +47,8 @@
     </ion-content>
     <FooterBar />
     <!-- Модалки в корне, а не рядом с аватаром: стили шапки не влияют на оверлей. -->
-    <SettingsModal
-      :is-open="settingsOpen"
-      @close="settingsOpen = false"
-    />
-    <AuthModal
-      :is-open="authOpen"
-      @close="authOpen = false"
-    />
+    <SettingsModal :is-open="settingsOpen" @close="settingsOpen = false" />
+    <AuthModal :is-open="authOpen" @close="authOpen = false" />
   </ion-app>
 </template>
 

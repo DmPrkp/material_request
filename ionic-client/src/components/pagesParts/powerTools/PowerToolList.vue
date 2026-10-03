@@ -1,10 +1,7 @@
 <template>
   <PowerToolListHeader />
 
-  <PowerToolListItems
-    v-model="mergedPowerTools"
-    @delete="setOpen"
-  />
+  <PowerToolListItems v-model="mergedPowerTools" @delete="setOpen" />
   <ion-grid v-if="status !== MATERIAL_LIST_STATUS.DISABLED">
     <ion-row class="ion-justify-content-end">
       <ion-col size="auto">
@@ -45,7 +42,7 @@
     (newVal) => {
       emit("update", newVal);
     },
-    { deep: true }
+    { deep: true },
   );
 
   watch(
@@ -68,7 +65,7 @@
       }, {} as MergedPowerTools);
       mergedPowerTools.value = Object.values(mergedPowerToolsMap.value);
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   const setOpen = async (powerToolKey: PowerTool["uniqKey"] | MouseEvent) => {

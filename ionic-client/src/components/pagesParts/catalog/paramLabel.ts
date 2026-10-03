@@ -19,7 +19,7 @@ export function useParamLabel() {
   }
 
   function paramLabel(
-    param: Pick<DictionaryVariantParam, "value" | "unit" | "kind">
+    param: Pick<DictionaryVariantParam, "value" | "unit" | "kind">,
   ): string {
     const number = formatNumber(param.value);
     const unit = translate(`measure.${param.unit}`, param.unit);

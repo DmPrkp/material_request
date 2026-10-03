@@ -18,14 +18,8 @@
             :text="item.disable ? 'disable' : undefined"
           ></ImageText>
           <!-- Разделы без фотографии: та же карточка, вместо снимка — иконка. -->
-          <div
-            v-else
-            class="icon_cover"
-          >
-            <div
-              v-if="item.disable"
-              class="inscription"
-            >
+          <div v-else class="icon_cover">
+            <div v-if="item.disable" class="inscription">
               {{ $t('ui.labels["disable"]') }}
             </div>
             <ion-icon

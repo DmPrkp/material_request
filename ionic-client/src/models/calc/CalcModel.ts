@@ -14,7 +14,7 @@ export default class CalcModel extends BaseCalcModel {
   static options(system: string, stageIds: number[]) {
     if (!stageIds.length) return Promise.resolve<CalcOption[]>([]);
     return this.get<CalcOption[]>(
-      `/calc/${system}/options?stages=${stageIds.join(",")}`
+      `/calc/${system}/options?stages=${stageIds.join(",")}`,
     );
   }
 }

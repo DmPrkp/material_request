@@ -17,7 +17,9 @@ export default class WarehouseModel extends BaseModel {
 
   /** Свои действующие склады. undefined — не достучались (get глотает ошибку). */
   static async listMine(): Promise<Warehouse[] | undefined> {
-    const page = await this.get<WarehousePage>(`/warehouses?limit=${WAREHOUSES_LIMIT}`);
+    const page = await this.get<WarehousePage>(
+      `/warehouses?limit=${WAREHOUSES_LIMIT}`,
+    );
     return page?.items;
   }
 
@@ -25,10 +27,12 @@ export default class WarehouseModel extends BaseModel {
    * Склады компании, которые видит спрашивающий: own/manage — все, остальным — свои и
    * назначенные среди них. Без companyId — свои и назначенные вообще.
    */
-  static async listByCompany(companyId: number | null): Promise<Warehouse[] | undefined> {
+  static async listByCompany(
+    companyId: number | null,
+  ): Promise<Warehouse[] | undefined> {
     const filter = companyId ? `&companyId=${companyId}` : "";
     const page = await this.get<WarehousePage>(
-      `/warehouses?limit=${WAREHOUSES_LIMIT}${filter}`
+      `/warehouses?limit=${WAREHOUSES_LIMIT}${filter}`,
     );
     return page?.items;
   }
@@ -69,7 +73,7 @@ export default class WarehouseModel extends BaseModel {
   static moveItems(
     id: number,
     items: WarehouseItemTake[],
-    targetWarehouseId: number
+    targetWarehouseId: number,
   ) {
     return this.post<WarehouseItem[]>({
       params: `/warehouses/${id}/items/move`,

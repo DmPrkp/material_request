@@ -19,31 +19,18 @@
         button
         @click="goToAuth"
       >
-        <IonIcon
-          slot="start"
-          :icon="alertCircle"
-        />
+        <IonIcon slot="start" :icon="alertCircle" />
         <ion-label class="ion-text-wrap">
           {{ $t("pages.catalog.structure.auth_required") }}
         </ion-label>
       </ion-item>
 
-      <ion-note
-        v-if="!loading && !items.length"
-        class="ion-padding empty"
-      >
+      <ion-note v-if="!loading && !items.length" class="ion-padding empty">
         {{ $t("pages.catalog.empty") }}
       </ion-note>
-      <MainMenuItems
-        v-else
-        :items="items"
-        @item="chooseWorkType"
-      />
+      <MainMenuItems v-else :items="items" @item="chooseWorkType" />
 
-      <div
-        v-if="loading"
-        class="ion-text-center ion-padding"
-      >
+      <div v-if="loading" class="ion-text-center ion-padding">
         <ion-spinner />
       </div>
     </ion-content>
@@ -104,7 +91,10 @@
   }
 
   function chooseWorkType(item: MainMenuItem) {
-    router.push({ name: "catalog-work-type", params: { workType: item.title } });
+    router.push({
+      name: "catalog-work-type",
+      params: { workType: item.title },
+    });
   }
 
   function goToAuth() {

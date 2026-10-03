@@ -10,19 +10,12 @@
             <ion-text>
               <p class="result-text">{{ $t("pages.auth.forgot_sent") }}</p>
             </ion-text>
-            <CutCornerBtn
-              expand="block"
-              fullWidth
-              @click="goToAuth"
-            >
+            <CutCornerBtn expand="block" fullWidth @click="goToAuth">
               {{ $t("pages.auth.login_action") }}
             </CutCornerBtn>
           </template>
 
-          <form
-            v-else
-            @submit.prevent="handleSubmit"
-          >
+          <form v-else @submit.prevent="handleSubmit">
             <ion-text>
               <p class="lead">{{ $t("pages.auth.forgot_lead") }}</p>
             </ion-text>
@@ -43,10 +36,7 @@
               </ion-item>
             </ion-list>
 
-            <ion-text
-              v-if="errorMessage"
-              color="danger"
-            >
+            <ion-text v-if="errorMessage" color="danger">
               <p>{{ errorMessage }}</p>
             </ion-text>
 
@@ -56,10 +46,7 @@
               fullWidth
               :disabled="isSubmitting"
             >
-              <ion-spinner
-                v-if="isSubmitting"
-                name="dots"
-              />
+              <ion-spinner v-if="isSubmitting" name="dots" />
               <span v-else>{{ $t("pages.auth.forgot_action") }}</span>
             </CutCornerBtn>
           </form>
@@ -92,15 +79,18 @@
   const isSubmitting = ref<boolean>(false);
   const errorMessage = ref<string>("");
 
-  const locale = computed(
-    () => String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
+  const locale = computed(() =>
+    String(route.params.locale || import.meta.env.VITE_DEFAULT_LOCALE || "ru"),
   );
 
   async function handleSubmit() {
     isSubmitting.value = true;
     errorMessage.value = "";
     try {
-      await AuthModel.forgotPassword(email.value.trim().toLowerCase(), locale.value);
+      await AuthModel.forgotPassword(
+        email.value.trim().toLowerCase(),
+        locale.value,
+      );
       sent.value = true;
     } catch {
       // Сюда попадаем только если сервер вообще недоступен: на любой адрес он отвечает 204.
@@ -125,7 +115,6 @@
   .result-text {
     margin: 0 0 18px;
   }
-
 
   .lead {
     margin: 0 0 8px;

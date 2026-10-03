@@ -8,10 +8,7 @@
           class="whatsapp-btn custom-btn"
           expand="block"
         >
-          <ion-icon
-            :icon="logoWhatsapp"
-            slot="icon-only"
-          ></ion-icon>
+          <ion-icon :icon="logoWhatsapp" slot="icon-only"></ion-icon>
         </ion-button>
       </ion-col>
 
@@ -22,20 +19,14 @@
           class="telegram-btn custom-btn"
           expand="block"
         >
-          <ion-icon
-            :icon="paperPlaneOutline"
-            slot="icon-only"
-          ></ion-icon>
+          <ion-icon :icon="paperPlaneOutline" slot="icon-only"></ion-icon>
         </ion-button>
       </ion-col>
 
       <!-- download -->
       <ion-col size="auto">
         <ion-button @click="downloadPage"
-          ><ion-icon
-            :icon="downloadOutline"
-            slot="icon-only"
-          ></ion-icon
+          ><ion-icon :icon="downloadOutline" slot="icon-only"></ion-icon
         ></ion-button>
       </ion-col>
     </ion-row>

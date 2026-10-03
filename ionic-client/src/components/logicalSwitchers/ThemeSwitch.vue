@@ -1,9 +1,6 @@
 <template>
   <ion-item lines="none">
-    <ion-toggle
-      :checked="isDark"
-      @ionChange="onToggle"
-    >
+    <ion-toggle :checked="isDark" @ionChange="onToggle">
       {{ $t("pages.settings.theme") }}
     </ion-toggle>
   </ion-item>

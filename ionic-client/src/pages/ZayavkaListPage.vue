@@ -1,10 +1,7 @@
 <template>
   <ion-page v-if="route.name === 'zayavka-list'">
     <ion-content :class="{ 'with-bulk-bar': editing && selected.size }">
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh($event)"
-      >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
       <div class="ion-padding">
@@ -15,13 +12,14 @@
         </ion-item-divider>
       </div>
       <!-- Калькулятор — начало новой заявки: расчёт сам сохраняется и появится здесь. -->
-      <ion-row class="new-zayavka ion-justify-content-between ion-align-items-center ion-padding-horizontal">
+      <ion-row
+        class="new-zayavka ion-justify-content-between ion-align-items-center ion-padding-horizontal"
+      >
         <!-- Режим правки: вместо времени — чекбоксы, строка не открывает заявку, а выделяется. -->
-        <CutCornerBtn
-          v-if="rows.length"
-          @click="toggleEditing"
-        >
-          {{ $t(editing ? "pages.zayavka_list.done" : "pages.zayavka_list.edit") }}
+        <CutCornerBtn v-if="rows.length" @click="toggleEditing">
+          {{
+            $t(editing ? "pages.zayavka_list.done" : "pages.zayavka_list.edit")
+          }}
         </CutCornerBtn>
         <span v-else />
         <PlasmaButton @click="router.push({ name: 'calculator' })">
@@ -36,10 +34,7 @@
         button
         @click="goToAuth"
       >
-        <IonIcon
-          slot="start"
-          :icon="alertCircle"
-        />
+        <IonIcon slot="start" :icon="alertCircle" />
         <ion-label class="ion-text-wrap">
           {{ $t("pages.zayavka_list.auth_warning") }}
         </ion-label>
@@ -56,11 +51,7 @@
           {{ $t("pages.zayavka_list.table.volume") }}
         </ion-col>
 
-        <ion-col
-          v-if="editing"
-          class="col-time col-check"
-          @click="toggleAll"
-        >
+        <ion-col v-if="editing" class="col-time col-check" @click="toggleAll">
           <IonIcon
             :icon="allSelected ? checkbox : squareOutline"
             :color="allSelected ? 'primary' : undefined"
@@ -69,23 +60,14 @@
             :aria-label="$t('pages.zayavka_list.select_all')"
           />
         </ion-col>
-        <ion-col
-          v-else
-          class="col-time"
-        >
+        <ion-col v-else class="col-time">
           {{ $t("pages.zayavka_list.table.time") }}
         </ion-col>
       </ion-row>
       <!-- Год — полосой, как разделы заявки; день — подзаголовком, как этапы работ. -->
-      <template
-        v-for="year in groups"
-        :key="year.year"
-      >
+      <template v-for="year in groups" :key="year.year">
         <TitledDivider :title="String(year.year)" />
-        <ion-item-group
-          v-for="day in year.days"
-          :key="day.key"
-        >
+        <ion-item-group v-for="day in year.days" :key="day.key">
           <ion-item-divider>
             <ion-label color="secondary">
               <h2>{{ day.label }}</h2>
@@ -113,10 +95,7 @@
                   {{ volumeLabel(zayavka) }}
                 </ion-col>
 
-                <ion-col
-                  v-if="editing"
-                  class="col-time col-check"
-                >
+                <ion-col v-if="editing" class="col-time col-check">
                   <IonIcon
                     :icon="selected.has(zayavka.id) ? checkbox : squareOutline"
                     :color="selected.has(zayavka.id) ? 'primary' : undefined"
@@ -125,10 +104,7 @@
                     :aria-label="String(zayavka.id)"
                   />
                 </ion-col>
-                <ion-col
-                  v-else
-                  class="col-time"
-                >
+                <ion-col v-else class="col-time">
                   <ion-note>{{ formatTime(zayavka.createdAt) }}</ion-note>
                 </ion-col>
               </ion-row>
@@ -140,11 +116,7 @@
         Групповые операции — прибиты к низу экрана, под большой палец: список длинный,
         и кнопки наверху уезжали бы вместе с ним.
       -->
-      <div
-        v-if="editing && selected.size"
-        slot="fixed"
-        class="bulk-bar"
-      >
+      <div v-if="editing && selected.size" slot="fixed" class="bulk-bar">
         <ion-button
           color="danger"
           fill="outline"
@@ -268,7 +240,7 @@
         volume: totalVolume(data),
         data,
       };
-    })
+    }),
   );
 
   /**
@@ -279,12 +251,13 @@
 
   async function loadSystems() {
     const titles = [...new Set(rows.value.map((row) => row.system))].filter(
-      (title) => title && !systems.value.has(title)
+      (title) => title && !systems.value.has(title),
     );
     const found = await Promise.all(
-      titles.map(async (title) =>
-        [title, await DictionaryModel.systemByTitle(title)] as const
-      )
+      titles.map(
+        async (title) =>
+          [title, await DictionaryModel.systemByTitle(title)] as const,
+      ),
     );
     const next = new Map(systems.value);
     for (const [title, system] of found) if (system) next.set(title, system);
@@ -340,7 +313,7 @@
   const busy = ref(false);
 
   const allSelected = computed(
-    () => rows.value.length > 0 && selected.value.size === rows.value.length
+    () => rows.value.length > 0 && selected.value.size === rows.value.length,
   );
 
   function toggleEditing() {
@@ -400,7 +373,7 @@
    */
   async function deleteZayavki(ids: number[]): Promise<number[]> {
     const results = await Promise.allSettled(
-      ids.map((id) => Zayavka.remove(id, findKey(id)))
+      ids.map((id) => Zayavka.remove(id, findKey(id))),
     );
     const removed = ids.filter((_, i) => results[i].status === "fulfilled");
     const failed = ids.length - removed.length;
@@ -424,7 +397,7 @@
    */
   async function mergeSelected() {
     const sources = rows.value.filter(
-      (row) => selected.value.has(row.id) && row.data
+      (row) => selected.value.has(row.id) && row.data,
     );
     if (sources.length < 2) return;
 
@@ -435,7 +408,7 @@
     try {
       const data = mergeZayavki(
         sources.map((row) => ({ id: row.id, data: row.data as ZayavkaType })),
-        name
+        name,
       );
       let created: Awaited<ReturnType<Zayavka["create"]>>;
       try {
@@ -509,7 +482,7 @@
       materialRequests.value = await Zayavka.findAll();
     } else {
       materialRequests.value = await Zayavka.findByIds(
-        listKeys().map((item) => item.id)
+        listKeys().map((item) => item.id),
       );
     }
     await loadSystems();
@@ -525,9 +498,12 @@
       if (name === "zayavka-list") void load();
       // Ушли в заявку или калькулятор — режим правки не тащим обратно.
       else if (editing.value) toggleEditing();
-    }
+    },
   );
-  watch(() => authStore.token, () => void load());
+  watch(
+    () => authStore.token,
+    () => void load(),
+  );
 
   // Названия технологий и единицы приходят на языке запроса — при смене языка
   // кэш сбрасываем и берём их заново; сами заявки от языка не зависят.
@@ -536,7 +512,7 @@
     () => {
       systems.value = new Map();
       void loadSystems();
-    }
+    },
   );
 
   // ionic functions

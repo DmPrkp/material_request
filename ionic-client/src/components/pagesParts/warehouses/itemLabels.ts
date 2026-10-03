@@ -32,11 +32,11 @@ export function useItemLabels() {
 
   /** Подписи по id строки склада. */
   async function itemLabels(
-    items: WarehouseItem[]
+    items: WarehouseItem[],
   ): Promise<Map<number, ItemLabel>> {
     const refs = (kind: WarehouseItemKind) => [
       ...new Set(
-        items.filter((item) => item.kind === kind).map((item) => item.ref)
+        items.filter((item) => item.kind === kind).map((item) => item.ref),
       ),
     ];
 
@@ -56,10 +56,10 @@ export function useItemLabels() {
       [...(materials ?? []), ...(handTools ?? [])].map((variant) => [
         variant.code,
         variant,
-      ])
+      ]),
     );
     const byId = new Map(
-      (powerTools ?? []).map((tool) => [String(tool.id), tool])
+      (powerTools ?? []).map((tool) => [String(tool.id), tool]),
     );
 
     return new Map(
@@ -77,12 +77,12 @@ export function useItemLabels() {
           measure: variant?.owner.unit
             ? translate(
                 `measure.${variant.owner.unit.code}`,
-                variant.owner.unit.code
+                variant.owner.unit.code,
               )
             : "",
         };
         return [item.id, label];
-      })
+      }),
     );
   }
 

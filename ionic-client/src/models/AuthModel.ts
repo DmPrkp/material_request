@@ -1,7 +1,7 @@
-import BaseModel from './BaseModel';
-import type { AuthResponse, RegisterPayload } from '@/types/dto/auth';
+import BaseModel from "./BaseModel";
+import type { AuthResponse, RegisterPayload } from "@/types/dto/auth";
 
-const DEFAULT_AUTH_PREFIX = '/user/api/v1';
+const DEFAULT_AUTH_PREFIX = "/user/api/v1";
 
 const parsePaths = (value: string | undefined, defaults: string[]) => {
   if (!value) {
@@ -14,7 +14,7 @@ const parsePaths = (value: string | undefined, defaults: string[]) => {
   }
 
   return value
-    .split(',')
+    .split(",")
     .map((segment) => segment.trim())
     .filter(Boolean);
 };
@@ -25,25 +25,29 @@ const userApiPrefix =
   DEFAULT_AUTH_PREFIX;
 
 const loginPaths = parsePaths(import.meta.env.VITE_USER_API_LOGIN_PATHS, [
-  '/auth/login',
+  "/auth/login",
 ]);
 
 const registerPaths = parsePaths(import.meta.env.VITE_USER_API_REGISTER_PATHS, [
-  '/auth/register',
+  "/auth/register",
 ]);
 
 const profilePaths = parsePaths(import.meta.env.VITE_USER_API_PROFILE_PATHS, [
-  '/auth/me',
+  "/auth/me",
 ]);
 
 const refreshPaths = parsePaths(import.meta.env.VITE_USER_API_REFRESH_PATHS, [
-  '/auth/refresh',
+  "/auth/refresh",
 ]);
 
 const credentialsEnv = import.meta.env.VITE_USER_API_CREDENTIALS;
-const allowedCredentials: RequestCredentials[] = ['omit', 'same-origin', 'include'];
+const allowedCredentials: RequestCredentials[] = [
+  "omit",
+  "same-origin",
+  "include",
+];
 const requestCredentials = allowedCredentials.includes(
-  credentialsEnv as RequestCredentials
+  credentialsEnv as RequestCredentials,
 )
   ? (credentialsEnv as RequestCredentials)
   : undefined;
@@ -57,7 +61,7 @@ export default class AuthModel extends BaseModel {
 
   private static async postWithFallback(
     paths: string[],
-    body: Record<string, unknown>
+    body: Record<string, unknown>,
   ): Promise<AuthResponse> {
     let lastError: unknown;
 
@@ -77,7 +81,7 @@ export default class AuthModel extends BaseModel {
       throw lastError;
     }
 
-    throw new Error('Не удалось обратиться к серверу авторизации');
+    throw new Error("Не удалось обратиться к серверу авторизации");
   }
 
   private static async getWithFallback(paths: string[]) {
@@ -113,20 +117,24 @@ export default class AuthModel extends BaseModel {
    */
   static requestEmailVerification(locale: string) {
     return this.post<void>({
-      params: '/auth/email/verify-request',
+      params: "/auth/email/verify-request",
       body: { locale },
       opts: authRequestOpts,
     });
   }
 
   static verifyEmail(token: string) {
-    return this.post<void>({ params: '/auth/email/verify', body: { token }, opts: authRequestOpts });
+    return this.post<void>({
+      params: "/auth/email/verify",
+      body: { token },
+      opts: authRequestOpts,
+    });
   }
 
   /** Отвечает 204 всегда — и на незнакомый адрес: узнать, кто зарегистрирован, нельзя. */
   static forgotPassword(email: string, locale: string) {
     return this.post<void>({
-      params: '/auth/password/forgot',
+      params: "/auth/password/forgot",
       body: { email, locale },
       opts: authRequestOpts,
     });
@@ -134,7 +142,7 @@ export default class AuthModel extends BaseModel {
 
   static resetPassword(token: string, newPassword: string) {
     return this.post<void>({
-      params: '/auth/password/reset',
+      params: "/auth/password/reset",
       body: { token, newPassword },
       opts: authRequestOpts,
     });

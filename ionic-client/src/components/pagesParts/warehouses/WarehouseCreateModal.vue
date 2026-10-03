@@ -24,10 +24,7 @@
           {{ $t("pages.warehouses.personal_one") }}
         </ion-toggle>
       </ion-item>
-      <ion-item
-        v-else
-        lines="none"
-      >
+      <ion-item v-else lines="none">
         <ion-label class="ion-text-wrap">
           <p>{{ $t("pages.warehouses.personal_one") }}</p>
         </ion-label>
@@ -49,11 +46,7 @@
         </ion-button>
       </ion-col>
       <ion-col size="6">
-        <ion-button
-          fill="clear"
-          expand="block"
-          @click="cancel"
-        >
+        <ion-button fill="clear" expand="block" @click="cancel">
           {{ $t("ui.buttons.cancel") }}
         </ion-button>
       </ion-col>

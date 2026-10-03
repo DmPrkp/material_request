@@ -32,7 +32,7 @@
   const router = useRouter();
 
   const locale = computed<Locale>(
-    () => normalizeLocale(route.params.locale) || resolveInitialLocale()
+    () => normalizeLocale(route.params.locale) || resolveInitialLocale(),
   );
 
   /**

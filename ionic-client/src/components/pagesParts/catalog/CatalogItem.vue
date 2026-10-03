@@ -6,10 +6,7 @@
       <p v-if="description">{{ description }}</p>
       <!-- Питание не пишем: его и так видно по табу раздела. -->
     </ion-label>
-    <ion-note
-      v-if="ownerNote"
-      slot="end"
-    >
+    <ion-note v-if="ownerNote" slot="end">
       {{ ownerNote }}
     </ion-note>
     <ion-button
@@ -19,26 +16,17 @@
       :aria-label="$t('pages.catalog.edit')"
       @click="emit('edit')"
     >
-      <ion-icon
-        slot="icon-only"
-        :icon="createOutline"
-      />
+      <ion-icon slot="icon-only" :icon="createOutline" />
     </ion-button>
   </ion-item>
 
-  <ion-accordion
-    v-else
-    :value="String(item.id)"
-  >
+  <ion-accordion v-else :value="String(item.id)">
     <ion-item slot="header">
       <ion-label>
         <h3>{{ title }}</h3>
         <p v-if="subtitle">{{ subtitle }}</p>
       </ion-label>
-      <ion-note
-        v-if="ownerNote"
-        slot="end"
-      >
+      <ion-note v-if="ownerNote" slot="end">
         {{ ownerNote }}
       </ion-note>
       <!-- .stop: клик по карандашу иначе заодно раскрыл бы аккордеон. -->
@@ -49,10 +37,7 @@
         :aria-label="$t('pages.catalog.edit')"
         @click.stop="emit('edit')"
       >
-        <ion-icon
-          slot="icon-only"
-          :icon="createOutline"
-        />
+        <ion-icon slot="icon-only" :icon="createOutline" />
       </ion-button>
     </ion-item>
 
@@ -64,10 +49,7 @@
 
       <!-- Раскрыли ради описания — блока типоразмеров нет вовсе. -->
       <template v-if="hasSizes">
-        <ion-spinner
-          v-if="activeVariants === undefined"
-          name="dots"
-        />
+        <ion-spinner v-if="activeVariants === undefined" name="dots" />
         <ion-note v-else-if="!activeVariants.length">
           {{ $t("pages.catalog.no_variants") }}
         </ion-note>
@@ -97,10 +79,7 @@
               :aria-label="$t('pages.catalog.params.edit_variant_aria')"
               @click="emit('editVariant', variant)"
             >
-              <ion-icon
-                slot="icon-only"
-                :icon="createOutline"
-              />
+              <ion-icon slot="icon-only" :icon="createOutline" />
             </ion-button>
           </ion-item>
         </ion-list>
@@ -111,11 +90,10 @@
           size="small"
           @click="emit('addVariant')"
         >
-          <ion-icon
-            slot="start"
-            :icon="addOutline"
-          />
-          <span class="slanted">{{ $t("pages.catalog.params.add_variant") }}</span>
+          <ion-icon slot="start" :icon="addOutline" />
+          <span class="slanted">{{
+            $t("pages.catalog.params.add_variant")
+          }}</span>
         </ion-button>
       </template>
     </div>
@@ -137,9 +115,7 @@
   import { useParamLabel } from "./paramLabel";
 
   type CatalogEntry =
-    | DictionaryMaterial
-    | DictionaryHandTool
-    | DictionaryPowerTool;
+    DictionaryMaterial | DictionaryHandTool | DictionaryPowerTool;
 
   /** code типа «Пиломатериалы» в словаре (material_types). */
   const TIMBER_TYPE = "timber";
@@ -213,7 +189,12 @@
     const width = params.find((param) => param.kind === "width");
     const thickness = params.find((param) => param.kind === "thickness");
     // Без пары в одной единице сечение не собрать — подпись как у всех.
-    if (!isTimber.value || !width || !thickness || width.unit !== thickness.unit) {
+    if (
+      !isTimber.value ||
+      !width ||
+      !thickness ||
+      width.unit !== thickness.unit
+    ) {
       return params.map(paramLabel);
     }
 

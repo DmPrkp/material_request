@@ -76,8 +76,7 @@ export default class BaseModel {
     const port = import.meta.env.VITE_PORT
       ? `:${import.meta.env.VITE_PORT}`
       : "";
-    this.baseURL =
-      url || `${location.protocol}//${location.hostname}${port}`;
+    this.baseURL = url || `${location.protocol}//${location.hostname}${port}`;
   }
 
   private static buildUrl(params: string, queries: string[] = []) {
@@ -133,7 +132,7 @@ export default class BaseModel {
         body: body ? JSON.stringify(body) : undefined,
       },
       this.baseOpts,
-      opts
+      opts,
     );
 
     const response = await fetch(query, options);
@@ -163,7 +162,7 @@ export default class BaseModel {
         body: body ? JSON.stringify(body) : undefined,
       },
       this.baseOpts,
-      opts
+      opts,
     );
 
     const response = await fetch(this.buildUrl(params), options);
@@ -195,7 +194,7 @@ export default class BaseModel {
         body: body ? JSON.stringify(body) : undefined,
       },
       this.baseOpts,
-      opts
+      opts,
     );
 
     const response = await fetch(query, options);
@@ -249,7 +248,7 @@ export default class BaseModel {
         body: body ? JSON.stringify(body) : undefined,
       },
       this.baseOpts,
-      opts
+      opts,
     );
 
     const response = await fetch(query, options);

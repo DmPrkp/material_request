@@ -30,7 +30,10 @@ function readPayload(token: string): Record<string, unknown> | undefined {
 }
 
 /** Числовое поле payload в миллисекундах; токен не разобрать или поля нет — undefined. */
-function readTimeClaim(token: string, claim: "exp" | "iat"): number | undefined {
+function readTimeClaim(
+  token: string,
+  claim: "exp" | "iat",
+): number | undefined {
   const value = readPayload(token)?.[claim];
   return typeof value === "number" ? value * 1000 : undefined;
 }
@@ -42,11 +45,16 @@ function readTimeClaim(token: string, claim: "exp" | "iat"): number | undefined 
  * сразу, а кнопки «удалить» должны встать по правам с первой отрисовки. Решает всё
  * равно сервер — здесь только подсказка интерфейса.
  */
-export function tokenUser(token: string): { id: number; role: string } | undefined {
+export function tokenUser(
+  token: string,
+): { id: number; role: string } | undefined {
   const payload = readPayload(token);
   const id = payload?.sub;
   if (typeof id !== "number") return undefined;
-  return { id, role: typeof payload?.role === "string" ? payload.role : "USER" };
+  return {
+    id,
+    role: typeof payload?.role === "string" ? payload.role : "USER",
+  };
 }
 
 /** exp из payload в миллисекундах. */

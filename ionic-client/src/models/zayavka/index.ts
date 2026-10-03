@@ -33,7 +33,10 @@ export default class Zayavka {
       ...(BaseOrderModel.baseOpts.headers as Record<string, string>),
       ...(key ? { "X-Zayavka-Key": key } : {}),
     };
-    return BaseOrderModel.delete({ params: `/zayavka/${id}`, opts: { headers } });
+    return BaseOrderModel.delete({
+      params: `/zayavka/${id}`,
+      opts: { headers },
+    });
   }
 
   static async find(id: number) {

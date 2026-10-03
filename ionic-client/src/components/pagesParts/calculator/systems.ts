@@ -12,7 +12,7 @@ import type { DictionarySystem } from "@/types/dto";
  */
 export async function loadWorkTypeSystems(
   workTypeCode: string,
-  locale: string
+  locale: string,
 ): Promise<DictionarySystem[] | null> {
   if (!workTypeCode) return null;
 

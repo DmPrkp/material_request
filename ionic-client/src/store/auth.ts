@@ -1,49 +1,61 @@
-import { defineStore } from 'pinia';
-import AuthModel from '@/models/AuthModel';
-import UserModel from '@/models/UserModel';
-import BaseModel from '@/models/BaseModel';
-import type { AuthResponse, RegisterPayload, UserProfile } from '@/types/dto';
-import { isTokenExpired, refreshDueAt, shouldRefresh, tokenExpiresAt } from './authToken';
+import { defineStore } from "pinia";
+import AuthModel from "@/models/AuthModel";
+import UserModel from "@/models/UserModel";
+import BaseModel from "@/models/BaseModel";
+import type { AuthResponse, RegisterPayload, UserProfile } from "@/types/dto";
+import {
+  isTokenExpired,
+  refreshDueAt,
+  shouldRefresh,
+  tokenExpiresAt,
+} from "./authToken";
 
-const TOKEN_STORAGE_KEY = 'mr-auth-token';
+const TOKEN_STORAGE_KEY = "mr-auth-token";
 
 const normalizeScheme = (value?: string) => {
   if (!value) {
-    return 'Bearer';
+    return "Bearer";
   }
 
   const trimmed = value.trim();
-  if (["none", "off", "false", "disabled", "no"].includes(trimmed.toLowerCase())) {
-    return '';
+  if (
+    ["none", "off", "false", "disabled", "no"].includes(trimmed.toLowerCase())
+  ) {
+    return "";
   }
 
   return trimmed;
 };
 
-const AUTH_HEADER_SCHEME = normalizeScheme(import.meta.env.VITE_USER_API_AUTH_SCHEME);
+const AUTH_HEADER_SCHEME = normalizeScheme(
+  import.meta.env.VITE_USER_API_AUTH_SCHEME,
+);
 
 const TOKEN_KEYS = [
-  'accessToken',
-  'access_token',
-  'token',
-  'jwt',
-  'id_token',
-  'sessionToken',
-  'session_token',
-  'bearer',
+  "accessToken",
+  "access_token",
+  "token",
+  "jwt",
+  "id_token",
+  "sessionToken",
+  "session_token",
+  "bearer",
 ];
 
-const USER_IDENTIFIER_KEYS = ['id', 'userId', 'user_id', 'uuid', 'uid'];
-const USER_EMAIL_KEYS = ['email', 'mail'];
-const USER_USERNAME_KEYS = ['username', 'login', 'name'];
-const USER_CREATED_KEYS = ['createdAt', 'created_at', 'created_on', 'created'];
-const USER_UPDATED_KEYS = ['updatedAt', 'updated_at', 'updated_on', 'updated'];
+const USER_IDENTIFIER_KEYS = ["id", "userId", "user_id", "uuid", "uid"];
+const USER_EMAIL_KEYS = ["email", "mail"];
+const USER_USERNAME_KEYS = ["username", "login", "name"];
+const USER_CREATED_KEYS = ["createdAt", "created_at", "created_on", "created"];
+const USER_UPDATED_KEYS = ["updatedAt", "updated_at", "updated_on", "updated"];
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 };
 
-const findStringByKeys = (source: unknown, keys: string[]): string | undefined => {
+const findStringByKeys = (
+  source: unknown,
+  keys: string[],
+): string | undefined => {
   if (Array.isArray(source)) {
     for (const item of source) {
       const value = findStringByKeys(item, keys);
@@ -60,7 +72,7 @@ const findStringByKeys = (source: unknown, keys: string[]): string | undefined =
 
   for (const key of keys) {
     const candidate = source[key];
-    if (typeof candidate === 'string' && candidate.trim()) {
+    if (typeof candidate === "string" && candidate.trim()) {
       return candidate.trim();
     }
   }
@@ -80,14 +92,14 @@ const normalizeDate = (value: unknown): string | undefined => {
     return value.toISOString();
   }
 
-  if (typeof value === 'number' && Number.isFinite(value)) {
+  if (typeof value === "number" && Number.isFinite(value)) {
     const date = new Date(value);
     if (!Number.isNaN(date.getTime())) {
       return date.toISOString();
     }
   }
 
-  if (typeof value === 'string' && value.trim()) {
+  if (typeof value === "string" && value.trim()) {
     return value.trim();
   }
 
@@ -96,7 +108,7 @@ const normalizeDate = (value: unknown): string | undefined => {
 
 const findUserCandidate = (
   source: unknown,
-  visited = new WeakSet<object>()
+  visited = new WeakSet<object>(),
 ): Record<string, unknown> | undefined => {
   if (Array.isArray(source)) {
     for (const item of source) {
@@ -148,28 +160,37 @@ const normalizeUserProfile = (payload: unknown): UserProfile | null => {
   }
 
   const identifier =
-    candidate.id ?? candidate.userId ?? candidate.user_id ?? candidate.uuid ?? candidate.uid;
+    candidate.id ??
+    candidate.userId ??
+    candidate.user_id ??
+    candidate.uuid ??
+    candidate.uid;
 
-  if (typeof identifier !== 'string' && typeof identifier !== 'number') {
+  if (typeof identifier !== "string" && typeof identifier !== "number") {
     return null;
   }
 
   const email = findStringByKeys(candidate, USER_EMAIL_KEYS);
   const username = findStringByKeys(candidate, USER_USERNAME_KEYS);
   const createdAt = normalizeDate(
-    USER_CREATED_KEYS.map((key) => candidate[key]).find((value) => value !== undefined)
+    USER_CREATED_KEYS.map((key) => candidate[key]).find(
+      (value) => value !== undefined,
+    ),
   );
   const updatedAt = normalizeDate(
-    USER_UPDATED_KEYS.map((key) => candidate[key]).find((value) => value !== undefined)
+    USER_UPDATED_KEYS.map((key) => candidate[key]).find(
+      (value) => value !== undefined,
+    ),
   );
 
   const optionalString = (value: unknown) =>
-    typeof value === 'string' && value.trim() ? value.trim() : undefined;
+    typeof value === "string" && value.trim() ? value.trim() : undefined;
 
   // Отдельно от email: адрес может быть, а подтверждения не быть — по неподтверждённому
   // восстановление пароля не работает, и настройки должны это показать.
   const emailVerifiedAt =
-    normalizeDate(candidate.emailVerifiedAt ?? candidate.email_verified_at) ?? null;
+    normalizeDate(candidate.emailVerifiedAt ?? candidate.email_verified_at) ??
+    null;
 
   return {
     id: identifier,
@@ -205,23 +226,23 @@ const REFRESH_RETRY_DELAY = 15 * 60 * 1000;
 
 class MissingTokenError extends Error {
   constructor() {
-    super('Пустой ответ от сервера');
-    this.name = 'MissingTokenError';
+    super("Пустой ответ от сервера");
+    this.name = "MissingTokenError";
   }
 }
 
 interface AuthState {
   token: string | null;
   user: UserProfile | null;
-  status: 'idle' | 'loading' | 'error';
+  status: "idle" | "loading" | "error";
   error: string | null;
 }
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: (): AuthState => ({
     token: null,
     user: null,
-    status: 'idle',
+    status: "idle",
     error: null,
   }),
   getters: {
@@ -252,7 +273,10 @@ export const useAuthStore = defineStore('auth', {
       clearTimeout(refreshTimer);
       const refreshAt = valid ? refreshDueAt(valid) : undefined;
       if (refreshAt !== undefined) {
-        const delay = Math.min(Math.max(refreshAt - Date.now(), 0), MAX_TIMER_DELAY);
+        const delay = Math.min(
+          Math.max(refreshAt - Date.now(), 0),
+          MAX_TIMER_DELAY,
+        );
         refreshTimer = setTimeout(() => void this.refreshToken(), delay);
       }
     },
@@ -271,9 +295,12 @@ export const useAuthStore = defineStore('auth', {
             // 401 уже вывел из аккаунта BaseModel.onUnauthorized; прочее (нет сети) — повторим.
             if (this.token === token) {
               clearTimeout(refreshTimer);
-              refreshTimer = setTimeout(() => void this.refreshToken(), REFRESH_RETRY_DELAY);
+              refreshTimer = setTimeout(
+                () => void this.refreshToken(),
+                REFRESH_RETRY_DELAY,
+              );
             }
-            console.error('Не удалось продлить вход', error);
+            console.error("Не удалось продлить вход", error);
           } finally {
             refreshing = undefined;
           }
@@ -288,25 +315,27 @@ export const useAuthStore = defineStore('auth', {
       this.error = null;
     },
     async login(login: string, password: string) {
-      this.status = 'loading';
+      this.status = "loading";
       this.clearError();
       try {
         const response = await AuthModel.login(login, password);
         this.applyAuthResponse(response);
         await this.fetchProfile();
       } catch (error) {
-        this.status = 'error';
+        this.status = "error";
         this.error =
-          error instanceof Error ? error.message : 'Не удалось войти. Попробуйте снова.';
+          error instanceof Error
+            ? error.message
+            : "Не удалось войти. Попробуйте снова.";
         throw error;
       } finally {
-        if (this.status !== 'error') {
-          this.status = 'idle';
+        if (this.status !== "error") {
+          this.status = "idle";
         }
       }
     },
     async register(payload: RegisterPayload) {
-      this.status = 'loading';
+      this.status = "loading";
       this.clearError();
       try {
         const response = await AuthModel.register(payload);
@@ -314,7 +343,10 @@ export const useAuthStore = defineStore('auth', {
           this.applyAuthResponse(response);
         } catch (error) {
           if (error instanceof MissingTokenError) {
-            const loginResponse = await AuthModel.login(payload.login, payload.password);
+            const loginResponse = await AuthModel.login(
+              payload.login,
+              payload.password,
+            );
             this.applyAuthResponse(loginResponse);
           } else {
             throw error;
@@ -322,15 +354,15 @@ export const useAuthStore = defineStore('auth', {
         }
         await this.fetchProfile();
       } catch (error) {
-        this.status = 'error';
+        this.status = "error";
         this.error =
           error instanceof Error
             ? error.message
-            : 'Не удалось зарегистрироваться. Попробуйте снова.';
+            : "Не удалось зарегистрироваться. Попробуйте снова.";
         throw error;
       } finally {
-        if (this.status !== 'error') {
-          this.status = 'idle';
+        if (this.status !== "error") {
+          this.status = "idle";
         }
       }
     },
@@ -344,7 +376,7 @@ export const useAuthStore = defineStore('auth', {
         }
         return normalizedProfile ?? null;
       } catch (error) {
-        console.error('Не удалось получить профиль пользователя', error);
+        console.error("Не удалось получить профиль пользователя", error);
         return null;
       }
     },
@@ -370,8 +402,8 @@ export const useAuthStore = defineStore('auth', {
       };
 
       // Таймеры спят вместе с ноутбуком и в фоновой вкладке: вернулись — проверяем, не пора ли.
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') void this.refreshToken();
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") void this.refreshToken();
       });
 
       const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -382,7 +414,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.setToken(null);
       this.setUser(null);
-      this.status = 'idle';
+      this.status = "idle";
       this.error = null;
     },
     applyAuthResponse(response: AuthResponse) {

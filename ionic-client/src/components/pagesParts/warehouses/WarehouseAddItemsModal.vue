@@ -15,52 +15,25 @@
       Три раздела и их шапки — те же, что в заявке: материалы, ручной, электро.
       Вместо расхода на объём — количество, которое кладут на склад.
     -->
-    <template
-      v-for="section in SECTIONS"
-      :key="section.kind"
-    >
-      <MaterialHeader
-        v-if="section.kind === 'material'"
-        readonly
-      />
-      <HandToolListHeader
-        v-else-if="section.kind === 'hand_tool'"
-        readonly
-      />
-      <PowerToolListHeader
-        v-else
-        readonly
-      />
+    <template v-for="section in SECTIONS" :key="section.kind">
+      <MaterialHeader v-if="section.kind === 'material'" readonly />
+      <HandToolListHeader v-else-if="section.kind === 'hand_tool'" readonly />
+      <PowerToolListHeader v-else readonly />
 
-      <ion-item
-        v-for="(row, num) in rowsOf(section.kind)"
-        :key="row.key"
-      >
+      <ion-item v-for="(row, num) in rowsOf(section.kind)" :key="row.key">
         <ion-grid>
           <!-- Числа — по центру высоты строки: название бывает в две-три строки. -->
           <ion-row class="ion-align-items-center">
-            <ion-col
-              size="1"
-              class="cell-center"
-            >
+            <ion-col size="1" class="cell-center">
               {{ num + 1 }}
             </ion-col>
-            <ion-col
-              size="7"
-              class="ion-text-start cell-name"
-            >
+            <ion-col size="7" class="ion-text-start cell-name">
               {{ row.title }}
-              <span
-                v-if="row.details"
-                class="param"
-              >
+              <span v-if="row.details" class="param">
                 {{ row.details }}
               </span>
             </ion-col>
-            <ion-col
-              size="2"
-              class="cell-center"
-            >
+            <ion-col size="2" class="cell-center">
               <ion-input
                 v-model="row.quantity"
                 class="quantity"
@@ -70,10 +43,7 @@
                 :aria-label="$t('pages.warehouses.action.quantity')"
               />
             </ion-col>
-            <ion-col
-              size="2"
-              class="cell-center"
-            >
+            <ion-col size="2" class="cell-center">
               {{ row.measure || $t("measure.pcs") }}
             </ion-col>
           </ion-row>
@@ -86,18 +56,12 @@
           :aria-label="$t('ui.buttons.remove')"
           @click="drop(row.key)"
         >
-          <ion-icon
-            slot="icon-only"
-            :icon="trashOutline"
-          />
+          <ion-icon slot="icon-only" :icon="trashOutline" />
         </ion-button>
       </ion-item>
 
       <!-- Подбор по словарю разворачивается в своём разделе — как у норм этапа. -->
-      <div
-        v-if="picker.kind === section.kind"
-        class="picker"
-      >
+      <div v-if="picker.kind === section.kind" class="picker">
         <template v-if="!picker.owner">
           <ion-searchbar
             v-model="picker.q"
@@ -105,17 +69,15 @@
             :placeholder="$t('pages.catalog.search')"
             @ionInput="search"
           />
-          <ion-spinner
-            v-if="picker.loading"
-            name="dots"
-          />
+          <ion-spinner v-if="picker.loading" name="dots" />
           <ion-list v-else>
             <ion-item
               v-for="item in picker.results"
               :key="item.id"
               button
               :disabled="
-                section.kind === 'power_tool' && has(section.kind, String(item.id))
+                section.kind === 'power_tool' &&
+                has(section.kind, String(item.id))
               "
               @click="pickOwner(item)"
             >
@@ -124,10 +86,7 @@
                 <p v-if="ownerDetails(item)">{{ ownerDetails(item) }}</p>
               </ion-label>
             </ion-item>
-            <ion-item
-              v-if="!picker.results.length"
-              lines="none"
-            >
+            <ion-item v-if="!picker.results.length" lines="none">
               <ion-note>{{ $t("pages.catalog.empty") }}</ion-note>
             </ion-item>
           </ion-list>
@@ -141,10 +100,7 @@
               })
             }}
           </ion-list-header>
-          <ion-spinner
-            v-if="picker.loading"
-            name="dots"
-          />
+          <ion-spinner v-if="picker.loading" name="dots" />
           <ion-item
             v-for="variant in picker.variants"
             v-else
@@ -154,17 +110,15 @@
             @click="pickVariant(variant)"
           >
             <ion-label class="ion-text-wrap">
-              {{ variantDetails(variant) || $t("pages.catalog.single_variant") }}
+              {{
+                variantDetails(variant) || $t("pages.catalog.single_variant")
+              }}
             </ion-label>
             <ion-note slot="end">{{ variant.code }}</ion-note>
           </ion-item>
         </ion-list>
 
-        <ion-button
-          fill="clear"
-          size="small"
-          @click="closePicker"
-        >
+        <ion-button fill="clear" size="small" @click="closePicker">
           {{ $t("pages.catalog.norms.cancel") }}
         </ion-button>
       </div>
@@ -183,11 +137,7 @@
 
   <ion-footer>
     <ion-toolbar>
-      <ion-button
-        expand="block"
-        :disabled="!ready"
-        @click="confirm"
-      >
+      <ion-button expand="block" :disabled="!ready" @click="confirm">
         {{ $t("pages.warehouses.action.done") }}
       </ion-button>
     </ion-toolbar>
@@ -232,9 +182,7 @@
   import { ITEM_KINDS } from "./itemLabels";
 
   type PickerItem =
-    | DictionaryMaterial
-    | DictionaryHandTool
-    | DictionaryPowerTool;
+    DictionaryMaterial | DictionaryHandTool | DictionaryPowerTool;
 
   /** Выбранное до отправки: количество — строкой, его ещё правят. */
   type ChosenRow = {
@@ -279,7 +227,7 @@
   const ready = computed(
     () =>
       chosen.value.length > 0 &&
-      chosen.value.every((row) => parseQuantity(row.quantity) !== null)
+      chosen.value.every((row) => parseQuantity(row.quantity) !== null),
   );
 
   function rowsOf(kind: WarehouseItemKind): ChosenRow[] {
@@ -340,7 +288,7 @@
     try {
       const found = await DictionaryModel.variants(
         kind === "material" ? "materials" : "hand-tools",
-        owner.id
+        owner.id,
       );
       if (picker.owner !== owner) return;
       // Удалённые из сборника сборки не предлагаем: класть на склад их незачем.
@@ -362,7 +310,7 @@
       variant.code,
       owner.name,
       variantDetails(variant),
-      "unit" in owner && owner.unit ? unitLabel(owner.unit) : ""
+      "unit" in owner && owner.unit ? unitLabel(owner.unit) : "",
     );
     closePicker();
   }
@@ -373,12 +321,20 @@
     ref: string,
     title: string,
     details: string,
-    measure: string
+    measure: string,
   ) {
     if (has(kind, ref)) return;
     chosen.value = [
       ...chosen.value,
-      { key: `${kind}:${ref}`, kind, ref, title, details, measure, quantity: "1" },
+      {
+        key: `${kind}:${ref}`,
+        kind,
+        ref,
+        title,
+        details,
+        measure,
+        quantity: "1",
+      },
     ];
   }
 
@@ -396,7 +352,7 @@
 
   function poweredBy(tool: DictionaryPowerTool): string {
     return t(
-      `pages.catalog.power_tabs.${tool.isCorded ? "corded" : "cordless"}`
+      `pages.catalog.power_tabs.${tool.isCorded ? "corded" : "cordless"}`,
     );
   }
 

@@ -31,7 +31,10 @@ const LAZY_SAVE_INTERVAL = 10_000;
  */
 export function useZayavkaAutosave(
   source: () => ZayavkaType | undefined,
-  { initialId, onCreated }: { initialId?: number; onCreated?: (id: number) => void } = {},
+  {
+    initialId,
+    onCreated,
+  }: { initialId?: number; onCreated?: (id: number) => void } = {},
 ) {
   const authStore = useAuthStore();
   const store = useZayavkaStore();
@@ -41,7 +44,11 @@ export function useZayavkaAutosave(
   let queue: Promise<void> = Promise.resolve();
 
   function isEmpty(data: ZayavkaType) {
-    return !data.materials.length && !data.hand_tools.length && !data.power_tools.length;
+    return (
+      !data.materials.length &&
+      !data.hand_tools.length &&
+      !data.power_tools.length
+    );
   }
 
   /** Новая заявка; заведённая без входа приходит с ключом правки — запоминаем его. */
@@ -51,7 +58,10 @@ export function useZayavkaAutosave(
     return res;
   }
 
-  async function write(data: ZayavkaType, opts?: RequestInit): Promise<MaterialRequestDTO | undefined> {
+  async function write(
+    data: ZayavkaType,
+    opts?: RequestInit,
+  ): Promise<MaterialRequestDTO | undefined> {
     const current = id.value;
     if (current === undefined) return create(data, opts);
 
@@ -67,7 +77,10 @@ export function useZayavkaAutosave(
       return await new Zayavka(data).update(current, { ...opts, key });
     } catch (error) {
       // Заявку удалила чистка или она чужая (id пришёл из чужой ссылки) — заводим свою.
-      if (error instanceof HttpError && (error.status === 403 || error.status === 404)) {
+      if (
+        error instanceof HttpError &&
+        (error.status === 403 || error.status === 404)
+      ) {
         return create(data, opts);
       }
       throw error;

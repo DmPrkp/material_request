@@ -6,6 +6,8 @@ import { Material } from "@/types/dto";
  * а правка одного перезаписывала другой. У добавленных вручную uniqKey нет — там
  * id уникален сам (Date.now() из MaterialModal).
  */
-export function materialKey(material: Pick<Material, "id" | "uniqKey">): string {
+export function materialKey(
+  material: Pick<Material, "id" | "uniqKey">,
+): string {
   return material.uniqKey ?? String(material.id);
 }

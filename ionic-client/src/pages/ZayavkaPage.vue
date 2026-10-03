@@ -1,10 +1,9 @@
 <template>
   <ion-page v-if="route.name === 'zayavka'">
-    <ion-content :class="{ 'with-bulk-bar': loaded && authStore.isAuthenticated }">
-      <ion-refresher
-        slot="fixed"
-        @ionRefresh="handleRefresh($event)"
-      >
+    <ion-content
+      :class="{ 'with-bulk-bar': loaded && authStore.isAuthenticated }"
+    >
+      <ion-refresher slot="fixed" @ionRefresh="handleRefresh($event)">
         <ion-refresher-content />
       </ion-refresher>
       <div class="ion-padding">
@@ -118,4 +117,3 @@
     system.value = zayavka.system;
   }
 </script>
-

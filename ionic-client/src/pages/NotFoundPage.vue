@@ -7,10 +7,7 @@
         </ion-title>
       </ion-item-divider>
       <p>{{ $t("pages.not_found.text") }}</p>
-      <ion-button
-        class="add_btn"
-        :router-link="`/${locale}/zayavka`"
-      >
+      <ion-button class="add_btn" :router-link="`/${locale}/zayavka`">
         {{ $t("pages.not_found.home") }}
       </ion-button>
     </ion-content>

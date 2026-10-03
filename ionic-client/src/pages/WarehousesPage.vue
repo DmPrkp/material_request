@@ -24,10 +24,7 @@
         button
         @click="goToAuth"
       >
-        <IonIcon
-          slot="start"
-          :icon="alertCircle"
-        />
+        <IonIcon slot="start" :icon="alertCircle" />
         <ion-label class="ion-text-wrap">
           {{ $t("pages.warehouses.auth_required") }}
         </ion-label>
@@ -66,10 +63,7 @@
                    отдельными ion-item каждая занимала бы строку списка. -->
               <ion-item lines="none">
                 <ion-label class="ion-text-wrap">
-                  <p
-                    v-for="kind in ITEM_KINDS"
-                    :key="kind"
-                  >
+                  <p v-for="kind in ITEM_KINDS" :key="kind">
                     {{ $t(`pages.warehouses.kinds.${kind}`) }} —
                     {{ warehouse.counts?.[kind] ?? 0 }}
                     {{ $t("pages.warehouses.units") }}
@@ -103,62 +97,52 @@
           />
           <ion-accordion-group v-model="expandedPersonal">
             <ion-accordion
-            v-for="warehouse in personalWarehouses"
-            :key="warehouse.id"
-            :value="String(warehouse.id)"
-          >
-            <ion-item
-              slot="header"
-              button
-              :detail="false"
-              @click="onHeaderClick($event, warehouse.id)"
+              v-for="warehouse in personalWarehouses"
+              :key="warehouse.id"
+              :value="String(warehouse.id)"
             >
-              <ion-label class="ion-text-wrap">
-                {{ warehouse.name }}
-              </ion-label>
-            </ion-item>
-            <div slot="content">
-              <!-- Счётчики — строками <p> в одной ячейке: так они мельче и плотнее,
-                   отдельными ion-item каждая занимала бы строку списка. -->
-              <ion-item lines="none">
+              <ion-item
+                slot="header"
+                button
+                :detail="false"
+                @click="onHeaderClick($event, warehouse.id)"
+              >
                 <ion-label class="ion-text-wrap">
-                  <p
-                    v-for="kind in ITEM_KINDS"
-                    :key="kind"
-                  >
-                    {{ $t(`pages.warehouses.kinds.${kind}`) }} —
-                    {{ warehouse.counts?.[kind] ?? 0 }}
-                    {{ $t("pages.warehouses.units") }}
-                  </p>
+                  {{ warehouse.name }}
                 </ion-label>
               </ion-item>
-              <ion-row
-                v-if="canRemove(warehouse)"
-                class="ion-justify-content-end"
-              >
-                <CutCornerBtn
-                  class="remove_btn"
-                  @click="removeWarehouse(warehouse)"
+              <div slot="content">
+                <!-- Счётчики — строками <p> в одной ячейке: так они мельче и плотнее,
+                   отдельными ion-item каждая занимала бы строку списка. -->
+                <ion-item lines="none">
+                  <ion-label class="ion-text-wrap">
+                    <p v-for="kind in ITEM_KINDS" :key="kind">
+                      {{ $t(`pages.warehouses.kinds.${kind}`) }} —
+                      {{ warehouse.counts?.[kind] ?? 0 }}
+                      {{ $t("pages.warehouses.units") }}
+                    </p>
+                  </ion-label>
+                </ion-item>
+                <ion-row
+                  v-if="canRemove(warehouse)"
+                  class="ion-justify-content-end"
                 >
-                  {{ $t("ui.buttons.remove") }}
-                </CutCornerBtn>
-              </ion-row>
-            </div>
-          </ion-accordion>
+                  <CutCornerBtn
+                    class="remove_btn"
+                    @click="removeWarehouse(warehouse)"
+                  >
+                    {{ $t("ui.buttons.remove") }}
+                  </CutCornerBtn>
+                </ion-row>
+              </div>
+            </ion-accordion>
           </ion-accordion-group>
         </template>
 
-        <ion-note
-          v-if="state === 'empty'"
-          class="hint"
-        >
+        <ion-note v-if="state === 'empty'" class="hint">
           {{ $t("pages.warehouses.empty") }}
         </ion-note>
-        <ion-text
-          v-if="state === 'error'"
-          class="hint"
-          color="danger"
-        >
+        <ion-text v-if="state === 'error'" class="hint" color="danger">
           {{ $t("pages.warehouses.load_error") }}
         </ion-text>
       </template>
@@ -235,7 +219,9 @@
     // Два списка: склады текущей компании (там управляющий видит и чужие) и свои личные.
     const current = companyStore.currentId ?? null;
     const [company, personal] = await Promise.all([
-      current === null ? Promise.resolve([]) : WarehouseModel.listByCompany(current),
+      current === null
+        ? Promise.resolve([])
+        : WarehouseModel.listByCompany(current),
       WarehouseModel.listByCompany(null),
     ]);
     if (!company || !personal) {
@@ -254,7 +240,7 @@
   watch(
     () => [authStore.token, companyStore.currentId],
     () => void load(),
-    { immediate: true }
+    { immediate: true },
   );
 
   /**
@@ -317,10 +303,10 @@
   const currentCompanyName = computed(() => companyStore.current?.name ?? "");
 
   const companyWarehouses = computed(() =>
-    warehouses.value.filter((warehouse) => warehouse.companyId !== null)
+    warehouses.value.filter((warehouse) => warehouse.companyId !== null),
   );
   const personalWarehouses = computed(() =>
-    warehouses.value.filter((warehouse) => warehouse.companyId === null)
+    warehouses.value.filter((warehouse) => warehouse.companyId === null),
   );
 
   /**

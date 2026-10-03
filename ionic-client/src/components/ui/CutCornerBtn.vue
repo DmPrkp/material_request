@@ -55,13 +55,14 @@
     font-weight: 400;
     border: none;
     color: var(--color);
-    background: linear-gradient(to bottom left, var(--color) 50%, #0000 50.1%)
-        top right,
+    background:
+      linear-gradient(to bottom left, var(--color) 50%, #0000 50.1%) top right,
       linear-gradient(to top right, var(--color) 50%, #0000 50.1%) bottom left;
     background-size: calc(var(--slant) + 1.3 * var(--border))
       calc(var(--slant) + 1.3 * var(--border));
     background-repeat: no-repeat;
-    box-shadow: 0 0 0 200px inset var(--s, #0000),
+    box-shadow:
+      0 0 0 200px inset var(--s, #0000),
       0 0 0 var(--border) inset var(--color);
     /* background-color: var(--ion-color-medium); */
     clip-path: polygon(

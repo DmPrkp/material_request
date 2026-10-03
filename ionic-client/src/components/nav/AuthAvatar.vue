@@ -7,19 +7,13 @@
     :title="label"
   >
     <ion-avatar class="avatar_circle">
-      <ion-icon
-        class="avatar_person"
-        :icon="person"
-      />
+      <ion-icon class="avatar_person" :icon="person" />
       <!--
         Значок только у гостя: он и подсказывает, что по аватару можно кликнуть,
         и заменяет собой прежний отдельный восклицательный знак в шапке.
         Вошедшему подсказка не нужна — кружок остаётся чистым.
       -->
-      <span
-        v-if="!authStore.isAuthenticated"
-        class="avatar_badge"
-      >
+      <span v-if="!authStore.isAuthenticated" class="avatar_badge">
         <ion-icon :icon="alertSharp" />
       </span>
     </ion-avatar>
@@ -45,7 +39,7 @@
   const label = computed(() =>
     authStore.isAuthenticated
       ? t("pages.settings.title")
-      : t("pages.auth.not_authorized")
+      : t("pages.auth.not_authorized"),
   );
 </script>
 

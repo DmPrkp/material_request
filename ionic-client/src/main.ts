@@ -73,7 +73,7 @@ const defaultBaseUrl = BaseModel.baseURL;
 AuthModel.setBaseUrl(
   import.meta.env.VITE_USER_API_ORIGIN ||
     import.meta.env.VITE_AUTH_API_ORIGIN ||
-    defaultBaseUrl
+    defaultBaseUrl,
 );
 const authStore = useAuthStore(pinia);
 // Сессию из localStorage поднимаем и при выключенном флаге: он отключает только
@@ -89,7 +89,7 @@ watch(
   (token) => {
     if (token) void claimAnonymous();
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 router.beforeEach(async (to) => {

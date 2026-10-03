@@ -1,9 +1,6 @@
 <template>
   <ion-item-divider color="medium">
-    <ion-title
-      color="secondary"
-      style="transform: skewX(-10deg)"
-    >
+    <ion-title color="secondary" style="transform: skewX(-10deg)">
       {{ title }}
     </ion-title>
   </ion-item-divider>

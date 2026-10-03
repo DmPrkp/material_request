@@ -1,8 +1,5 @@
 <template>
-  <ion-modal
-    :is-open="isOpen"
-    @didDismiss="emit('close')"
-  >
+  <ion-modal :is-open="isOpen" @didDismiss="emit('close')">
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ heading }}</ion-title>
@@ -11,10 +8,7 @@
             :aria-label="$t('ui.buttons.close')"
             @click="emit('close')"
           >
-            <ion-icon
-              slot="icon-only"
-              :icon="closeOutline"
-            />
+            <ion-icon slot="icon-only" :icon="closeOutline" />
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
@@ -23,22 +17,13 @@
     <ion-content class="ion-padding">
       <h4 class="owner_name">{{ ownerName }}</h4>
       <!-- Сборка чужой общей позиции: сохранение заведёт копию позиции со всеми сборками. -->
-      <ion-note
-        v-if="!canModify"
-        class="copy_hint"
-      >
+      <ion-note v-if="!canModify" class="copy_hint">
         {{ $t("pages.catalog.copy_hint") }}
       </ion-note>
 
-      <VariantParamsEditor
-        ref="editor"
-        v-model="rows"
-      />
+      <VariantParamsEditor ref="editor" v-model="rows" />
 
-      <ion-text
-        v-if="error"
-        color="danger"
-      >
+      <ion-text v-if="error" color="danger">
         <p>{{ error }}</p>
       </ion-text>
       <CutCornerBtn
@@ -58,10 +43,7 @@
         :disabled="saving"
         @click="remove"
       >
-        <ion-icon
-          slot="start"
-          :icon="trashOutline"
-        />
+        <ion-icon slot="start" :icon="trashOutline" />
         {{ $t("pages.catalog.delete") }}
       </ion-button>
     </ion-content>
@@ -83,7 +65,14 @@
    */
   import { computed, ref, watch } from "vue";
   import { useI18n } from "vue-i18n";
-  import { IonButtons, IonHeader, IonIcon, IonModal, IonNote, IonToolbar } from "@ionic/vue";
+  import {
+    IonButtons,
+    IonHeader,
+    IonIcon,
+    IonModal,
+    IonNote,
+    IonToolbar,
+  } from "@ionic/vue";
   import { closeOutline, trashOutline } from "ionicons/icons";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import DictionaryModel, { type VariantOwner } from "@/models/DictionaryModel";
@@ -92,7 +81,12 @@
   import VariantParamsEditor from "./VariantParamsEditor.vue";
   import { saveErrorText } from "./localeFields";
   import { confirmDelete } from "./ownership";
-  import { newRow, rowFromParam, toInput, type ParamRow } from "./variantParams";
+  import {
+    newRow,
+    rowFromParam,
+    toInput,
+    type ParamRow,
+  } from "./variantParams";
 
   const props = defineProps<{
     isOpen: boolean;
@@ -146,7 +140,12 @@
     error.value = "";
     try {
       const saved = props.variant
-        ? await DictionaryModel.updateVariant(props.owner, ownerId, props.variant.id, params)
+        ? await DictionaryModel.updateVariant(
+            props.owner,
+            ownerId,
+            props.variant.id,
+            params,
+          )
         : await DictionaryModel.createVariant(props.owner, ownerId, params);
       emit("close", { ownerId: saved.ownerId });
     } catch (cause) {

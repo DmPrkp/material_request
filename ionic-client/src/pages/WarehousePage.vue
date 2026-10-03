@@ -7,19 +7,12 @@
         </ion-title>
       </ion-item-divider>
 
-      <ion-text
-        v-if="error"
-        class="hint"
-        color="danger"
-      >
+      <ion-text v-if="error" class="hint" color="danger">
         {{ $t(error) }}
       </ion-text>
 
       <template v-else>
-        <ion-row
-          v-if="loaded"
-          class="select-row ion-justify-content-end"
-        >
+        <ion-row v-if="loaded" class="select-row ion-justify-content-end">
           <!-- Выделение доступно всегда: строка склада никуда не ведёт, нажатие её выделяет. -->
           <ion-button
             v-if="groups.length"
@@ -31,7 +24,7 @@
               $t(
                 allSelected
                   ? "pages.warehouses.clear_selection"
-                  : "pages.warehouses.select_all"
+                  : "pages.warehouses.select_all",
               )
             }}
           </ion-button>
@@ -41,22 +34,10 @@
           Таблица — как в заявке: её же шапки (TitledDivider + table-head) и те же
           столбцы, только вместо расхода на объём — сколько лежит на складе.
         -->
-        <template
-          v-for="group in groups"
-          :key="group.kind"
-        >
-          <MaterialHeader
-            v-if="group.kind === 'material'"
-            readonly
-          />
-          <HandToolListHeader
-            v-else-if="group.kind === 'hand_tool'"
-            readonly
-          />
-          <PowerToolListHeader
-            v-else
-            readonly
-          />
+        <template v-for="group in groups" :key="group.kind">
+          <MaterialHeader v-if="group.kind === 'material'" readonly />
+          <HandToolListHeader v-else-if="group.kind === 'hand_tool'" readonly />
+          <PowerToolListHeader v-else readonly />
           <ion-item
             v-for="(item, num) in group.items"
             :key="item.id"
@@ -71,10 +52,7 @@
             <ion-grid>
               <!-- Числа — по центру высоты строки: название бывает в две-три строки. -->
               <ion-row class="ion-align-items-center">
-                <ion-col
-                  size="1"
-                  class="cell-center"
-                >
+                <ion-col size="1" class="cell-center">
                   <!--
                     У выбранной строки на месте номера — галочка: столбец «№» шириной
                     1/12, и номер с отдельным квадратиком в нём не помещались. Пустого
@@ -91,28 +69,16 @@
                   />
                   <template v-else>{{ num + 1 }}</template>
                 </ion-col>
-                <ion-col
-                  size="7"
-                  class="ion-text-start cell-name"
-                >
+                <ion-col size="7" class="ion-text-start cell-name">
                   {{ item.title }}
-                  <span
-                    v-if="item.details"
-                    class="param"
-                  >
+                  <span v-if="item.details" class="param">
                     {{ item.details }}
                   </span>
                 </ion-col>
-                <ion-col
-                  size="2"
-                  class="cell-center"
-                >
+                <ion-col size="2" class="cell-center">
                   {{ item.quantity }}
                 </ion-col>
-                <ion-col
-                  size="2"
-                  class="cell-center"
-                >
+                <ion-col size="2" class="cell-center">
                   {{ item.measure || $t("measure.pcs") }}
                 </ion-col>
               </ion-row>
@@ -124,35 +90,22 @@
         <ion-grid v-if="loaded">
           <ion-row class="ion-justify-content-end">
             <ion-col size="auto">
-              <CutCornerBtn
-                :disabled="busy"
-                @click="addItems"
-              >
+              <CutCornerBtn :disabled="busy" @click="addItems">
                 {{ $t("pages.warehouses.add_items_title") }}
               </CutCornerBtn>
             </ion-col>
           </ion-row>
         </ion-grid>
 
-        <ion-note
-          v-if="loaded && !groups.length"
-          class="hint"
-        >
+        <ion-note v-if="loaded && !groups.length" class="hint">
           {{ $t("pages.warehouses.items_empty") }}
         </ion-note>
         <!-- Чтобы последние строки не прятались под панелью действий. -->
-        <div
-          v-if="selected.size"
-          class="bulk-spacer"
-        />
+        <div v-if="selected.size" class="bulk-spacer" />
       </template>
 
       <!-- Групповые действия — внизу, под большой палец, как в списке заявок. -->
-      <div
-        v-if="selected.size"
-        slot="fixed"
-        class="bulk-bar"
-      >
+      <div v-if="selected.size" slot="fixed" class="bulk-bar">
         <ion-button
           color="danger"
           fill="outline"
@@ -253,7 +206,7 @@
     KINDS.filter((kind) => rows.value[kind].length).map((kind) => ({
       kind,
       items: rows.value[kind],
-    }))
+    })),
   );
 
   function emptyRows(): Record<WarehouseItemKind, ItemRow[]> {
@@ -291,7 +244,7 @@
       selected.value = new Set();
       void load();
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   /**
@@ -313,7 +266,7 @@
     try {
       await WarehouseModel.addItems(id, data);
       await afterAction(
-        t("pages.warehouses.added_items", { count: data.length })
+        t("pages.warehouses.added_items", { count: data.length }),
       );
     } catch (err) {
       console.error("Не удалось добавить позиции на склад", err);
@@ -325,13 +278,12 @@
 
   /* ------------------------------------------------ выделение и действия */
 
-
   const allIds = computed(() =>
-    KINDS.flatMap((kind) => rows.value[kind].map((row) => row.id))
+    KINDS.flatMap((kind) => rows.value[kind].map((row) => row.id)),
   );
   const allSelected = computed(
     () =>
-      allIds.value.length > 0 && selected.value.size === allIds.value.length
+      allIds.value.length > 0 && selected.value.size === allIds.value.length,
   );
 
   function onRowClick(id: number) {
@@ -360,7 +312,7 @@
     const from = warehouse.value;
     if (!from) return;
     const items = KINDS.flatMap((kind) =>
-      rows.value[kind].filter((row) => selected.value.has(row.id))
+      rows.value[kind].filter((row) => selected.value.has(row.id)),
     );
 
     let targets: Warehouse[] = [];
@@ -396,7 +348,7 @@
           (target) =>
             target.id !== from.id &&
             target.isActive &&
-            target.companyId === from.companyId
+            target.companyId === from.companyId,
         );
         companies = mine ?? [];
       } finally {
@@ -421,13 +373,13 @@
       } else if (mode === "remove") {
         await WarehouseModel.removeItems(from.id, data.items);
         await afterAction(
-          t("pages.warehouses.deleted_items", { count: data.items.length })
+          t("pages.warehouses.deleted_items", { count: data.items.length }),
         );
       } else if (data.targetWarehouseId) {
         await WarehouseModel.moveItems(
           from.id,
           data.items,
-          data.targetWarehouseId
+          data.targetWarehouseId,
         );
         const name = targets.find((w) => w.id === data.targetWarehouseId)?.name;
         await afterAction(t("pages.warehouses.moved", { name }));
@@ -455,7 +407,7 @@
    * имён — всё равно выдаём, подпишем id: список участников важнее подписи.
    */
   async function issueRecipients(
-    companyId: number
+    companyId: number,
   ): Promise<ActionPerson[] | undefined> {
     const members = await CompanyModel.members(companyId);
     if (!members) return undefined;

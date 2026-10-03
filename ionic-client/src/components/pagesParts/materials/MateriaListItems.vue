@@ -10,44 +10,24 @@
     <ion-grid>
       <!-- Числа — по центру высоты строки: название бывает в две-три строки. -->
       <ion-row class="ion-align-items-center">
-        <ion-col
-          size="1"
-          class="cell-center"
-        >
+        <ion-col size="1" class="cell-center">
           <UnfilledMark v-if="unfilled?.has(materialKey(material))" />
           <template v-else>{{ num + 1 }}</template>
         </ion-col>
-        <ion-col
-          :size="readonly ? 7 : 6"
-          class="ion-text-start cell-name"
-        >
+        <ion-col :size="readonly ? 7 : 6" class="ion-text-start cell-name">
           {{ material.title }}
-          <span
-            v-for="param in material.params"
-            :key="param.id"
-            class="param"
-          >
+          <span v-for="param in material.params" :key="param.id" class="param">
             {{ calcParamLabel(param) }} {{ " " }}
           </span>
         </ion-col>
         <!-- В сохранённой заявке расход на м² не нужен: её читают, чтобы закупить. -->
-        <ion-col
-          v-if="!readonly"
-          size="2"
-          class="cell-center"
-        >
+        <ion-col v-if="!readonly" size="2" class="cell-center">
           {{ material.consumption }}
         </ion-col>
-        <ion-col
-          size="2"
-          class="cell-center"
-        >
+        <ion-col size="2" class="cell-center">
           {{ materialTotal(material) }}
         </ion-col>
-        <ion-col
-          :size="readonly ? 2 : 1"
-          class="cell-center"
-        >
+        <ion-col :size="readonly ? 2 : 1" class="cell-center">
           {{ material.measure }}
         </ion-col>
       </ion-row>

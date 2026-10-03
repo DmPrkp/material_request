@@ -9,7 +9,9 @@ export default class CompanyModel extends BaseModel {
 
   /** Компании, где пользователь участник. undefined — не достучались (get глотает ошибку). */
   static async listMine(): Promise<Company[] | undefined> {
-    const page = await this.get<CompanyPage>(`/companies?limit=${COMPANIES_LIMIT}`);
+    const page = await this.get<CompanyPage>(
+      `/companies?limit=${COMPANIES_LIMIT}`,
+    );
     return page?.items;
   }
 

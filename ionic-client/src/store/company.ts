@@ -49,7 +49,7 @@ export const useCompanyStore = defineStore("currentCompany", {
     /** В текущей компании можно заводить склады и выдавать. */
     canManageCurrent(): boolean {
       return !!this.current?.roles.some(
-        (role) => role === "own" || role === "manage"
+        (role) => role === "own" || role === "manage",
       );
     },
   },
