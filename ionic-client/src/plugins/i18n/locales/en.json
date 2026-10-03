@@ -129,7 +129,6 @@
         "time": "time"
       },
       "edit": "edit",
-      "done": "done",
       "select_all": "select all",
       "delete": "delete ({count})",
       "merge": "merge",

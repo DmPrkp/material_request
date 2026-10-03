@@ -11,20 +11,15 @@
           </ion-title>
         </ion-item-divider>
       </div>
-      <!-- Калькулятор — начало новой заявки: расчёт сам сохраняется и появится здесь. -->
+      <!-- Кнопка прижата вправо: слева от неё ничего нет, а в режиме правки чекбоксы
+           идут по правому краю строк — переключатель встаёт над ними. -->
       <ion-row
-        class="new-zayavka ion-justify-content-between ion-align-items-center ion-padding-horizontal"
+        class="new-zayavka ion-justify-content-end ion-align-items-center ion-padding-horizontal"
       >
         <!-- Режим правки: вместо времени — чекбоксы, строка не открывает заявку, а выделяется. -->
-        <CutCornerBtn v-if="rows.length" @click="toggleEditing">
-          {{
-            $t(editing ? "pages.zayavka_list.done" : "pages.zayavka_list.edit")
-          }}
+        <CutCornerBtn @click="toggleEditing">
+          {{ $t(editing ? "ui.buttons.back" : "pages.zayavka_list.edit") }}
         </CutCornerBtn>
-        <span v-else />
-        <PlasmaButton @click="router.push({ name: 'calculator' })">
-          {{ $t("pages.zayavka_list.new") }}
-        </PlasmaButton>
       </ion-row>
       <!-- Без входа заявки ничьи: почистят данные сайта — список их больше не найдёт. -->
       <ion-item
@@ -168,7 +163,6 @@
     toastController,
   } from "@ionic/vue";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
-  import PlasmaButton from "@/components/ui/PlasmaButton.vue";
   import TitledDivider from "@/components/ui/TitledDivider.vue";
   import { alertCircle, checkbox, squareOutline } from "ionicons/icons";
   import { computed, onMounted, ref, watch } from "vue";
