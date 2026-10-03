@@ -27,7 +27,7 @@ const notFoundSeo: SeoPages[string] = {
 
 /**
  * SEO по адресу без локали: ключ — до четырёх сегментов после /:locale
- * (zayavka/calculator/facade/EIFS). Каждый ключ — индексируемая страница: из них
+ * (calculator/facade/EIFS). Каждый ключ — индексируемая страница: из них
  * при сборке строятся sitemap и HTML со своими мета-тегами (seo-prerender.ts).
  * Новый индексируемый роут — просто ключ здесь.
  */
@@ -43,7 +43,7 @@ const seoPages: SeoPages = {
       ru: "Заявка на строительные материалы по расчёту: список заявок, выгрузка в таблицу, передача по ссылке и на склад компании.",
     },
   },
-  "zayavka/calculator": {
+  calculator: {
     title: {
       en: "Construction materials calculator by type of work",
       ru: "Калькулятор строительных материалов по видам работ",
@@ -53,7 +53,7 @@ const seoPages: SeoPages = {
       ru: "Онлайн-калькулятор строительных материалов: выберите вид работ — фасад, кровля, отделка — и получите расход материалов и инструмента на ваш объём.",
     },
   },
-  "zayavka/calculator/facade": {
+  "calculator/facade": {
     title: {
       en: "Facade materials calculation: EIFS and scaffolding",
       ru: "Расчёт материалов для фасада: СФТК и строительные леса",
@@ -63,7 +63,7 @@ const seoPages: SeoPages = {
       ru: "Калькулятор фасадных работ: мокрый фасад (СФТК) и рамные строительные леса — материалы, инструмент и расход на площадь фасада.",
     },
   },
-  "zayavka/calculator/facade/EIFS": {
+  "calculator/facade/EIFS": {
     title: {
       en: "EIFS calculator: wet facade materials calculation",
       ru: "Калькулятор мокрого фасада (СФТК): расчёт материалов",
@@ -73,7 +73,7 @@ const seoPages: SeoPages = {
       ru: "Расход материалов на мокрый фасад СФТК на 1 м² по этапам: клей для утеплителя, утеплитель, дюбели, сетка, штукатурка — и инструмент для бригады.",
     },
   },
-  "zayavka/calculator/facade/frame_scaffold": {
+  "calculator/facade/frame_scaffold": {
     title: {
       en: "Scaffolding calculation by facade area",
       ru: "Расчёт строительных лесов по площади фасада",
@@ -83,7 +83,7 @@ const seoPages: SeoPages = {
       ru: "Онлайн-расчёт рамных строительных лесов: комплектующие на площадь фасада и инструмент для монтажа.",
     },
   },
-  "zayavka/calculator/interior": {
+  "calculator/interior": {
     title: {
       en: "Interior finishing calculation: drywall partitions",
       ru: "Расчёт материалов для отделки: перегородки из гипсокартона",
@@ -93,7 +93,7 @@ const seoPages: SeoPages = {
       ru: "Калькулятор внутренней отделки: перегородки из гипсокартона и поверхности — материалы, инструмент и расход на вашу площадь.",
     },
   },
-  "zayavka/calculator/interior/GKL_C112": {
+  "calculator/interior/GKL_C112": {
     title: {
       en: "Drywall partition calculator (C112)",
       ru: "Калькулятор перегородки из гипсокартона С112",
@@ -255,7 +255,7 @@ const NOINDEX_ROUTES = new Set([
 /** Главная — у неё имя сайта впереди заголовка и высший приоритет в sitemap. */
 export const HOME_KEY = "main";
 /** Калькулятор: его виды работ и технологии — в sitemap словаря (seo-prerender.ts). */
-export const CALCULATOR_KEY = "zayavka/calculator";
+export const CALCULATOR_KEY = "calculator";
 /** Язык x-default в hreflang. */
 export const DEFAULT_SEO_LOCALE: Locale = "ru";
 export const OG_LOCALES: Record<Locale, string> = { ru: "ru_RU", en: "en_US" };

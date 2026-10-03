@@ -5,6 +5,7 @@
     "zayavka": "Requests",
     "auth": "Sign in",
     "catalog": "Catalogs",
+    "calculator": "Calculator",
     "warehouses": "Warehouses"
   },
   "ui": {

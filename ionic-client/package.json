@@ -10,7 +10,9 @@
     "test:e2e": "cypress run",
     "test:unit": "vitest",
     "test": "npm run test:unit && npm run test:e2e",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,vue}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,vue}\""
   },
   "dependencies": {
     "@capacitor/android": "6.1.2",
@@ -47,6 +49,7 @@
     "eslint-plugin-vue": "^9.29.0",
     "globals": "^15.11.0",
     "jsdom": "^22.1.0",
+    "prettier": "^3.4.2",
     "terser": "^5.4.0",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.8.1",

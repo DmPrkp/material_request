@@ -9,11 +9,7 @@
           class="ion-align-self-end"
         >
           <router-link :to="getLocalizedRoute(item.link)">
-            <ion-icon
-              color="dark"
-              :icon="item.icon"
-              size="large"
-            />
+            <ion-icon color="dark" :icon="item.icon" />
           </router-link>
           <ion-text style="font-size: small">
             {{ $t(`footer.${item.name}`) }}
@@ -35,6 +31,7 @@
   } from "@ionic/vue";
   import {
     libraryOutline,
+    calculatorOutline,
     documentsOutline,
     archiveOutline,
     logInOutline,
@@ -52,6 +49,11 @@
     name: "catalog",
     icon: libraryOutline,
   };
+  const CALCULATOR = {
+    link: "calculator",
+    name: "calculator",
+    icon: calculatorOutline,
+  };
   const ZAYAVKA = {
     link: "zayavka",
     name: "zayavka",
@@ -68,16 +70,17 @@
     icon: logInOutline,
   };
 
-  // Настроек здесь нет: они открываются аватаром справа в шапке. Калькулятора тоже:
-  // он внутри «Заявок» (кнопка «Новая заявка»), а /main — пустой, по логотипу.
+  // Настроек здесь нет: они открываются аватаром справа в шапке. На /main тоже
+  // не ведём — туда по логотипу. Расчёт идёт перед «Заявками»: сначала считают,
+  // потом сохраняют заявкой.
   const menuItems = computed(() => {
     // Пока авторизация выключена флагом, вкладку входа не показываем
     // и работаем так, будто пользователь уже вошёл.
     if (!AUTH_ENABLED || authStore.isAuthenticated) {
-      return [CATALOG, ZAYAVKA, WAREHOUSES];
+      return [CATALOG, CALCULATOR, ZAYAVKA, WAREHOUSES];
     }
 
-    return [CATALOG, AUTH, ZAYAVKA];
+    return [CATALOG, CALCULATOR, AUTH, ZAYAVKA];
   });
 
   const getLocalizedRoute = (routeName: string) => {
@@ -94,6 +97,14 @@
   молча жили центрированными — двухстрочные названия вставали по центру.
 -->
 <style scoped>
+  /*
+   * 24px вместо ionic-ного size="large" (32px): нижняя полоса должна читаться,
+   * а не перетягивать на себя экран — на телефоне она всегда перед глазами.
+   */
+  ion-icon {
+    font-size: 24px;
+  }
+
   ion-col {
     display: flex;
     flex-direction: column;

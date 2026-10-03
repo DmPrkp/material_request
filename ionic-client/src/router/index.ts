@@ -59,7 +59,8 @@ const routes: Array<RouteRecordRaw> = [
                     // адреса — записи словаря, у каждого пользователя свои.
                     path: ":systemId(\\d+|new)",
                     name: "catalog-technology",
-                    component: () => import("@/pages/CatalogTechnologyPage.vue"),
+                    component: () =>
+                      import("@/pages/CatalogTechnologyPage.vue"),
                     meta: { requiresAuth: true },
                     children: [
                       {
@@ -92,7 +93,10 @@ const routes: Array<RouteRecordRaw> = [
               const tab = normalizeCatalogTab(to.params.tab);
               // Неизвестный раздел в адресе -> обратно в меню сборников.
               if (!tab) {
-                return { name: "catalog", params: { locale: to.params.locale } };
+                return {
+                  name: "catalog",
+                  params: { locale: to.params.locale },
+                };
               }
               // Голый /power_tools (он же в sitemap и в плитке меню) — на первый таб.
               if (tab === "power_tools") {
@@ -145,7 +149,7 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: false },
       },
       {
-        // Главная: что это и сценарии со скриншотами. Калькулятор переехал в «Заявки».
+        // Главная: что это и сценарии со скриншотами. Калькулятор — свой раздел.
         path: "main",
         name: "main",
         component: () => import("@/pages/MainPage.vue"),
@@ -156,9 +160,68 @@ const routes: Array<RouteRecordRaw> = [
         // (materialList с объёмами в query) — переводим в новый, query сохраняем.
         path: "main/:calcPath(.+)",
         redirect: (to) => ({
-          path: to.path.replace(/^\/([^/]+)\/main\//, "/$1/zayavka/calculator/"),
+          path: to.path.replace(/^\/([^/]+)\/main\//, "/$1/calculator/"),
           query: to.query,
         }),
+      },
+      {
+        // Второй переезд калькулятора — из «Заявок» в свой раздел. Эти адреса тоже
+        // успели побывать в sitemap и в ссылках, поэтому переводим и их. Параметр
+        // сразу после статического текста ловит и голый /zayavka/calculator, и всё,
+        // что под ним.
+        path: "zayavka/calculator:calcPath(.*)",
+        redirect: (to) => ({
+          path: to.path.replace(
+            /^\/([^/]+)\/zayavka\/calculator/,
+            "/$1/calculator",
+          ),
+          query: to.query,
+        }),
+      },
+      {
+        // Расчёт — свой раздел, а не шаг внутри «Заявок»: считают и без заявки, а
+        // попасть в калькулятор можно было только из списка. Кнопка «Новая заявка»
+        // по-прежнему ведёт сюда, и расчёт по-прежнему сохраняется заявкой.
+        path: "calculator",
+        name: "calculator",
+        component: () => import("@/pages/CalculatorPage.vue"),
+        meta: { requiresAuth: true },
+        children: [
+          {
+            path: ":workType",
+            name: "work-type",
+            component: () => import("@/pages/SystemsPage.vue"),
+            meta: { requiresAuth: true },
+            children: [
+              {
+                // Группа технологий — шаг навигации внутри вида работ
+                // («Перегородки» → «Гипсокартон»). Статический сегмент group
+                // не даёт спутать код группы с техническим кодом технологии,
+                // а сама технология остаётся на прежнем адресе — sitemap,
+                // SEO-ключи и старые ссылки не трогаем. Состав групп —
+                // в constants/systems.
+                path: "group/:group",
+                name: "system-group",
+                component: () => import("@/pages/SystemGroupPage.vue"),
+                meta: { requiresAuth: true },
+              },
+              {
+                path: ":system",
+                name: "system",
+                component: () => import("@/pages/ComponentsPage.vue"),
+                meta: { requiresAuth: true },
+                children: [
+                  {
+                    path: "materialList",
+                    name: "material-list",
+                    component: () => import("@/pages/MaterialListPage.vue"),
+                    meta: { requiresAuth: true },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       },
       {
         path: "zayavka",
@@ -166,51 +229,6 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/pages/ZayavkaListPage.vue"),
         meta: { requiresAuth: true },
         children: [
-          {
-            // Калькулятор — начало новой заявки, поэтому он внутри «Заявок»: кнопка
-            // «Новая заявка» в списке ведёт сюда, а расчёт сам сохраняется заявкой.
-            // Статический сегмент выигрывает у :zayavka, но id и так только цифры.
-            path: "calculator",
-            name: "calculator",
-            component: () => import("@/pages/CalculatorPage.vue"),
-            meta: { requiresAuth: true },
-            children: [
-              {
-                path: ":workType",
-                name: "work-type",
-                component: () => import("@/pages/SystemsPage.vue"),
-                meta: { requiresAuth: true },
-                children: [
-                  {
-                    // Группа технологий — шаг навигации внутри вида работ
-                    // («Перегородки» → «Гипсокартон»). Статический сегмент group
-                    // не даёт спутать код группы с техническим кодом технологии,
-                    // а сама технология остаётся на прежнем адресе — sitemap,
-                    // SEO-ключи и старые ссылки не трогаем. Состав групп —
-                    // в constants/systems.
-                    path: "group/:group",
-                    name: "system-group",
-                    component: () => import("@/pages/SystemGroupPage.vue"),
-                    meta: { requiresAuth: true },
-                  },
-                  {
-                    path: ":system",
-                    name: "system",
-                    component: () => import("@/pages/ComponentsPage.vue"),
-                    meta: { requiresAuth: true },
-                    children: [
-                      {
-                        path: "materialList",
-                        name: "material-list",
-                        component: () => import("@/pages/MaterialListPage.vue"),
-                        meta: { requiresAuth: true },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
           {
             path: ":zayavka(\\d+)",
             name: "zayavka",

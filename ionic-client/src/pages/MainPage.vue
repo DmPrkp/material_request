@@ -11,10 +11,7 @@
         <header class="hero">
           <h1 class="hero__title">{{ $t("pages.landing.title") }}</h1>
           <p class="hero__lead">{{ $t("pages.landing.lead") }}</p>
-          <CutCornerBtn
-            fullWidth
-            :to="calculatorPath"
-          >
+          <CutCornerBtn fullWidth :to="calculatorPath">
             {{ $t("pages.landing.cta") }}
           </CutCornerBtn>
         </header>
@@ -29,11 +26,7 @@
             прокруткой к нужной: сценарии листаются вбок, раздел занимает один экран.
             Свайп сам переключает вкладку, нажатие на вкладку — листает.
           -->
-          <ion-segment
-            v-model="activeScenario"
-            class="tabs"
-            scrollable
-          >
+          <ion-segment v-model="activeScenario" class="tabs" scrollable>
             <ion-segment-button
               v-for="scenario in LANDING_SCENARIOS"
               :key="scenario.id"
@@ -41,10 +34,7 @@
               :content-id="`landing-${scenario.id}`"
               layout="icon-top"
             >
-              <ion-icon
-                :icon="scenario.icon"
-                aria-hidden="true"
-              />
+              <ion-icon :icon="scenario.icon" aria-hidden="true" />
               <ion-label>{{
                 $t(`pages.landing.scenarios.${scenario.id}.title`)
               }}</ion-label>
@@ -72,17 +62,12 @@
           </h2>
           <p class="section__intro">{{ $t("pages.landing.method.intro") }}</p>
           <dl class="terms">
-            <template
-              v-for="item in LANDING_METHOD"
-              :key="item.key"
-            >
+            <template v-for="item in LANDING_METHOD" :key="item.key">
               <dt>{{ $t(`pages.landing.method.items.${item.key}.term`) }}</dt>
               <dd>
-                <code
-                  v-if="item.formula"
-                  class="formula"
-                  >{{ $t(`pages.landing.method.items.${item.key}.formula`) }}</code
-                >
+                <code v-if="item.formula" class="formula">{{
+                  $t(`pages.landing.method.items.${item.key}.formula`)
+                }}</code>
                 {{ $t(`pages.landing.method.items.${item.key}.text`) }}
               </dd>
             </template>
@@ -95,10 +80,7 @@
             {{ $t("pages.landing.properties.title") }}
           </h2>
           <dl class="terms">
-            <template
-              v-for="key in LANDING_PROPERTIES"
-              :key="key"
-            >
+            <template v-for="key in LANDING_PROPERTIES" :key="key">
               <dt>{{ $t(`pages.landing.properties.items.${key}.term`) }}</dt>
               <dd>{{ $t(`pages.landing.properties.items.${key}.text`) }}</dd>
             </template>
@@ -106,10 +88,7 @@
         </section>
 
         <footer class="outro">
-          <CutCornerBtn
-            fullWidth
-            :to="calculatorPath"
-          >
+          <CutCornerBtn fullWidth :to="calculatorPath">
             {{ $t("pages.landing.cta") }}
           </CutCornerBtn>
         </footer>
@@ -145,7 +124,9 @@
 
   function realign() {
     const el = segmentView.value?.$el;
-    const index = LANDING_SCENARIOS.findIndex((s) => s.id === activeScenario.value);
+    const index = LANDING_SCENARIOS.findIndex(
+      (s) => s.id === activeScenario.value,
+    );
     if (el && index >= 0) el.scrollLeft = index * el.clientWidth;
   }
 
@@ -158,10 +139,7 @@
   onBeforeUnmount(() => resizeObserver?.disconnect());
 
   // Ссылка, а не router.push по клику: переход главная → калькулятор видит поисковик.
-  const calculatorPath = computed(
-    () => `/${route.params.locale}/zayavka/calculator`
-  );
-
+  const calculatorPath = computed(() => `/${route.params.locale}/calculator`);
 </script>
 
 <style scoped>

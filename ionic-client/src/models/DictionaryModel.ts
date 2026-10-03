@@ -44,7 +44,10 @@ export type NewWorkStage = {
   systemId: number;
   position?: number;
 };
-export type WorkStageChanges = { nameRu?: string | null; nameEn?: string | null };
+export type WorkStageChanges = {
+  nameRu?: string | null;
+  nameEn?: string | null;
+};
 /** Материал: названия — как у технологий; единица обязательна, тип — нет (null — снять). */
 export type NewMaterial = {
   nameRu?: string | null;
@@ -77,7 +80,10 @@ export type NewHandTool = {
   nameEn?: string | null;
   variants?: VariantParamInput[][];
 };
-export type HandToolChanges = { nameRu?: string | null; nameEn?: string | null };
+export type HandToolChanges = {
+  nameRu?: string | null;
+  nameEn?: string | null;
+};
 
 export type CatalogQuery = {
   page?: number;
@@ -111,38 +117,38 @@ export default class DictionaryModel extends BaseModel {
 
   static materials(query: CatalogQuery = {}) {
     return this.get<DictionaryPage<DictionaryMaterial>>(
-      `/materials${toQueryString(query)}`
+      `/materials${toQueryString(query)}`,
     );
   }
 
   static handTools(query: CatalogQuery = {}) {
     return this.get<DictionaryPage<DictionaryHandTool>>(
-      `/hand-tools${toQueryString(query)}`
+      `/hand-tools${toQueryString(query)}`,
     );
   }
 
   static powerTools(query: CatalogQuery = {}) {
     return this.get<DictionaryPage<DictionaryPowerTool>>(
-      `/power-tools${toQueryString(query)}`
+      `/power-tools${toQueryString(query)}`,
     );
   }
 
   static materialTypes() {
     return this.get<DictionaryPage<DictionaryMaterialType>>(
-      `/material-types?limit=${STRUCTURE_LIMIT}`
+      `/material-types?limit=${STRUCTURE_LIMIT}`,
     );
   }
 
   static units() {
     return this.get<DictionaryPage<DictionaryUnit>>(
-      `/units?limit=${STRUCTURE_LIMIT}`
+      `/units?limit=${STRUCTURE_LIMIT}`,
     );
   }
 
   /** Только для формы правки — оба языка сразу, см. systemTranslations. */
   static materialTranslations(id: number) {
     return this.get<DictionaryMaterialTranslations>(
-      `/materials/${id}?translations=all`
+      `/materials/${id}?translations=all`,
     );
   }
 
@@ -160,7 +166,7 @@ export default class DictionaryModel extends BaseModel {
 
   static handToolTranslations(id: number) {
     return this.get<DictionaryHandToolTranslations>(
-      `/hand-tools/${id}?translations=all`
+      `/hand-tools/${id}?translations=all`,
     );
   }
 
@@ -169,7 +175,10 @@ export default class DictionaryModel extends BaseModel {
   }
 
   static updateHandTool(id: number, body: HandToolChanges) {
-    return this.patch<DictionaryHandTool>({ params: `/hand-tools/${id}`, body });
+    return this.patch<DictionaryHandTool>({
+      params: `/hand-tools/${id}`,
+      body,
+    });
   }
 
   static variants(owner: VariantOwner, id: number) {
@@ -179,7 +188,7 @@ export default class DictionaryModel extends BaseModel {
   static createVariant(
     owner: VariantOwner,
     id: number,
-    params: VariantParamInput[]
+    params: VariantParamInput[],
   ) {
     return this.post<DictionaryVariant>({
       params: `/${owner}/${id}/variants`,
@@ -192,7 +201,7 @@ export default class DictionaryModel extends BaseModel {
     owner: VariantOwner,
     id: number,
     variantId: number,
-    params: VariantParamInput[]
+    params: VariantParamInput[],
   ) {
     return this.put<DictionaryVariant>({
       params: `/${owner}/${id}/variants/${variantId}`,
@@ -202,13 +211,13 @@ export default class DictionaryModel extends BaseModel {
 
   static paramKinds() {
     return this.get<DictionaryPage<DictionaryParamKind>>(
-      `/param-kinds?limit=${STRUCTURE_LIMIT}`
+      `/param-kinds?limit=${STRUCTURE_LIMIT}`,
     );
   }
 
   static paramValues(unitId: number) {
     return this.get<DictionaryPage<DictionaryParamValue>>(
-      `/param-values?unitId=${unitId}&limit=${STRUCTURE_LIMIT}`
+      `/param-values?unitId=${unitId}&limit=${STRUCTURE_LIMIT}`,
     );
   }
 
@@ -219,7 +228,8 @@ export default class DictionaryModel extends BaseModel {
    * переписали параметры, и код стал другим. Строка нормы остаётся без названия.
    */
   static variantsByCodes(owner: VariantOwner, codes: string[]) {
-    const path = owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
+    const path =
+      owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
     const query = encodeURIComponent(codes.join(","));
     return this.get<DictionaryVariantWithOwner[]>(`/${path}?codes=${query}`);
   }
@@ -239,7 +249,7 @@ export default class DictionaryModel extends BaseModel {
 
   static workTypes() {
     return this.get<DictionaryPage<DictionaryWorkType>>(
-      `/work-types?limit=${STRUCTURE_LIMIT}`
+      `/work-types?limit=${STRUCTURE_LIMIT}`,
     );
   }
 
@@ -247,13 +257,13 @@ export default class DictionaryModel extends BaseModel {
   static systems(workTypeId?: number) {
     const filter = workTypeId ? `&workTypeId=${workTypeId}` : "";
     return this.get<DictionaryPage<DictionarySystem>>(
-      `/systems?limit=${STRUCTURE_LIMIT}${filter}`
+      `/systems?limit=${STRUCTURE_LIMIT}${filter}`,
     );
   }
 
   static workStages() {
     return this.get<DictionaryPage<DictionaryWorkStage>>(
-      `/work-stages?limit=${STRUCTURE_LIMIT}`
+      `/work-stages?limit=${STRUCTURE_LIMIT}`,
     );
   }
 
@@ -261,12 +271,12 @@ export default class DictionaryModel extends BaseModel {
   // отдают одно name на языке страницы. ?translations=all отключает сворачивание.
 
   /**
-   * Технология по техническому коду из адреса калькулятора (/zayavka/calculator/facade/EIFS) —
+   * Технология по техническому коду из адреса калькулятора (/calculator/facade/EIFS) —
    * вместе с единицей объёма. Не видна или нет такой — undefined, как у всех get().
    */
   static systemByTitle(title: string) {
     return this.get<DictionarySystem>(
-      `/systems/by-title/${encodeURIComponent(title)}`
+      `/systems/by-title/${encodeURIComponent(title)}`,
     );
   }
 
@@ -282,13 +292,13 @@ export default class DictionaryModel extends BaseModel {
 
   static systemTranslations(id: number) {
     return this.get<DictionarySystemTranslations>(
-      `/systems/${id}?translations=all`
+      `/systems/${id}?translations=all`,
     );
   }
 
   static workStageTranslations(systemId: number) {
     return this.get<DictionaryPage<DictionaryWorkStageTranslations>>(
-      `/work-stages?systemId=${systemId}&limit=${STRUCTURE_LIMIT}&translations=all`
+      `/work-stages?systemId=${systemId}&limit=${STRUCTURE_LIMIT}&translations=all`,
     );
   }
 
@@ -331,7 +341,8 @@ export default class DictionaryModel extends BaseModel {
   }
 
   static removeVariant(owner: VariantOwner, variantId: number) {
-    const path = owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
+    const path =
+      owner === "hand-tools" ? "hand-tool-variants" : "material-variants";
     return this.delete({ params: `/${path}/${variantId}` });
   }
 }
