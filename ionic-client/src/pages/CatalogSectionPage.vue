@@ -157,6 +157,7 @@
     IonSelectOption,
     type InfiniteScrollCustomEvent,
     type RefresherCustomEvent,
+    type SearchbarCustomEvent,
   } from "@ionic/vue";
   import CatalogItem from "@/components/pagesParts/catalog/CatalogItem.vue";
   import MaterialModal from "@/components/pagesParts/catalog/MaterialModal.vue";
@@ -430,8 +431,8 @@
     await load(1);
   }
 
-  function onSearch(event: CustomEvent) {
-    const value = (event.target as HTMLIonSearchbarElement).value ?? "";
+  function onSearch(event: SearchbarCustomEvent) {
+    const value = event.target.value ?? "";
     if (value === search.value) return;
     search.value = value;
     void reload();
