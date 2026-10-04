@@ -79,10 +79,20 @@
       sizes="180x180"
       href="/apple-touch-icon.png"
     />
+    <!--
+      120×120 — первым: Яндекс берёт иконку для сниппета из <link rel="icon"> и
+      рекомендует не меньше 120×120, а 16/32 в выдаче выглядят мылом.
+    -->
     <link
       rel="icon"
-      href="https://zayavka.app/favicon.ico"
-      type="image/x-icon"
+      type="image/png"
+      sizes="120x120"
+      href="/favicon-120x120.png"
+    />
+    <link
+      rel="icon"
+      href="/favicon.ico"
+      sizes="any"
     />
     <link
       rel="icon"
