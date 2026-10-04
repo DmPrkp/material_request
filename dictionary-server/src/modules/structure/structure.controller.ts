@@ -1,9 +1,10 @@
-import { Controller, Get, Header, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Header, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '~/auth/current-user.decorator';
 import type { AuthUser } from '~/auth/auth-user';
 import { createDictionaryController } from '~/common/dictionary.controller';
+import { LOCALES, type Locale, localize } from '~/common/localize';
 import { IdLookupQueryDto } from '~/common/lookup';
 import {
   CreateSystemDto,
@@ -21,6 +22,7 @@ import {
   updateWorkStageSchema,
   updateWorkTypeSchema,
 } from './structure.dto';
+import { renderArticleHtml } from './article';
 import { SITE_URL, renderTechnologiesSitemap } from './sitemap';
 import { SystemsService, WorkStagesService, WorkTypesService } from './structure.service';
 
@@ -69,6 +71,27 @@ export class SystemsController extends createDictionaryController({
   })
   byTitle(@Param('title') title: string, @CurrentUser() user: AuthUser | undefined) {
     return this.service.byTitle(title, user);
+  }
+
+  /**
+   * Текст страницы технологии HTML-фрагментом — для SSI-вставки nginx клиента в HTML
+   * страницы (ionic-client/docker/nginx.conf): робот видит текст без JS, а правка из
+   * админки доходит до него без пересборки клиента. Язык — в пути, не в
+   * Accept-Language: SSI-подзапрос несёт заголовки посетителя, а страница /en/ должна
+   * получить английский текст при любом браузере. Пользователь не передаётся: в HTML
+   * для всех только общие технологии, как в sitemap.
+   */
+  @Get('by-title/:title/article/:locale')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  @ApiOperation({ summary: 'Текст страницы технологии HTML-фрагментом (для SSI)' })
+  async articleHtml(@Param('title') title: string, @Param('locale') locale: string) {
+    if (!(LOCALES as readonly string[]).includes(locale)) throw new NotFoundException(`Нет языка ${locale}`);
+    const system = await this.service.byTitle(title, undefined);
+    // Тот же запасной язык, что у JSON (LocalizeInterceptor): иначе приложение и HTML
+    // страницы показали бы разное.
+    const pair = { articleRu: system.articleRu, articleEn: system.articleEn };
+    const { article } = localize(pair, locale as Locale) as { article: string | null };
+    return renderArticleHtml(article);
   }
 
   @Get(':id/work-stages')

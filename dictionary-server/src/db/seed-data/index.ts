@@ -45,3 +45,4 @@ export {
   aeratedUnits,
   aeratedWorkStages,
 } from './aerated-concrete';
+export * from './system-articles';

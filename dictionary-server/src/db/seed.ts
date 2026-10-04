@@ -18,7 +18,7 @@
  * не доедет — а справочник с сентября 2026 в проде, где пересоздать базу нельзя:
  * данные правятся новым именованным шагом, как схема — новой миграцией.
  */
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
@@ -270,6 +270,32 @@ const STEPS: Step[] = [
       ]) {
         rows += await insert(
           tx.update(schema.systems).set({ title: to }).where(eq(schema.systems.title, from)),
+        );
+      }
+      return rows;
+    },
+  },
+  {
+    /*
+     * Тексты страниц технологий — начальное наполнение колонок article_ru/en (миграция
+     * 0001_system_articles). Только пустые: шаг выполняется один раз, но если текст успели
+     * завести в админке раньше, чем он доехал, — не затираем.
+     */
+    name: 'system-articles',
+    run: async (tx) => {
+      let rows = 0;
+      for (const [title, { ru, en }] of Object.entries(data.systemArticles)) {
+        rows += await insert(
+          tx
+            .update(schema.systems)
+            .set({ articleRu: ru, articleEn: en })
+            .where(
+              and(
+                eq(schema.systems.title, title),
+                isNull(schema.systems.articleRu),
+                isNull(schema.systems.articleEn),
+              ),
+            ),
         );
       }
       return rows;

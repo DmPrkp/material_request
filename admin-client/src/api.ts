@@ -167,6 +167,8 @@ export const dict = {
   get: <T>(path: string) => request<T>(`/proxy/dict${path}`, {}, { proxied: true }),
   post: <T>(path: string, body: unknown) =>
     request<T>(`/proxy/dict${path}`, { method: 'POST', body: JSON.stringify(body) }, { proxied: true }),
+  patch: <T>(path: string, body: unknown) =>
+    request<T>(`/proxy/dict${path}`, { method: 'PATCH', body: JSON.stringify(body) }, { proxied: true }),
 };
 
 /** Страница списка словаря. */

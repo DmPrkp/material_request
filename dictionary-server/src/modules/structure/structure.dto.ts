@@ -16,6 +16,8 @@ const sharedManaged = { ...managed, isShared: true } as const;
 // Название — на языке интерфейса, хоть одно обязательно (common/names.ts).
 const name = optionalText(100);
 const description = optionalText(200);
+/** Текст страницы технологии (structure/article.ts): несколько тысяч знаков — с запасом. */
+const article = optionalText(20000);
 /** Технический код; с клиента его не шлют — без него сервис сгенерирует (common/code.ts). */
 const code = z.string().trim().min(1).max(50).optional();
 
@@ -36,6 +38,8 @@ const systemFields = createInsertSchema(systems).omit(sharedManaged).extend({
   nameEn: name,
   descriptionRu: description,
   descriptionEn: description,
+  articleRu: article,
+  articleEn: article,
   workTypeId: z.number().int().positive(),
   // Обязательна при создании: калькулятор без неё не подпишет поля объёма.
   unitId: z.number().int().positive(),

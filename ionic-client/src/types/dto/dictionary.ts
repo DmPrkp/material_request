@@ -27,6 +27,11 @@ export type DictionarySystem = {
   title: string;
   name: string;
   description: string | null;
+  /**
+   * Текст страницы технологии на языке страницы, правится в админке. Разметка —
+   * components/pagesParts/technology/article.ts.
+   */
+  article?: string | null;
   workTypeId: number;
   /** Единица объёма работ: ею калькулятор подписывает поля (м², шт). */
   unitId: number;

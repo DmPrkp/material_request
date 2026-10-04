@@ -26,6 +26,13 @@
       >
         <span><i class="pi pi-image" /> Фото технологий</span>
       </RouterLink>
+      <RouterLink
+        :to="{ name: 'articles' }"
+        class="menu__item menu__item--logs"
+        active-class="menu__item--active"
+      >
+        <span><i class="pi pi-align-left" /> Тексты технологий</span>
+      </RouterLink>
       <p
         v-if="error"
         class="menu__error"

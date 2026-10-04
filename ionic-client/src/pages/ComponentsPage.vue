@@ -6,15 +6,17 @@
       </ion-refresher>
       <!--
         Не ion-item-divider + ion-title, как на других страницах: там заголовок — пара
-        слов, а здесь полное описание технологии из словаря («Системы фасадные
-        теплоизоляционные…») в несколько строк. У ion-title свой отступ слева и
-        крупный кегль — описание съезжало от полей и занимало пол-экрана.
-        h1 — описание, а не короткое имя: по нему страницу и ищут.
+        слов, а здесь заголовок и описание в несколько строк. У ion-title свой отступ
+        слева и крупный кегль — текст съезжал от полей и занимал пол-экрана.
+        h1 — заголовок из seoPages, если он у технологии есть: тот же стоит в HTML
+        сборки (seo-prerender.ts), и робот, исполнивший JS, не должен увидеть другой.
+        Описание из словаря («Системы фасадные теплоизоляционные…») — строкой под ним.
       -->
       <header class="technology_header">
-        <h1>
-          {{ systemDescription || systemName || $t("pages.materials.title") }}
-        </h1>
+        <h1>{{ heading }}</h1>
+        <p v-if="seoTitle && systemDescription" class="technology_header_lead">
+          {{ systemDescription }}
+        </p>
         <!-- Что значат цифры расчёта: у материалов — на объём, у инструмента — на звено. -->
         <p>
           {{ $t("pages.catalog.norms.hint_materials", { unit: unitText }) }}
@@ -64,6 +66,9 @@
         />
         <ion-text>{{ unitText }}</ion-text>
       </div>
+      <h2 v-if="stages.length" class="technology_stages_title">
+        {{ $t("pages.components.stages") }}
+      </h2>
       <ion-list>
         <ion-item v-for="stage in stages" :key="stage.id" class="custom-item">
           <!-- name уже на языке страницы: этапы — данные словаря, i18n их не переводит. -->
@@ -104,6 +109,7 @@
           {{ $t("pages.components.send") }}
         </PlasmaButton>
       </div>
+      <TechnologyText :text="systemArticle" />
     </ion-content>
   </ion-page>
   <router-view v-else />
@@ -122,6 +128,9 @@
   } from "@ionic/vue";
   import { usePreloader } from "@/store";
   import PlasmaButton from "@/components/ui/PlasmaButton.vue";
+  import TechnologyText from "@/components/pagesParts/technology/TechnologyText.vue";
+  import { CALCULATOR_KEY, seoPages } from "@/router/constants";
+  import type { Locale } from "@/types";
   import CalcModel from "@/models/calc/CalcModel";
   import DictionaryModel from "@/models/DictionaryModel";
   import type {
@@ -156,6 +165,21 @@
   const unit = ref<DictionaryUnit | null>(null);
   const systemName = ref("");
   const systemDescription = ref<string | null>(null);
+  /** Текст страницы технологии из словаря — под калькулятором (TechnologyText). */
+  const systemArticle = ref<string | null>(null);
+  /** Заголовок технологии из seoPages — только по точному адресу, без предка. */
+  const seoTitle = computed(() => {
+    const { workType, system } = route.params;
+    const seo = seoPages[`${CALCULATOR_KEY}/${workType}/${system}`];
+    return seo?.title[locale.value as Locale] ?? null;
+  });
+  const heading = computed(
+    () =>
+      seoTitle.value ||
+      systemDescription.value ||
+      systemName.value ||
+      t("pages.materials.title"),
+  );
   // Словарь не ответил — «м²», как было до выбора единицы в технологии.
   const unitText = computed(() =>
     unit.value ? unitLabel(unit.value) : t("measure.square"),
@@ -218,6 +242,7 @@
       unit.value = found?.unit ?? null;
       systemName.value = found?.name ?? "";
       systemDescription.value = found?.description ?? null;
+      systemArticle.value = found?.article ?? null;
       stages.value = found
         ? ((await DictionaryModel.systemStages(found.id)) ?? [])
         : [];
@@ -317,6 +342,12 @@
     line-height: 1.25;
   }
 
+  .technology_header .technology_header_lead {
+    margin: 0 0 6px;
+    font-size: 0.95rem;
+    color: inherit;
+  }
+
   /* Приглушено, как примечания на странице норм: --ion-color-medium на тёмной
      теме почти сливается с фоном. */
   .technology_header p {
@@ -324,6 +355,13 @@
     font-size: 0.85rem;
     line-height: 1.35;
     color: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.6);
+  }
+
+  /* Подпись списка этапов — мельче h1 и без своего фона: это шапка полей ниже. */
+  .technology_stages_title {
+    margin: 16px 16px 0;
+    font-size: 1rem;
+    line-height: 1.3;
   }
 
   .full-volume-block {

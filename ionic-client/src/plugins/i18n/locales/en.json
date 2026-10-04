@@ -93,7 +93,8 @@
       "send": "Calculate",
       "crew-num": "Number of crews",
       "total-volume": "Total volume",
-      "by-layers": "By layers"
+      "by-layers": "By layers",
+      "stages": "Work stages"
     },
     "materials": {
       "unfilled_hint": "Fill it in yourself or remove it from the list",

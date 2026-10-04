@@ -12,6 +12,7 @@ export const router = createRouter({
     { path: '/t/:table', name: 'table', component: () => import('./pages/TablePage.vue'), props: true },
     { path: '/logs', name: 'logs', component: () => import('./pages/LogsPage.vue') },
     { path: '/images', name: 'images', component: () => import('./pages/ImagesPage.vue') },
+    { path: '/articles', name: 'articles', component: () => import('./pages/ArticlesPage.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
 });

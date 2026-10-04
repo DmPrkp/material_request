@@ -167,6 +167,14 @@ export const systems = pgTable(
     ...names,
     descriptionRu: varchar('description_ru', { length: 200 }),
     descriptionEn: varchar('description_en', { length: 200 }),
+    /**
+     * Текст страницы технологии: его видно под калькулятором, а роботу — в HTML страницы,
+     * куда его подставляет nginx клиента (SSI, structure/article.ts). Разметка — своя и
+     * минимальная: строка «## …» — заголовок, пустая строка — новый абзац. Правится из
+     * админки («Тексты технологий»).
+     */
+    articleRu: text('article_ru'),
+    articleEn: text('article_en'),
     workTypeId: integer('work_type_id')
       .notNull()
       .references(() => workTypes.id, { onDelete: 'restrict' }),

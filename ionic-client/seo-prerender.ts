@@ -120,7 +120,8 @@ function renderPage(
   const body =
     key === HOME_KEY
       ? renderLanding(locale)
-      : `<h1>${esc(seo.title[locale])}</h1><p>${esc(description)}</p>`;
+      : `<h1>${esc(seo.title[locale])}</h1><p>${esc(description)}</p>` +
+        renderTechnologyText(locale, key);
   const shell =
     `<div id="app"><main class="seo-shell">` +
     `${body}<nav><ul>${links}</ul></nav></main></div>`;
@@ -167,12 +168,7 @@ type LandingTexts = {
  * отсюда не импортировать — он тянет ionicons.
  */
 function renderLanding(locale: Locale) {
-  const file = path.resolve(
-    __dirname,
-    `src/plugins/i18n/locales/${locale}.json`,
-  );
-  const l = JSON.parse(fs.readFileSync(file, "utf8")).pages
-    .landing as LandingTexts;
+  const l = readDictionary(locale).pages.landing as LandingTexts;
   const terms = (items: Record<string, LandingTerm>) =>
     Object.values(items)
       .map(
@@ -195,6 +191,29 @@ function renderLanding(locale: Locale) {
     `<dl>${terms(l.method.items)}</dl></section>` +
     `<section><h2>${esc(l.properties.title)}</h2><dl>${terms(l.properties.items)}</dl></section>`
   );
+}
+
+/**
+ * Место под текст технологии: сам текст живёт в словаре и правится в админке, поэтому
+ * при сборке его нет — сборка в базу не ходит. На проде nginx клиента подставляет его
+ * SSI-вставкой из dictionary-server (docker/nginx.conf, location /__article/), так что
+ * робот видит текст без JS, а правка доходит до него без пересборки. Вне nginx (dev,
+ * vite preview) это просто HTML-комментарий. Код — последний сегмент ключа
+ * calculator/<вид работ>/<код>.
+ */
+function renderTechnologyText(locale: Locale, key: string) {
+  const segments = key.split("/");
+  if (segments[0] !== CALCULATOR_KEY || segments.length !== 3) return "";
+  const code = encodeURIComponent(segments[2]);
+  return `<!--# include virtual="/__article/${locale}/${code}" -->`;
+}
+
+function readDictionary(locale: Locale) {
+  const file = path.resolve(
+    __dirname,
+    `src/plugins/i18n/locales/${locale}.json`,
+  );
+  return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
 function renderSitemapIndex() {
