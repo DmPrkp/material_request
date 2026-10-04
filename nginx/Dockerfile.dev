@@ -8,17 +8,8 @@ COPY main.conf /etc/nginx/nginx.conf
 COPY njs/auth.js /etc/nginx/njs/auth.js
 COPY snippets /etc/nginx/snippets
 
+# Голова server-блока для этой среды: http, без сертификата и HSTS. Конфиг сайта общий
+# с продом — раньше dev получал его из того же файла, вырезая TLS девятью sed-шаблонами,
+# и заодно терял все add_header.
+COPY listen/dev.conf /etc/nginx/snippets/listen.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-RUN sed -i \
-    -e '/#http servers/,/# https server/d' \
-    -e 's/listen 443 ssl;/listen 80;/' \           
-    -e '/ssl_certificate/d' \                       
-    -e '/server_name/d' \                      
-    -e '/ssl_certificate_key/d' \                  
-    -e '/ssl_protocols/d' \                        
-    -e '/ssl_ciphers/d' \                          
-    -e '/add_header/d' \                           
-    -e '/return 301 https/d' \                     
-    -e '/^[[:space:]]*#.*$/d' \                   
-    /etc/nginx/conf.d/default.conf
