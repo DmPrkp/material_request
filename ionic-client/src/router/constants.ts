@@ -85,12 +85,12 @@ const seoPages: SeoPages = {
   },
   "calculator/interior": {
     title: {
-      en: "Interior finishing calculation: drywall partitions",
-      ru: "Расчёт материалов для отделки: перегородки из гипсокартона",
+      en: "Partition materials calculation: drywall and aerated concrete",
+      ru: "Расчёт материалов перегородок: гипсокартон и газобетон",
     },
     description: {
-      en: "Interior finishing calculator: drywall partitions and surfaces — materials, tools and consumption for your area.",
-      ru: "Калькулятор внутренней отделки: перегородки из гипсокартона и поверхности — материалы, инструмент и расход на вашу площадь.",
+      en: "Partition calculator: drywall and aerated concrete blocks — materials, tools and consumption for your area.",
+      ru: "Калькулятор перегородок из гипсокартона и газобетона: материалы, инструмент и расход на вашу площадь.",
     },
   },
   "calculator/interior/GKL_C112": {
@@ -101,6 +101,46 @@ const seoPages: SeoPages = {
     description: {
       en: "Online drywall partition calculation: studs, boards, fixings and filler for a C112 partition — single frame, double-layer board on both sides.",
       ru: "Расчёт перегородки из гипсокартона онлайн: профили, ГКЛ, крепёж и шпаклёвка на перегородку С112 — одинарный каркас, двухслойная обшивка.",
+    },
+  },
+  "calculator/interior/aerated_concrete": {
+    title: {
+      en: "Aerated concrete partition calculator",
+      ru: "Калькулятор перегородки из газобетона",
+    },
+    description: {
+      en: "Aerated concrete partition calculation: blocks, thin-bed adhesive, reinforcement, lintels and wall ties — plus tools for the crew.",
+      ru: "Расчёт перегородки из газобетонных блоков: блоки, клей, армирование, перемычки и гибкие связи к стенам — и инструмент для бригады.",
+    },
+  },
+  "calculator/roof": {
+    title: {
+      en: "Roofing materials calculation: metal tile and shingles",
+      ru: "Расчёт материалов для кровли: металлочерепица и гибкая черепица",
+    },
+    description: {
+      en: "Roofing calculator: metal tile and bituminous shingles — materials, fixings and tools for your roof area.",
+      ru: "Калькулятор кровли: металлочерепица и гибкая черепица — материалы, крепёж и инструмент на площадь вашей кровли.",
+    },
+  },
+  "calculator/roof/metal_tile": {
+    title: {
+      en: "Metal tile roof calculator: materials calculation",
+      ru: "Калькулятор металлочерепицы: расчёт материалов кровли",
+    },
+    description: {
+      en: "Metal tile roof calculation over spaced battens: sheets, battens, roofing screws, underlay membrane, ridge and valleys — plus tools.",
+      ru: "Расчёт кровли из металлочерепицы по обрешётке: листы, обрешётка, саморезы, подкровельная плёнка, конёк и ендовы — и инструмент.",
+    },
+  },
+  "calculator/roof/shingles": {
+    title: {
+      en: "Bituminous shingles calculator: roofing materials",
+      ru: "Калькулятор гибкой черепицы: расчёт материалов кровли",
+    },
+    description: {
+      en: "Shingle roof calculation over a continuous deck: shingles, OSB, underlayment, nails, sealant — and tools for the crew.",
+      ru: "Расчёт кровли из гибкой (битумной) черепицы по сплошному основанию: черепица, ОСП, подкладочный ковёр, гвозди, мастика — и инструмент.",
     },
   },
   catalog: {

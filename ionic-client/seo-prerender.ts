@@ -141,7 +141,7 @@ function renderPage(
   return html;
 }
 
-/** Виды работ и технологии (zayavka/calculator/<…>) — в sitemap словаря, не здесь. */
+/** Виды работ и технологии (calculator/<…>) — в sitemap словаря, не здесь. */
 function isStaticPage(key: string) {
   return !key.startsWith(`${CALCULATOR_KEY}/`);
 }

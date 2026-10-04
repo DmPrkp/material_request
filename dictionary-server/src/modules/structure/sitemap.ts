@@ -21,7 +21,7 @@ export type SitemapTechnology = {
 
 /** Адрес калькулятора на клиенте — как в ionic-client/src/router/index.ts. */
 function pagePath(locale: string, segments: string[]) {
-  return `/${locale}/zayavka/calculator/${segments.map(encodeURIComponent).join('/')}`;
+  return `/${locale}/calculator/${segments.map(encodeURIComponent).join('/')}`;
 }
 
 function escapeXml(value: string) {

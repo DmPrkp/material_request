@@ -14,30 +14,30 @@ describe('renderTechnologiesSitemap', () => {
 
   it('отдаёт вид работ и технологию на каждом языке', () => {
     expect(locs).toEqual([
-      `${SITE}/ru/zayavka/calculator/facade`,
-      `${SITE}/en/zayavka/calculator/facade`,
-      `${SITE}/ru/zayavka/calculator/interior`,
-      `${SITE}/en/zayavka/calculator/interior`,
-      `${SITE}/ru/zayavka/calculator/facade/EIFS`,
-      `${SITE}/en/zayavka/calculator/facade/EIFS`,
-      `${SITE}/ru/zayavka/calculator/facade/frame_scaffold`,
-      `${SITE}/en/zayavka/calculator/facade/frame_scaffold`,
-      `${SITE}/ru/zayavka/calculator/interior/GKL_C112`,
-      `${SITE}/en/zayavka/calculator/interior/GKL_C112`,
+      `${SITE}/ru/calculator/facade`,
+      `${SITE}/en/calculator/facade`,
+      `${SITE}/ru/calculator/interior`,
+      `${SITE}/en/calculator/interior`,
+      `${SITE}/ru/calculator/facade/EIFS`,
+      `${SITE}/en/calculator/facade/EIFS`,
+      `${SITE}/ru/calculator/facade/frame_scaffold`,
+      `${SITE}/en/calculator/facade/frame_scaffold`,
+      `${SITE}/ru/calculator/interior/GKL_C112`,
+      `${SITE}/en/calculator/interior/GKL_C112`,
     ]);
   });
 
   it('связывает языковые версии через hreflang, x-default — русская', () => {
     const block = xml
       .split('<url>')
-      .find((part) => part.includes('/en/zayavka/calculator/facade/EIFS</loc>'))!;
-    expect(block).toContain(`hreflang="ru" href="${SITE}/ru/zayavka/calculator/facade/EIFS"`);
-    expect(block).toContain(`hreflang="en" href="${SITE}/en/zayavka/calculator/facade/EIFS"`);
-    expect(block).toContain(`hreflang="x-default" href="${SITE}/ru/zayavka/calculator/facade/EIFS"`);
+      .find((part) => part.includes('/en/calculator/facade/EIFS</loc>'))!;
+    expect(block).toContain(`hreflang="ru" href="${SITE}/ru/calculator/facade/EIFS"`);
+    expect(block).toContain(`hreflang="en" href="${SITE}/en/calculator/facade/EIFS"`);
+    expect(block).toContain(`hreflang="x-default" href="${SITE}/ru/calculator/facade/EIFS"`);
   });
 
   it('lastmod вида работ — самая свежая правка его технологий', () => {
-    const facade = xml.split('<url>').find((part) => part.includes('/ru/zayavka/calculator/facade</loc>'))!;
+    const facade = xml.split('<url>').find((part) => part.includes('/ru/calculator/facade</loc>'))!;
     expect(facade).toContain('<lastmod>2026-09-20</lastmod>');
   });
 
