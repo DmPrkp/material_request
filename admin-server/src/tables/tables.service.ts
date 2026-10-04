@@ -55,7 +55,7 @@ export class TablesService {
       // Всё в SQL — из реестра в коде, пользовательского ввода здесь нет.
       result = await this.db.query(
         def.db,
-        `SELECT ${def.select ?? '*'} FROM ${def.from} ORDER BY ${def.orderBy ?? '1'} LIMIT ${ROW_LIMIT + 1}`,
+        `SELECT ${def.select ?? '*'} FROM ${def.from}${def.where ? ` WHERE ${def.where}` : ''} ORDER BY ${def.orderBy ?? '1'} LIMIT ${ROW_LIMIT + 1}`,
       );
       await this.attachLabels(def, result.rows);
     } catch (error) {

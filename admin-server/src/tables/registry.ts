@@ -18,6 +18,8 @@ export type TableDef = {
   title: string;
   from: string;
   select?: string;
+  /** Условие отбора без слова WHERE — когда таблица показывает не все строки. */
+  where?: string;
   orderBy?: string;
   refs?: Record<string, RefSpec>;
   /** Форма добавления на клиенте (admin-client/src/forms). Пишет она через API сервиса, не сюда. */
@@ -37,6 +39,19 @@ export const TABLES: TableDef[] = [
     from: 'users',
     // Хеш пароля не нужен даже админу — как toPublicUser() в самом user-server.
     select: 'id, login, first_name, last_name, role, created_at, updated_at',
+  },
+  {
+    key: 'stats.visitors',
+    db: 'stats',
+    group: 'Пользователи',
+    title: 'Посетители',
+    from: 'visitors',
+    // inet наружу — текстом: тип pg не знает, а host() отрезает маску /32.
+    select: 'host(ip) AS ip, visits, last_seen, first_seen, user_agent, last_path',
+    // Только люди. Роботов база по-прежнему считает (is_bot), но здесь они топили бы
+    // посетителей: поисковики приходят чаще людей.
+    where: 'NOT is_bot',
+    orderBy: 'last_seen DESC',
   },
 
   { key: 'company.companies', db: 'company', group: 'Компании', title: 'Компании', from: 'companies' },
@@ -214,17 +229,6 @@ export const TABLES: TableDef[] = [
     from: 'power_tool_norms',
     orderBy: 'work_stage_id, id',
     refs: { work_stage_id: 'work_stage', power_tool_id: 'power_tool', author_id: 'user' },
-  },
-
-  {
-    key: 'stats.visitors',
-    db: 'stats',
-    group: 'Статистика',
-    title: 'Посетители',
-    from: 'visitors',
-    // inet наружу — текстом: тип pg не знает, а host() отрезает маску /32.
-    select: 'host(ip) AS ip, visits, is_bot, last_seen, first_seen, user_agent, last_path',
-    orderBy: 'last_seen DESC',
   },
 
   {
