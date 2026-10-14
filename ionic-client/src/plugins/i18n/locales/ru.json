@@ -6,7 +6,9 @@
     "auth": "Войти",
     "catalog": "Сборники",
     "calculator": "Расчёты",
-    "warehouses": "Склады"
+    "warehouses": "Склады",
+    "companies": "Компании",
+    "settings": "Настройки"
   },
   "ui": {
     "buttons": {
@@ -193,8 +195,7 @@
       "appearance": "Внешний вид",
       "language": "Язык",
       "theme": "Тёмная тема",
-      "heading": "Настройки",
-      "open": "Настройки",
+      "menu": "Меню",
       "details": "Подробности склада",
       "companies": {
         "title": "Компании",
@@ -209,7 +210,8 @@
           "review": "проверка",
           "store": "хранение"
         },
-        "switch": "сменить"
+        "current": "Текущая компания",
+        "all": "Все компании"
       }
     },
     "catalog": {

@@ -1,47 +1,76 @@
 <template>
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>
-        {{ $t("pages.settings.companies.title") }}
-      </ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <!--
-        Компания одна — текущая: по ней показываются склады, выдачи и выбор склада
-        в заявке. Остальные не перечисляем, к ним переключаются кнопкой «сменить».
-      -->
-      <ion-list>
-        <ion-item lines="none">
+  <div>
+    <!-- Сверху — текущая: по ней показываются склады, выдачи и выбор склада в заявке. -->
+    <ion-list>
+      <ion-list-header>{{
+        $t("pages.settings.companies.current")
+      }}</ion-list-header>
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <h2>{{ currentName }}</h2>
+          <p>{{ currentRoles }}</p>
+        </ion-label>
+      </ion-item>
+      <ion-item v-if="state === 'error'" lines="none">
+        <ion-label class="ion-text-wrap" color="danger">
+          {{ $t("pages.settings.companies.load_error") }}
+        </ion-label>
+      </ion-item>
+    </ion-list>
+
+    <!-- Все свои компании; выбор переключает текущую сразу, без подтверждения. -->
+    <ion-list v-if="store.companies.length">
+      <ion-list-header>{{
+        $t("pages.settings.companies.all")
+      }}</ion-list-header>
+      <ion-radio-group
+        :value="store.currentId"
+        @ion-change="pick($event.detail.value)"
+      >
+        <!--
+          button — строка нажимается и подсвечивается как обычный пункт списка.
+          Нажатие по строке и по радиокнопке переключают одну и ту же компанию:
+          setCurrent с тем же id ничего не меняет, поэтому двойной вызов безвреден.
+        -->
+        <ion-item
+          v-for="company in store.companies"
+          :key="company.id"
+          button
+          :detail="false"
+          @click="pick(company.id)"
+        >
+          <ion-radio slot="start" :value="company.id" />
           <ion-label class="ion-text-wrap">
-            <h2>{{ currentName }}</h2>
-            <p>{{ currentRoles }}</p>
+            <h2>{{ company.name }}</h2>
+            <p>{{ rolesLabel(company) }}</p>
           </ion-label>
         </ion-item>
-        <ion-item v-if="state === 'error'" lines="none">
-          <ion-label class="ion-text-wrap" color="danger">
-            {{ $t("pages.settings.companies.load_error") }}
-          </ion-label>
-        </ion-item>
-      </ion-list>
-      <div class="buttons">
-        <CutCornerBtn v-if="store.companies.length" @click="switchCompany">
-          {{ $t("pages.settings.companies.switch") }}
-        </CutCornerBtn>
-        <CutCornerBtn @click="createCompany">
-          {{ $t("pages.settings.companies.create") }}
-        </CutCornerBtn>
-      </div>
-    </ion-card-content>
-  </ion-card>
+      </ion-radio-group>
+    </ion-list>
+
+    <div class="buttons">
+      <CutCornerBtn @click="createCompany">
+        {{ $t("pages.settings.companies.create") }}
+      </CutCornerBtn>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
   /**
-   * Текущая компания: одна на всё приложение (store/company.ts), по ней отбираются
-   * склады и выдачи. Здесь её видно и можно сменить или завести новую.
-   * Показывается только вошедшему: без токена company-server отвечает 401.
+   * Компании: текущая сверху, ниже — все свои списком, выбор переключает текущую.
+   * Одна на всё приложение (store/company.ts). Показывается только вошедшему:
+   * без токена company-server отвечает 401.
    */
-  import { alertController } from "@ionic/vue";
+  import {
+    IonItem,
+    IonLabel,
+    IonList,
+    IonListHeader,
+    IonRadio,
+    IonRadioGroup,
+    alertController,
+  } from "@ionic/vue";
   import { computed, onMounted, ref } from "vue";
   import { useI18n } from "vue-i18n";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
@@ -82,36 +111,13 @@
       .join(", ");
   }
 
-  /**
-   * Выбор — радиокнопками в алерте: он открывается поверх модалки настроек, а
-   * отдельный экран увёл бы из неё. Личных складов в списке нет: они не компания,
-   * а отдельный раздел на экране складов.
-   */
-  async function switchCompany() {
-    const alert = await alertController.create({
-      header: t("pages.settings.companies.switch"),
-      inputs: store.companies.map((company) => ({
-        type: "radio" as const,
-        label: company.name,
-        value: String(company.id),
-        checked: store.currentId === company.id,
-      })),
-      buttons: [
-        { text: t("ui.buttons.cancel"), role: "cancel" },
-        { text: t("ui.buttons.save"), role: "confirm" },
-      ],
-    });
-    await alert.present();
-    // Выбор радиокнопки приходит в data.values, а не строкой: как у полей ввода.
-    const { role, data } = await alert.onDidDismiss<{ values?: string }>();
-    const picked = Number(data?.values);
-    if (role !== "confirm" || !Number.isInteger(picked)) return;
-    store.setCurrent(picked);
+  /** Радиокнопка отдаёт id числом; «Личного» в списке нет, поэтому null сюда не приходит. */
+  function pick(value: unknown) {
+    if (typeof value === "number") store.setCurrent(value);
   }
 
   /**
-   * Название — единственное поле, поэтому alert, а не отдельная форма: на телефоне
-   * он открывается поверх модалки настроек и не уводит из неё.
+   * Название — единственное поле, поэтому alert, а не отдельная форма.
    */
   async function createCompany() {
     const alert = await alertController.create({
@@ -149,7 +155,7 @@
     } catch (error) {
       console.error("Не удалось добавить компанию", error);
       const alert = await alertController.create({
-        header: t("pages.settings.companies.create_error"),
+        message: t("pages.settings.companies.create_error"),
         buttons: [t("ui.buttons.close")],
       });
       await alert.present();
@@ -162,6 +168,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 12px;
+    margin: 12px 16px 0;
   }
 </style>

@@ -29,50 +29,24 @@
     IonText,
     IonRow,
   } from "@ionic/vue";
-  import {
-    libraryOutline,
-    calculatorOutline,
-    documentsOutline,
-    archiveOutline,
-    logInOutline,
-  } from "ionicons/icons";
   import { computed } from "vue";
   import { useRoute } from "vue-router";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
   import { useAuthStore } from "@/store/auth";
   import { AUTH_ENABLED } from "@/constants/auth";
+  import {
+    AUTH,
+    CALCULATOR,
+    CATALOG,
+    WAREHOUSES,
+    ZAYAVKA,
+  } from "@/constants/nav";
 
   const authStore = useAuthStore();
 
-  const CATALOG = {
-    link: "catalog",
-    name: "catalog",
-    icon: libraryOutline,
-  };
-  const CALCULATOR = {
-    link: "calculator",
-    name: "calculator",
-    icon: calculatorOutline,
-  };
-  const ZAYAVKA = {
-    link: "zayavka",
-    name: "zayavka",
-    icon: documentsOutline,
-  };
-  const WAREHOUSES = {
-    link: "warehouses",
-    name: "warehouses",
-    icon: archiveOutline,
-  };
-  const AUTH = {
-    link: "auth",
-    name: "auth",
-    icon: logInOutline,
-  };
-
-  // Настроек здесь нет: они открываются аватаром справа в шапке. На /main тоже
-  // не ведём — туда по логотипу. Расчёт идёт перед «Заявками»: сначала считают,
-  // потом сохраняют заявкой.
+  // Настроек здесь нет: они в боковом меню справа в шапке, профиль — по аватару.
+  // На /main тоже не ведём — туда по логотипу. Расчёт идёт перед «Заявками»:
+  // сначала считают, потом сохраняют заявкой.
   const menuItems = computed(() => {
     // Пока авторизация выключена флагом, вкладку входа не показываем
     // и работаем так, будто пользователь уже вошёл.

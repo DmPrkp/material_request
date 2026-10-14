@@ -283,6 +283,8 @@ const NOINDEX_ROUTES = new Set([
   "holdings",
   "on-hand",
   "warehouse",
+  "companies",
+  "settings",
   "auth",
   "auth-forgot",
   "auth-verify",

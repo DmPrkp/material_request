@@ -11,9 +11,9 @@
         <header class="hero">
           <h1 class="hero__title">{{ $t("pages.landing.title") }}</h1>
           <p class="hero__lead">{{ $t("pages.landing.lead") }}</p>
-          <CutCornerBtn fullWidth :to="calculatorPath">
+          <PlasmaButton fullWidth :to="calculatorPath">
             {{ $t("pages.landing.cta") }}
-          </CutCornerBtn>
+          </PlasmaButton>
         </header>
 
         <section class="section">
@@ -88,9 +88,9 @@
         </section>
 
         <footer class="outro">
-          <CutCornerBtn fullWidth :to="calculatorPath">
+          <PlasmaButton fullWidth :to="calculatorPath">
             {{ $t("pages.landing.cta") }}
-          </CutCornerBtn>
+          </PlasmaButton>
         </footer>
       </div>
     </ion-content>
@@ -100,13 +100,13 @@
 <script setup lang="ts">
   import { computed, onBeforeUnmount, onMounted, ref } from "vue";
   import { useRoute } from "vue-router";
-  import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
   import LandingScenarioCard from "@/components/pagesParts/landing/LandingScenarioCard.vue";
   import {
     LANDING_METHOD,
     LANDING_PROPERTIES,
     LANDING_SCENARIOS,
   } from "@/constants/landing";
+  import PlasmaButton from "@/components/ui/PlasmaButton.vue";
 
   const route = useRoute();
 

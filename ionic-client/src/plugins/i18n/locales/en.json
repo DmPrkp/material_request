@@ -6,7 +6,9 @@
     "auth": "Sign in",
     "catalog": "Catalogs",
     "calculator": "Calculator",
-    "warehouses": "Warehouses"
+    "warehouses": "Warehouses",
+    "companies": "Companies",
+    "settings": "Settings"
   },
   "ui": {
     "buttons": {
@@ -193,8 +195,7 @@
       "appearance": "Appearance",
       "language": "Language",
       "theme": "Dark theme",
-      "heading": "Settings",
-      "open": "Settings",
+      "menu": "Menu",
       "details": "Warehouse details",
       "companies": {
         "title": "Companies",
@@ -209,7 +210,8 @@
           "review": "reviewer",
           "store": "storekeeper"
         },
-        "switch": "switch"
+        "current": "Current company",
+        "all": "All companies"
       }
     },
     "catalog": {

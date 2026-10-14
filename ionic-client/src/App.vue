@@ -29,25 +29,26 @@
           />
           <AuthAvatar @click="openAccount" />
           <ion-button
-            class="settings_trigger"
+            class="menu_trigger"
             fill="clear"
             shape="round"
-            :aria-label="$t('pages.settings.open')"
-            :title="$t('pages.settings.open')"
-            @click="settingsOpen = true"
+            :aria-label="$t('pages.settings.menu')"
+            :title="$t('pages.settings.menu')"
+            @click="openMenu"
           >
-            <ion-icon slot="icon-only" :icon="settingsSharp" />
+            <ion-icon slot="icon-only" :icon="menuOutline" />
           </ion-button>
         </ion-buttons>
         <ion-progress-bar v-if="preloaderStatus" type="indeterminate" />
       </ion-toolbar>
     </ion-header>
-    <ion-content class="main_content">
+    <ion-content id="main-content" class="main_content">
       <router-view></router-view>
     </ion-content>
     <FooterBar />
-    <!-- Модалки в корне, а не рядом с аватаром: стили шапки не влияют на оверлей. -->
-    <SettingsModal :is-open="settingsOpen" @close="settingsOpen = false" />
+    <!-- Модалки и меню в корне, а не рядом с шапкой: стили шапки не влияют на оверлей. -->
+    <SideMenu />
+    <ProfileModal :is-open="profileOpen" @close="profileOpen = false" />
     <AuthModal :is-open="authOpen" @close="authOpen = false" />
   </ion-app>
 </template>
@@ -63,33 +64,40 @@
     IonButtons,
     IonBackButton,
     IonIcon,
+    menuController,
   } from "@ionic/vue";
-  import { settingsSharp } from "ionicons/icons";
+  import { menuOutline } from "ionicons/icons";
   import FooterBar from "@/components/nav/FooterBar.vue";
   import AuthAvatar from "@/components/nav/AuthAvatar.vue";
   import AuthModal from "@/components/nav/AuthModal.vue";
-  import SettingsModal from "@/components/nav/SettingsModal.vue";
+  import ProfileModal from "@/components/nav/ProfileModal.vue";
+  import SideMenu from "@/components/nav/SideMenu.vue";
   import injectI18nToRoute from "@/mixins/injectI18nToRoute";
+  import { MAIN_MENU_ID } from "@/constants/nav";
   import { useAuthStore } from "./store/auth";
   import { usePreloader } from "./store/preloader";
 
   const preloader = usePreloader();
   const authStore = useAuthStore();
 
-  /** Настройки и вход — не роуты, а модалки поверх текущего экрана. */
-  const settingsOpen = ref(false);
+  /** Профиль, вход и меню — не роуты, а оверлеи поверх текущего экрана. */
+  const profileOpen = ref(false);
   const authOpen = ref(false);
 
   /**
    * Аватар ведёт туда, где по состоянию есть смысл: гостя зовём войти, вошедшему
-   * показываем профиль — он в настройках, рядом с выходом.
+   * показываем профиль с почтой и выходом. Настройки — в боковом меню.
    */
   function openAccount() {
     if (authStore.isAuthenticated) {
-      settingsOpen.value = true;
+      profileOpen.value = true;
       return;
     }
     authOpen.value = true;
+  }
+
+  function openMenu() {
+    void menuController.open(MAIN_MENU_ID);
   }
 
   const preloaderStatus: ComputedRef<boolean> = computed(() => preloader.state);

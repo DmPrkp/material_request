@@ -269,10 +269,18 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
-        // Настройки теперь модалка из аватара в шапке, а не страница. Адрес
-        // оставлен редиректом: /ru/settings был в sitemap и мог осесть в закладках.
+        // Компании — раздел из бокового меню; личное, поэтому noindex.
+        path: "companies",
+        name: "companies",
+        component: () => import("@/pages/CompaniesPage.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        // Настройки — язык и тема; открываются и без входа, поэтому requiresAuth: false.
         path: "settings",
-        redirect: (to) => `/${to.params.locale}/zayavka`,
+        name: "settings",
+        component: () => import("@/pages/SettingsPage.vue"),
+        meta: { requiresAuth: false },
       },
       {
         // Без него неизвестный адрес давал пустую страницу со статусом 200 — для

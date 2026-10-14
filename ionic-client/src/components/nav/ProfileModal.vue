@@ -2,7 +2,7 @@
   <ion-modal :is-open="isOpen" @didDismiss="emit('close')">
     <ion-header>
       <ion-toolbar>
-        <ion-title>{{ $t("pages.settings.heading") }}</ion-title>
+        <ion-title>{{ $t("pages.settings.title") }}</ion-title>
         <ion-buttons slot="end">
           <ion-button
             :aria-label="$t('ui.buttons.close')"
@@ -15,29 +15,7 @@
     </ion-header>
 
     <ion-content class="ion-padding">
-      <!-- Компании — первыми: это работа, а внешний вид и профиль трогают редко. -->
-      <SettingsCompanies v-if="authStore.isAuthenticated" />
-
       <ion-card>
-        <ion-card-header>
-          <ion-card-title>
-            {{ $t("pages.settings.appearance") }}
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list>
-            <LocaleSwitch />
-            <ThemeSwitch />
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
-
-      <ion-card v-if="authStore.isAuthenticated">
-        <ion-card-header>
-          <ion-card-title>
-            {{ $t("pages.settings.title") }}
-          </ion-card-title>
-        </ion-card-header>
         <ion-card-content>
           <ion-list>
             <ion-item lines="none">
@@ -48,6 +26,22 @@
                   {{ formattedDate(authStore.user?.createdAt) }}
                 </p>
               </ion-label>
+            </ion-item>
+
+            <!-- Текущая компания — правка ведёт в раздел компаний, там же её и меняют. -->
+            <ion-item v-if="authStore.isAuthenticated" lines="none">
+              <ion-label class="ion-text-wrap">
+                <p>{{ $t("pages.settings.companies.current") }}</p>
+                <h3>{{ currentCompanyName }}</h3>
+              </ion-label>
+              <ion-button
+                fill="clear"
+                :aria-label="$t('footer.companies')"
+                :title="$t('footer.companies')"
+                @click="goCompanies"
+              >
+                <ion-icon slot="icon-only" :icon="createOutline" />
+              </ion-button>
             </ion-item>
 
             <ion-item lines="none">
@@ -118,35 +112,55 @@
 
 <script lang="ts" setup>
   /**
-   * Настройки — модалка, а не страница: своего адреса у них нет, открываются
-   * поверх текущего экрана и не ломают навигацию «назад». Смена языка внутри
-   * меняет URL под модалкой — App.vue при этом не пересоздаётся, и модалка
-   * остаётся открытой уже на новом языке.
+   * Профиль — модалка, а не страница: своего адреса у него нет, открывается по
+   * аватару поверх текущего экрана и не ломает навигацию «назад». Настройки
+   * (язык, тема) и компании живут в боковом меню, SideMenu.vue.
    */
   import {
+    IonButton,
     IonButtons,
     IonHeader,
     IonIcon,
     IonModal,
     IonToolbar,
   } from "@ionic/vue";
-  import { closeOutline } from "ionicons/icons";
+  import { closeOutline, createOutline } from "ionicons/icons";
   import { computed, ref, watch } from "vue";
   import { useRoute, useRouter } from "vue-router";
   import { useI18n } from "vue-i18n";
-  import LocaleSwitch from "@/components/logicalSwitchers/LocaleSwitch.vue";
-  import ThemeSwitch from "@/components/logicalSwitchers/ThemeSwitch.vue";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
-  import SettingsCompanies from "@/components/nav/SettingsCompanies.vue";
   import { useAuthStore } from "@/store/auth";
+  import { useCompanyStore } from "@/store/company";
+  import { tokenUser } from "@/store/authToken";
 
-  defineProps<{ isOpen: boolean }>();
+  const props = defineProps<{ isOpen: boolean }>();
   const emit = defineEmits<{ close: [] }>();
 
   const authStore = useAuthStore();
   const router = useRouter();
   const route = useRoute();
   const { t } = useI18n();
+
+  const companyStore = useCompanyStore();
+
+  // Компания подтягивается при открытии: до раздела компаний её могли и не загружать.
+  watch(
+    () => props.isOpen,
+    (open) => {
+      if (!open || !authStore.isAuthenticated) return;
+      const me = authStore.token ? tokenUser(authStore.token) : undefined;
+      void companyStore.load(me?.id);
+    },
+  );
+
+  const currentCompanyName = computed(
+    () => companyStore.current?.name ?? t("pages.settings.companies.empty"),
+  );
+
+  function goCompanies() {
+    emit("close");
+    router.push({ name: "companies", params: { locale: currentLocale() } });
+  }
 
   const displayIdentifier = computed(
     () => authStore.user?.username ?? authStore.user?.email ?? "—",
