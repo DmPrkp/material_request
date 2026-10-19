@@ -1,0 +1,13 @@
+FROM node:22-alpine
+
+WORKDIR /usr/ai-server
+
+COPY package*.json ./
+RUN npm install
+
+COPY ./ ./
+
+EXPOSE 4800
+
+# Ни базы, ни миграций: диалог хранит клиент.
+CMD ["npm", "run", "start:dev"]

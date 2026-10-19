@@ -269,6 +269,14 @@ const routes: Array<RouteRecordRaw> = [
         ],
       },
       {
+        // Чат с ИИ-помощником. Только для вошедших: он действует от имени пользователя.
+        // Гвард выключен флагом AUTH_ENABLED, поэтому гостя отсекает и сама страница.
+        path: "ai_halper",
+        name: "ai_halper",
+        component: () => import("@/pages/AiHalperPage.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
         // Компании — раздел из бокового меню; личное, поэтому noindex.
         path: "companies",
         name: "companies",

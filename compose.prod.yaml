@@ -177,6 +177,23 @@ services:
     volumes:
       - ./logs:/var/log/matli
 
+  ai-server:
+    restart: unless-stopped
+    # Без базы. Наружу не смотрит: единственный вход — через nginx, который проверяет токен и
+    # ставит X-User-*; порт не опубликован, иначе заголовок подделал бы кто угодно.
+    build:
+      context: ./ai-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4800
+    environment:
+      LOG_DIR: /var/log/matli
+      AI_TOKEN: ${AI_TOKEN:-}
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_MODEL: ${AI_MODEL:-}
+    volumes:
+      - ./logs:/var/log/matli
+
   ionic-client:
     restart: unless-stopped
     build:
@@ -249,6 +266,7 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
+      - ai-server
       - ionic-client
       - calc-server
       - order-server

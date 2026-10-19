@@ -62,6 +62,33 @@ jobs:
         working-directory: ./mail-server
         run: npm run build
 
+  # Ни базы, ни модели: сервис ничего не хранит, а модель и соседние сервисы в тестах подменены.
+  test-ai-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: ai-server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./ai-server
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./ai-server
+        run: npm run test
+
+      - name: Build
+        working-directory: ./ai-server
+        run: npm run build
+
   test-ionic-client:
     runs-on: ubuntu-latest
 

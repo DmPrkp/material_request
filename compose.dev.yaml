@@ -283,6 +283,39 @@ services:
     depends_on:
       - mailpit
 
+  ai-server:
+    # ИИ-ассистент. Своей базы нет: диалог хранит клиент. Ходит в соседние сервисы от имени
+    # пользователя (X-User-* от nginx), поэтому секрета JWT не знает. Без AI_TOKEN поднимается,
+    # а чат отвечает 503 — стек из-за него не падает.
+    build:
+      context: ./ai-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4800:4800
+    environment:
+      LOG_DIR: /var/log/matli
+      AI_TOKEN: ${AI_TOKEN:-}
+      AI_BASE_URL: ${AI_BASE_URL:-}
+      AI_MODEL: ${AI_MODEL:-}
+    volumes:
+      - ./logs:/var/log/matli
+    develop:
+      watch:
+        - action: sync
+          path: ./ai-server/src
+          target: /usr/ai-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./ai-server/package.json
+        - action: rebuild
+          path: ./ai-server/tsconfig.json
+        - action: rebuild
+          path: ./ai-server/nest-cli.json
+        - action: rebuild
+          path: ./ai-server/docker
+
   mailpit:
     # Поддельный SMTP только для разработки: принимает письма и никуда их не отправляет,
     # читать — http://localhost:8025. Тег закреплён, как у postgres: незакреплённый
@@ -409,6 +442,7 @@ services:
       - dictionary-server
       - warehouse-server
       - company-server
+      - ai-server
       - db
 
   db:

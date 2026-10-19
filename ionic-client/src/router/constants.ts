@@ -284,6 +284,7 @@ const NOINDEX_ROUTES = new Set([
   "on-hand",
   "warehouse",
   "companies",
+  "ai_halper",
   "settings",
   "auth",
   "auth-forgot",

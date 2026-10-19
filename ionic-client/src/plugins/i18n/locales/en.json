@@ -8,7 +8,8 @@
     "calculator": "Calculator",
     "warehouses": "Warehouses",
     "companies": "Companies",
-    "settings": "Settings"
+    "settings": "Settings",
+    "assistant": "Assistant"
   },
   "ui": {
     "buttons": {
@@ -213,6 +214,24 @@
         "current": "Current company",
         "all": "All companies"
       }
+    },
+    "assistant": {
+      "title": "Assistant",
+      "placeholder": "Ask about requests, warehouses…",
+      "send": "Send",
+      "empty": "I can see your requests, warehouses and companies and search materials. I only change anything after you confirm.",
+      "confirm_title": "Confirm the action",
+      "confirm": "Confirm",
+      "reject": "Reject",
+      "details": "Details",
+      "thinking": "Thinking…",
+      "clear": "New chat",
+      "errors": {
+        "failed": "Couldn't get a reply. Please try again.",
+        "unconfigured": "The assistant isn't set up yet.",
+        "unauthorized": "Sign in to use the assistant."
+      },
+      "auth_required": "The assistant is available after sign-in. Tap to sign in"
     },
     "catalog": {
       "title": "Catalogs",
