@@ -11,9 +11,13 @@
         <header class="hero">
           <h1 class="hero__title">{{ $t("pages.landing.title") }}</h1>
           <p class="hero__lead">{{ $t("pages.landing.lead") }}</p>
-          <PlasmaButton fullWidth :to="calculatorPath">
-            {{ $t("pages.landing.cta") }}
-          </PlasmaButton>
+          <!-- Обёртка, а не класс на кнопке: ширину ей задаёт fullWidth, и перебить его
+               из родителя нечем — стили компонента специфичнее. -->
+          <div class="hero__cta">
+            <PlasmaButton fullWidth :to="calculatorPath">
+              {{ $t("pages.landing.cta") }}
+            </PlasmaButton>
+          </div>
         </header>
 
         <section class="section">
@@ -235,8 +239,14 @@
   }
 
   @media (min-width: 768px) {
-    .hero {
-      max-width: 640px;
+    /*
+     * Описание — на всю ширину контейнера, как вкладки и разделы ниже: раньше оно
+     * было зажато в 640px и выглядело узкой колонкой над широкой страницей.
+     * Кнопка — по центру той же ширины, что у нижней (.outro).
+     */
+    .hero__cta {
+      width: 360px;
+      margin: 0 auto;
     }
 
     .hero__title {
