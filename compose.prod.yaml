@@ -198,7 +198,8 @@ services:
 
   telegram-server:
     restart: unless-stopped
-    # Без базы. Порт не опубликован: снаружи открыт только webhook, и только через nginx.
+    # Без базы. Порт не опубликован. Входящие — long polling; webhook (открыт в nginx) включается
+    # только заданным TELEGRAM_WEBHOOK_URL. Исходящий доступ к api.telegram.org нужен в обоих режимах.
     build:
       context: ./telegram-server
       dockerfile: ./docker/Dockerfile.prod
@@ -208,7 +209,7 @@ services:
       LOG_DIR: /var/log/matli
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
-      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-https://zayavka.app/telegram/api/v1/webhook}
+      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-}
     volumes:
       - ./logs:/var/log/matli
 

@@ -3,6 +3,7 @@ import {
   Injectable,
   Logger,
   OnApplicationBootstrap,
+  OnApplicationShutdown,
   ServiceUnavailableException,
 } from '@nestjs/common';
 
@@ -19,18 +20,24 @@ interface ApiResponse<T> {
   description?: string;
 }
 
+// Telegram держит запрос открытым до этого числа секунд, если обновлений нет.
+const POLL_TIMEOUT_S = 30;
+const RETRY_DELAY_MS = 5000;
+const RETRY_DELAY_MAX_MS = 60_000;
+
 /**
- * Входящие — webhook: Telegram сам шлёт обновления на `POST /telegram/api/v1/webhook`
- * (в nginx открыта только эта ручка). Адрес и секрет регистрируются при старте, так что
- * руками `setWebhook` дёргать не нужно. Без `TELEGRAM_BOT_TOKEN` сервис поднимается, но
- * отправка отвечает 503; без https-адреса (dev) webhook не ставится и бот молчит — слать
- * обновления в ручку можно вручную с заголовком секрета.
+ * Входящие по умолчанию — long polling (`getUpdates`): не нужен ни публичный https, ни
+ * маршрут в nginx. Если задан `TELEGRAM_WEBHOOK_URL` (https) и секрет — вместо опроса при
+ * старте регистрируется webhook `POST /telegram/api/v1/webhook`. Без `TELEGRAM_BOT_TOKEN`
+ * сервис поднимается, но бот молчит, а отправка отвечает 503.
  */
 @Injectable()
-export class TelegramService implements OnApplicationBootstrap {
+export class TelegramService implements OnApplicationBootstrap, OnApplicationShutdown {
   private readonly logger = new Logger(TelegramService.name);
   private readonly token = process.env.TELEGRAM_BOT_TOKEN?.trim() ?? '';
   private readonly webhookUrl = process.env.TELEGRAM_WEBHOOK_URL?.trim() ?? '';
+  private abort = new AbortController();
+  private stopped = false;
   readonly secret = process.env.TELEGRAM_WEBHOOK_SECRET?.trim() ?? '';
 
   async onApplicationBootstrap(): Promise<void> {
@@ -39,10 +46,19 @@ export class TelegramService implements OnApplicationBootstrap {
       return;
     }
     // Telegram принимает webhook только на https, а без секрета любой мог бы слать «обновления».
-    if (!this.webhookUrl.startsWith('https://') || !this.secret) {
-      this.logger.warn('Нет https-адреса или TELEGRAM_WEBHOOK_SECRET — webhook не зарегистрирован');
+    if (this.webhookUrl.startsWith('https://') && this.secret) {
+      await this.registerWebhook();
       return;
     }
+    void this.poll();
+  }
+
+  onApplicationShutdown(): void {
+    this.stopped = true;
+    this.abort.abort();
+  }
+
+  private async registerWebhook(): Promise<void> {
     try {
       await this.call('setWebhook', {
         url: this.webhookUrl,
@@ -53,6 +69,40 @@ export class TelegramService implements OnApplicationBootstrap {
     } catch (error) {
       // Не роняем сервис: стек из-за бота не падает, ошибка — в лог поломок.
       logError('telegram-set-webhook', error);
+    }
+  }
+
+  private async poll(): Promise<void> {
+    let offset = 0;
+    let failures = 0;
+    try {
+      // getUpdates не работает при установленном webhook (409): снимаем его.
+      await this.call('deleteWebhook', {}, this.abort.signal);
+    } catch {
+      // Недоступность Telegram всплывёт в цикле ниже.
+    }
+    this.logger.log('Бот слушает обновления (long polling)');
+    while (!this.stopped) {
+      try {
+        const updates = await this.call<Update[]>(
+          'getUpdates',
+          { offset, timeout: POLL_TIMEOUT_S, allowed_updates: ['message'] },
+          this.abort.signal,
+        );
+        failures = 0;
+        for (const update of updates) {
+          offset = update.update_id + 1;
+          await this.handle(update);
+        }
+      } catch (error) {
+        if (this.stopped) return;
+        failures += 1;
+        // Недоступный Telegram — не повод писать в лог каждые 5 секунд: первый сбой и
+        // далее каждый двадцатый, а паузу растим до минуты.
+        if (failures === 1 || failures % 20 === 0) logError('telegram-poll', error);
+        const delay = Math.min(RETRY_DELAY_MS * failures, RETRY_DELAY_MAX_MS);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
     }
   }
 
@@ -77,11 +127,12 @@ export class TelegramService implements OnApplicationBootstrap {
     }
   }
 
-  private async call<T>(method: string, body: object): Promise<T> {
+  private async call<T>(method: string, body: object, signal?: AbortSignal): Promise<T> {
     const res = await fetch(`https://api.telegram.org/bot${this.token}/${method}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal,
     });
     const data = (await res.json()) as ApiResponse<T>;
     // URL с токеном в ошибку не кладём.

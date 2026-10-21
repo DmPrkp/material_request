@@ -319,8 +319,8 @@ services:
           path: ./ai-server/docker
 
   telegram-server:
-    # Telegram-бот. Своей базы нет, входящие — webhook через nginx. Без https-адреса (в dev его
-    # нет) webhook не регистрируется и бот молчит; без TELEGRAM_BOT_TOKEN отправка отвечает 503.
+    # Telegram-бот. Своей базы нет, входящие — long polling (webhook включается только заданным
+    # TELEGRAM_WEBHOOK_URL). Без TELEGRAM_BOT_TOKEN бот молчит, а отправка отвечает 503.
     build:
       context: ./telegram-server
       dockerfile: ./docker/Dockerfile.dev
