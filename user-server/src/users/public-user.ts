@@ -12,6 +12,7 @@ export function toPublicUser(user: User): PublicUser {
     lastName: user.lastName,
     email: user.email,
     emailVerifiedAt: user.emailVerifiedAt,
+    telegramId: user.telegramId,
     role: user.role,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,

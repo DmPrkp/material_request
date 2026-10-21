@@ -45,7 +45,7 @@ run_service_tests() {
             echo "🔧 Running e2e tests..."
             npm run test:e2e
             ;;
-        "mail-server"|"ai-server")
+        "mail-server"|"ai-server"|"telegram-server")
             echo "🔧 Running unit tests..."
             npm run test
             ;;
@@ -76,6 +76,7 @@ docker run --rm -v "$PWD/nginx/njs:/njs" nginx:1.25.3 njs -p /njs /njs/auth.test
 run_service_tests "order-server" "./order-server" 
 run_service_tests "mail-server" "./mail-server"
 run_service_tests "ai-server" "./ai-server"
+run_service_tests "telegram-server" "./telegram-server"
 run_service_tests "ionic-client" "./ionic-client"
 
 echo -e "\n${GREEN}🎉 All tests completed successfully!${NC}"

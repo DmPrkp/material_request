@@ -107,6 +107,8 @@
       </button>
     </p>
   </form>
+
+  <TelegramLoginButton :locale="locale" @auth="handleTelegram" />
 </template>
 
 <script setup lang="ts">
@@ -123,6 +125,8 @@
   import { useI18n } from "vue-i18n";
   import { useAuthStore } from "@/store/auth";
   import CutCornerBtn from "@/components/ui/CutCornerBtn.vue";
+  import TelegramLoginButton from "./TelegramLoginButton.vue";
+  import type { TelegramAuthData } from "@/types/dto/auth";
 
   const mode = defineModel<"login" | "register">("mode", { default: "login" });
   // forgot наружу по той же причине, что и success: странице надо уйти на роут,
@@ -151,6 +155,19 @@
     const value = event.detail.value;
     if (value === "login" || value === "register") {
       mode.value = value;
+    }
+  }
+
+  /** Вход через Telegram: аккаунт, которого ещё нет, сервер заведёт сам. */
+  async function handleTelegram(data: TelegramAuthData) {
+    authStore.clearError();
+    try {
+      await authStore.loginWithTelegram(data);
+      emit("success");
+    } catch (error) {
+      if (error instanceof Error) {
+        authStore.error = error.message;
+      }
     }
   }
 

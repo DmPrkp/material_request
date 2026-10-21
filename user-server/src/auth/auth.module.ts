@@ -9,6 +9,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
+import { TelegramAuthService } from './telegram-auth.service';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { AuthService } from './auth.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, { provide: APP_GUARD, useClass: AuthGuard }],
+  providers: [AuthService, TelegramAuthService, { provide: APP_GUARD, useClass: AuthGuard }],
 })
 export class AuthModule {}
 

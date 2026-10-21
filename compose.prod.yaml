@@ -86,6 +86,8 @@ services:
       LOG_DIR: /var/log/matli
       JWT_SECRET: ${JWT_SECRET:?нет в .env}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
+      # Только проверка подписи Telegram Login Widget (ключ — sha256 от токена бота).
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
@@ -194,6 +196,22 @@ services:
     volumes:
       - ./logs:/var/log/matli
 
+  telegram-server:
+    restart: unless-stopped
+    # Без базы. Порт не опубликован: снаружи открыт только webhook, и только через nginx.
+    build:
+      context: ./telegram-server
+      dockerfile: ./docker/Dockerfile.prod
+    expose:
+      - 4900
+    environment:
+      LOG_DIR: /var/log/matli
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-https://zayavka.app/telegram/api/v1/webhook}
+    volumes:
+      - ./logs:/var/log/matli
+
   ionic-client:
     restart: unless-stopped
     build:
@@ -267,6 +285,7 @@ services:
       - "443:443"
     depends_on:
       - ai-server
+      - telegram-server
       - ionic-client
       - calc-server
       - order-server

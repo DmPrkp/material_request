@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+import { bigint, index, integer, pgEnum, pgTable, text, timestamp, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
 
 /**
  * USER — всем при регистрации, ADMIN — только заведённому при старте (default-admin.service.ts)
@@ -32,6 +32,11 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 320 }),
   /** Пока null — адрес не подтверждён, и восстановление по нему не работает. */
   emailVerifiedAt: timestamp('email_verified_at', { withTimezone: true }),
+  /**
+   * Telegram-id (Login Widget). Уникален: один Telegram — один аккаунт. bigint в режиме number:
+   * id пользователей Telegram укладываются в 2^52, а в JS нам нужно число, не строка.
+   */
+  telegramId: bigint('telegram_id', { mode: 'number' }).unique(),
   role: role('role').notNull().default('USER'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true })

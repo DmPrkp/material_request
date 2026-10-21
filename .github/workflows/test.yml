@@ -89,6 +89,32 @@ jobs:
         working-directory: ./ai-server
         run: npm run build
 
+  test-telegram-server:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: telegram-server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./telegram-server
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./telegram-server
+        run: npm run test
+
+      - name: Build
+        working-directory: ./telegram-server
+        run: npm run build
+
   test-ionic-client:
     runs-on: ubuntu-latest
 

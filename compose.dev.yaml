@@ -99,6 +99,8 @@ services:
       LOG_DIR: /var/log/matli
       JWT_SECRET: ${JWT_SECRET:?нет в .env}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-}
+      # Только проверка подписи Telegram Login Widget (ключ — sha256 от токена бота).
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       DEFAULT_ADMIN_LOGIN: ${DEFAULT_ADMIN_LOGIN:-}
       DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
       DEFAULT_ADMIN_FIRST_NAME: ${DEFAULT_ADMIN_FIRST_NAME:-}
@@ -316,6 +318,38 @@ services:
         - action: rebuild
           path: ./ai-server/docker
 
+  telegram-server:
+    # Telegram-бот. Своей базы нет, входящие — webhook через nginx. Без https-адреса (в dev его
+    # нет) webhook не регистрируется и бот молчит; без TELEGRAM_BOT_TOKEN отправка отвечает 503.
+    build:
+      context: ./telegram-server
+      dockerfile: ./docker/Dockerfile.dev
+    ports:
+      - 4900:4900
+    environment:
+      LOG_DIR: /var/log/matli
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL:-}
+    volumes:
+      - ./logs:/var/log/matli
+    develop:
+      watch:
+        - action: sync
+          path: ./telegram-server/src
+          target: /usr/telegram-server/src
+          ignore:
+            - node_modules/
+            - dist/
+        - action: rebuild
+          path: ./telegram-server/package.json
+        - action: rebuild
+          path: ./telegram-server/tsconfig.json
+        - action: rebuild
+          path: ./telegram-server/nest-cli.json
+        - action: rebuild
+          path: ./telegram-server/docker
+
   mailpit:
     # Поддельный SMTP только для разработки: принимает письма и никуда их не отправляет,
     # читать — http://localhost:8025. Тег закреплён, как у postgres: незакреплённый
@@ -443,6 +477,7 @@ services:
       - warehouse-server
       - company-server
       - ai-server
+      - telegram-server
       - db
 
   db:

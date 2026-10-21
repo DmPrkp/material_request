@@ -62,3 +62,16 @@ export class VerifyRequestDto extends createZodDto(verifyRequestSchema) {}
 export class VerifyEmailDto extends createZodDto(verifyEmailSchema) {}
 export class ForgotPasswordDto extends createZodDto(forgotPasswordSchema) {}
 export class ResetPasswordDto extends createZodDto(resetPasswordSchema) {}
+
+/**
+ * Ответ Telegram Login Widget целиком. loose, а не strict, и подпись считается по всем
+ * пришедшим полям: Telegram может добавить новое, и обрезанный набор не сошёлся бы с hash.
+ */
+export const telegramAuthSchema = z.looseObject({
+  id: z.number().int().positive(),
+  first_name: z.string().min(1).max(100),
+  auth_date: z.number().int().positive(),
+  hash: z.string().regex(/^[0-9a-f]{64}$/),
+});
+
+export class TelegramAuthDto extends createZodDto(telegramAuthSchema) {}

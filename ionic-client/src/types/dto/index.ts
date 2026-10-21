@@ -88,7 +88,12 @@ export type StoredMaterialRequestDTO = {
   id: number;
 };
 
-export type { AuthResponse, RegisterPayload, UserProfile } from "./auth";
+export type {
+  AuthResponse,
+  RegisterPayload,
+  TelegramAuthData,
+  UserProfile,
+} from "./auth";
 export type {
   DictionaryPage,
   DictionaryUnit,

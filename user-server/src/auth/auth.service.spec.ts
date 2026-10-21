@@ -25,6 +25,7 @@ describe('AuthService', () => {
       lastName: null,
       email: null,
       emailVerifiedAt: null,
+      telegramId: null,
       role: 'USER',
       createdAt: new Date(),
       updatedAt: new Date(),

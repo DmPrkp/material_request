@@ -1,5 +1,9 @@
 import BaseModel from "./BaseModel";
-import type { AuthResponse, RegisterPayload } from "@/types/dto/auth";
+import type {
+  AuthResponse,
+  RegisterPayload,
+  TelegramAuthData,
+} from "@/types/dto/auth";
 
 const DEFAULT_AUTH_PREFIX = "/user/api/v1";
 
@@ -144,6 +148,15 @@ export default class AuthModel extends BaseModel {
     return this.post<void>({
       params: "/auth/password/reset",
       body: { token, newPassword },
+      opts: authRequestOpts,
+    });
+  }
+
+  /** Ответ Telegram Login Widget целиком: подпись сервер считает по всем полям. */
+  static telegram(data: TelegramAuthData) {
+    return this.post<AuthResponse>({
+      params: "/auth/telegram",
+      body: { ...data },
       opts: authRequestOpts,
     });
   }

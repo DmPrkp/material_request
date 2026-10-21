@@ -2,7 +2,12 @@ import { defineStore } from "pinia";
 import AuthModel from "@/models/AuthModel";
 import UserModel from "@/models/UserModel";
 import BaseModel from "@/models/BaseModel";
-import type { AuthResponse, RegisterPayload, UserProfile } from "@/types/dto";
+import type {
+  AuthResponse,
+  RegisterPayload,
+  TelegramAuthData,
+  UserProfile,
+} from "@/types/dto";
 import {
   isTokenExpired,
   refreshDueAt,
@@ -334,6 +339,27 @@ export const useAuthStore = defineStore("auth", {
         }
       }
     },
+    async loginWithTelegram(data: TelegramAuthData) {
+      this.status = "loading";
+      this.clearError();
+      try {
+        const response = await AuthModel.telegram(data);
+        this.applyAuthResponse(response);
+        await this.fetchProfile();
+      } catch (error) {
+        this.status = "error";
+        this.error =
+          error instanceof Error
+            ? error.message
+            : "Не удалось войти. Попробуйте снова.";
+        throw error;
+      } finally {
+        if (this.status !== "error") {
+          this.status = "idle";
+        }
+      }
+    },
+
     async register(payload: RegisterPayload) {
       this.status = "loading";
       this.clearError();

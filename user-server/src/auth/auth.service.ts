@@ -148,7 +148,7 @@ export class AuthService {
     await this.usersService.updatePassword(user.id, await hashPassword(dto.newPassword));
   }
 
-  private buildAuthResponse(user: User) {
+  buildAuthResponse(user: User) {
     const payload: JwtPayload = { sub: user.id, login: user.login, role: user.role };
 
     return {

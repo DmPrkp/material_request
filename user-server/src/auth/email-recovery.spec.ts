@@ -17,6 +17,7 @@ const ivan: User = {
   lastName: null,
   email: 'ivan@example.com',
   emailVerifiedAt: null,
+  telegramId: null,
   role: 'USER',
   createdAt: new Date(),
   updatedAt: new Date(),

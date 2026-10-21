@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { PublicUser } from '../users/public-user';
 import { AuthService } from './auth.service';
+import { TelegramAuthService } from './telegram-auth.service';
 import { CurrentUser, Public } from './decorators';
 import {
   ChangePasswordDto,
@@ -8,13 +9,17 @@ import {
   LoginDto,
   RegisterDto,
   ResetPasswordDto,
+  TelegramAuthDto,
   VerifyEmailDto,
   VerifyRequestDto,
 } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly telegramAuth: TelegramAuthService,
+  ) {}
 
   @Public()
   @Post('register')
@@ -75,5 +80,20 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
+  }
+
+  // Подлинность — подпись Telegram, а не токен: входят как раз без него.
+  @Public()
+  @Post('telegram')
+  @HttpCode(HttpStatus.OK)
+  telegram(@Body() dto: TelegramAuthDto) {
+    return this.telegramAuth.login(dto);
+  }
+
+  // Не @Public: привязать Telegram можно только к своему аккаунту.
+  @Post('telegram/link')
+  @HttpCode(HttpStatus.OK)
+  linkTelegram(@CurrentUser() user: PublicUser, @Body() dto: TelegramAuthDto) {
+    return this.telegramAuth.link(user.id, dto);
   }
 }

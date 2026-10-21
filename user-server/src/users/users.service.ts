@@ -48,6 +48,17 @@ export class UsersService {
     return user ?? null;
   }
 
+  async findByTelegramId(telegramId: number): Promise<User | null> {
+    const [user] = await this.db.select().from(users).where(eq(users.telegramId, telegramId));
+    return user ?? null;
+  }
+
+  /** Занятый чужим аккаунтом Telegram поймает UNIQUE — 409 (PgConstraintFilter). */
+  async setTelegramId(id: number, telegramId: number): Promise<User> {
+    const [user] = await this.db.update(users).set({ telegramId }).where(eq(users.id, id)).returning();
+    return user;
+  }
+
   async findById(id: number): Promise<User | null> {
     const [user] = await this.db.select().from(users).where(eq(users.id, id));
     return user ?? null;
