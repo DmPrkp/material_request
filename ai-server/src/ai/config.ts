@@ -31,7 +31,7 @@ export function aiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): AiConfig 
   return {
     token: trimmed(env.AI_TOKEN),
     baseUrl: trimmed(env.AI_BASE_URL) ?? 'https://api.aitunnel.ru/v1/',
-    model: trimmed(env.AI_MODEL) ?? 'gpt-4.1-mini',
+    model: trimmed(env.AI_MODEL) ?? 'deepseek-v4.1-flash-1017',
     services: {
       order: url(env.ORDER_URL, 'http://order-server:4100/order/api/v1'),
       warehouse: url(env.WAREHOUSE_URL, 'http://warehouse-server:4400/warehouse/api/v1'),
