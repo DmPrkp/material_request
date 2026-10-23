@@ -3,7 +3,11 @@ FROM node:22-alpine AS build
 WORKDIR /usr/warehouse-server
 
 COPY package*.json ./
-RUN npm ci
+# Кеш npm живёт между сборками на сервере (кеш BuildKit, в образ не попадает): пакеты
+# качаются один раз на все сервисы, а не каждым npm ci заново. Повторы — потому что
+# реестр с сервера отваливается по таймауту (ETIMEDOUT) и валил весь деплой. audit,
+# fund и проверка версии npm — лишние походы в сеть: без неё ждали бы повторов минутами.
+RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline --no-audit --no-fund --no-update-notifier --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 COPY ./ ./
 RUN npm run build
@@ -15,7 +19,9 @@ ENV NODE_ENV=production
 WORKDIR /usr/warehouse-server
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# Тот же кеш, что у сборки. npm cache clean не нужен: кеш в образ не попадает, а
+# чистка опустошила бы его для всех сервисов.
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev --prefer-offline --no-audit --no-fund --no-update-notifier --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 COPY --from=build /usr/warehouse-server/dist ./dist
 COPY --from=build /usr/warehouse-server/drizzle ./drizzle
