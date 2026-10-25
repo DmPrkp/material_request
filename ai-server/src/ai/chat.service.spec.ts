@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ChatDto } from './chat.dto';
-import { ChatService, MAX_STEPS } from './chat.service';
+import { ChatService, MAX_STEPS, OFF_TOPIC } from './chat.service';
 import type { AssistantReply, Llm } from './llm';
 import type { ServiceClient } from './service-client';
 
@@ -15,13 +15,21 @@ const call = (id: string, name: string, args: unknown = {}) => ({
 
 describe('ChatService', () => {
   let replies: AssistantReply[];
+  let topic: string;
   let request: ReturnType<typeof vi.fn>;
   let service: ChatService;
 
   beforeEach(() => {
     replies = [];
+    topic = 'ДА';
     request = vi.fn().mockResolvedValue({ ok: true, status: 200, body: [{ id: 1 }] });
-    const llm: Llm = { complete: vi.fn(() => Promise.resolve(replies.shift() ?? { content: 'конец' })) };
+    const llm: Llm = {
+      complete: vi.fn((_system: string, _messages: unknown, options?: { tools?: boolean }) =>
+        Promise.resolve(
+          options?.tools === false ? { content: topic } : (replies.shift() ?? { content: 'конец' }),
+        ),
+      ),
+    };
     service = new ChatService(llm, { request } as unknown as ServiceClient);
   });
 
@@ -118,6 +126,28 @@ describe('ChatService', () => {
 
     expect(res.status).toBe('done');
     expect(res.messages.at(-1)).toMatchObject({ role: 'assistant' });
+  });
+
+  it('вопрос не по теме отсекается до основной модели', async () => {
+    topic = 'НЕТ';
+    replies = [{ content: 'вот код' }];
+    const res = await service.chat(user, dto([{ role: 'user', content: 'напиши пузырьковую сортировку' }]));
+
+    expect(res.messages).toEqual([{ role: 'assistant', content: OFF_TOPIC }]);
+    expect(replies).toHaveLength(1);
+  });
+
+  it('фильтр не мешает подтверждению действия', async () => {
+    topic = 'НЕТ';
+    const history = [
+      { role: 'user', content: 'удали 5' },
+      { role: 'assistant', content: null, tool_calls: [call('d', 'delete_zayavka', { id: 5 })] },
+    ];
+    replies = [{ content: 'Удалила' }];
+    const res = await service.chat(user, dto(history, ['d']));
+
+    expect(request).toHaveBeenCalled();
+    expect(res.status).toBe('done');
   });
 
   it('диалог не с сообщения пользователя — 400', async () => {

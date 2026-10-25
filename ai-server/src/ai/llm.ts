@@ -11,7 +11,8 @@ export type AssistantReply = { content: string | null; tool_calls?: ToolCall[] }
 
 /** Шов под тесты: ChatService не знает про SDK. */
 export interface Llm {
-  complete(system: string, messages: ChatMessage[]): Promise<AssistantReply>;
+  /** tools: false — обычный ответ без вызова инструментов (классификатор темы). */
+  complete(system: string, messages: ChatMessage[], options?: { tools?: boolean }): Promise<AssistantReply>;
 }
 
 @Injectable()
@@ -20,14 +21,18 @@ export class OpenAiLlm implements Llm {
 
   constructor(@Inject(AI_CONFIG) private readonly config: AiConfig) {}
 
-  async complete(system: string, messages: ChatMessage[]): Promise<AssistantReply> {
+  async complete(
+    system: string,
+    messages: ChatMessage[],
+    options: { tools?: boolean } = {},
+  ): Promise<AssistantReply> {
     if (!this.config.token) throw new ServiceUnavailableException('Ассистент не настроен: нет AI_TOKEN');
     this.client ??= new OpenAI({ apiKey: this.config.token, baseURL: this.config.baseUrl });
 
     const completion = await this.client.chat.completions.create({
       model: this.config.model,
       messages: [{ role: 'system', content: system }, ...messages] as OpenAI.ChatCompletionMessageParam[],
-      tools: toolDefinitions(),
+      ...(options.tools === false ? {} : { tools: toolDefinitions() }),
     });
 
     const message = completion.choices[0]?.message;
