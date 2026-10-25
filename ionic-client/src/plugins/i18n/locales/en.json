@@ -229,9 +229,14 @@
       "errors": {
         "failed": "Couldn't get a reply. Please try again.",
         "unconfigured": "The assistant isn't set up yet.",
-        "unauthorized": "Sign in to use the assistant."
+        "unauthorized": "Sign in to use the assistant.",
+        "mic_denied": "Microphone access denied.",
+        "voice_failed": "Couldn't recognize speech. Please try again."
       },
-      "auth_required": "The assistant is available after sign-in. Tap to sign in"
+      "auth_required": "The assistant is available after sign-in. Tap to sign in",
+      "mic": "Voice input",
+      "stop": "Stop recording",
+      "recognizing": "Recognizing…"
     },
     "catalog": {
       "title": "Catalogs",

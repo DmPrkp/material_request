@@ -4,6 +4,11 @@ import AssistantModel from "@/models/AssistantModel";
 import { HttpError } from "@/models/BaseModel";
 import { useAssistantStore } from "./assistant";
 
+// Настоящий плагин тянет vue-i18n, который в setup-файле тестов замокан; нужен только язык.
+vi.mock("@/plugins/i18n", () => ({
+  default: { global: { locale: { value: "en" } } },
+}));
+
 describe("assistant store", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -23,6 +28,7 @@ describe("assistant store", () => {
     expect(chat).toHaveBeenCalledWith(
       [{ role: "user", content: "привет" }],
       undefined,
+      "en",
     );
     expect(store.visibleMessages.map((m) => m.content)).toEqual([
       "привет",
@@ -77,7 +83,7 @@ describe("assistant store", () => {
     expect(await store.send("ещё")).toBe(false);
 
     await store.resolve(["d"]);
-    expect(chat).toHaveBeenLastCalledWith(expect.any(Array), ["d"]);
+    expect(chat).toHaveBeenLastCalledWith(expect.any(Array), ["d"], "en");
     expect(store.pending).toEqual([]);
   });
 

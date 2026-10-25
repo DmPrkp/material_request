@@ -6,6 +6,9 @@ import { AI_CONFIG, type AiConfig, type ServiceName } from './config';
 
 const TIMEOUT_MS = 10_000;
 
+/** Кто спрашивает и на каком языке ждёт названий из справочника (Accept-Language). */
+export type Caller = AuthUser & { locale?: 'ru' | 'en' };
+
 export type ServiceResult = { ok: boolean; status: number; body: unknown };
 
 /**
@@ -23,7 +26,7 @@ export class ServiceClient {
   constructor(@Inject(AI_CONFIG) private readonly config: AiConfig) {}
 
   async request(
-    user: AuthUser,
+    user: Caller,
     service: ServiceName,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     path: string,
@@ -34,7 +37,7 @@ export class ServiceClient {
       headers: {
         'x-user-id': String(user.id),
         'x-user-role': user.role,
-        'accept-language': 'ru',
+        'accept-language': user.locale ?? 'ru',
         ...(body === undefined ? {} : { 'content-type': 'application/json' }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),

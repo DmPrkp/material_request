@@ -1,3 +1,5 @@
+import { AI_MODEL, AI_SPEECH_MODEL } from '~/constatns';
+
 /**
  * Настройки из окружения. Токен модели — секрет, который compose отдаёт только этому сервису.
  *
@@ -10,6 +12,8 @@ export type AiConfig = {
   /** OpenAI-совместимый шлюз (aitunnel.ru), а не api.openai.com. */
   baseUrl: string;
   model: string;
+  /** Распознавание речи (транскрибация), отдельная от чата модель. */
+  speechModel: string;
   /** Адреса сервисов уже с префиксом /<имя>/api/v1, без закрывающего слэша. */
   services: Record<ServiceName, string>;
 };
@@ -31,7 +35,8 @@ export function aiConfigFromEnv(env: NodeJS.ProcessEnv = process.env): AiConfig 
   return {
     token: trimmed(env.AI_TOKEN),
     baseUrl: trimmed(env.AI_BASE_URL) ?? 'https://api.aitunnel.ru/v1/',
-    model: trimmed(env.AI_MODEL) ?? 'deepseek-v4.1-flash-1017',
+    model: AI_MODEL,
+    speechModel: AI_SPEECH_MODEL,
     services: {
       order: url(env.ORDER_URL, 'http://order-server:4100/order/api/v1'),
       warehouse: url(env.WAREHOUSE_URL, 'http://warehouse-server:4400/warehouse/api/v1'),

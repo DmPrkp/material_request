@@ -28,7 +28,12 @@ export const messageSchema = z.discriminatedUnion('role', [
   }),
 ]);
 
+export const LOCALES = ['ru', 'en'] as const;
+export type Locale = (typeof LOCALES)[number];
+
 export const chatSchema = z.strictObject({
+  /** Язык интерфейса клиента — подсказка модели, на чём отвечать. */
+  locale: z.enum(LOCALES).optional(),
   messages: z.array(messageSchema).min(1).max(MAX_MESSAGES),
   /** id вызовов, которые пользователь подтвердил; неподтверждённые считаются отклонёнными. */
   approve: z.array(z.string()).max(10).optional(),

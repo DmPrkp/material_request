@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content
       ref="content"
-      :class="{ 'with-bulk-bar': authStore.isAuthenticated }"
+      :style="{ '--padding-bottom': `${composerHeight}px` }"
     >
       <div class="ion-padding">
         <ion-item-divider>
@@ -87,6 +87,12 @@
             <ion-spinner name="dots" /> {{ $t("pages.assistant.thinking") }}
           </div>
 
+          <ion-text v-if="voice.error.value" color="danger">
+            <p class="hint">
+              {{ $t(`pages.assistant.errors.${voice.error.value}`) }}
+            </p>
+          </ion-text>
+
           <ion-text v-if="store.error" color="danger">
             <p class="hint">
               {{ $t(`pages.assistant.errors.${store.error}`) }}
@@ -102,6 +108,7 @@
       -->
       <form
         v-if="authStore.isAuthenticated"
+        ref="composer"
         slot="fixed"
         class="bulk-bar composer"
         @submit.prevent="submit"
@@ -112,9 +119,42 @@
           :rows="1"
           :auto-grow="true"
           :disabled="Boolean(store.pending.length)"
-          :placeholder="$t('pages.assistant.placeholder')"
+          :placeholder="
+            voice.transcribing.value
+              ? $t('pages.assistant.recognizing')
+              : $t('pages.assistant.placeholder')
+          "
+          @ionFocus="onFocus"
           @keydown.enter.exact.prevent="submit"
         />
+        <ion-button
+          v-if="voice.supported"
+          type="button"
+          shape="round"
+          fill="clear"
+          :color="voice.recording.value ? 'danger' : undefined"
+          :aria-label="
+            voice.recording.value
+              ? $t('pages.assistant.stop')
+              : $t('pages.assistant.mic')
+          "
+          :title="
+            voice.recording.value
+              ? $t('pages.assistant.stop')
+              : $t('pages.assistant.mic')
+          "
+          :disabled="
+            voice.transcribing.value ||
+            Boolean(store.pending.length) ||
+            store.loading
+          "
+          @click="voice.toggle"
+        >
+          <ion-icon
+            slot="icon-only"
+            :icon="voice.recording.value ? stopCircleOutline : micOutline"
+          />
+        </ion-button>
         <ion-button
           type="submit"
           shape="round"
@@ -145,11 +185,18 @@
     IonTextarea,
     IonTitle,
   } from "@ionic/vue";
-  import { alertCircle, sendOutline } from "ionicons/icons";
-  import { computed, nextTick, ref, watch } from "vue";
+  import {
+    alertCircle,
+    micOutline,
+    sendOutline,
+    stopCircleOutline,
+  } from "ionicons/icons";
+  import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+  import { useI18n } from "vue-i18n";
   import { useRoute, useRouter } from "vue-router";
   import { useAssistantStore } from "@/store/assistant";
   import { useAuthStore } from "@/store/auth";
+  import { useVoiceInput } from "@/mixins/useVoiceInput";
 
   const store = useAssistantStore();
   const authStore = useAuthStore();
@@ -157,13 +204,40 @@
   const route = useRoute();
 
   const draft = ref("");
+  const composer = ref<HTMLFormElement | null>(null);
+  // Поле растёт вместе с текстом (до 120px), а общий отступ with-bulk-bar — константа 60px:
+  // последняя реплика уезжала бы под многострочное поле. Отступ следует за его высотой.
+  const composerHeight = ref(0);
+  let composerObserver: ResizeObserver | undefined;
+  watch(composer, (form) => {
+    composerObserver?.disconnect();
+    composerHeight.value = 0;
+    if (!form || typeof ResizeObserver === "undefined") return;
+    composerObserver = new ResizeObserver(() => {
+      composerHeight.value = form.offsetHeight + 8;
+    });
+    composerObserver.observe(form);
+  });
+  onBeforeUnmount(() => composerObserver?.disconnect());
   const content = ref<{
     $el: { scrollToBottom: (duration?: number) => Promise<void> };
   } | null>(null);
 
   const canSend = computed(
     () =>
-      Boolean(draft.value.trim()) && !store.loading && !store.pending.length,
+      Boolean(draft.value.trim()) &&
+      !store.loading &&
+      !store.pending.length &&
+      !voice.busy.value,
+  );
+
+  const { locale } = useI18n();
+  // Распознанное дописываем к набранному: человек мог начать печатать и продолжить голосом.
+  const voice = useVoiceInput(
+    () => (locale.value === "en" ? "en" : "ru"),
+    (text) => {
+      draft.value = draft.value ? `${draft.value} ${text}` : text;
+    },
   );
 
   async function submit() {
@@ -172,6 +246,15 @@
     draft.value = "";
     // Не дошло до сервера — вернём набранное, чтобы не писать заново.
     if (!(await store.send(text))) draft.value = text;
+  }
+
+  /**
+   * Клавиатура на телефоне отъедает пол-экрана: после того как вьюпорт сжался (meta
+   * interactive-widget=resizes-content в index.html), прокручиваем историю к последней реплике,
+   * иначе она остаётся под полем ввода.
+   */
+  function onFocus() {
+    setTimeout(() => void content.value?.$el.scrollToBottom(150), 350);
   }
 
   function goToAuth() {

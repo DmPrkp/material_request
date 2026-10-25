@@ -24,6 +24,7 @@ describe('ChatService', () => {
     topic = 'ДА';
     request = vi.fn().mockResolvedValue({ ok: true, status: 200, body: [{ id: 1 }] });
     const llm: Llm = {
+      transcribe: vi.fn(),
       complete: vi.fn((_system: string, _messages: unknown, options?: { tools?: boolean }) =>
         Promise.resolve(
           options?.tools === false ? { content: topic } : (replies.shift() ?? { content: 'конец' }),
@@ -39,7 +40,7 @@ describe('ChatService', () => {
     replies = [{ content: null, tool_calls: [call('a', 'list_zayavki')] }, { content: 'Одна заявка' }];
     const res = await service.chat(user, dto([{ role: 'user', content: 'мои заявки' }]));
 
-    expect(request).toHaveBeenCalledWith(user, 'order', 'GET', '/zayavka');
+    expect(request).toHaveBeenCalledWith(expect.objectContaining(user), 'order', 'GET', '/zayavka');
     expect(res.status).toBe('done');
     expect(res.messages.map((m) => m.role)).toEqual(['assistant', 'tool', 'assistant']);
   });
@@ -63,7 +64,7 @@ describe('ChatService', () => {
     replies = [{ content: 'Удалила' }];
     const res = await service.chat(user, dto(history, ['d']));
 
-    expect(request).toHaveBeenCalledWith(user, 'order', 'DELETE', '/zayavka/5');
+    expect(request).toHaveBeenCalledWith(expect.objectContaining(user), 'order', 'DELETE', '/zayavka/5');
     expect(res.status).toBe('done');
   });
 
@@ -91,7 +92,7 @@ describe('ChatService', () => {
     expect(res.pending.map((p) => p.id)).toEqual(['w']);
 
     const resumed = await service.chat(user, dto([{ role: 'user', content: 'x' }, ...res.messages], ['w']));
-    expect(request).toHaveBeenLastCalledWith(user, 'order', 'DELETE', '/zayavka/1');
+    expect(request).toHaveBeenLastCalledWith(expect.objectContaining(user), 'order', 'DELETE', '/zayavka/1');
     expect(resumed.status).toBe('done');
   });
 
@@ -133,7 +134,7 @@ describe('ChatService', () => {
     replies = [{ content: 'вот код' }];
     const res = await service.chat(user, dto([{ role: 'user', content: 'напиши пузырьковую сортировку' }]));
 
-    expect(res.messages).toEqual([{ role: 'assistant', content: OFF_TOPIC }]);
+    expect(res.messages).toEqual([{ role: 'assistant', content: OFF_TOPIC.ru }]);
     expect(replies).toHaveLength(1);
   });
 
@@ -148,6 +149,26 @@ describe('ChatService', () => {
 
     expect(request).toHaveBeenCalled();
     expect(res.status).toBe('done');
+  });
+
+  it('язык интерфейса уходит в подсказку модели и в справочник', async () => {
+    const complete = vi.fn().mockResolvedValue({ content: 'ok' });
+    const calls = vi.fn().mockResolvedValue({ ok: true, status: 200, body: [] });
+    const svc = new ChatService(
+      { transcribe: vi.fn(), complete: complete.mockResolvedValueOnce({ content: 'ДА' }) },
+      { request: calls } as unknown as ServiceClient,
+    );
+    complete.mockResolvedValueOnce({ content: null, tool_calls: [call('a', 'list_zayavki')] });
+
+    await svc.chat(user, { messages: [{ role: 'user', content: 'my requests' }], locale: 'en' });
+
+    expect(complete.mock.calls[1][0]).toContain('English');
+    expect(calls).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 7, locale: 'en' }),
+      'order',
+      'GET',
+      '/zayavka',
+    );
   });
 
   it('диалог не с сообщения пользователя — 400', async () => {

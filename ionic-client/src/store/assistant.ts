@@ -4,6 +4,7 @@ import AssistantModel, {
   type PendingAction,
 } from "@/models/AssistantModel";
 import { HttpError } from "@/models/BaseModel";
+import i18n from "@/plugins/i18n";
 
 export type AssistantError = "failed" | "unconfigured" | "unauthorized";
 
@@ -63,7 +64,12 @@ export const useAssistantStore = defineStore("assistant", {
       this.loading = true;
       this.error = null;
       try {
-        const response = await AssistantModel.chat([...this.history], approve);
+        const response = await AssistantModel.chat(
+          [...this.history],
+          approve,
+          // Язык интерфейса — подсказка модели, на чём отвечать; сервис знает только ru и en.
+          i18n.global.locale.value === "en" ? "en" : "ru",
+        );
         this.history.push(...response.messages);
         this.pending = response.status === "confirm" ? response.pending : [];
         return true;

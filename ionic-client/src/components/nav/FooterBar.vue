@@ -4,12 +4,18 @@
       <ion-row>
         <template v-for="(item, index) in menuItems" :key="item.name">
           <!-- Кнопка встаёт между половинами: перед первым пунктом второй половины. -->
-          <ion-col v-if="index === centerAt" class="center">
+          <ion-col
+            v-if="index === centerAt"
+            class="center"
+            :class="{ hidden: onAssistantPage }"
+          >
             <ion-button
               shape="round"
               :aria-label="$t('footer.assistant')"
               :title="$t('footer.assistant')"
               :router-link="getLocalizedRoute('ai_halper')"
+              :tabindex="onAssistantPage ? -1 : undefined"
+              :aria-hidden="onAssistantPage"
             >
               <ion-icon slot="icon-only" :icon="robotOutline" />
             </ion-button>
@@ -53,6 +59,10 @@
   } from "@/constants/nav";
 
   const authStore = useAuthStore();
+  const currentRoute = useRoute();
+
+  // Мы уже в чате — кнопка на него не нужна и уезжает в полосу, на других страницах возвращается.
+  const onAssistantPage = computed(() => currentRoute.name === "ai_halper");
 
   // Настроек здесь нет: они в боковом меню справа в шапке, профиль — по аватару.
   // На /main тоже не ведём — туда по логотипу. Расчёт идёт перед «Заявками»:
@@ -128,6 +138,22 @@
     transform: translate(-50%, calc(-50% - 10px));
     border-radius: 50%;
     box-shadow: 0 0 0 4px var(--ion-background-color);
+  }
+
+  /*
+   * Уезжает вниз в полосу и гаснет, а не пропадает через v-if: место в потоке остаётся,
+   * и вкладки не сдвигаются. pointer-events: none — невидимая кнопка не ловит нажатия.
+   */
+  ion-col.center ion-button {
+    transition:
+      transform 0.25s ease,
+      opacity 0.25s ease;
+  }
+
+  ion-col.center.hidden ion-button {
+    transform: translate(-50%, 0);
+    opacity: 0;
+    pointer-events: none;
   }
 
   ion-col.center ion-icon {
