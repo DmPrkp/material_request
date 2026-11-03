@@ -12,6 +12,7 @@ import {
   POWER_TOOL_CURRENTS,
   normalizeCatalogTab,
 } from "@/constants";
+import { trackPageView } from "@/plugins/metrika";
 import { applySeo } from "./seo";
 
 const routes: Array<RouteRecordRaw> = [
@@ -326,10 +327,12 @@ router.beforeEach(async (to) => {
   return true;
 });
 
-router.afterEach((to) => {
+router.afterEach((to, from) => {
   const locale = (normalizeLocale(to.params.locale) ||
     DEFAULT_LOCALE) as Locale;
+  // Сначала head (title), потом счётчик: в hit уходит уже заголовок новой страницы.
   applySeo(to, locale);
+  trackPageView(to, from);
 });
 
 export default router;

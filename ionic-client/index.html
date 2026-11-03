@@ -155,6 +155,50 @@
       }
     </script>
     <!--
+      Яндекс Метрика (счётчик 114052526, код из её мастера установки). Здесь, а не из
+      бандла: стартует раньше приложения и считает и тех, кто ушёл, не дождавшись JS.
+      Только на проде — с localhost счётчик данные и так не принимает, но и
+      грузить его в dev незачем. Первый просмотр шлёт init, переходы внутри SPA —
+      plugins/metrika.ts из router.afterEach. Номер там же — менять в обоих местах.
+    -->
+    <script type="text/javascript">
+      if (location.hostname === "zayavka.app") {
+        (function (m, e, t, r, i, k, a) {
+          m[i] =
+            m[i] ||
+            function () {
+              (m[i].a = m[i].a || []).push(arguments);
+            };
+          m[i].l = 1 * new Date();
+          for (var j = 0; j < document.scripts.length; j++) {
+            if (document.scripts[j].src === r) {
+              return;
+            }
+          }
+          ((k = e.createElement(t)),
+            (a = e.getElementsByTagName(t)[0]),
+            (k.async = 1),
+            (k.src = r),
+            a.parentNode.insertBefore(k, a));
+        })(
+          window,
+          document,
+          "script",
+          "https://mc.yandex.ru/metrika/tag.js?id=114052526",
+          "ym",
+        );
+        ym(114052526, "init", {
+          ssr: true,
+          clickmap: true,
+          ecommerce: "dataLayer",
+          referrer: document.referrer,
+          url: location.href,
+          accurateTrackBounce: true,
+          trackLinks: true,
+        });
+      }
+    </script>
+    <!--
       Оболочка страниц из seo-prerender.ts: видна, пока грузится JS, потом её заменяет
       приложение. Стили Ionic к этому моменту ещё не загружены — только самое нужное.
     -->
