@@ -160,6 +160,9 @@
       Только на проде — с localhost счётчик данные и так не принимает, но и
       грузить его в dev незачем. Первый просмотр шлёт init, переходы внутри SPA —
       plugins/metrika.ts из router.afterEach. Номер там же — менять в обоих местах.
+      TODO: политика конфиденциальности (ссылка из подвала). Вебвизор и cookie Метрики
+      включены, а 152-ФЗ требует сказать о них посетителю. Что собирает сайт — в
+      memory: privacy-policy-todo.
     -->
     <script type="text/javascript">
       if (location.hostname === "zayavka.app") {
