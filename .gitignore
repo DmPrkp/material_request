@@ -10,3 +10,4 @@
 # Служебный каталог Claude Code: локальные настройки и рабочие копии веток
 /.claude
 /blender-bot
+.DS_Store
