@@ -57,6 +57,7 @@
     CALCULATOR,
     CATALOG,
     COMPANIES,
+    FEEDBACK,
     MAIN_MENU_ID,
     SETTINGS,
     WAREHOUSES,
@@ -79,6 +80,8 @@
       CALCULATOR,
       ZAYAVKA,
       CATALOG,
+      // Последним и всем, включая гостя: ему страница покажет почту вместо формы.
+      FEEDBACK,
     ];
   });
 

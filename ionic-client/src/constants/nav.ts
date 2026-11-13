@@ -6,6 +6,7 @@ import {
   logInOutline,
   businessOutline,
   settingsOutline,
+  chatbubbleEllipsesOutline,
 } from "ionicons/icons";
 
 /*
@@ -41,6 +42,11 @@ export const SETTINGS = {
   link: "settings",
   name: "settings",
   icon: settingsOutline,
+};
+export const FEEDBACK = {
+  link: "feedback",
+  name: "feedback",
+  icon: chatbubbleEllipsesOutline,
 };
 export const AUTH = {
   link: "auth",

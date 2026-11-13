@@ -290,6 +290,7 @@ const NOINDEX_ROUTES = new Set([
   "auth-forgot",
   "auth-verify",
   "auth-reset",
+  "feedback",
   "catalog-technology",
   "catalog-stage",
   "not-found",

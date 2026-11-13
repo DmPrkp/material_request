@@ -5,6 +5,8 @@ import { AdminGuard } from './auth/auth.guard';
 import { AuthController } from './auth/auth.controller';
 import { UserServerClient } from './auth/user-server.client';
 import { DbPools } from './db/pools';
+import { FeedbackController } from './feedback/feedback.controller';
+import { FeedbackService } from './feedback/feedback.service';
 import { ImagesController } from './images/images.controller';
 import { ImagesService } from './images/images.service';
 import { LogsController } from './logs/logs.controller';
@@ -15,7 +17,14 @@ import { TablesService } from './tables/tables.service';
 import { VisitsService } from './visits/visits.service';
 
 @Module({
-  controllers: [AuthController, TablesController, ProxyController, LogsController, ImagesController],
+  controllers: [
+    AuthController,
+    TablesController,
+    ProxyController,
+    LogsController,
+    ImagesController,
+    FeedbackController,
+  ],
   providers: [
     DbPools,
     UserServerClient,
@@ -23,6 +32,7 @@ import { VisitsService } from './visits/visits.service';
     LogsService,
     ImagesService,
     VisitsService,
+    FeedbackService,
     { provide: APP_GUARD, useClass: AdminGuard },
   ],
 })

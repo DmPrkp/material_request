@@ -9,7 +9,8 @@
     "warehouses": "Warehouses",
     "companies": "Companies",
     "settings": "Settings",
-    "assistant": "Assistant"
+    "assistant": "Assistant",
+    "feedback": "Feedback"
   },
   "ui": {
     "buttons": {
@@ -553,6 +554,20 @@
           }
         }
       }
+    },
+    "feedback": {
+      "title": "Feedback",
+      "guest_lead": "Write to us by email — we will reply to the same address.",
+      "guest_hint": "Sign in to send a message right from here.",
+      "topic_bug": "Bug",
+      "topic_idea": "Idea",
+      "message": "Message",
+      "placeholder": "What happened or what is worth improving. For a bug — what you did and what went wrong.",
+      "send": "Send",
+      "sent": "Thank you, we got it. If your profile has an email, we will reply there.",
+      "sent_more": "Write again",
+      "empty": "Please write the message.",
+      "error": "Could not send. Try again later."
     }
   },
   "current": {

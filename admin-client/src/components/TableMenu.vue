@@ -44,17 +44,30 @@
         :key="group.name"
       >
         <h4 class="menu__group">{{ group.name }}</h4>
-        <RouterLink
-          v-for="table in group.tables"
-          :key="table.key"
-          :to="{ name: 'table', params: { table: table.key } }"
-          class="menu__item"
-          active-class="menu__item--active"
-          :title="`${table.db} · ${table.from}`"
+        <template
+          v-for="entry in group.entries"
+          :key="entry.key"
         >
-          {{ table.title }}
-          <span class="menu__db">{{ table.db }}</span>
-        </RouterLink>
+          <!-- Раздел со своей страницей — рядом с таблицами своей группы, а не над ними. -->
+          <RouterLink
+            v-if="entry.kind === 'section'"
+            :to="{ name: entry.route }"
+            class="menu__item"
+            active-class="menu__item--active"
+          >
+            <span><i :class="entry.icon" /> {{ entry.name }}</span>
+          </RouterLink>
+          <RouterLink
+            v-else
+            :to="{ name: 'table', params: { table: entry.table.key } }"
+            class="menu__item"
+            active-class="menu__item--active"
+            :title="`${entry.table.db} · ${entry.table.from}`"
+          >
+            {{ entry.table.title }}
+            <span class="menu__db">{{ entry.table.db }}</span>
+          </RouterLink>
+        </template>
       </section>
     </nav>
 
@@ -78,6 +91,18 @@
 
   import { type AdminUser, api, setToken, type TableInfo } from '@/api';
 
+  /**
+   * Разделы со своей страницей, которым место внутри группы таблиц: «Обращения» ищут
+   * среди пользователей, а не в общем списке сверху, где лежат файловые разделы.
+   */
+  const SECTIONS = [
+    { key: 'section:feedback', kind: 'section' as const, group: 'Пользователи', name: 'Обращения', route: 'feedback', icon: 'pi pi-comments' },
+  ];
+
+  type Entry =
+    | { key: string; kind: 'table'; table: TableInfo }
+    | (typeof SECTIONS)[number];
+
   const tables = ref<TableInfo[]>([]);
   const user = ref<AdminUser>();
   const query = ref('');
@@ -85,14 +110,26 @@
 
   const groups = computed(() => {
     const q = query.value.trim().toLowerCase();
-    const result: { name: string; tables: TableInfo[] }[] = [];
+    const result: { name: string; entries: Entry[] }[] = [];
+    const into = (name: string) => {
+      let group = result.find((g) => g.name === name);
+      if (!group) result.push((group = { name, entries: [] }));
+      return group;
+    };
+
     for (const table of tables.value) {
       const haystack = `${table.group} ${table.title} ${table.from} ${table.db}`.toLowerCase();
       if (q && !haystack.includes(q)) continue;
-      let group = result.find((g) => g.name === table.group);
-      if (!group) result.push((group = { name: table.group, tables: [] }));
-      group.tables.push(table);
+      into(table.group).entries.push({ key: table.key, kind: 'table', table });
     }
+
+    // После таблиц: группа к этому моменту уже на своём месте в списке, а если поиск
+    // выбросил все её таблицы — заводим её ради одного раздела.
+    for (const section of SECTIONS) {
+      if (q && !`${section.group} ${section.name}`.toLowerCase().includes(q)) continue;
+      into(section.group).entries.push(section);
+    }
+
     return result;
   });
 

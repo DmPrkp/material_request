@@ -85,6 +85,7 @@ export const api = {
   tables: () => request<TableInfo[]>('/tables'),
   table: (key: string) => request<TableData>(`/tables/${encodeURIComponent(key)}`),
   logs: () => request<LogsData>('/logs'),
+  feedback: () => request<FeedbackData>('/feedback'),
   /** Файл лога как есть — текстом, не JSON. */
   logFile: async (name: string) => {
     const response = await fetch(`${BASE}/logs/files/${encodeURIComponent(name)}`, {
@@ -95,6 +96,20 @@ export const api = {
     return response.text();
   },
 };
+
+/**
+ * Обратная связь из приложения (admin-server/src/feedback). Пишет её ionic-client
+ * в user-server, админка только читает — ручки ответа здесь нет, отвечают почтой.
+ */
+export type FeedbackTopic = 'bug' | 'idea';
+export type FeedbackEntry = {
+  id: number;
+  topic: FeedbackTopic;
+  message: string;
+  createdAt: string;
+  user: { id: number; login: string; name: string; email: string | null; emailVerified: boolean };
+};
+export type FeedbackData = { items: FeedbackEntry[]; total: number; limit: number };
 
 /** Снимки технологий (admin-server/src/images): файлы public/system клиента и их привязки. */
 export type ImageOptions = { width: number; height: number | null; quality: number; position: 'attention' | 'centre' };

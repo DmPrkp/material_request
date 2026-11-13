@@ -285,6 +285,13 @@ const routes: Array<RouteRecordRaw> = [
         meta: { requiresAuth: true },
       },
       {
+        // Гостю — почта, вошедшему — форма: решает сама страница по состоянию входа.
+        path: "feedback",
+        name: "feedback",
+        component: () => import("@/pages/FeedbackPage.vue"),
+        meta: { requiresAuth: false },
+      },
+      {
         // Настройки — язык и тема; открываются и без входа, поэтому requiresAuth: false.
         path: "settings",
         name: "settings",

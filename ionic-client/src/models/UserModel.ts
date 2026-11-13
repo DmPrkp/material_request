@@ -22,6 +22,14 @@ export default class UserModel extends BaseModel {
     return this.patch<UserProfile>({ params: "/users/me", body: data });
   }
 
+  /**
+   * Обратная связь. Только вошедшим: автора сервер берёт из токена, а не из тела.
+   * Читает обращения админка напрямую из базы — ручки чтения здесь нет.
+   */
+  static sendFeedback(data: { topic: "bug" | "idea"; message: string }) {
+    return this.post<void>({ params: "/feedback", body: data });
+  }
+
   /** Имена по id; неизвестных в ответе нет. undefined — не достучались. */
   static names(ids: number[]) {
     return this.get<UserName[]>(`/users/names?ids=${ids.join(",")}`);

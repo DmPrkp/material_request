@@ -94,3 +94,34 @@ export const userTokens = pgTable(
 
 export type UserToken = typeof userTokens.$inferSelect;
 export type NewUserToken = typeof userTokens.$inferInsert;
+
+/**
+ * Обратная связь из приложения: что сломалось и что улучшить.
+ *
+ * Лежит в базе пользователей, а не отдельно, ради настоящего FK на автора: между базами
+ * ссылок нет, и в чужой базе `user_id` был бы значением без всякой проверки. Писать может
+ * только вошедший — гостю интерфейс показывает почту, а не форму.
+ */
+export const FEEDBACK_TOPICS = ['bug', 'idea'] as const;
+export const feedbackTopic = pgEnum('feedback_topic', FEEDBACK_TOPICS);
+export type FeedbackTopic = (typeof FEEDBACK_TOPICS)[number];
+
+export const feedback = pgTable(
+  'feedback',
+  {
+    id: integer('id').primaryKey().generatedByDefaultAsIdentity(),
+    // cascade, как у user_tokens: обращения удалённого пользователя не должны висеть
+    // с ссылкой в никуда. Ручки удаления пользователя сейчас нет — это про будущее.
+    userId: integer('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    topic: feedbackTopic('topic').notNull(),
+    message: text('message').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  // Админка показывает новые сверху — индекс по времени, а не по автору.
+  (table) => [index('feedback_created_at_idx').on(table.createdAt)],
+);
+
+export type Feedback = typeof feedback.$inferSelect;
+export type NewFeedback = typeof feedback.$inferInsert;
