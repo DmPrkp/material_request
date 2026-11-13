@@ -27,6 +27,12 @@ export const LANDING_SCENARIOS: LandingScenario[] = [
 ];
 
 /**
+ * Что умеет ИИ-помощник — pages.landing.assistant.items.<ключ>. Держится инструментов
+ * ai-server (src/ai/tools.ts): появилось или пропало умение — поправить и текст.
+ */
+export const LANDING_ASSISTANT = ["requests", "stock", "catalog", "confirm"];
+
+/**
  * Правила расчёта — pages.landing.method.items.<ключ>. Держатся того, что делает
  * расчёт (calc-server assembleCalc и materialTotal на клиенте): поменялось
  * правило — поправить и текст, иначе главная описывает не то приложение.

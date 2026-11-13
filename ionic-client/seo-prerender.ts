@@ -157,6 +157,11 @@ type LandingTexts = {
     string,
     { title: string; subtitle: string; steps: string[] }
   >;
+  assistant: {
+    title: string;
+    intro: string;
+    items: Record<string, LandingTerm>;
+  };
   method: { title: string; intro: string; items: Record<string, LandingTerm> };
   properties: { title: string; items: Record<string, LandingTerm> };
 };
@@ -187,6 +192,8 @@ function renderLanding(locale: Locale) {
     `<h1>${esc(l.title)}</h1><p>${esc(l.lead)}</p>` +
     `<p><a href="/${locale}/${CALCULATOR_KEY}">${esc(l.cta)}</a></p>` +
     `<section><h2>${esc(l.scenarios_title)}</h2>${scenarios}</section>` +
+    `<section><h2>${esc(l.assistant.title)}</h2><p>${esc(l.assistant.intro)}</p>` +
+    `<dl>${terms(l.assistant.items)}</dl></section>` +
     `<section><h2>${esc(l.method.title)}</h2><p>${esc(l.method.intro)}</p>` +
     `<dl>${terms(l.method.items)}</dl></section>` +
     `<section><h2>${esc(l.properties.title)}</h2><dl>${terms(l.properties.items)}</dl></section>`

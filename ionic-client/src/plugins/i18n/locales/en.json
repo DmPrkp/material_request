@@ -502,6 +502,28 @@
           ]
         }
       },
+      "assistant": {
+        "title": "AI assistant",
+        "intro": "The assistant understands plain-language questions and works with your data in the app — with the same permissions as you. Available after signing in: the button is in the bottom menu.",
+        "items": {
+          "requests": {
+            "term": "Requests",
+            "text": "Shows your requests and the contents of any of them, puts together a new request, edits or deletes an existing one."
+          },
+          "stock": {
+            "term": "Warehouses",
+            "text": "Tells what is stored in the company warehouses, finds an item by name — where it is and how many — and shows what is on your hands."
+          },
+          "catalog": {
+            "term": "Catalog",
+            "text": "Finds a material or a work technology by name: partitions, roofing, facade."
+          },
+          "confirm": {
+            "term": "Confirmation",
+            "text": "The assistant reads data right away, but anything that changes it — creating, editing and deleting requests — runs only after you confirm."
+          }
+        }
+      },
       "properties": {
         "title": "Data organization",
         "items": {

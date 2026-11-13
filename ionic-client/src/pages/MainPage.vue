@@ -59,9 +59,29 @@
           </ion-segment-view>
         </section>
 
+        <!--
+          После примеров, а не отдельной страницей: сам чат закрыт от индексации
+          (только для вошедших), и рассказать о помощнике поисковику можно только здесь.
+        -->
         <section class="section">
           <h2 class="section__title">
             <span class="section__num">2</span>
+            {{ $t("pages.landing.assistant.title") }}
+          </h2>
+          <p class="section__intro">
+            {{ $t("pages.landing.assistant.intro") }}
+          </p>
+          <dl class="terms">
+            <template v-for="key in LANDING_ASSISTANT" :key="key">
+              <dt>{{ $t(`pages.landing.assistant.items.${key}.term`) }}</dt>
+              <dd>{{ $t(`pages.landing.assistant.items.${key}.text`) }}</dd>
+            </template>
+          </dl>
+        </section>
+
+        <section class="section">
+          <h2 class="section__title">
+            <span class="section__num">3</span>
             {{ $t("pages.landing.method.title") }}
           </h2>
           <p class="section__intro">{{ $t("pages.landing.method.intro") }}</p>
@@ -80,7 +100,7 @@
 
         <section class="section">
           <h2 class="section__title">
-            <span class="section__num">3</span>
+            <span class="section__num">4</span>
             {{ $t("pages.landing.properties.title") }}
           </h2>
           <dl class="terms">
@@ -106,6 +126,7 @@
   import { useRoute } from "vue-router";
   import LandingScenarioCard from "@/components/pagesParts/landing/LandingScenarioCard.vue";
   import {
+    LANDING_ASSISTANT,
     LANDING_METHOD,
     LANDING_PROPERTIES,
     LANDING_SCENARIOS,
