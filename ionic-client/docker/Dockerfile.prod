@@ -11,7 +11,9 @@ COPY ./package.json ./package-lock.json ./
 # качаются один раз на все сервисы, а не каждым npm ci заново. Повторы — потому что
 # реестр с сервера отваливается по таймауту (ETIMEDOUT) и валил весь деплой. audit,
 # fund и проверка версии npm — лишние походы в сеть: без неё ждали бы повторов минутами.
-RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline --no-audit --no-fund --no-update-notifier --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Cypress нужен только для e2e-тестов: его postinstall иначе скачивает браузер с
+# download.cypress.io, хотя в production-сборке он не используется.
+RUN --mount=type=cache,target=/root/.npm CYPRESS_INSTALL_BINARY=0 npm ci --prefer-offline --no-audit --no-fund --no-update-notifier --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 COPY ./ ./
 RUN npm run build
